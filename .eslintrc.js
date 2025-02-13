@@ -15,9 +15,11 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    project: "./tsconfig.json",
+    tsconfigRootDir: __dirname,
+    project: ["./tsconfig.json"],
   },
-  plugins: ["@typescript-eslint", "react", "react-hooks", "jsx-a11y"],
+  ignorePatterns: [".eslintrc.js"],
+  plugins: ["@typescript-eslint", "react", "jsx-a11y", "prettier"],
   rules: {
     "react/react-in-jsx-scope": "off",
     "import/prefer-default-export": "off", // Named export
