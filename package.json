@@ -1,0 +1,25 @@
+{
+  "name": "trcgg_front",
+  "version": "1.0.0",
+  "description": "front web for trcgg",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^12.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.2",
+    "@types/react": "^19.0.8",
+    "typescript": "^5.7.3"
+  }
+}
