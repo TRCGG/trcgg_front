@@ -1,9 +1,21 @@
 import type { NextPage } from "next";
 
-const Home: NextPage = () => {
+interface HomeProps {
+  time: string;
+}
+
+export async function getServerSideProps() {
+  return {
+    props: {
+      time: new Date().toISOString(),
+    },
+  };
+}
+
+const Home: NextPage<HomeProps> = ({ time }) => {
   return (
     <>
-      <h1>메인 페이지</h1>
+      <h1>SSR로 렌더링 된 페이지입니다. {time}</h1>
       <p className="text-xl font-bold text-primary1">tit-xl 난민 전적 검색 TRC.GG</p>
       <p className="text-lg font-bold text-primary2">tit-lg 난민 전적 검색 TRC.GG</p>
       <p className="text-base font-bold text-black">tit-md 난민 전적 검색 TRC.GG</p>
