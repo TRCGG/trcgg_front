@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
+import Search from "@/components/form/Search";
 
 interface HomeProps {
   time: string;
@@ -29,6 +30,12 @@ const Home: NextPage<HomeProps> = ({ time }) => {
       </div>
       <br />
       <NavBar />
+      <br />
+      <Search
+        onSearch={(query) => {
+          alert(`${query} 검색함.`);
+        }}
+      />
     </>
   );
 };
