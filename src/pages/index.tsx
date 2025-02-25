@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import Search from "@/components/form/Search";
+import Card from "@/components/ui/Card";
 
 interface HomeProps {
   time: string;
@@ -36,6 +37,10 @@ const Home: NextPage<HomeProps> = ({ time }) => {
           alert(`${query} 검색함.`);
         }}
       />
+      <br />
+      <Card title="Recent Matches">
+        <div>매치 결과 : 승리</div>
+      </Card>
     </>
   );
 };
