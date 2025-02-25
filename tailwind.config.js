@@ -32,6 +32,9 @@ module.exports = {
         normal: "400",
         bold: "700",
       },
+      borderWidth: {
+        3: "3px",
+      },
     },
   },
   plugins: [],
