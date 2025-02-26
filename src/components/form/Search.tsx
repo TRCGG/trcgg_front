@@ -1,22 +1,27 @@
 import { IoSearchSharp } from "react-icons/io5";
 import { useState } from "react";
 
-const Search = ({ onSearch }: { onSearch: (query: string) => void }) => {
-  const [query, setQuery] = useState("");
+interface SearchProps {
+  onSearch: (value: string) => void;
+  placeholder?: string;
+}
+
+const Search = ({ onSearch, placeholder }: SearchProps) => {
+  const [value, setValue] = useState("");
 
   const handleSearch = () => {
-    onSearch(query);
+    onSearch(value);
   };
 
   return (
     <div className="flex bg-darkBg2 p-3">
       <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         className="bg-transparent items-center text-white text-xl flex-grow outline-none"
-        placeholder="닉네임을 입력하세요"
+        placeholder={placeholder || ""}
       />
-      <IoSearchSharp className="text-white text-3xl" onClick={handleSearch} />
+      <IoSearchSharp className="text-white text-3xl cursor-pointer" onClick={handleSearch} />
     </div>
   );
 };
