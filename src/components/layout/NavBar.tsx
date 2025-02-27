@@ -12,11 +12,11 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="flex space-x-4 py-4">
+    <nav className="flex items-center space-x-4 py-4 h-full">
       {navList.map(({ href, label }) => (
         <Link key={href} href={href}>
           <span
-            className={`cursor-pointer text-base font-medium pb-1 ${
+            className={`cursor-pointer text-base font-medium pb-1 whitespace-nowrap ${
               router.pathname === href
                 ? "text-primary1 border-b-3 border-primary1"
                 : "text-primary2 border-b-3 border-transparent"
