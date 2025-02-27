@@ -18,18 +18,18 @@ const Home: NextPage = () => {
       const riotNameTag = match[2];
       router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotNameTag)}`);
     } else {
-      alert("올바른 형식으로 입력해 주세요.");
+      alert("게임 이름과 태그를 올바른 형식으로 입력해 주세요.");
     }
   };
   return (
     <div className="flex flex-col justify-center items-center mt-32">
-      <div className="flex items-center justify-center w-64 h-64">
+      <header className="flex items-center justify-center w-64 h-64">
         <Image src={MainLogo} alt="메인 로고" />
-      </div>
-      <div className="w-[40rem] mt-16">
+      </header>
+      <main className="flex flex-col w-[40rem] mt-16">
         <NavBar />
         <Search placeholder="플레이어 이름#KR1" onSearch={handleSearch} />
-      </div>
+      </main>
     </div>
   );
 };
