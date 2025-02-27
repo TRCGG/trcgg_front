@@ -13,6 +13,12 @@ const Search = ({ onSearch, placeholder }: SearchProps) => {
     onSearch(value);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      onSearch(value.trim());
+    }
+  };
+
   return (
     <div className="flex bg-darkBg2 p-3">
       <input
@@ -20,6 +26,7 @@ const Search = ({ onSearch, placeholder }: SearchProps) => {
         onChange={(e) => setValue(e.target.value)}
         className="bg-transparent items-center text-white text-xl flex-grow outline-none"
         placeholder={placeholder || ""}
+        onKeyDown={handleKeyDown}
       />
       <IoSearchSharp className="text-white text-3xl cursor-pointer" onClick={handleSearch} />
     </div>
