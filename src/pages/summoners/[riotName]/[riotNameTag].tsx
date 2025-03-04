@@ -4,10 +4,13 @@ import TextLogo from "@/assets/images/textLogo.png";
 import NavBar from "@/components/layout/NavBar";
 import SearchSmall from "@/components/form/SearchSmall";
 import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
+import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
+import Card from "@/components/ui/Card";
 
 const RiotProfilePage = () => {
   const router = useRouter();
-  const { riotName, riotNameTag } = router.query;
+  const { riotName } = router.query;
+  const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
 
   return (
     <div className="min-w-[50rem] max-w-[70rem] mx-auto">
