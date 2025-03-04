@@ -13,7 +13,14 @@ const RiotProfilePage = () => {
     <div className="min-w-[50rem] max-w-[70rem] mx-auto">
       <header className="flex justify-between mt-10 items-center">
         <div className="flex items-center gap-4">
-          <Image src={TextLogo} alt="logo" width={113} height={30} />
+          <Image
+            src={TextLogo}
+            alt="logo"
+            width={113}
+            height={30}
+            className="cursor-pointer"
+            onClick={() => router.push("/")}
+          />
           <SearchSmall
             onSearch={(value: string) => handleRiotNameSearch(value, router)}
             placeholder="플레이어 이름#KR1"
