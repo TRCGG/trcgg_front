@@ -33,9 +33,17 @@ const RiotProfilePage = () => {
           <NavBar />
         </div>
       </header>
-      <h1>
-        {riotName}의 프로필 (서버: {riotNameTag})
-      </h1>
+      <main className="mt-14 flex flex-col gap-3">
+        <UserStatsOverview riotName={riotNameString} />
+        <div className="flex gap-3">
+          <Card title="Most Pick" className="w-[30%]">
+            dddd
+          </Card>
+          <Card title="Recent Matches" className="w-[70%]">
+            dddd
+          </Card>
+        </div>
+      </main>
     </div>
   );
 };
