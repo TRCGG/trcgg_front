@@ -1,6 +1,5 @@
 import Image from "next/image";
 import LaneMidLogo from "@/assets/images/laneMid.png";
-import Jhin from "@/assets/images/userStatBgJhin.png";
 
 interface Props {
   riotName: string | null;
@@ -11,7 +10,7 @@ const userStatsOverview = ({ riotName }: Props) => {
     <div
       className="flex bg-darkBg2 text-primary1 p-4 rounded border border-border2 relative bg-no-repeat bg-right-top "
       style={{
-        backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0) 100%), url(${Jhin.src})`,
+        backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0) 100%), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jhin_0.jpg)`,
         backgroundPosition: "top right",
         backgroundRepeat: "no-repeat",
       }}

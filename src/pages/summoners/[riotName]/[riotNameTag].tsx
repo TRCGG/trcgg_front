@@ -6,6 +6,7 @@ import SearchSmall from "@/components/form/SearchSmall";
 import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
 import Card from "@/components/ui/Card";
+import MostPickRank from "@/features/matchHistory/MostPickRank";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -33,13 +34,14 @@ const RiotProfilePage = () => {
           <NavBar />
         </div>
       </header>
+
       <main className="mt-14 flex flex-col gap-3">
         <UserStatsOverview riotName={riotNameString} />
         <div className="flex gap-3">
-          <Card title="Most Pick" className="w-[30%]">
-            dddd
+          <Card title="Most Pick" className="w-[35%]">
+            <MostPickRank />
           </Card>
-          <Card title="Recent Matches" className="w-[70%]">
+          <Card title="Recent Matches" className="w-[65%]">
             dddd
           </Card>
         </div>
