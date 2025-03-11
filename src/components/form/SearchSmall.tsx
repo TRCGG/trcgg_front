@@ -20,7 +20,7 @@ const SearchSmall = ({ onSearch, placeholder }: SearchProps) => {
   };
 
   return (
-    <div className="flex items-center bg-darkBg2 py-1 pl-2 rounded border border-border2 w-80 h-[2.6rem]">
+    <div className="flex items-center bg-darkBg2 py-1 pl-2 rounded border border-border2 w-full md:w-[400px] h-[2.6rem]">
       <input
         value={value}
         onChange={(e) => setValue(e.target.value)}

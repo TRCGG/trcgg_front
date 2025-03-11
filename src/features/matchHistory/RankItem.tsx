@@ -28,7 +28,7 @@ const getRankBgColor = (rank: number): string => {
 
 const RankItem: React.FC<RankItemProps> = ({ rank, user, kda, winRate, games, championImg }) => {
   return (
-    <div className="flex h-12 items-center">
+    <div className="flex h-12 items-center justify-between px-4 md:justify-center">
       {/* 순위 */}
       <div
         className={`w-8 h-full ${getRankBgColor(rank)} text-primary2 text-center text-lg font-bold flex items-center justify-center`}
