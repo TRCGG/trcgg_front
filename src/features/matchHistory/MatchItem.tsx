@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Image from "next/image";
+import MatchDetail from "@/features/matchHistory/MatchDetail";
 
 const MatchItem = () => {
   const [isOpen, setOpen] = useState(false);
@@ -43,7 +44,11 @@ const MatchItem = () => {
           </button>
         </div>
       </div>
-      {isOpen && <div className="flex flex-col w-full bg-redLighten rounded-md mb-5">열렸다</div>}
+      {isOpen && (
+        <div className="flex flex-col w-full bg-redLighten rounded-md mb-5">
+          <MatchDetail />
+        </div>
+      )}
     </div>
   );
 };
