@@ -7,15 +7,13 @@ import { NextRouter } from "next/router";
  */
 export const handleRiotNameSearch = (value: string, router: NextRouter) => {
   // 공백을 포함한 riotName, riotNameTag 분리 정규표현식
-  const regex = /^\s*([\S].*[\S]?)\s*#\s*([\S]+)\s*$/;
+  const regex = /^\s*([\S].*[\S]?)\s*(?:#\s*([\S]+))?\s*$/;
   const match = value.match(regex);
 
   if (match) {
-    const riotName = match[1].trim(); // 불필요한 앞뒤 공백만 제거
-    const riotNameTag = match[2].trim();
+    const riotName = match[1].trim();
+    // const riotNameTag = match[2].trim();
 
-    router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotNameTag)}`);
-  } else {
-    alert("게임 이름과 태그를 올바른 형식으로 입력해 주세요.");
+    router.push(`/summoners/${encodeURIComponent(riotName)}`);
   }
 };
