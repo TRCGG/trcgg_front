@@ -8,6 +8,7 @@ import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
 import Card from "@/components/ui/Card";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
 import MatchItem from "@/features/matchHistory/MatchItem";
+import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -16,8 +17,14 @@ const RiotProfilePage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
-      <header className="flex flex-col md:flex-row justify-start md:justify-between mt-10 mx-[10px] md:mx-0 md:items-center md:gap-10 md:min-w-[1080px]">
+      <header className="flex flex-col md:flex-row justify-start md:justify-between mt-2 md:mt-10 mx-[10px] md:mx-0 md:items-center md:gap-10 md:min-w-[1080px]">
         <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
+          {/* 디스코드 로그인 버튼 (모바일 용) */}
+          <div className="block md:hidden self-end">
+            {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
+            <DiscordLoginButton />
+          </div>
+
           {/* 로고 이미지 */}
           <div className="w-[113px] h-[30px] justify-start">
             <Image
@@ -35,8 +42,13 @@ const RiotProfilePage = () => {
             placeholder="플레이어 이름#KR1"
           />
         </div>
-        <div>
+        {/* Navigation */}
+        <div className="flex items-center justify-start md:justify-end gap-4 mt-3 md:mt-0">
           <NavBar />
+          <div className="hidden md:block">
+            {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
+            <DiscordLoginButton />
+          </div>
         </div>
       </header>
 

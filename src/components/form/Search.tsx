@@ -20,7 +20,7 @@ const Search = ({ onSearch, placeholder }: SearchProps) => {
   };
 
   return (
-    <div className="flex bg-darkBg2 p-3">
+    <div className="flex bg-darkBg2 pl-3 pr-1 py-2">
       <input
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -28,7 +28,10 @@ const Search = ({ onSearch, placeholder }: SearchProps) => {
         placeholder={placeholder || ""}
         onKeyDown={handleKeyDown}
       />
-      <IoSearchSharp className="text-white text-3xl cursor-pointer" onClick={handleSearch} />
+      <IoSearchSharp
+        className="text-white cursor-pointer w-[32px] h-[32px]"
+        onClick={handleSearch}
+      />
     </div>
   );
 };
