@@ -43,7 +43,7 @@ const RiotProfilePage = () => {
       <main className="mt-14 flex flex-col gap-3 md:min-w-[1080px]">
         <UserStatsOverview riotName={riotNameString} />
         <div className="flex gap-3 flex-col md:flex-row">
-          <Card title="Most Pick" className="md:w-[35%] w-full">
+          <Card title="Most Pick" className="md:w-[35%] w-full self-start">
             <MostPickRank />
           </Card>
           <Card title="Recent Matches" className="w-full md:w-[65%]">

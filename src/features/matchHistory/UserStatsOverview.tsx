@@ -21,13 +21,13 @@ const userStatsOverview = ({ riotName }: Props) => {
       </div>
 
       {/* 유저 정보 */}
-      <div className="flex flex-col p-4 text-lg gap-3">
+      <div className="flex flex-col p-4 text-md gap-3">
         <div className="text-4xl font-bold">{riotName}</div>
-        <div className="flex items-center gap-3 text-center">
-          <div className="rounded-lg bg-primary1 text-darkBg2 w-12 font-bold">전체</div>
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="rounded-lg bg-primary1 text-darkBg2 w-12 font-bold text-center">전체</div>
           <div>85전 50승 35패 (58.82%)</div>
         </div>
-        <div className="flex items-center gap-3 text-center">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="rounded-lg bg-primary1 text-darkBg2 w-12 font-bold">이번달</div>
           <div>10전 3승 7패 (30%)</div>
         </div>

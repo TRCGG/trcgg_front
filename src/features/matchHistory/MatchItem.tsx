@@ -45,7 +45,7 @@ const MatchItem = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="flex flex-col w-full bg-redLighten rounded-md mb-5">
+        <div className="flex flex-col w-full">
           <MatchDetail />
         </div>
       )}
