@@ -1,47 +1,34 @@
+import React from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import Search from "@/components/form/Search";
-import Card from "@/components/ui/Card";
+import MainLogo from "@/assets/images/mainLogo.png";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
+import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 
-interface HomeProps {
-  time: string;
-}
+const Home: NextPage = () => {
+  const router = useRouter();
 
-export async function getServerSideProps() {
-  return {
-    props: {
-      time: new Date().toISOString(),
-    },
-  };
-}
-
-const Home: NextPage<HomeProps> = ({ time }) => {
   return (
-    <>
-      <h1>SSR로 렌더링 된 페이지입니다. {time}</h1>
-      <br />
-      <p className="text-xl font-bold text-primary1">tit-xl 난민 전적 검색 TRC.GG</p>
-      <p className="text-lg font-bold text-primary2">tit-lg 난민 전적 검색 TRC.GG</p>
-      <p className="text-base font-bold text-black">tit-md 난민 전적 검색 TRC.GG</p>
-      <p className="text-sm font-normal text-border1">txt-lg 난민 전적 검색 TRC.GG</p>
-      <p className="text-xs font-normal text-border2">txt-sm 난민 전적 검색 TRC.GG</p>
-      <br />
-      <div className="bg-darkBg2 text-primary1 border border-border2">
-        Primary1 배경 & DarkBg2 텍스트 & Border1 테두리
-      </div>
-      <br />
-      <NavBar />
-      <br />
-      <Search
-        onSearch={(query) => {
-          alert(`${query} 검색함.`);
-        }}
-      />
-      <br />
-      <Card title="Recent Matches">
-        <div>매치 결과 : 승리</div>
-      </Card>
-    </>
+    <div className="flex flex-col justify-center items-center">
+      <header className="flex flex-col w-full gap-32 justify-end">
+        <div className="self-end m-3">
+          <DiscordLoginButton /> {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
+        </div>
+        <div className="flex w-64 h-64 mx-auto">
+          <Image src={MainLogo} alt="메인 로고" />
+        </div>
+      </header>
+      <main className="flex flex-col my-10 gap-2 w-full md:w-[40rem] max-w-[40rem] mt-16 mx-auto px-5">
+        <NavBar />
+        <Search
+          placeholder="플레이어 이름#KR1"
+          onSearch={(value: string) => handleRiotNameSearch(value, router)}
+        />
+      </main>
+    </div>
   );
 };
 
