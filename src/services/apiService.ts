@@ -1,9 +1,12 @@
+// apiService.ts
+
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 interface RequestOptions {
   method: HttpMethod;
   headers?: Record<string, string>;
   body?: unknown;
+  params?: Record<string, string>;
 }
 
 interface ApiResponse<T> {
@@ -12,6 +15,7 @@ interface ApiResponse<T> {
   status: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class ApiService {
   private static instance: ApiService;
 
@@ -29,24 +33,35 @@ class ApiService {
   }
 
   private async request<T>(endpoint: string, options: RequestOptions): Promise<ApiResponse<T>> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const headers = new Headers({
-      "Content-Type": "application/json",
-      ...options.headers,
-    });
+    const { method, headers = {}, body, params } = options;
+
+    let url = `${this.baseUrl}${endpoint}`;
+
+    // Handle query parameters for GET requests
+    if (method === "GET" && params) {
+      const queryParams = new URLSearchParams(params).toString();
+      url += `?${queryParams}`;
+    }
 
     try {
       const response = await fetch(url, {
-        method: options.method,
-        headers,
-        body: options.body ? JSON.stringify(options.body) : undefined,
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          ...headers,
+        },
+        body: body ? JSON.stringify(body) : undefined,
       });
 
       const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.message || "An error occurred");
+      }
+
       return {
-        data: response.ok ? data : null,
-        error: response.ok ? null : data.message || "An error occurred",
+        data,
+        error: null,
         status: response.status,
       };
     } catch (error) {
@@ -58,13 +73,8 @@ class ApiService {
     }
   }
 
-  public async get<T>(
-    endpoint: string | number,
-    params?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
-    const finalEndpoint = typeof endpoint === "string" ? endpoint : `/${endpoint}`;
-    const queryString = params ? `?${new URLSearchParams(params)}` : "";
-    return this.request<T>(`${finalEndpoint}${queryString}`, { method: "GET" });
+  public async get<T>(endpoint: string, params?: Record<string, string>): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: "GET", params });
   }
 
   public async post<T>(endpoint: string, body: unknown): Promise<ApiResponse<T>> {
@@ -83,18 +93,26 @@ class ApiService {
     return this.request<T>(endpoint, { method: "PATCH", body });
   }
 }
-
-// API 요청 팩토리
-const createApiRequest = <T>(endpoint: string) => {
-  const apiService = ApiService.getInstance("https://api.example.com");
-
-  return {
-    get: (params?: Record<string, string>) => apiService.get<T>(endpoint, params),
-    post: (body: unknown) => apiService.post<T>(endpoint, body),
-    put: (body: unknown) => apiService.put<T>(endpoint, body),
-    delete: () => apiService.delete<T>(endpoint),
-    patch: (body: unknown) => apiService.patch<T>(endpoint, body),
-  };
-};
-
-export { ApiService, createApiRequest };
+//
+// // Usage example
+// const api = ApiService.getInstance("https://api.example.com");
+//
+// // GET request with query parameters
+// const getUsers = async () => {
+//   const response = await api.get<User[]>("/users", { page: "1", limit: "10" });
+//   if (response.error) {
+//     console.error("Error fetching users:", response.error);
+//   } else {
+//     console.log("Users:", response.data);
+//   }
+// };
+//
+// // POST request
+// const createUser = async (userData: User) => {
+//   const response = await api.post<User>("/users", userData);
+//   if (response.error) {
+//     console.error("Error creating user:", response.error);
+//   } else {
+//     console.log("Created user:", response.data);
+//   }
+// };
