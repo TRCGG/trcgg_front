@@ -331,7 +331,10 @@ class ApiService {
 }
 
 // API 서비스 인스턴스 생성 함수
-const createApiService = (baseUrl: string): ApiService => {
+const createApiService = (baseUrl?: string): ApiService => {
+  if (!baseUrl) {
+    throw new Error("API base URL is undefined. Check your environment variables.");
+  }
   return ApiService.getInstance(baseUrl);
 };
 
