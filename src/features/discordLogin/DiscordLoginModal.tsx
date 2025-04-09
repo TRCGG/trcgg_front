@@ -21,6 +21,9 @@ const DiscordLoginModal = ({ isOpen, close }: Props) => {
   const handleSave = () => {
     localStorage.setItem("guildId", guildId);
     close();
+    // const encoded = btoa(guildId); // Base64 인코딩
+    // localStorage.setItem("guildId", encoded);
+    // close();
   };
 
   return (
