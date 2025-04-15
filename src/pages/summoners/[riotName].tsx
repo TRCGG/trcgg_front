@@ -3,17 +3,35 @@ import { useRouter } from "next/router";
 import TextLogo from "@/assets/images/textLogo.png";
 import NavBar from "@/components/layout/NavBar";
 import SearchSmall from "@/components/form/SearchSmall";
-import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
 import Card from "@/components/ui/Card";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
+import useModal from "@/hooks/useModal";
+import React, { useEffect, useState } from "react";
+import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
+import { useSearchSummoners } from "@/hooks/useSearchSummoners";
+import UserSearchResultList from "@/features/search/UserSearchResultList";
 
 const RiotProfilePage = () => {
   const router = useRouter();
   const { riotName } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
+  const [searchTerm, setSearchTerm] = useState("");
+  const { isOpen, open, close } = useModal();
+  const [guildId, setGuildId] = useState<string>("");
+  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+  const { data, isLoading, isError, handleSearchButtonClick } = useSearchSummoners(
+    searchTerm,
+    guildId
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setGuildId(localStorage.getItem("guildId") || "");
+    }
+  }, []);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -22,7 +40,7 @@ const RiotProfilePage = () => {
           {/* 디스코드 로그인 버튼 (모바일 용) */}
           <div className="block md:hidden self-end">
             {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
-            <DiscordLoginButton />
+            <DiscordLoginButton onClick={open} />
           </div>
 
           {/* 로고 이미지 */}
@@ -37,18 +55,22 @@ const RiotProfilePage = () => {
             />
           </div>
           {/* 검색창 */}
-          <SearchSmall
-            // onSearch={(value: string) => handleRiotNameSearch(value)}
-            onSearch={(value: string) => console.log(value)}
-            placeholder="플레이어 이름#KR1"
-          />
+          <div className="w-full md:w-[400px] z-10">
+            <SearchSmall
+              value={searchTerm}
+              onChange={setSearchTerm}
+              onSearch={handleSearchButtonClick}
+              placeholder="플레이어 이름#KR1"
+            />
+            <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
+          </div>
         </div>
         {/* Navigation */}
         <div className="flex items-center justify-start md:justify-end gap-4 mt-3 md:mt-0">
           <NavBar />
           <div className="hidden md:block">
             {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
-            <DiscordLoginButton />
+            <DiscordLoginButton onClick={open} />
           </div>
         </div>
       </header>
@@ -67,6 +89,7 @@ const RiotProfilePage = () => {
           </Card>
         </div>
       </main>
+      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
     </div>
   );
 };

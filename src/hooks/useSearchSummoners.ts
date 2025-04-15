@@ -5,6 +5,7 @@ import { getUsers } from "@/services/user";
 import { ApiResponse } from "@/services/apiService";
 import { UserSearchResult } from "@/data/types/user";
 import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
+import { useRouter } from "next/router";
 
 interface DebouncedTerm {
   riotName: string;
@@ -17,6 +18,8 @@ interface DebouncedTerm {
  * @param guildId 현재 선택된 디스코드 길드 ID
  */
 export const useSearchSummoners = (searchTerm: string, guildId: string) => {
+  const router = useRouter();
+
   const [debouncedTerm, setDebouncedTerm] = useState<DebouncedTerm>({
     riotName: "",
     riotNameTag: null,
@@ -48,10 +51,33 @@ export const useSearchSummoners = (searchTerm: string, guildId: string) => {
     enabled: queryEnabled,
   });
 
+  // 검색 버튼 클릭 callback
+  const handleSearchButtonClick = async () => {
+    if (!debouncedTerm.riotName) {
+      return;
+    }
+    if (!guildId) {
+      console.error("Empty guildId");
+      return;
+    }
+    if (!data || isError) {
+      // TODO : 추후 유저를 찾을 수 없습니다 페이지로 이동하게되면 수정 필요
+      window.alert("No user found.");
+      return;
+    }
+
+    const users = data.data ?? [];
+    if (users.length === 1) {
+      router.push(`/summoners/${encodeURIComponent(users[0].riot_name)}`);
+    } else if (users.length > 1) {
+      window.alert("Many user found.");
+    }
+  };
+
   return {
     data,
     isLoading,
     isError,
-    debouncedTerm,
+    handleSearchButtonClick,
   };
 };

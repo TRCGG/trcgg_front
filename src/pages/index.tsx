@@ -4,7 +4,6 @@ import NavBar from "@/components/layout/NavBar";
 import Search from "@/components/form/Search";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/useModal";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
@@ -12,38 +11,16 @@ import { useSearchSummoners } from "@/hooks/useSearchSummoners";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
 
 const Home: NextPage = () => {
-  const router = useRouter();
   const { isOpen, open, close } = useModal();
   const [searchTerm, setSearchTerm] = useState("");
   const [guildId, setGuildId] = useState<string>("");
+  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
   const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
 
-  const { data, isLoading, isError, debouncedTerm } = useSearchSummoners(searchTerm, guildId);
-
-  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
-
-  // 검색 버튼 클릭 callback
-  const handleSearchButtonClick = async () => {
-    if (!debouncedTerm.riotName) {
-      return;
-    }
-    if (!guildId) {
-      console.error("Empty guildId");
-      return;
-    }
-    if (!data || isError) {
-      // TODO : 추후 유저를 찾을 수 없습니다 페이지로 이동하게되면 수정 필요
-      window.alert("No user found.");
-      return;
-    }
-
-    const users = data.data ?? [];
-    if (users.length === 1) {
-      router.push(`/summoners/${encodeURIComponent(users[0].riot_name)}`);
-    } else if (users.length > 1) {
-      window.alert("Many user found.");
-    }
-  };
+  const { data, isLoading, isError, handleSearchButtonClick } = useSearchSummoners(
+    searchTerm,
+    guildId
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -76,15 +53,15 @@ const Home: NextPage = () => {
         <div className="mb-2">
           <NavBar />
         </div>
-        {/* 검색창 */}
-        <Search
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          placeholder="플레이어 이름#KR1"
-        />
-        {/* 검색 결과 */}
-        <div className="text-white text-md">
+        <div>
+          {/* 검색창 */}
+          <Search
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearchButtonClick}
+            placeholder="플레이어 이름#KR1"
+          />
+          {/* 검색 결과 */}
           <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
         </div>
         {/* 검색 경고메세지 */}

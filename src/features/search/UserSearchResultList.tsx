@@ -15,7 +15,7 @@ const UserSearchResultList = ({ data, isLoading, isError }: Props) => {
 
   if (data.data.toString().endsWith("계정이 게임 기록에 존재하지 않습니다.")) {
     return (
-      <div className="bg-darkBg2 md:absolute md:mt-px md:w-[400px] md:rounded-bl-lg md:rounded-br-lg md:shadow-2xl block">
+      <div className="text-white bg-darkBg2 z-10 md:absolute md:mt-px md:w-[400px] md:rounded-bl-lg md:rounded-br-lg md:shadow-2xl block">
         <div className="max-h-[430px] overflow-y-auto">
           <div className="px-3 py-2 text-sm font-bold">소환사 리스트</div>
           <div className="flex items-center gap-2 border-t border-rankBg1 px-3 py-2 last-of-type:md:rounded-bl-lg last-of-type:md:rounded-br-lg">
@@ -27,7 +27,7 @@ const UserSearchResultList = ({ data, isLoading, isError }: Props) => {
   }
 
   return (
-    <div className="bg-darkBg2 md:absolute md:mt-px md:w-[400px] md:rounded-bl-lg md:rounded-br-lg md:shadow-2xl block">
+    <div className="text-white bg-darkBg2 md:absolute md:mt-px md:w-[400px] md:rounded-bl-lg md:rounded-br-lg md:shadow-2xl block">
       <div className="max-h-[430px] overflow-y-auto">
         <div className="px-3 py-2 text-sm font-bold">소환사 리스트</div>
         {data.data.map((user) => (
