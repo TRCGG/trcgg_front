@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaDiscord } from "react-icons/fa";
 
 interface DiscordLoginButtonProps {
@@ -6,6 +6,17 @@ interface DiscordLoginButtonProps {
 }
 
 const DiscordLoginButton = ({ onClick }: DiscordLoginButtonProps) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("guildId");
+      if (stored) {
+        setIsLoggedIn(true);
+      }
+    }
+  }, []);
+
   return (
     <button
       type="button"
@@ -13,7 +24,7 @@ const DiscordLoginButton = ({ onClick }: DiscordLoginButtonProps) => {
       className="flex h-[40px] items-center justify-center gap-1 rounded p-2 text-white bg-[#5865F2] hover:bg-[#4752C4] transition whitespace-nowrap"
     >
       <FaDiscord className="w-[24px] h-[24px]" />
-      로그인
+      {isLoggedIn ? "프로필" : "로그인"}
     </button>
   );
 };
