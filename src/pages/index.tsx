@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import Search from "@/components/form/Search";
@@ -9,58 +9,76 @@ import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/useModal";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import process from "process";
-import { ApiResponse, createApiService } from "@/services/apiService";
+import { useQuery } from "@tanstack/react-query";
+import { getUsers } from "@/services/user";
+import { ApiResponse } from "@/services/apiService";
 import { UserSearchResult } from "@/data/types/user";
+import { debounce } from "lodash";
 
 const Home: NextPage = () => {
   const router = useRouter();
   const { isOpen, open, close } = useModal();
-  const api = createApiService(process.env.NEXT_PUBLIC_API_BASE_URL);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [guildId, setGuildId] = useState<string>("");
+  const [debouncedTerm, setDebouncedTerm] = useState<{
+    riotName: string;
+    riotNameTag: string;
+  }>({ riotName: "", riotNameTag: "" });
 
-  const getUsersMatchedByName = async (riotName: string, riotNameTag: string | null) => {
-    const guildId = localStorage.getItem("guildId");
-    if (!riotName) {
-      console.error("No such riotName");
-    } else if (!guildId) {
-      console.error("No such guildId");
-    }
+  const { data, isLoading, isError } = useQuery<ApiResponse<UserSearchResult[]>>({
+    queryKey: ["users", debouncedTerm, guildId],
+    queryFn: () => getUsers(debouncedTerm.riotName, debouncedTerm.riotNameTag, guildId),
+    enabled: !!debouncedTerm.riotName && !!guildId && debouncedTerm.riotName.length > 1,
+    staleTime: 60 * 1000,
+  });
 
-    const params: Record<string, string> = {};
-    if (riotNameTag) {
-      params.riot_name_tag = riotNameTag;
-    }
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        const gid = localStorage.getItem("guildId");
+        const [name, tag] = handleRiotNameSearch(value);
 
-    const res: ApiResponse<UserSearchResult[]> = await api.get(
-      `/account/search/${riotName}/${guildId}`,
-      params
-    );
+        setGuildId(gid || "");
+        if (!name) return;
+        setDebouncedTerm({ riotName: name, riotNameTag: tag || "" });
+        console.log(data?.data);
+      }, 500),
+    []
+  );
 
-    if (res.error) {
-      console.error(res.error);
-      return null;
-    }
-    console.log(res.data);
-    return res.data;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+    debouncedSearch(value);
   };
 
-  const handleSearch = async (value: string) => {
-    const [riotName, riotNameTag] = handleRiotNameSearch(value);
-    if (!riotName) {
+  const handleSearch = async () => {
+    if (!debouncedTerm.riotName) {
       console.error("No riot name found.");
       return;
     }
+    if (!guildId) {
+      console.error("No such guildId");
+      return;
+    }
 
-    const data = await getUsersMatchedByName(riotName, riotNameTag);
-
-    if (!data) {
+    if (!data || isError) {
       window.alert("No user found.");
-    } else if (data.length === 1) {
-      router.push(`/summoners/${encodeURIComponent(data[0].riot_name)}`);
-    } else if (data.length > 1) {
+      return;
+    }
+    const users = data.data ?? [];
+    if (users.length === 1) {
+      router.push(`/summoners/${encodeURIComponent(users[0].riot_name)}`);
+    } else if (users.length > 1) {
       window.alert("Many user found.");
     }
   };
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, []);
 
   return (
     <div className="flex flex-col justify-center items-center">
@@ -74,7 +92,20 @@ const Home: NextPage = () => {
       </header>
       <main className="flex flex-col my-10 gap-2 w-full md:w-[40rem] max-w-[40rem] mt-16 mx-auto px-5">
         <NavBar />
-        <Search placeholder="플레이어 이름#KR1" onSearch={handleSearch} />
+        <Search
+          value={searchTerm}
+          onChange={handleInputChange}
+          onSearch={handleSearch}
+          placeholder="플레이어 이름#KR1"
+        />
+        {isLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <div className="text-white text-md">
+            {data?.data?.map((user) => <div key={user.puuid}>유저 : {user.riot_name}</div>)}
+          </div>
+        )}
+        <div className="text-blueText text-md">최소 2글자 이상 작성해주세요.</div>
       </main>
       <DiscordLoginModal isOpen={isOpen} close={close} />
     </div>

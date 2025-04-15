@@ -23,6 +23,7 @@ module.exports = {
         redLighten: "#664446",
         redDarken: "#1A1010",
         redHover: "#2e0606",
+        redText: "#FF6B8B",
         blue: "#0B2344",
         blueLighten: "#1B2635",
         blueDarken: "#0C141F",

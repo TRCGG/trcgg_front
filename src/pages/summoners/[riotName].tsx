@@ -38,7 +38,7 @@ const RiotProfilePage = () => {
           </div>
           {/* 검색창 */}
           <SearchSmall
-            onSearch={(value: string) => handleRiotNameSearch(value, router)}
+            onSearch={(value: string) => handleRiotNameSearch(value)}
             placeholder="플레이어 이름#KR1"
           />
         </div>

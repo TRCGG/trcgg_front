@@ -1,14 +1,13 @@
 import { IoSearchSharp } from "react-icons/io5";
-import { useState } from "react";
 
 interface SearchProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearch: (value: string) => void;
   placeholder?: string;
 }
 
-const Search = ({ onSearch, placeholder }: SearchProps) => {
-  const [value, setValue] = useState("");
-
+const Search = ({ value, onChange, onSearch, placeholder }: SearchProps) => {
   const handleSearch = () => {
     onSearch(value);
   };
@@ -23,7 +22,7 @@ const Search = ({ onSearch, placeholder }: SearchProps) => {
     <div className="flex bg-darkBg2 pl-3 pr-1 py-2">
       <input
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={onChange}
         className="bg-transparent items-center text-white text-xl flex-grow outline-none"
         placeholder={placeholder || ""}
         onKeyDown={handleKeyDown}
