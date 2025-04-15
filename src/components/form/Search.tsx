@@ -2,35 +2,22 @@ import { IoSearchSharp } from "react-icons/io5";
 
 interface SearchProps {
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSearch: (value: string) => void;
+  onChange: (value: string) => void;
+  onSearch: () => void;
   placeholder?: string;
 }
 
 const Search = ({ value, onChange, onSearch, placeholder }: SearchProps) => {
-  const handleSearch = () => {
-    onSearch(value);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      onSearch(value.trim());
-    }
-  };
-
   return (
     <div className="flex bg-darkBg2 pl-3 pr-1 py-2">
       <input
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         className="bg-transparent items-center text-white text-xl flex-grow outline-none"
         placeholder={placeholder || ""}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(e) => e.key === "Enter" && onSearch()}
       />
-      <IoSearchSharp
-        className="text-white cursor-pointer w-[32px] h-[32px]"
-        onClick={handleSearch}
-      />
+      <IoSearchSharp className="text-white cursor-pointer w-[32px] h-[32px]" onClick={onSearch} />
     </div>
   );
 };

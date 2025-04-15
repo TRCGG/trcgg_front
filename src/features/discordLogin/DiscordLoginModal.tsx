@@ -4,9 +4,10 @@ import Modal from "@/components/modal/Modal";
 interface Props {
   isOpen: boolean;
   close: () => void;
+  onSave: (value: string) => void;
 }
 
-const DiscordLoginModal = ({ isOpen, close }: Props) => {
+const DiscordLoginModal = ({ isOpen, close, onSave }: Props) => {
   const [guildId, setGuildId] = React.useState<string>("");
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const DiscordLoginModal = ({ isOpen, close }: Props) => {
   const handleSave = () => {
     const encoded = btoa(guildId); // Base64 인코딩
     localStorage.setItem("guildId", encoded);
+    onSave(encoded);
     close();
   };
 
