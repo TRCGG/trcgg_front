@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import Search from "@/components/form/Search";
@@ -36,6 +36,25 @@ const Home: NextPage = () => {
     }
   }, [searchTerm]);
 
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
@@ -53,21 +72,24 @@ const Home: NextPage = () => {
         <div className="mb-2">
           <NavBar />
         </div>
-        <div>
+        <div ref={searchContainerRef}>
           {/* 검색창 */}
           <Search
             value={searchTerm}
             onChange={setSearchTerm}
             onSearch={handleSearchButtonClick}
             placeholder="플레이어 이름#KR1"
+            onFocus={() => setIsSearchFocused(true)}
           />
           {/* 검색 결과 */}
-          <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
+          {isSearchFocused && (
+            <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
+          )}
         </div>
         {/* 검색 경고메세지 */}
-        {nameLengthAlert ? (
+        {nameLengthAlert && (
           <div className="text-blueText text-md">최소 2글자 이상 작성해주세요.</div>
-        ) : null}
+        )}
       </main>
       <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
     </div>

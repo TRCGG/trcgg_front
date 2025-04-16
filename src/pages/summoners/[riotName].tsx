@@ -9,7 +9,7 @@ import MostPickRank from "@/features/matchHistory/MostPickRank";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/useModal";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import { useSearchSummoners } from "@/hooks/useSearchSummoners";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
@@ -26,6 +26,25 @@ const RiotProfilePage = () => {
     searchTerm,
     guildId
   );
+
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -55,14 +74,17 @@ const RiotProfilePage = () => {
             />
           </div>
           {/* 검색창 */}
-          <div className="w-full md:w-[400px] z-10">
+          <div ref={searchContainerRef} className="w-full md:w-[400px] z-10">
             <SearchSmall
               value={searchTerm}
               onChange={setSearchTerm}
               onSearch={handleSearchButtonClick}
               placeholder="플레이어 이름#KR1"
+              onFocus={() => setIsSearchFocused(true)}
             />
-            <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
+            {isSearchFocused && (
+              <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
+            )}
           </div>
         </div>
         {/* Navigation */}
