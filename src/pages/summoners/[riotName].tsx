@@ -11,8 +11,9 @@ import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/useModal";
 import React, { useEffect, useState, useRef } from "react";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import { useSearchSummoners } from "@/hooks/useSearchSummoners";
+import useSearchSummoners from "@/hooks/useSearchSummoners";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
+import useClickOutside from "@/hooks/useClickOutside";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -26,25 +27,10 @@ const RiotProfilePage = () => {
     searchTerm,
     guildId
   );
-
-  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setIsSearchFocused(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
   useEffect(() => {
     if (typeof window !== "undefined") {

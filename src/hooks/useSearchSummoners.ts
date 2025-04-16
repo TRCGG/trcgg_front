@@ -17,7 +17,7 @@ interface DebouncedTerm {
  * @param searchTerm 입력한 검색어
  * @param guildId 현재 선택된 디스코드 길드 ID
  */
-export const useSearchSummoners = (searchTerm: string, guildId: string) => {
+const useSearchSummoners = (searchTerm: string, guildId: string) => {
   const router = useRouter();
 
   const [debouncedTerm, setDebouncedTerm] = useState<DebouncedTerm>({
@@ -81,3 +81,5 @@ export const useSearchSummoners = (searchTerm: string, guildId: string) => {
     handleSearchButtonClick,
   };
 };
+
+export default useSearchSummoners;

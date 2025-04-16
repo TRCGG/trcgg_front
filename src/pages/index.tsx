@@ -7,8 +7,9 @@ import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/useModal";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import { useSearchSummoners } from "@/hooks/useSearchSummoners";
+import useSearchSummoners from "@/hooks/useSearchSummoners";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
+import useClickOutside from "@/hooks/useClickOutside";
 
 const Home: NextPage = () => {
   const { isOpen, open, close } = useModal();
@@ -39,21 +40,7 @@ const Home: NextPage = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setIsSearchFocused(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
   return (
     <div className="flex flex-col justify-center items-center">
