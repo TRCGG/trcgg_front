@@ -41,7 +41,7 @@ const UserSearchResultList = ({ data, isLoading, isError, enable }: Props) => {
         enable ? "opacity-100 visible" : "opacity-0 invisible"
       }`}
     >
-      <div className="max-h-[430px] overflow-y-auto">
+      <div className="max-h-[430px] overflow-y-auto scrollbar-thin scrollbar-thumb-border1 scrollbar-track-darkBg2">
         <div className="px-3 py-2 text-sm font-bold">소환사 리스트</div>
         {content}
       </div>
