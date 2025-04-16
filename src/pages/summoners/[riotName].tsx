@@ -68,9 +68,12 @@ const RiotProfilePage = () => {
               placeholder="플레이어 이름#KR1"
               onFocus={() => setIsSearchFocused(true)}
             />
-            {isSearchFocused && (
-              <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
-            )}
+            <UserSearchResultList
+              isLoading={isLoading}
+              isError={isError}
+              data={data}
+              enable={isSearchFocused}
+            />
           </div>
         </div>
         {/* Navigation */}

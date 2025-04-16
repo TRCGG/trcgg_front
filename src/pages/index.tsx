@@ -69,9 +69,12 @@ const Home: NextPage = () => {
             onFocus={() => setIsSearchFocused(true)}
           />
           {/* 검색 결과 */}
-          {isSearchFocused && (
-            <UserSearchResultList isLoading={isLoading} isError={isError} data={data} />
-          )}
+          <UserSearchResultList
+            isLoading={isLoading}
+            isError={isError}
+            data={data}
+            enable={isSearchFocused}
+          />
         </div>
         {/* 검색 경고메세지 */}
         {nameLengthAlert && (
