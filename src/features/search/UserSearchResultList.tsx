@@ -7,32 +7,13 @@ interface Props {
   isLoading: boolean;
   isError: boolean;
   enable: boolean;
+  searchTerm: string;
 }
 
-const UserSearchResultList = ({ data, isLoading, isError, enable }: Props) => {
-  let content;
-
-  if (isLoading || isError || !data || !Array.isArray(data.data)) {
-    content = (
-      <div className="flex items-center gap-2 border-t border-rankBg1 px-3 py-2">
-        유저를 찾을 수 없습니다.
-      </div>
-    );
-  } else {
-    content = data.data.map((user) => (
-      <a
-        key={user.puuid}
-        href={`/summoners/${encodeURIComponent(user.riot_name)}`}
-        className="flex items-center gap-2 border-t border-rankBg1 px-3 py-2 hover:bg-rankBg2 focus:bg-gray-100 focus:outline-none focus:ring-0 last-of-type:md:rounded-bl-lg last-of-type:md:rounded-br-lg"
-      >
-        <span className="flex flex-1 flex-col truncate">
-          <span className="truncate text-sm text-white">
-            <b>{user.riot_name}</b>
-            <em className="ml-1 text-gray">#{user.riot_name_tag}</em>
-          </span>
-        </span>
-      </a>
-    ));
+const UserSearchResultList = ({ data, isLoading, isError, enable, searchTerm }: Props) => {
+  console.log(`data : ${JSON.stringify(data?.data, null, 2)}`);
+  if (isLoading || isError || !data || !Array.isArray(data.data) || searchTerm.length < 2) {
+    return null;
   }
 
   return (
@@ -43,7 +24,20 @@ const UserSearchResultList = ({ data, isLoading, isError, enable }: Props) => {
     >
       <div className="max-h-[430px] overflow-y-auto scrollbar-thin scrollbar-thumb-border1 scrollbar-track-darkBg2">
         <div className="px-3 py-2 text-sm font-bold">소환사 리스트</div>
-        {content}
+        {data.data.map((user) => (
+          <a
+            key={user.puuid}
+            href={`/summoners/${encodeURIComponent(user.riot_name)}`}
+            className="flex items-center gap-2 border-t border-rankBg1 px-3 py-2 hover:bg-rankBg2 focus:bg-gray-100 focus:outline-none focus:ring-0 last-of-type:md:rounded-bl-lg last-of-type:md:rounded-br-lg"
+          >
+            <span className="flex flex-1 flex-col truncate">
+              <span className="truncate text-sm text-white">
+                <b>{user.riot_name}</b>
+                <em className="ml-1 text-gray">#{user.riot_name_tag}</em>
+              </span>
+            </span>
+          </a>
+        ))}
       </div>
     </div>
   );

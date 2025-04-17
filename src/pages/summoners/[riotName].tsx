@@ -8,12 +8,12 @@ import Card from "@/components/ui/Card";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
-import useModal from "@/hooks/useModal";
+import useModal from "@/hooks/common/useModal";
 import React, { useEffect, useState, useRef } from "react";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import useSearchSummoners from "@/hooks/useSearchSummoners";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
-import useClickOutside from "@/hooks/useClickOutside";
+import useClickOutside from "@/hooks/common/useClickOutside";
+import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -23,7 +23,7 @@ const RiotProfilePage = () => {
   const { isOpen, open, close } = useModal();
   const [guildId, setGuildId] = useState<string>("");
   const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
-  const { data, isLoading, isError, handleSearchButtonClick } = useSearchSummoners(
+  const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
     searchTerm,
     guildId
   );
@@ -73,6 +73,7 @@ const RiotProfilePage = () => {
               isError={isError}
               data={data}
               enable={isSearchFocused}
+              searchTerm={searchTerm}
             />
           </div>
         </div>

@@ -5,11 +5,11 @@ import Search from "@/components/form/Search";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
-import useModal from "@/hooks/useModal";
+import useModal from "@/hooks/common/useModal";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import useSearchSummoners from "@/hooks/useSearchSummoners";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
-import useClickOutside from "@/hooks/useClickOutside";
+import useClickOutside from "@/hooks/common/useClickOutside";
+import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 
 const Home: NextPage = () => {
   const { isOpen, open, close } = useModal();
@@ -18,7 +18,7 @@ const Home: NextPage = () => {
   const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
   const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
 
-  const { data, isLoading, isError, handleSearchButtonClick } = useSearchSummoners(
+  const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
     searchTerm,
     guildId
   );
@@ -74,6 +74,7 @@ const Home: NextPage = () => {
             isError={isError}
             data={data}
             enable={isSearchFocused}
+            searchTerm={searchTerm}
           />
         </div>
         {/* 검색 경고메세지 */}
