@@ -1,69 +1,50 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import Search from "@/components/form/Search";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
-import useModal from "@/hooks/useModal";
+import useModal from "@/hooks/common/useModal";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import process from "process";
-import { ApiResponse, createApiService } from "@/services/apiService";
-import { UserSearchResult } from "@/data/types/user";
+import UserSearchResultList from "@/features/search/UserSearchResultList";
+import useClickOutside from "@/hooks/common/useClickOutside";
+import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 
 const Home: NextPage = () => {
-  const router = useRouter();
   const { isOpen, open, close } = useModal();
-  const api = createApiService(process.env.NEXT_PUBLIC_API_BASE_URL);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [guildId, setGuildId] = useState<string>("");
+  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+  const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
 
-  const getUsersMatchedByName = async (riotName: string, riotNameTag: string | null) => {
-    const guildId = localStorage.getItem("guildId");
-    if (!riotName) {
-      console.error("No such riotName");
-    } else if (!guildId) {
-      console.error("No such guildId");
+  const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
+    searchTerm,
+    guildId
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setGuildId(localStorage.getItem("guildId") || "");
     }
+  }, []);
 
-    const params: Record<string, string> = {};
-    if (riotNameTag) {
-      params.riot_name_tag = riotNameTag;
+  useEffect(() => {
+    if (searchTerm.length < 2 && searchTerm !== "") {
+      toggleNameLengthAlert(true);
+    } else {
+      toggleNameLengthAlert(false);
     }
+  }, [searchTerm]);
 
-    const res: ApiResponse<UserSearchResult[]> = await api.get(
-      `/account/search/${riotName}/${guildId}`,
-      params
-    );
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-    if (res.error) {
-      console.error(res.error);
-      return null;
-    }
-    console.log(res.data);
-    return res.data;
-  };
-
-  const handleSearch = async (value: string) => {
-    const [riotName, riotNameTag] = handleRiotNameSearch(value);
-    if (!riotName) {
-      console.error("No riot name found.");
-      return;
-    }
-
-    const data = await getUsersMatchedByName(riotName, riotNameTag);
-
-    if (!data) {
-      window.alert("No user found.");
-    } else if (data.length === 1) {
-      router.push(`/summoners/${encodeURIComponent(data[0].riot_name)}`);
-    } else if (data.length > 1) {
-      window.alert("Many user found.");
-    }
-  };
+  useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
   return (
     <div className="flex flex-col justify-center items-center">
+      {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-32 justify-end">
         <div className="self-end m-3">
           <DiscordLoginButton onClick={open} />
@@ -72,11 +53,36 @@ const Home: NextPage = () => {
           <Image src={MainLogo} alt="메인 로고" />
         </div>
       </header>
-      <main className="flex flex-col my-10 gap-2 w-full md:w-[40rem] max-w-[40rem] mt-16 mx-auto px-5">
-        <NavBar />
-        <Search placeholder="플레이어 이름#KR1" onSearch={handleSearch} />
+
+      <main className="flex flex-col my-10 w-full md:w-[40rem] max-w-[40rem] mt-16 mx-auto px-5">
+        {/* NavBar */}
+        <div className="mb-2">
+          <NavBar />
+        </div>
+        <div ref={searchContainerRef}>
+          {/* 검색창 */}
+          <Search
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearchButtonClick}
+            placeholder="플레이어 이름#KR1"
+            onFocus={() => setIsSearchFocused(true)}
+          />
+          {/* 검색 결과 */}
+          <UserSearchResultList
+            isLoading={isLoading}
+            isError={isError}
+            data={data}
+            enable={isSearchFocused}
+            searchTerm={searchTerm}
+          />
+        </div>
+        {/* 검색 경고메세지 */}
+        {nameLengthAlert && (
+          <div className="text-blueText text-md">최소 2글자 이상 작성해주세요.</div>
+        )}
       </main>
-      <DiscordLoginModal isOpen={isOpen} close={close} />
+      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
     </div>
   );
 };

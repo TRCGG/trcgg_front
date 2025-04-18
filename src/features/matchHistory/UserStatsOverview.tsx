@@ -28,7 +28,9 @@ const userStatsOverview = ({ riotName }: Props) => {
           <div>85전 50승 35패 (58.82%)</div>
         </div>
         <div className="flex flex-col md:flex-row gap-3">
-          <div className="rounded-lg bg-primary1 text-darkBg2 w-12 font-bold">이번달</div>
+          <div className="rounded-lg bg-primary1 text-darkBg2 w-12 font-bold text-center">
+            이번달
+          </div>
           <div>10전 3승 7패 (30%)</div>
         </div>
       </div>
