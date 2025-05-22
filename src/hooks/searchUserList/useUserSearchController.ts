@@ -29,7 +29,7 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
       return;
     }
 
-    const users = data.data ?? [];
+    const users = data.data?.data ?? [];
     if (users.length === 1) {
       router.push(`/summoners/${encodeURIComponent(users[0].riot_name)}`);
     } else if (users.length > 1) {
@@ -38,7 +38,7 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
   };
 
   return {
-    data,
+    data: data?.data,
     isLoading,
     isError,
     handleSearchButtonClick,

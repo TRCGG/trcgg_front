@@ -1,18 +1,16 @@
 import React from "react";
-import { ApiResponse } from "@/services/apiService";
-import { UserSearchResult } from "@/data/types/user";
+import { PlayerInfo } from "@/data/types/user";
 
 interface Props {
-  data: ApiResponse<UserSearchResult[]> | undefined;
+  users: PlayerInfo[] | undefined;
   isLoading: boolean;
   isError: boolean;
   enable: boolean;
   searchTerm: string;
 }
 
-const UserSearchResultList = ({ data, isLoading, isError, enable, searchTerm }: Props) => {
-  console.log(`data : ${JSON.stringify(data?.data, null, 2)}`);
-  if (isLoading || isError || !data || !Array.isArray(data.data) || searchTerm.length < 2) {
+const UserSearchResultList = ({ users, isLoading, isError, enable, searchTerm }: Props) => {
+  if (isLoading || isError || !users || !Array.isArray(users) || searchTerm.length < 2) {
     return null;
   }
 
@@ -24,7 +22,7 @@ const UserSearchResultList = ({ data, isLoading, isError, enable, searchTerm }: 
     >
       <div className="max-h-[430px] overflow-y-auto scrollbar-thin scrollbar-thumb-border1 scrollbar-track-darkBg2">
         <div className="px-3 py-2 text-sm font-bold">소환사 리스트</div>
-        {data.data.map((user) => (
+        {users.map((user) => (
           <a
             key={user.puuid}
             href={`/summoners/${encodeURIComponent(user.riot_name)}`}

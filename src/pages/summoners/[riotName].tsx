@@ -71,7 +71,7 @@ const RiotProfilePage = () => {
             <UserSearchResultList
               isLoading={isLoading}
               isError={isError}
-              data={data}
+              users={data?.data}
               enable={isSearchFocused}
               searchTerm={searchTerm}
             />
