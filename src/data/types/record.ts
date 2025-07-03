@@ -39,7 +39,7 @@ export interface SummaryData {
   kda: string;
 }
 
-interface RecentGame {
+export interface RecentGame {
   game_id: string;
   riot_name: string;
   champ_name: string;
@@ -63,7 +63,7 @@ interface TeamRecord {
   win_rate: string;
 }
 
-interface ChampionRecord {
+export interface ChampionRecord {
   champ_name: string;
   champ_name_eng: string;
   total_count: number;
@@ -127,12 +127,12 @@ interface GameRecord {
 /**
  * 게임 결과 조회
  *
- * @interface GameResponse
+ * @interface GameRecordResponse
  * @property {string} status - 응답 상태 (예: "ok", "fail")
  * @property {string} message - 응답 메세지
  * @property {GameParticipant} data - 게임 참가자 데이터
  */
-export interface GameResponse {
+export interface GameRecordResponse {
   status: string;
   message: string;
   data: GameParticipant[];

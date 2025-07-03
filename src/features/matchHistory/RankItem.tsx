@@ -5,7 +5,7 @@ interface RankItemProps {
   rank: number;
   user: string;
   kda: string;
-  winRate: number;
+  winRate: string;
   games: number;
   championImg: string;
 }

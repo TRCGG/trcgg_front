@@ -14,6 +14,10 @@ import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import UserSearchResultList from "@/features/search/UserSearchResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
+import { useQuery } from "@tanstack/react-query";
+import { ApiResponse } from "@/services/apiService";
+import { UserRecordResponse } from "@/data/types/record";
+import { getAllRecords } from "@/services/record";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -23,10 +27,12 @@ const RiotProfilePage = () => {
   const { isOpen, open, close } = useModal();
   const [guildId, setGuildId] = useState<string>("");
   const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
-  const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
-    searchTerm,
-    guildId
-  );
+  const {
+    data: userSearchData,
+    isLoading,
+    isError,
+    handleSearchButtonClick,
+  } = useUserSearchController(searchTerm, guildId);
   const searchContainerRef = useRef(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -37,6 +43,13 @@ const RiotProfilePage = () => {
       setGuildId(localStorage.getItem("guildId") || "");
     }
   }, []);
+
+  const { data: userRecordData } = useQuery<ApiResponse<UserRecordResponse>>({
+    queryKey: ["userRecords", riotNameString, null, guildId],
+    queryFn: () => getAllRecords(riotNameString, null, guildId),
+    staleTime: 3 * 60 * 1000,
+    enabled: !!riotName && !!guildId,
+  });
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -71,7 +84,7 @@ const RiotProfilePage = () => {
             <UserSearchResultList
               isLoading={isLoading}
               isError={isError}
-              users={data?.data}
+              users={userSearchData?.data}
               enable={isSearchFocused}
               searchTerm={searchTerm}
             />
@@ -88,17 +101,25 @@ const RiotProfilePage = () => {
       </header>
 
       <main className="mt-14 flex flex-col gap-3 md:min-w-[1080px]">
-        <UserStatsOverview riotName={riotNameString} />
+        <UserStatsOverview
+          riotName={riotNameString}
+          monthData={userRecordData?.data?.data?.month_data[0]}
+        />
         <div className="flex gap-3 flex-col md:flex-row">
-          <Card title="Most Pick" className="md:w-[35%] w-full self-start">
-            <MostPickRank />
-          </Card>
-          <Card title="Recent Matches" className="w-full md:w-[65%]">
-            <div className="flex flex-1 flex-col gap-4">
-              <MatchItem />
-              <MatchItem />
-            </div>
-          </Card>
+          {userRecordData?.data?.data?.most_pick_data && (
+            <Card title="Most Pick" className="md:w-[35%] w-full self-start">
+              <MostPickRank mostPickData={userRecordData?.data?.data?.most_pick_data.slice(0, 5)} />
+            </Card>
+          )}
+          {userRecordData?.data?.data?.recent_data && (
+            <Card title="Recent Matches" className="w-full md:w-[65%]">
+              <div className="flex flex-1 flex-col gap-4">
+                {userRecordData?.data?.data?.recent_data.map((data) => (
+                  <MatchItem matchData={data} key={data.game_id} />
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
       </main>
       <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />

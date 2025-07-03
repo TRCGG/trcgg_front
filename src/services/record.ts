@@ -1,5 +1,9 @@
 import { ApiResponse } from "@/services/apiService";
-import { GameResponse, UserRecentRecordsResponse, UserRecordResponse } from "@/data/types/record";
+import {
+  GameRecordResponse,
+  UserRecentRecordsResponse,
+  UserRecordResponse,
+} from "@/data/types/record";
 import api from "@/services/index";
 
 export const getAllRecords = async (
@@ -43,7 +47,7 @@ export const getRecentRecords = async (
 export const getGameRecords = async (
   gameId: string,
   guildId?: string
-): Promise<ApiResponse<GameResponse>> => {
+): Promise<ApiResponse<GameRecordResponse>> => {
   try {
     return await api.get(`/record/result/${gameId}/${guildId ?? ""}`);
   } catch (error) {
