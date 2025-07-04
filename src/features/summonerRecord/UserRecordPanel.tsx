@@ -15,10 +15,23 @@ const UserRecordPanel = ({ riotName, data }: Props) => {
     curr.total_count > prev.total_count ? curr : prev
   ).position;
 
+  const totalGameCount = data.record_data.reduce((sum, curr) => sum + curr.total_count, 0);
+  const winCount = data.record_data.reduce((sum, curr) => sum + curr.win, 0);
+  const loseCount = data.record_data.reduce((sum, curr) => sum + curr.lose, 0);
+  const winRate =
+    totalGameCount > 0 ? Math.round((winCount / totalGameCount) * 100 * 100) / 100 : 0;
+  const totalStatData = {
+    totalGameCount,
+    winCount,
+    loseCount,
+    winRate,
+  };
+
   return (
     <main className="mt-14 flex flex-col gap-3 md:min-w-[1080px]">
       <UserStatsOverview
         riotName={riotName}
+        totalData={totalStatData}
         monthData={data.month_data[0]}
         mostChampion={data.most_pick_data[0].champ_name_eng}
         mostLane={mostLane}

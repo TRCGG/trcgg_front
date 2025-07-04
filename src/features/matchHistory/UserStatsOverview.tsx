@@ -11,6 +11,7 @@ interface Props {
   monthData: SummaryData;
   mostChampion: string;
   mostLane: string;
+  totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: number };
 }
 
 const laneImageMap: Record<string, StaticImageData> = {
@@ -21,7 +22,7 @@ const laneImageMap: Record<string, StaticImageData> = {
   SUP: LaneSupportLogo,
 };
 
-const userStatsOverview = ({ riotName, monthData, mostChampion, mostLane }: Props) => {
+const userStatsOverview = ({ riotName, monthData, mostChampion, mostLane, totalData }: Props) => {
   return (
     <div
       className="flex bg-darkBg2 text-primary1 p-4 rounded border border-border2 relative bg-no-repeat bg-right-top w-full md:min-w-[1080px] mx-auto"
@@ -62,7 +63,8 @@ const userStatsOverview = ({ riotName, monthData, mostChampion, mostLane }: Prop
                 이번달
               </div>
               <div>
-                {monthData.total_count}전 {monthData.win}승 {monthData.lose}패 ({monthData.win_rate}
+                {totalData.totalGameCount}전 {totalData.winCount}승 {totalData.loseCount}패 (
+                {totalData.winRate}
                 %)
               </div>
             </div>
