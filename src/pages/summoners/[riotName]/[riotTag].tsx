@@ -12,14 +12,16 @@ import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { UserRecordResponse } from "@/data/types/record";
+import { MultiplePlayers, PlayerStatsData, UserRecordResponse } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
-import SummonerSearchResult from "@/features/summonerRecord/SummonerSearchResult";
+import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
+import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
 
 const RiotProfilePage = () => {
   const router = useRouter();
-  const { riotName } = router.query;
+  const { riotName, riotTag } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
+  const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag;
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
   const [guildId, setGuildId] = useState<string>("");
@@ -50,13 +52,9 @@ const RiotProfilePage = () => {
     enabled: !!riotName && !!guildId,
   });
 
-  useEffect(() => {
-    if (userRecordData?.data?.data && userRecordData?.data?.data.player.length === 1) {
-      router.push(
-        `/summoners/${userRecordData?.data?.data.player[0].riot_name}/${userRecordData?.data?.data.player[0].riot_name_tag}`
-      );
-    }
-  }, [router, userRecordData?.data?.data]);
+  const isPlayerStatsData = (data: PlayerStatsData | MultiplePlayers): data is PlayerStatsData => {
+    return "month_data" in data; // 타입 좁히기
+  };
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -107,11 +105,19 @@ const RiotProfilePage = () => {
         </div>
       </header>
 
-      <SummonerSearchResult
-        riotNameString={riotNameString}
-        userRecordData={userRecordData?.data ?? null}
-        isLoading={isLoadingUserRecord}
-      />
+      {/* 메인 콘텐츠 */}
+      {(() => {
+        if (isLoadingUserRecord) {
+          return <main className="text-white">로딩중입니다.</main>;
+        }
+
+        if (userRecordData?.data?.data && isPlayerStatsData(userRecordData.data.data)) {
+          return <UserRecordPanel riotName={riotNameString} data={userRecordData.data.data} />;
+        }
+
+        return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
+      })()}
+
       <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
     </div>
   );

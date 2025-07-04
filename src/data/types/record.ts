@@ -9,10 +9,14 @@
 export interface UserRecordResponse {
   status: string;
   message: string;
-  data: PlayerStatsData;
+  data: PlayerStatsData | MultiplePlayers;
 }
 
-interface PlayerStatsData {
+export interface MultiplePlayers {
+  player: Player[];
+}
+
+export interface PlayerStatsData {
   record_data: PositionRecord[];
   month_data: SummaryData[];
   recent_data: RecentGame[];
@@ -73,7 +77,7 @@ export interface ChampionRecord {
   kda: string;
 }
 
-interface Player {
+export interface Player {
   player_id: string;
   riot_name: string;
   riot_name_tag: string;
@@ -98,14 +102,6 @@ export interface UserRecentRecordsResponse {
 interface PlayerRecordData {
   player: Player;
   records: GameRecord[];
-}
-
-interface Player {
-  player_id: string;
-  riot_name: string;
-  riot_name_tag: string;
-  guild_id: string;
-  puuid: string;
 }
 
 interface GameRecord {

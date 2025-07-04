@@ -20,20 +20,17 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
       return;
     }
     if (!guildId) {
-      console.error("Empty guildId");
-      return;
-    }
-    if (!data || isError) {
-      // TODO : 추후 유저를 찾을 수 없습니다 페이지로 이동하게되면 수정 필요
-      window.alert("No user found.");
+      console.error("디스코드 길드 코드를 입력해 로그인을 해주세요.");
       return;
     }
 
-    const users = data.data?.data ?? [];
+    const users = data?.data?.data ?? [];
     if (users.length === 1) {
-      router.push(`/summoners/${encodeURIComponent(users[0].riot_name)}`);
-    } else if (users.length > 1) {
-      window.alert("Many user found.");
+      router.push(
+        `/summoners/${encodeURIComponent(users[0].riot_name)}/${encodeURIComponent(users[0].riot_name_tag)}`
+      );
+    } else {
+      router.push(`/summoners/${encodeURIComponent(debouncedTerm.riotName)}`);
     }
   };
 

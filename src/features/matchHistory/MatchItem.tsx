@@ -28,8 +28,10 @@ const MatchItem = ({ matchData }: Props) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div
+      <button
+        type="button"
         className={`flex w-full h-auto min-h-24 rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
+        onClick={toggleOpen}
       >
         <div className="flex flex-1 items-center justify-between px-5">
           <div className="flex flex-1 items-center gap-14">
@@ -66,7 +68,7 @@ const MatchItem = ({ matchData }: Props) => {
             />
           </button>
         </div>
-      </div>
+      </button>
       {isOpen && gameData?.data?.data && (
         <div className="flex flex-col w-full">
           <MatchDetail participantData={gameData?.data?.data} />
