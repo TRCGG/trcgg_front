@@ -1,14 +1,7 @@
-import Image from "next/image";
 import { useRouter } from "next/router";
-import TextLogo from "@/assets/images/textLogo.png";
-import NavBar from "@/components/layout/NavBar";
-import SearchSmall from "@/components/form/SearchSmall";
-import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/common/useModal";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import UserSearchResultList from "@/features/search/UserSearchResultList";
-import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -16,12 +9,14 @@ import { MultiplePlayers, PlayerStatsData, UserRecordResponse } from "@/data/typ
 import { getAllRecords } from "@/services/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
+import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 const RiotProfilePage = () => {
   const router = useRouter();
   const { riotName, riotTag } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
-  const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag;
+  const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
   const [guildId, setGuildId] = useState<string>("");
@@ -32,10 +27,6 @@ const RiotProfilePage = () => {
     isError,
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
-  const searchContainerRef = useRef(null);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-
-  useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -46,8 +37,8 @@ const RiotProfilePage = () => {
   const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
     ApiResponse<UserRecordResponse>
   >({
-    queryKey: ["userRecords", riotNameString, null, guildId],
-    queryFn: () => getAllRecords(riotNameString, null, guildId),
+    queryKey: ["userRecords", riotNameString, riotTagString, guildId],
+    queryFn: () => getAllRecords(riotNameString, riotTagString, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: !!riotName && !!guildId,
   });
@@ -57,62 +48,35 @@ const RiotProfilePage = () => {
   };
 
   return (
-    <div className="w-full md:max-w-[1080px] mx-auto">
-      <header className="flex flex-col md:flex-row justify-start md:justify-between mt-2 md:mt-10 mx-[10px] md:mx-0 md:items-center md:gap-10 md:min-w-[1080px]">
-        <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
-          {/* 디스코드 로그인 버튼 (모바일 용) */}
-          <div className="block md:hidden self-end">
-            {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
-            <DiscordLoginButton onClick={open} />
-          </div>
-
-          {/* 로고 이미지 */}
-          <div className="w-[113px] h-[30px] justify-start">
-            <Image
-              src={TextLogo}
-              alt="logo"
-              width={113}
-              height={30}
-              className="cursor-pointer"
-              onClick={() => router.push("/")}
-            />
-          </div>
-          {/* 검색창 */}
-          <div ref={searchContainerRef} className="w-full md:w-[400px] z-10">
-            <SearchSmall
-              value={searchTerm}
-              onChange={setSearchTerm}
-              onSearch={handleSearchButtonClick}
-              placeholder="플레이어 이름#KR1"
-              onFocus={() => setIsSearchFocused(true)}
-            />
-            <UserSearchResultList
-              isLoading={isLoading}
-              isError={isError}
-              users={userSearchData?.data}
-              enable={isSearchFocused}
-              searchTerm={searchTerm}
-            />
-          </div>
-        </div>
-        {/* Navigation */}
-        <div className="flex items-center justify-start md:justify-end gap-4 mt-3 md:mt-0">
-          <NavBar />
-          <div className="hidden md:block">
-            {/* TODO : 추후 디코 로그인 기능 추가 필요 */}
-            <DiscordLoginButton onClick={open} />
-          </div>
-        </div>
-      </header>
+    <div className="w-full md:max-w-[1080px] mx-auto px-2">
+      <SummonerPageHeader
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        onSearch={handleSearchButtonClick}
+        isLoading={isLoading}
+        isError={isError}
+        users={userSearchData?.data}
+        openDiscordModal={open}
+      />
 
       {/* 메인 콘텐츠 */}
       {(() => {
         if (isLoadingUserRecord) {
-          return <main className="text-white">로딩중입니다.</main>;
+          return (
+            <main>
+              <LoadingSpinner />
+            </main>
+          );
         }
 
         if (userRecordData?.data?.data && isPlayerStatsData(userRecordData.data.data)) {
-          return <UserRecordPanel riotName={riotNameString} data={userRecordData.data.data} />;
+          return (
+            <UserRecordPanel
+              riotName={riotNameString}
+              riotTag={riotTagString}
+              data={userRecordData.data.data}
+            />
+          );
         }
 
         return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;

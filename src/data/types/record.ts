@@ -137,6 +137,7 @@ export interface GameRecordResponse {
 export interface GameParticipant {
   game_id: string;
   riot_name: string;
+  riot_name_tag: string;
   champ_name: string;
   champ_name_eng: string;
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";

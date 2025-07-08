@@ -10,6 +10,7 @@ const MatchDetail = ({ participantData }: Props) => {
     .filter((participant) => participant.game_result === "승")
     .map((participant) => ({
       name: participant.riot_name,
+      tag: participant.riot_name_tag,
       championImage: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${participant.champ_name_eng}.png`,
       kda: `${participant.kill} / ${participant.death} / ${participant.assist}`,
       damage: participant.total_damage_champions,
@@ -20,6 +21,7 @@ const MatchDetail = ({ participantData }: Props) => {
     .filter((participant) => participant.game_result === "패")
     .map((participant) => ({
       name: participant.riot_name,
+      tag: participant.riot_name_tag,
       championImage: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${participant.champ_name_eng}.png`,
       kda: `${participant.kill} / ${participant.death} / ${participant.assist}`,
       damage: participant.total_damage_champions,

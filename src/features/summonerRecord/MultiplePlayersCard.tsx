@@ -8,7 +8,7 @@ interface Props {
   players: Player[];
 }
 
-const EmptySearchResultCard = ({ riotName, players }: Props) => {
+const MultiplePlayersCard = ({ riotName, players }: Props) => {
   const router = useRouter();
   return (
     <main className="mt-14 flex flex-col gap-3 md:min-w-[1080px]">
@@ -37,4 +37,4 @@ const EmptySearchResultCard = ({ riotName, players }: Props) => {
   );
 };
 
-export default EmptySearchResultCard;
+export default MultiplePlayersCard;

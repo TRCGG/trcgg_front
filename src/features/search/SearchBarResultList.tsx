@@ -9,14 +9,14 @@ interface Props {
   searchTerm: string;
 }
 
-const UserSearchResultList = ({ users, isLoading, isError, enable, searchTerm }: Props) => {
+const SearchBarResultList = ({ users, isLoading, isError, enable, searchTerm }: Props) => {
   if (isLoading || isError || !users || !Array.isArray(users) || searchTerm.length < 2) {
     return null;
   }
 
   return (
     <div
-      className={`text-white bg-darkBg2 md:absolute md:mt-px md:w-[400px] md:rounded-bl-lg md:rounded-br-lg md:shadow-2xl transition-opacity duration-150 ${
+      className={`text-white bg-darkBg2 absolute w-full md:w-[400px] md:rounded-bl-lg md:rounded-br-lg md:shadow-2xl transition-opacity duration-150 ${
         enable ? "opacity-100 visible" : "opacity-0 invisible"
       }`}
     >
@@ -41,4 +41,4 @@ const UserSearchResultList = ({ users, isLoading, isError, enable, searchTerm }:
   );
 };
 
-export default UserSearchResultList;
+export default SearchBarResultList;

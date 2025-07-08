@@ -9,7 +9,7 @@ const MostPickRank = ({ mostPickData }: Props) => {
   const rankData = mostPickData.map((champRecord, index) => {
     return {
       rank: index + 1,
-      user: champRecord.champ_name,
+      championName: champRecord.champ_name,
       kda: champRecord.kda,
       winRate: champRecord.win_rate,
       games: champRecord.total_count,
