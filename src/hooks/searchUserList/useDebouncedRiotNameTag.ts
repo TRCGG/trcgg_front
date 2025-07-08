@@ -27,7 +27,7 @@ const useDebouncedRiotNameTag = (searchTerm: string) => {
           riotNameTag: riotNameTag || null,
         });
         setTyping(false);
-      }, 700),
+      }, 300),
     []
   );
 
