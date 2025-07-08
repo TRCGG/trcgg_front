@@ -28,29 +28,32 @@ const MatchItem = ({ matchData }: Props) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <button
-        type="button"
-        className={`flex w-full h-auto min-h-24 rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={toggleOpen}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") toggleOpen();
+        }}
+        className={`flex w-full h-auto min-h-24 rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
       >
         <div className="flex flex-1 items-center justify-between px-5">
-          <div className="flex flex-1 items-center gap-14">
+          <div className="flex flex-1 items-center gap-10 md:gap-14">
             {/* 챔피온 아이콘 */}
-            <div>
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
               <Image
-                width={48}
-                height={48}
+                layout="fill"
                 alt="챔피언"
                 src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champ_name_eng}.png`}
               />
             </div>
 
             {/* 챔피온 명 */}
-            <div className="text-lg whitespace-nowrap">{matchData.champ_name}</div>
+            <div className="text-base sm:text-lg whitespace-nowrap">{matchData.champ_name}</div>
           </div>
 
           {/* KDA */}
-          <div className="text-lg whitespace-nowrap">
+          <div className="text-base sm:text-lg whitespace-nowrap">
             {matchData.kill} / {matchData.death} / {matchData.assist}
           </div>
         </div>
@@ -68,7 +71,7 @@ const MatchItem = ({ matchData }: Props) => {
             />
           </button>
         </div>
-      </button>
+      </div>
       {isOpen && gameData?.data?.data && (
         <div className="flex flex-col w-full">
           <MatchDetail participantData={gameData?.data?.data} />
