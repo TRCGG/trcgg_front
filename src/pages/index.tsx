@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
-import Search from "@/components/form/Search";
+import SearchBar from "@/components/form/SearchBar";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/common/useModal";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import UserSearchResultList from "@/features/search/UserSearchResultList";
+import SearchBarResultList from "@/features/search/SearchBarResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 
@@ -61,7 +61,7 @@ const Home: NextPage = () => {
         </div>
         <div ref={searchContainerRef}>
           {/* 검색창 */}
-          <Search
+          <SearchBar
             value={searchTerm}
             onChange={setSearchTerm}
             onSearch={handleSearchButtonClick}
@@ -69,10 +69,10 @@ const Home: NextPage = () => {
             onFocus={() => setIsSearchFocused(true)}
           />
           {/* 검색 결과 */}
-          <UserSearchResultList
+          <SearchBarResultList
             isLoading={isLoading}
             isError={isError}
-            data={data}
+            users={data?.data}
             enable={isSearchFocused}
             searchTerm={searchTerm}
           />

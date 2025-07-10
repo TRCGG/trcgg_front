@@ -5,10 +5,9 @@ const NavBar = () => {
   const router = useRouter();
 
   const navList = [
-    { href: "/summoners", label: "내전 전적 검색", href2: "/" },
-    { href: "/tournament", label: "미니 토너먼트" },
-    { href: "/team", label: "팀원 구성" },
-    { href: "/community", label: "난민★그램" },
+    { href: "/summoners", label: "내전 전적", href2: "/" },
+    { href: "/clan", label: "클랜 분석" },
+    { href: "/user", label: "유저 분석" },
   ];
 
   return (
@@ -16,11 +15,11 @@ const NavBar = () => {
       {navList.map(({ href, label, href2 }) => (
         <Link key={href2 || href} href={href2 || href}>
           <span
-            className={`cursor-pointer text-base font-medium pb-1 whitespace-nowrap ${
+            className={`cursor-pointer text-sm sm:text-base font-medium pb-1 whitespace-nowrap ${
               router.pathname === href ||
               router.pathname === href2 ||
               (href === "/summoners" && router.pathname.startsWith("/summoners"))
-                ? "text-primary1 border-b-3 border-primary1"
+                ? "text-primary1 border-b-3 border-primary1 px-3"
                 : "text-primary2 border-b-3 border-transparent"
             }`}
           >

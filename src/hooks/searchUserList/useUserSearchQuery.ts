@@ -16,8 +16,7 @@ interface DebouncedTerm {
 const useUserSearchQuery = (debouncedTerm: DebouncedTerm, guildId: string) => {
   const queryEnabled = debouncedTerm.riotName.length >= 2 && !!guildId;
 
-  console.log(`debounced name: ${debouncedTerm.riotName}, tag : ${debouncedTerm.riotNameTag}`);
-  const { data, isLoading, isError } = useQuery<ApiResponse<UserSearchResult[]>>({
+  const { data, isLoading, isError } = useQuery<ApiResponse<UserSearchResult>>({
     queryKey: ["userList", debouncedTerm.riotName, debouncedTerm.riotNameTag, guildId],
     queryFn: () => getUsers(debouncedTerm.riotName, debouncedTerm.riotNameTag, guildId),
     enabled: queryEnabled,

@@ -6,7 +6,7 @@ export const getUsers = async (
   riotName: string,
   riotNameTag: string | null,
   guildId?: string
-): Promise<ApiResponse<UserSearchResult[]>> => {
+): Promise<ApiResponse<UserSearchResult>> => {
   const params: Record<string, string> = {};
   if (riotNameTag) params.riot_name_tag = riotNameTag;
 

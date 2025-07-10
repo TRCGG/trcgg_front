@@ -5,7 +5,7 @@ class MyDocument extends Document {
     return (
       <Html lang="ko">
         <Head />
-        <body>
+        <body className="mb-16 min-w-[360px]">
           <Main />
           <NextScript />
         </body>
