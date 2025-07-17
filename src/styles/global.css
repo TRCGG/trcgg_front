@@ -7,6 +7,14 @@ body {
     background: #191B20;
 }
 
+/* 기본 텍스트 사이즈 설정 */
+@layer base {
+    body {
+        @apply text-sm sm:text-base;
+    }
+}
+
+/* 폰트 두께별 설정 */
 @font-face {
     font-family: 'KoPubWorld Dotum';
     font-style: normal;

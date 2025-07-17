@@ -8,20 +8,20 @@ interface SearchProps {
   placeholder?: string;
 }
 
-const SearchSmall = ({ value, onChange, onSearch, onFocus, placeholder }: SearchProps) => {
+const SearchBar = ({ value, onChange, onSearch, onFocus, placeholder }: SearchProps) => {
   return (
-    <div className="flex items-center bg-darkBg2 py-1 pl-2 rounded border border-border2 w-full md:w-[400px] h-[2.6rem]">
+    <div className="flex bg-darkBg2 pl-3 pr-1 py-2">
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-transparent items-center text-white text-md flex-grow outline-none"
+        className="bg-transparent items-center text-white flex-grow outline-none text-base sm:text-lg"
         placeholder={placeholder || ""}
         onKeyDown={(e) => e.key === "Enter" && onSearch()}
         onFocus={onFocus}
       />
-      <IoSearchSharp className="text-white text-[2rem] cursor-pointer" onClick={onSearch} />
+      <IoSearchSharp className="text-white cursor-pointer w-[32px] h-[32px]" onClick={onSearch} />
     </div>
   );
 };
 
-export default SearchSmall;
+export default SearchBar;
