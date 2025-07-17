@@ -46,6 +46,7 @@ export interface SummaryData {
 export interface RecentGame {
   game_id: string;
   riot_name: string;
+  riot_name_tag: string;
   champ_name: string;
   champ_name_eng: string;
   position: string;
@@ -55,8 +56,24 @@ export interface RecentGame {
   game_result: "승" | "패";
   game_team: "red" | "blue";
   total_damage_champions: number;
+  total_damage_taken: number;
+  vision_score: number;
   vision_bought: number;
+  time_played: number;
   penta_kills: number;
+  level: number;
+  item0: number;
+  item1: number;
+  item2: number;
+  item3: number;
+  item4: number;
+  item5: number;
+  item6: number;
+  summoner_spell_1: number;
+  summoner_spell_2: number;
+  keystone_id: number;
+  perk_sub_style: number;
+  create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }
 
 interface TeamRecord {

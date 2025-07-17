@@ -6,6 +6,7 @@ import { GameRecordResponse, RecentGame } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
+import { formatTimeAgo } from "@/utils/parseTime";
 
 interface Props {
   matchData: RecentGame;
@@ -26,6 +27,16 @@ const MatchItem = ({ matchData }: Props) => {
     enabled: isOpen && !!guildId,
   });
 
+  const itemArr = [
+    matchData.item0,
+    matchData.item1,
+    matchData.item2,
+    matchData.item3,
+    matchData.item4,
+    matchData.item5,
+    matchData.item6,
+  ];
+
   return (
     <div className="flex flex-col gap-2">
       <div
@@ -37,24 +48,87 @@ const MatchItem = ({ matchData }: Props) => {
         }}
         className={`flex w-full h-auto min-h-24 rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
       >
-        <div className="flex flex-1 items-center justify-between px-5">
-          <div className="flex flex-1 items-center gap-10 md:gap-14">
-            {/* 챔피온 아이콘 */}
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+        <div className="w-full grid grid-cols-[0.7fr_1fr_1fr_1fr_2fr_1fr] md:grid-cols-[72px_72px_100px_64px_200px_84px] items-center justify-between px-3">
+          {/* 간략 정보 */}
+          <div className="flex flex-col text-xs sm:text-sm">
+            <span className="text-sm sm:text-base">{formatTimeAgo(matchData.create_date)}</span>
+            <span className={` ${isWin ? "text-blueText" : "text-redText"}`}>
+              {isWin ? "승리" : "패배"}
+            </span>
+            <span className="whitespace-nowrap">
+              {Math.floor(matchData.time_played / 60)}분 {matchData.time_played % 60}초
+            </span>
+          </div>
+
+          {/* 챔피온 아이콘 */}
+          <div className="flex justify-center">
+            <Image
+              width={56}
+              height={56}
+              alt="챔피언"
+              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champ_name_eng}.png`}
+            />
+          </div>
+
+          {/* 챔피온 명 */}
+          <div className="text-base sm:text-lg whitespace-nowrap">{matchData.champ_name}</div>
+
+          {/* 스펠, 룬 */}
+          <div className="flex">
+            <div className="flex flex-col gap-0">
               <Image
-                layout="fill"
-                alt="챔피언"
-                src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champ_name_eng}.png`}
+                width={28}
+                height={28}
+                alt="스펠 1"
+                src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/SummonerHaste.png`} // FIXME : 정현님과 논의 후 수정 필요
+                // src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summoner_spell_1}.png`}
+              />
+              <Image
+                width={28}
+                height={28}
+                alt="스펠 2"
+                src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/SummonerFlash.png`}
               />
             </div>
+            <div className="flex flex-col">
+              <Image
+                width={28}
+                height={28}
+                alt="룬 1"
+                src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7200_Domination.png"
+              />
+              <Image
+                width={28}
+                height={28}
+                alt="룬 1"
+                src="https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png"
+              />
+            </div>
+          </div>
 
-            {/* 챔피온 명 */}
-            <div className="text-base sm:text-lg whitespace-nowrap">{matchData.champ_name}</div>
+          {/* 아이템 */}
+          <div className="grid grid-cols-3 grid-rows-2 max-w-[96px] md:flex md:flex-row md:max-w-[192px]">
+            {itemArr
+              .filter((item) => item !== 0)
+              .map((item, index) => (
+                <Image
+                  key={item}
+                  width={28}
+                  height={28}
+                  alt={`아이템 ${index + 1}`}
+                  src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
+                />
+              ))}
           </div>
 
           {/* KDA */}
-          <div className="text-base sm:text-lg whitespace-nowrap">
-            {matchData.kill} / {matchData.death} / {matchData.assist}
+          <div className="flex flex-col sm:text-lg whitespace-nowrap items-center">
+            <span>
+              {matchData.kill} / {matchData.death} / {matchData.assist}
+            </span>
+            <span className="text-xs sm:text-sm text-neonGreen">
+              {((matchData.kill + matchData.assist) / matchData.death).toFixed(2)} KDA
+            </span>
           </div>
         </div>
 
@@ -72,6 +146,7 @@ const MatchItem = ({ matchData }: Props) => {
           </button>
         </div>
       </div>
+
       {isOpen && gameData?.data?.data && (
         <div className="flex flex-col w-full">
           <MatchDetail participantData={gameData?.data?.data} />
