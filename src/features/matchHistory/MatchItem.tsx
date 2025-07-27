@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Image from "next/image";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
@@ -34,7 +34,7 @@ const MatchItem = ({ matchData }: Props) => {
     matchData.item3,
     matchData.item4,
     matchData.item5,
-    matchData.item6,
+    // matchData.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭)
   ];
 
   return (
@@ -46,12 +46,35 @@ const MatchItem = ({ matchData }: Props) => {
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") toggleOpen();
         }}
-        className={`flex w-full h-auto min-h-24 rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
+        className={`flex w-full h-auto min-h-[86px] rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
       >
-        <div className="w-full grid grid-cols-[0.7fr_1fr_1fr_1fr_2fr_1fr] md:grid-cols-[72px_72px_100px_64px_200px_84px] items-center justify-between px-3">
-          {/* 간략 정보 */}
+        <div className="w-full grid grid-cols-[0.7fr_0.7fr_0.7fr_1.5fr_2fr_1fr] md:grid-cols-[72px_72px_100px_64px_200px_84px] items-center justify-between px-3">
+          {/* 1. 시간 및 승/패 */}
           <div className="flex flex-col text-xs sm:text-sm">
-            <span className="text-sm sm:text-base">{formatTimeAgo(matchData.create_date)}</span>
+            <span
+              className="relative group cursor-pointer text-sm sm:text-base"
+              title={new Date(matchData.create_date).toLocaleString("ko-KR", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            >
+              {formatTimeAgo(matchData.create_date)}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white whitespace-nowrap z-10  text-sm sm:text-base">
+                {new Date(matchData.create_date).toLocaleString("ko-KR", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black" />
+              </div>
+            </span>
             <span className={` ${isWin ? "text-blueText" : "text-redText"}`}>
               {isWin ? "승리" : "패배"}
             </span>
@@ -60,7 +83,7 @@ const MatchItem = ({ matchData }: Props) => {
             </span>
           </div>
 
-          {/* 챔피온 아이콘 */}
+          {/* 2. 챔피온 아이콘 */}
           <div className="flex justify-center">
             <Image
               width={56}
@@ -73,7 +96,7 @@ const MatchItem = ({ matchData }: Props) => {
           {/* 챔피온 명 */}
           <div className="text-base sm:text-lg whitespace-nowrap">{matchData.champ_name}</div>
 
-          {/* 스펠, 룬 */}
+          {/* 4. 스펠, 룬 */}
           <div className="flex">
             <div className="flex flex-col gap-0">
               <Image
@@ -106,7 +129,7 @@ const MatchItem = ({ matchData }: Props) => {
             </div>
           </div>
 
-          {/* 아이템 */}
+          {/* 5. 아이템 */}
           <div className="grid grid-cols-3 grid-rows-2 max-w-[96px] md:flex md:flex-row md:max-w-[192px]">
             {itemArr
               .filter((item) => item !== 0)
@@ -121,7 +144,7 @@ const MatchItem = ({ matchData }: Props) => {
               ))}
           </div>
 
-          {/* KDA */}
+          {/* 6. KDA */}
           <div className="flex flex-col sm:text-lg whitespace-nowrap items-center">
             <span>
               {matchData.kill} / {matchData.death} / {matchData.assist}
