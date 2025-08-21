@@ -1,5 +1,6 @@
 import { GameParticipant } from "@/data/types/record";
 import MatchDetailTable from "@/features/matchHistory/MatchDetailTable";
+import MatchDetailTableMobile from "@/features/matchHistory/MatchDetailTableMobile";
 
 interface Props {
   participantData: GameParticipant[];
@@ -26,9 +27,9 @@ const MatchDetail = ({ participantData }: Props) => {
         participant.item5,
         // matchData.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭
       ],
-      spells: [participant.summoner_spell_1, participant.summoner_spell_2],
-      keystone: participant.keystone_id,
-      perk: participant.perk_sub_style,
+      spells: [participant.summoner_spell_1_key, participant.summoner_spell_2_key],
+      keystone: participant.keyston_icon,
+      perk: participant.substyle_icon,
       killParticipation: totalTeamKills
         ? Number((((participant.kill + participant.assist) / totalTeamKills) * 100).toFixed(2))
         : 0,
@@ -44,13 +45,19 @@ const MatchDetail = ({ participantData }: Props) => {
   );
 
   return (
-    <div className="flex flex-col">
-      {/* 승리 팀 상세 정보 */}
-      <MatchDetailTable players={winParticipants} isWin />
+    <>
+      {/* PC */}
+      <div className="hidden sm:flex sm:flex-col">
+        <MatchDetailTable players={winParticipants} isWin />
+        <MatchDetailTable players={loseParticipants} isWin={false} />
+      </div>
 
-      {/* 패배 팀 상세 정보 */}
-      <MatchDetailTable players={loseParticipants} isWin={false} />
-    </div>
+      {/* 모바일 */}
+      <div className="flex flex-col sm:hidden">
+        <MatchDetailTableMobile players={winParticipants} isWin />
+        <MatchDetailTableMobile players={loseParticipants} isWin={false} />
+      </div>
+    </>
   );
 };
 

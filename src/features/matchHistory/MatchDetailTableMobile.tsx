@@ -28,74 +28,64 @@ interface MatchDetailProps {
   isWin: boolean;
 }
 
-const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
+const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
   return (
-    <div className={`${isWin ? "bg-blueLighten" : "bg-redLighten"} rounded-md text-base`}>
-      <div className="grid grid-cols-[1.5fr_0.5fr_1.5fr_1fr_1fr_1fr_1fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
-        {/* 제목 행 */}
-        {isWin && (
-          <>
-            <div className="bg-border1 text-white font-bold w-full">소환사명</div>
-            <div className="bg-border1 text-white font-bold w-full">챔피언</div>
-            <div className="bg-border1 text-white font-bold w-full">빌드</div>
-            <div className="bg-border1 text-white font-bold w-full">KDA</div>
-            <div className="bg-border1 text-white font-bold w-full">킬관여율</div>
-            <div className="bg-border1 text-white font-bold w-full">피해량</div>
-            <div className="bg-border1 text-white font-bold w-full">시야</div>
-          </>
-        )}
-
+    <div className={`${isWin ? "bg-blueLighten" : "bg-redLighten"} rounded-md text-xs p-0.5`}>
+      <div className="grid grid-cols-[1fr_1fr_1fr_1fr_0.7fr] place-items-center text-center gap-y-1 py-[2px]">
         {/* 데이터 행 */}
         {players.map((player) => (
           <React.Fragment key={`${player.name}-${player.tag}`}>
-            {/* 1. 챔피언 이름 */}
-            <PlayerNameButton name={player.name} tag={player.tag} />
-
-            {/* 2. 챔피언 이미지 */}
-            <div className="flex text-left w-[36px] h-[36px]">
-              <Image width={36} height={36} alt="챔피언" src={player.championImage} />
-            </div>
-
-            {/* 3. 빌드(룬, 스펠, 아이템) */}
-            <div className="flex gap-x-2">
+            {/* 1. 챔피언 이미지, 룬 스펠 */}
+            <div className="flex gap-1 w-[56px] h-[24px]">
+              <Image width={24} height={24} alt="챔피언" src={player.championImage} />
               <div className="flex">
                 <div className="flex flex-col gap-0">
                   <Image
-                    width={18}
-                    height={18}
+                    width={12}
+                    height={12}
                     alt="스펠 1"
                     src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${player.spells[0]}.png`}
                   />
                   <Image
-                    width={18}
-                    height={18}
+                    width={12}
+                    height={12}
                     alt="스펠 2"
                     src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${player.spells[1]}.png`}
                   />
                 </div>
                 <div className="flex flex-col">
                   <Image
-                    width={18}
-                    height={18}
+                    width={12}
+                    height={12}
                     alt="룬 1"
                     src={`https://ddragon.leagueoflegends.com/cdn/img/${player.keystone}`}
                   />
                   <Image
-                    width={18}
-                    height={18}
+                    width={12}
+                    height={12}
                     alt="룬 1"
                     src={`https://ddragon.leagueoflegends.com/cdn/img/${player.perk}`}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 grid-rows-2 max-w-[96px]">
+            </div>
+
+            {/* 2. 챔피언 이름, 아이템 */}
+            <div className="flex flex-col gap-x-1 text-left">
+              <PlayerNameButton
+                name={player.name}
+                tag={player.tag}
+                isCenter={false}
+                className="w-[72px]"
+              />
+              <div className="w-[72px]">
                 {player.items
                   .filter((item) => item !== 0)
                   .map((item, index) => (
                     <Image
                       key={item}
-                      width={18}
-                      height={18}
+                      width={12}
+                      height={12}
                       alt={`아이템 ${index + 1}`}
                       src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
                     />
@@ -108,9 +98,6 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
               <span>{player.kda}</span>
               <span className="text-xs text-neonGreen">{player.kdaRate.toFixed(2)} KDA</span>
             </div>
-
-            {/* 5. 킬 관여율 */}
-            <div>{player.killParticipation}%</div>
 
             {/* 6. 준 피해량, 받은 피해량 */}
             <div className="flex flex-col items-baseline">
@@ -174,4 +161,4 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
     </div>
   );
 };
-export default MatchDetailTable;
+export default MatchDetailTableMobile;

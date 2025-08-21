@@ -69,10 +69,14 @@ export interface RecentGame {
   item4: number;
   item5: number;
   item6: number;
-  summoner_spell_1: number;
-  summoner_spell_2: number;
-  keystone_id: number;
-  perk_sub_style: number;
+  summoner_spell_1_key: string;
+  summoner_spell_1_name: string;
+  summoner_spell_2_key: string;
+  summoner_spell_2_name: string;
+  keyston_icon: string;
+  keyston_name: string;
+  substyle_icon: string;
+  substyle_name: string;
   create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }
 
@@ -147,10 +151,14 @@ interface GameRecord {
   item4: number;
   item5: number;
   item6: number;
-  summoner_spell_1: number;
-  summoner_spell_2: number;
-  keystone_id: number;
-  perk_sub_style: number;
+  summoner_spell_1_key: string;
+  summoner_spell_1_name: string;
+  summoner_spell_2_key: string;
+  summoner_spell_2_name: string;
+  keyston_icon: string;
+  keyston_name: string;
+  substyle_icon: string;
+  substyle_name: string;
   create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }
 
@@ -193,9 +201,13 @@ export interface GameParticipant {
   item4: number;
   item5: number;
   item6: number;
-  summoner_spell_1: number;
-  summoner_spell_2: number;
-  keystone_id: number;
-  perk_sub_style: number;
+  summoner_spell_1_key: string;
+  summoner_spell_1_name: string;
+  summoner_spell_2_key: string;
+  summoner_spell_2_name: string;
+  keyston_icon: string;
+  keyston_name: string;
+  substyle_icon: string;
+  substyle_name: string;
   create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }

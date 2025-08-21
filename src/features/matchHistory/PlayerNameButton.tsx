@@ -1,13 +1,23 @@
 import { useRouter } from "next/router";
 import React from "react";
 
-const PlayerNameButton = ({ name, tag }: { name: string; tag: string }) => {
+const PlayerNameButton = ({
+  name,
+  tag,
+  isCenter = true,
+  className,
+}: {
+  name: string;
+  tag: string;
+  isCenter?: boolean;
+  className?: string;
+}) => {
   const router = useRouter();
   return (
     <div className="relative group min-w-0 w-full">
       <button
         type="button"
-        className="truncate w-full overflow-hidden whitespace-nowrap text-center"
+        className={`truncate w-full overflow-hidden whitespace-nowrap ${isCenter ? "text-center" : "text-left"} ${className}`}
         onClick={() => {
           router.push(`/summoners/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
         }}
