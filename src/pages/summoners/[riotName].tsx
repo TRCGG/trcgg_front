@@ -49,7 +49,7 @@ const RiotProfilePage = () => {
   }, [router, userRecordData?.data?.data]);
 
   return (
-    <div className="w-full md:max-w-[1080px] mx-auto px-2">
+    <div className="w-full md:max-w-[1080px] mx-auto">
       <SummonerPageHeader
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}

@@ -18,7 +18,7 @@ const MostPickRank = ({ mostPickData }: Props) => {
   });
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2 sm:gap-4">
       {rankData.map((data) => (
         <RankItem key={data.rank} {...data} />
       ))}

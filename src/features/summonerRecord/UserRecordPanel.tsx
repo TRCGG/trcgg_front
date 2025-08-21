@@ -42,14 +42,14 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
       <div className="flex gap-3 flex-col md:flex-row">
         {/* 모스트 픽 */}
         {data.most_pick_data && (
-          <CardWithTitle title="Most Pick" className="md:w-[35%] w-full self-start">
+          <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
             <MostPickRank mostPickData={data.most_pick_data.slice(0, 5)} />
           </CardWithTitle>
         )}
 
         {/* 최근 전적 */}
         {data.recent_data && (
-          <CardWithTitle title="Recent Matches" className="w-full md:w-[65%]">
+          <CardWithTitle title="Recent Matches" className="w-full">
             <div className="flex flex-1 flex-col gap-4">
               {data.recent_data.map((datum: RecentGame) => (
                 <MatchItem matchData={datum} key={datum.game_id} />

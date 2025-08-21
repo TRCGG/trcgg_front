@@ -35,17 +35,17 @@ const RankItem: React.FC<RankItemProps> = ({
   championImg,
 }) => {
   return (
-    <div className="flex h-fit items-center justify-between px-2 md:justify-center">
+    <div className="flex h-[28px] sm:h-[52px] items-center justify-between md:justify-center">
       {/* 순위 */}
       <div
-        className={`w-6 min-w-6 h-8 sm:w-8 sm:h-12 ${getRankBgColor(rank)} text-primary2 text-center text-lg font-bold flex items-center justify-center`}
+        className={`w-[21px] h-[28px] sm:h-[52px] ${getRankBgColor(rank)} text-primary2 text-center text-lg font-bold flex items-center justify-center`}
       >
         {rank}
       </div>
 
       {/* 챔피언 아이콘 */}
-      <div className="flex items-center justify-center ml-2 w-8 min-w-8 h-8 min-h-8 sm:w-12 sm:h-12">
-        <Image width={48} height={48} alt={championName} src={championImg} />
+      <div className="flex items-center justify-center w-[28px] h-[28px] sm:w-[52px] sm:h-[52px] shrink-0 flex-none ml-1">
+        <Image alt={championName} src={championImg} width={52} height={52} />
       </div>
 
       {/* 챔피언 정보 */}
