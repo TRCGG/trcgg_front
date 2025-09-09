@@ -46,17 +46,38 @@ export interface SummaryData {
 export interface RecentGame {
   game_id: string;
   riot_name: string;
+  riot_name_tag: string;
   champ_name: string;
   champ_name_eng: string;
-  position: string;
+  position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
   kill: number;
   death: number;
   assist: number;
   game_result: "승" | "패";
   game_team: "red" | "blue";
   total_damage_champions: number;
+  total_damage_taken: number;
+  vision_score: number;
   vision_bought: number;
+  time_played: number;
   penta_kills: number;
+  level: number;
+  item0: number;
+  item1: number;
+  item2: number;
+  item3: number;
+  item4: number;
+  item5: number;
+  item6: number;
+  summoner_spell_1_key: string;
+  summoner_spell_1_name: string;
+  summoner_spell_2_key: string;
+  summoner_spell_2_name: string;
+  keyston_icon: string;
+  keyston_name: string;
+  substyle_icon: string;
+  substyle_name: string;
+  create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }
 
 interface TeamRecord {
@@ -107,6 +128,7 @@ interface PlayerRecordData {
 interface GameRecord {
   game_id: string;
   riot_name: string;
+  riot_name_tag: string;
   champ_name: string;
   champ_name_eng: string;
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
@@ -116,8 +138,28 @@ interface GameRecord {
   game_result: "승" | "패";
   game_team: "red" | "blue";
   total_damage_champions: number;
+  total_damage_taken: number;
+  vision_score: number;
   vision_bought: number;
+  time_played: number;
   penta_kills: number;
+  level: number;
+  item0: number;
+  item1: number;
+  item2: number;
+  item3: number;
+  item4: number;
+  item5: number;
+  item6: number;
+  summoner_spell_1_key: string;
+  summoner_spell_1_name: string;
+  summoner_spell_2_key: string;
+  summoner_spell_2_name: string;
+  keyston_icon: string;
+  keyston_name: string;
+  substyle_icon: string;
+  substyle_name: string;
+  create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }
 
 /**
@@ -147,6 +189,25 @@ export interface GameParticipant {
   game_result: "승" | "패";
   game_team: "red" | "blue";
   total_damage_champions: number;
+  total_damage_taken: number;
+  vision_score: number;
   vision_bought: number;
   penta_kills: number;
+  level: number;
+  item0: number;
+  item1: number;
+  item2: number;
+  item3: number;
+  item4: number;
+  item5: number;
+  item6: number;
+  summoner_spell_1_key: string;
+  summoner_spell_1_name: string;
+  summoner_spell_2_key: string;
+  summoner_spell_2_name: string;
+  keyston_icon: string;
+  keyston_name: string;
+  substyle_icon: string;
+  substyle_name: string;
+  create_date: string; // ISO format e.g. "2025-07-15T08:24:59.993Z"
 }
