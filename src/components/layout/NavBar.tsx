@@ -6,7 +6,7 @@ const NavBar = () => {
 
   const navList = [
     { href: "/summoners", label: "내전 전적", href2: "/" },
-    { href: "/clan", label: "클랜 분석" },
+    { href: "/champion", label: "챔피언 분석" },
     { href: "/user", label: "유저 분석" },
   ];
 
