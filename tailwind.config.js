@@ -29,6 +29,7 @@ module.exports = {
         blueLighten: "#1B2635",
         blueDarken: "#0C141F",
         blueText: "#6BB8FF",
+        blueText2: "#6A89AF",
         blueHover: "#081A33",
         blueButton: "#355A8D",
         white: "#FFFFFF",
