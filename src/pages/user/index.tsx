@@ -50,7 +50,7 @@ const User: NextPage = () => {
         className="mt-4"
       />
 
-      <div className="mt-6">
+      <div className="mt-1">
         <UserRankHeader />
         <div className="space-y-3 mt-2">
           <UserRankItem

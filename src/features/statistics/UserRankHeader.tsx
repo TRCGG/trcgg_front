@@ -5,20 +5,14 @@ interface Props {
 const UserRankHeader = ({ className }: Props) => {
   return (
     <div className={`flex items-center gap-3 px-3 py-2 ${className || ""}`}>
-      {/* 순위 */}
-      <div className="flex-shrink-0 w-8 text-center">
-        <span className="text-sm font-medium text-primary2">순위</span>
-      </div>
+      {/* 순위 (빈 공간) */}
+      <div className="flex-shrink-0 w-8 text-center" />
 
-      {/* 라인 */}
-      <div className="flex-shrink-0 w-10 text-center">
-        <span className="text-sm font-medium text-primary2">라인</span>
-      </div>
+      {/* 라인 (빈 공간) */}
+      <div className="flex-shrink-0 w-10 text-center" />
 
-      {/* 닉네임 */}
-      <div className="flex-1 min-w-0">
-        <span className="text-sm font-medium text-primary2">닉네임</span>
-      </div>
+      {/* 닉네임 (빈 공간) */}
+      <div className="flex-1 min-w-0" />
 
       {/* 전적 */}
       <div className="flex-shrink-0 w-32 text-center">
