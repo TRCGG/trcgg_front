@@ -20,6 +20,7 @@ module.exports = {
         primary1: "#D1DBE8",
         primary2: "#797F87",
         red: "#351314",
+        redPopular: "#FF4E4E",
         redLighten: "#664446",
         redDarken: "#1A1010",
         redHover: "#2e0606",
@@ -36,6 +37,8 @@ module.exports = {
         gray: "#9A9A9A",
         yellow: "#FFC364",
         neonGreen: "#71FF97",
+        tierBlue: "#2457FF",
+        tierBrown: "#AC6C70",
       },
       fontFamily: {
         sans: ["KoPubWorld Dotum", "sans-serif"],

@@ -36,20 +36,14 @@ const ChampionRankItem = ({
   isPopular,
   className,
 }: Props) => {
-  const getTierColor = (tierLevel?: number) => {
+  const getTierBgClass = (tierLevel?: number) => {
     switch (tierLevel) {
       case 1:
-        return "bg-blue-600";
-      case 2:
-        return "bg-blue-500";
-      case 3:
-        return "bg-blue-400";
-      case 4:
-        return "bg-blue-300";
+        return "bg-tierBlue";
       case 5:
-        return "bg-blue-200";
+        return "bg-tierBrown";
       default:
-        return "bg-blue-500";
+        return "bg-blue";
     }
   };
   return (
@@ -63,9 +57,11 @@ const ChampionRankItem = ({
 
       {/* 챔피언 아이콘 */}
       <div className="flex-shrink-0">
-        <img
+        <Image
           src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
           alt={championName}
+          width={48}
+          height={48}
           className="w-12 h-12 rounded"
         />
       </div>
@@ -75,13 +71,13 @@ const ChampionRankItem = ({
         <p className="text-base text-primary1 truncate">{championName}</p>
         {tier && (
           <span
-            className={`${getTierColor(tier)} text-white text-xs px-2 py-1 font-bold flex-shrink-0`}
+            className={`${getTierBgClass(tier)} text-white text-xs px-2 py-1 font-bold flex-shrink-0`}
           >
             {tier}
           </span>
         )}
         {isPopular && (
-          <span className="bg-redButton text-white text-xs px-2 py-1 font-bold flex-shrink-0">
+          <span className="bg-redPopular text-white text-xs px-2 py-1 font-bold flex-shrink-0">
             인기
           </span>
         )}
