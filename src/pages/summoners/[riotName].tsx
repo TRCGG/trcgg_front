@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
-import useModal from "@/hooks/common/useModal";
+// import useModal from "@/hooks/common/useModal";
 import React, { useEffect, useState } from "react";
-import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
+// import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -15,9 +15,9 @@ const RiotProfilePage = () => {
   const { riotName } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const [searchTerm, setSearchTerm] = useState("");
-  const { isOpen, open, close } = useModal();
+  // const { isOpen, open, close } = useModal();
   const [guildId, setGuildId] = useState<string>("");
-  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+  // const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
   const {
     data: userSearchData,
     isLoading,
@@ -40,6 +40,10 @@ const RiotProfilePage = () => {
     enabled: !!riotName && !!guildId,
   });
 
+  const handleDiscordLogin = async () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`;
+  };
+
   useEffect(() => {
     if (userRecordData?.data?.data && userRecordData?.data?.data.player.length === 1) {
       router.push(
@@ -57,7 +61,7 @@ const RiotProfilePage = () => {
         isLoading={isLoading}
         isError={isError}
         users={userSearchData?.data}
-        openDiscordModal={open}
+        openDiscordModal={handleDiscordLogin}
       />
 
       <SummonerSearchResult
@@ -65,7 +69,7 @@ const RiotProfilePage = () => {
         userRecordData={userRecordData?.data ?? null}
         isLoading={isLoadingUserRecord}
       />
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
+      {/* <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} /> */}
     </div>
   );
 };
