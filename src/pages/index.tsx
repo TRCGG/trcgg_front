@@ -10,6 +10,10 @@ import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
+import { useQuery } from "@tanstack/react-query";
+import { ApiResponse } from "@/services/apiService";
+import { GuildsResponse } from "@/data/types/guild";
+import { getGuilds } from "@/services/auth";
 
 const Home: NextPage = () => {
   // const { isOpen, open, close } = useModal();
@@ -23,11 +27,23 @@ const Home: NextPage = () => {
     guildId
   );
 
+  const { data: guildsData } = useQuery<ApiResponse<GuildsResponse>>({
+    queryKey: ["guilds"],
+    queryFn: () => getGuilds(),
+    staleTime: 3 * 60 * 1000,
+  });
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setGuildId(localStorage.getItem("guildId") || "");
     }
   }, []);
+
+  useEffect(() => {
+    if (guildsData?.data) {
+      console.log("Guilds Data:", guildsData.data);
+    }
+  }, [guildsData]);
 
   useEffect(() => {
     if (searchTerm.length < 2 && searchTerm !== "") {
