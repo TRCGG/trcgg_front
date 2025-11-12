@@ -4,7 +4,7 @@ import api from "@/services/index";
 
 export const getGuilds = async (): Promise<ApiResponse<GuildsResponse>> => {
   try {
-    return await api.get("/api/auth/guilds");
+    return await api.get("/api/auth/gmokGuilds");
   } catch (error) {
     return {
       data: null,

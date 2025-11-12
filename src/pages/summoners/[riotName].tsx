@@ -41,7 +41,7 @@ const RiotProfilePage = () => {
   });
 
   const handleDiscordLogin = async () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
   };
 
   useEffect(() => {
