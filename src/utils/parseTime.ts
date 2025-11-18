@@ -23,3 +23,13 @@ export const formatTimeAgo = (createDate: string): string => {
   if (minutes >= 1) return `${minutes}분 전`;
   return `방금 전`;
 };
+
+/**
+ * 현재 년월을 "YYYY년 MM월" 형식으로 반환
+ */
+export const getCurrentYearMonth = (): string => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  return `${year}년 ${month}월`;
+};
