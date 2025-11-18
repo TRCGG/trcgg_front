@@ -11,15 +11,15 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="flex items-center space-x-4 h-full">
+    <nav className="flex items-center h-full">
       {navList.map(({ href, label, href2 }) => (
         <Link key={href2 || href} href={href2 || href}>
           <span
-            className={`cursor-pointer text-sm sm:text-base font-medium pb-1 whitespace-nowrap ${
+            className={`cursor-pointer text-sm sm:text-base font-medium pb-1 whitespace-nowrap px-3 ${
               router.pathname === href ||
               router.pathname === href2 ||
               (href === "/summoners" && router.pathname.startsWith("/summoners"))
-                ? "text-primary1 border-b-3 border-primary1 px-3"
+                ? "text-primary1 border-b-3 border-primary1"
                 : "text-primary2 border-b-3 border-transparent"
             }`}
           >

@@ -50,12 +50,12 @@ const UserRankItem = ({
       </div>
 
       {/* 라인 아이콘 */}
-      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+      <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
         <Image
           src={laneImageMap[position] || LaneMidLogo}
           alt={position}
-          width={40}
-          height={40}
+          width={48}
+          height={48}
           className="w-full h-full object-contain"
         />
       </div>

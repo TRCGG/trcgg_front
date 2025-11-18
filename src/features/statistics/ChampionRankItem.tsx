@@ -12,7 +12,7 @@ interface Props {
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
   winRate: string;
   gameCount: number;
-  tier?: 1 | 2 | 3 | 4 | 5;
+  tier?: 1 | 5;
   isPopular?: boolean;
   className?: string;
 }
@@ -56,7 +56,7 @@ const ChampionRankItem = ({
       </div>
 
       {/* 챔피언 아이콘 */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 flex items-center justify-center">
         <Image
           src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
           alt={championName}
@@ -84,12 +84,12 @@ const ChampionRankItem = ({
       </div>
 
       {/* 라인 */}
-      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+      <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
         <Image
           src={laneImageMap[position] || LaneMidLogo}
           alt={position}
-          width={40}
-          height={40}
+          width={48}
+          height={48}
           className="w-full h-full object-contain"
         />
       </div>
