@@ -35,6 +35,7 @@ module.exports = {
         blueButton: "#355A8D",
         white: "#FFFFFF",
         gray: "#9A9A9A",
+        grayHover: "#212121",
         yellow: "#FFC364",
         neonGreen: "#71FF97",
         tierBlue: "#2457FF",

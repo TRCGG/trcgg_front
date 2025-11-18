@@ -62,7 +62,6 @@ const Champion: NextPage = () => {
             position="MID"
             winRate="58.3"
             gameCount={38}
-            tier={5}
           />
           <ChampionRankItem
             rank={3}

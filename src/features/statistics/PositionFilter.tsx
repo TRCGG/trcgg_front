@@ -30,10 +30,10 @@ const PositionFilter = ({ selectedPosition, onSelectPosition, className }: Props
             key={position.value}
             type="button"
             onClick={() => onSelectPosition(position.value)}
-            className={`flex items-center gap-2 px-4 py-2 rounded border transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 rounded border transition-colors border-border2 ${
               isSelected
-                ? "bg-primary1 border-blueButton text-blueDarken"
-                : "bg-darkBg2 border-border2 text-primary2 hover:border-primary2"
+                ? "bg-primary1 text-blueDarken"
+                : "bg-darkBg2 text-primary2 hover:bg-grayHover"
             }`}
           >
             {position.icon && (
