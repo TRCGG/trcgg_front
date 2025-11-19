@@ -11,7 +11,7 @@ export const getUsers = async (
   if (riotNameTag) params.riot_name_tag = riotNameTag;
 
   try {
-    return await api.get(`/account/search/${riotName}/${guildId ?? ""}`, params);
+    return await api.get(`/api/account/search/${riotName}/${guildId ?? ""}`, params);
   } catch (error) {
     return {
       data: null,

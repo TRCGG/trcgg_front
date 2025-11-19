@@ -7,6 +7,7 @@ import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 // import useModal from "@/hooks/common/useModal";
 // import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
+import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
@@ -66,7 +67,8 @@ const Home: NextPage = () => {
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-32 justify-end">
-        <div className="self-end m-3">
+        <div className="self-end m-3 flex gap-3 items-center">
+          <GuildDropdown />
           <DiscordLoginButton onClick={handleDiscordLogin} />
         </div>
         <div className="flex w-64 h-64 mx-auto">
