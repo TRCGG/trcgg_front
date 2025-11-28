@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import useClickOutside from "@/hooks/common/useClickOutside";
-import { GuildInfo } from "@/data/types/guild";
+import { GuildInfo } from "@/data/types/auth";
 
 interface GuildDropdownProps {
   guilds: GuildInfo[];

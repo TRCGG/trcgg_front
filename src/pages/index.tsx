@@ -5,24 +5,27 @@ import SearchBar from "@/components/form/SearchBar";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
-// import useModal from "@/hooks/common/useModal";
-// import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
+import useModal from "@/hooks/common/useModal";
+import NoGuildModal from "@/features/discordLogin/NoGuildModal";
 import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { GuildsResponse } from "@/data/types/guild";
-import { getGuilds } from "@/services/auth";
+import { GuildsResponse, MeResponse } from "@/data/types/auth";
+import { getGuilds, getMe } from "@/services/auth";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
 const Home: NextPage = () => {
-  // const { isOpen, open, close } = useModal();
+  const {
+    isOpen: isNoGuildModalOpen,
+    open: openNoGuildModal,
+    close: closeNoGuildModal,
+  } = useModal();
   const [searchTerm, setSearchTerm] = useState("");
   const [guildId, setGuildId] = useState<string>("");
-  // const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
   const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
 
   const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
@@ -36,6 +39,12 @@ const Home: NextPage = () => {
     staleTime: 3 * 60 * 1000,
   });
 
+  const { data: meData } = useQuery<ApiResponse<MeResponse>>({
+    queryKey: ["me"],
+    queryFn: () => getMe(),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const guilds = useMemo(() => {
     const rawGuilds = guildsData?.data?.data || [];
     return rawGuilds.map((guild) => ({
@@ -43,6 +52,17 @@ const Home: NextPage = () => {
       id: encodeGuildId(guild.id),
     }));
   }, [guildsData]);
+
+  // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
+  useEffect(() => {
+    const isLoggedIn = document.cookie.split(";").some((cookie) => {
+      return cookie.trim().startsWith("session_uid=");
+    });
+
+    if (isLoggedIn && guildsData && guilds.length === 0) {
+      openNoGuildModal();
+    }
+  }, [guildsData, guilds, openNoGuildModal]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && guilds.length > 0) {
@@ -88,7 +108,10 @@ const Home: NextPage = () => {
             selectedGuildId={guildId}
             onGuildChange={handleGuildChange}
           />
-          <DiscordLoginButton onClick={handleDiscordLogin} />
+          <DiscordLoginButton
+            onClick={handleDiscordLogin}
+            username={meData?.data?.data?.username}
+          />
         </div>
         <div className="flex w-64 h-64 mx-auto">
           <Image src={MainLogo} alt="메인 로고" />
@@ -123,7 +146,7 @@ const Home: NextPage = () => {
           <div className="text-blueText text-md">최소 2글자 이상 작성해주세요.</div>
         )}
       </main>
-      {/* <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} /> */}
+      <NoGuildModal isOpen={isNoGuildModalOpen} onClose={closeNoGuildModal} />
     </div>
   );
 };
