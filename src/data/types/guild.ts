@@ -2,8 +2,11 @@ export interface GuildInfo {
   id: string;
   name: string;
   icon: string;
-  owner: boolean;
-  permissions: string;
+  banner: string | null;
 }
 
-export type GuildsResponse = GuildInfo[];
+export type GuildsResponse = {
+  status: string;
+  message: string;
+  data: GuildInfo[];
+};

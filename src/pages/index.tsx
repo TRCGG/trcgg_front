@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import SearchBar from "@/components/form/SearchBar";
@@ -15,6 +15,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { GuildsResponse } from "@/data/types/guild";
 import { getGuilds } from "@/services/auth";
+
+const encodeGuildId = (id: string): string => btoa(id);
 
 const Home: NextPage = () => {
   // const { isOpen, open, close } = useModal();
@@ -34,17 +36,25 @@ const Home: NextPage = () => {
     staleTime: 3 * 60 * 1000,
   });
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGuildId(localStorage.getItem("guildId") || "");
-    }
-  }, []);
+  const guilds = useMemo(() => {
+    const rawGuilds = guildsData?.data?.data || [];
+    return rawGuilds.map((guild) => ({
+      ...guild,
+      id: encodeGuildId(guild.id),
+    }));
+  }, [guildsData]);
 
   useEffect(() => {
-    if (guildsData?.data) {
-      console.log("Guilds Data:", guildsData.data);
+    if (typeof window !== "undefined" && guilds.length > 0) {
+      const savedEncodedId = localStorage.getItem("guildId");
+      if (savedEncodedId) {
+        setGuildId(savedEncodedId);
+      } else {
+        localStorage.setItem("guildId", guilds[0].id);
+        setGuildId(guilds[0].id);
+      }
     }
-  }, [guildsData]);
+  }, [guilds]);
 
   useEffect(() => {
     if (searchTerm.length < 2 && searchTerm !== "") {
@@ -63,12 +73,21 @@ const Home: NextPage = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
   };
 
+  const handleGuildChange = (encodedGuildId: string) => {
+    localStorage.setItem("guildId", encodedGuildId);
+    setGuildId(encodedGuildId);
+  };
+
   return (
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-32 justify-end">
         <div className="self-end m-3 flex gap-3 items-center">
-          <GuildDropdown />
+          <GuildDropdown
+            guilds={guilds}
+            selectedGuildId={guildId}
+            onGuildChange={handleGuildChange}
+          />
           <DiscordLoginButton onClick={handleDiscordLogin} />
         </div>
         <div className="flex w-64 h-64 mx-auto">

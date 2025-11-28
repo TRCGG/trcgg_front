@@ -1,54 +1,36 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import useClickOutside from "@/hooks/common/useClickOutside";
+import { GuildInfo } from "@/data/types/guild";
 
-interface Guild {
-  name: string;
-  id: string;
+interface GuildDropdownProps {
+  guilds: GuildInfo[];
+  selectedGuildId: string;
+  onGuildChange: (encodedGuildId: string) => void;
 }
 
-const mockGuilds: Guild[] = [
-  { name: "코드 클랜", id: "1234" },
-  { name: "난민 클랜", id: "5678" },
-];
-
-const encodeGuildId = (id: string): string => btoa(id);
-const decodeGuildId = (encodedId: string): string | null => {
-  try {
-    return atob(encodedId);
-  } catch {
-    return null;
-  }
-};
-
-const GuildDropdown = () => {
-  const [selectedGuild, setSelectedGuild] = useState<Guild | null>(null);
+const GuildDropdown = ({ guilds, selectedGuildId, onGuildChange }: GuildDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(dropdownRef, () => setIsOpen(false));
 
-  // Load saved guild from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedEncodedId = localStorage.getItem("guildId");
-      if (savedEncodedId) {
-        const decodedId = decodeGuildId(savedEncodedId);
-        if (decodedId) {
-          const guild = mockGuilds.find((g) => g.id === decodedId);
-          if (guild) {
-            setSelectedGuild(guild);
-          }
-        }
-      }
-    }
-  }, []);
+  const selectedGuild = useMemo(() => {
+    if (!selectedGuildId || guilds.length === 0) return null;
+    return guilds.find((g) => g.id === selectedGuildId) || null;
+  }, [selectedGuildId, guilds]);
 
-  const handleSelectGuild = (guild: Guild) => {
-    const encodedId = encodeGuildId(guild.id);
-    localStorage.setItem("guildId", encodedId);
-    setSelectedGuild(guild);
+  const handleSelectGuild = (guild: GuildInfo) => {
+    onGuildChange(guild.id);
     setIsOpen(false);
   };
+
+  if (guilds.length === 0) {
+    return (
+      <div className="bg-darkBg2 text-white py-2 px-4 rounded flex items-center gap-2 w-[180px] border border-border2">
+        <span className="flex-1 text-left">가입된 길드 없음</span>
+      </div>
+    );
+  }
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -72,9 +54,9 @@ const GuildDropdown = () => {
 
       {isOpen && (
         <div className="absolute top-full w-full bg-darkBg2 rounded-b shadow-lg z-10 overflow-hidden divide-y divide-border2">
-          {mockGuilds.map((guild, index) => {
+          {guilds.map((guild, index) => {
             const isSelected = selectedGuild?.id === guild.id;
-            const isLast = index === mockGuilds.length - 1;
+            const isLast = index === guilds.length - 1;
 
             return (
               <button
@@ -85,7 +67,7 @@ const GuildDropdown = () => {
                 ${isLast ? "rounded-b" : ""}`}
               >
                 <span className="truncate">{guild.name}</span>
-                {isSelected && <span className="ml-2 flex-shrink-0">⏺</span>}
+                {isSelected && <span className="ml-2 flex-shrink-0 text-xl">⏺</span>}
               </button>
             );
           })}
