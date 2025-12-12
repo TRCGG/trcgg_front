@@ -17,7 +17,6 @@ const User: NextPage = () => {
   const [selectedPosition, setSelectedPosition] = useState<string>("전체");
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-
   const {
     data: userSearchData,
     isLoading,
@@ -43,6 +42,7 @@ const User: NextPage = () => {
       />
 
       <DiscordLoginModal isOpen={isOpen} close={close} onSave={handleGuildChange} />
+
       <TitleBox
         className="mt-10"
         clanName="TRC 난민캠프"

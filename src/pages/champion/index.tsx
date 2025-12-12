@@ -13,9 +13,7 @@ import { getCurrentYearMonth } from "@/utils/parseTime";
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
-
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-
   const {
     data: userSearchData,
     isLoading,
