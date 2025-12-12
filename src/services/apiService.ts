@@ -206,7 +206,10 @@ class ApiService {
       // fetch 요청 실행
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      const response = await fetch(interceptedRequest.url, interceptedRequest.options);
+      const response = await fetch(interceptedRequest.url, {
+        ...interceptedRequest.options,
+        credentials: "include", // 쿠키 전송을 위한 설정
+      });
 
       // 응답 데이터 파싱
       let data: unknown;
