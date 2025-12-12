@@ -9,8 +9,7 @@ interface NoGuildModalProps {
 
 const NoGuildModal = ({ isOpen, onClose }: NoGuildModalProps) => {
   const handleDiscordInquiry = () => {
-    // 디스코드 채널 URL로 이동
-    window.open("https://kr.dicoall.com/server/1081871833747427328", "_blank");
+    window.open("https://discord.gg/R8SyV4ZFRC", "_blank");
   };
 
   const handleClose = async () => {

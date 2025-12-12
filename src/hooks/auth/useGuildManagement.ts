@@ -9,7 +9,7 @@ const encodeGuildId = (id: string): string => btoa(id);
 const useGuildManagement = () => {
   const [guildId, setGuildId] = useState<string>("");
 
-  const { data: guildsData } = useQuery<ApiResponse<GuildsResponse>>({
+  const { data: guildsData, isLoading: isLoadingGuilds } = useQuery<ApiResponse<GuildsResponse>>({
     queryKey: ["guilds"],
     queryFn: () => getGuilds(),
     staleTime: 60 * 1000,
@@ -58,6 +58,7 @@ const useGuildManagement = () => {
     isLoggedIn,
     username,
     handleGuildChange,
+    isLoadingGuilds,
   };
 };
 
