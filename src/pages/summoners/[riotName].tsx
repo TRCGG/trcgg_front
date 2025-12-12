@@ -1,7 +1,5 @@
 import { useRouter } from "next/router";
-// import useModal from "@/hooks/common/useModal";
 import React, { useEffect, useState } from "react";
-// import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -9,27 +7,22 @@ import { UserRecordResponse } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import SummonerSearchResult from "@/features/summonerRecord/SummonerSearchResult";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 
 const RiotProfilePage = () => {
   const router = useRouter();
   const { riotName } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const [searchTerm, setSearchTerm] = useState("");
-  // const { isOpen, open, close } = useModal();
-  const [guildId, setGuildId] = useState<string>("");
-  // const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+
+  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
+
   const {
     data: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGuildId(localStorage.getItem("guildId") || "");
-    }
-  }, []);
 
   const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
     ApiResponse<UserRecordResponse>
@@ -62,6 +55,11 @@ const RiotProfilePage = () => {
         isError={isError}
         users={userSearchData?.data}
         openDiscordModal={handleDiscordLogin}
+        guilds={guilds}
+        selectedGuildId={guildId}
+        onGuildChange={handleGuildChange}
+        username={username}
+        isLoggedIn={isLoggedIn}
       />
 
       <SummonerSearchResult

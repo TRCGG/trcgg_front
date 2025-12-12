@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import NavBar from "@/components/layout/NavBar";
 import SearchBar from "@/components/form/SearchBar";
@@ -11,12 +11,7 @@ import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { GuildsResponse, MeResponse } from "@/data/types/auth";
-import { getGuilds, getMe } from "@/services/auth";
-
-const encodeGuildId = (id: string): string => btoa(id);
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 
 const Home: NextPage = () => {
   const {
@@ -25,38 +20,14 @@ const Home: NextPage = () => {
     close: closeNoGuildModal,
   } = useModal();
   const [searchTerm, setSearchTerm] = useState("");
-  const [guildId, setGuildId] = useState<string>("");
   const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
+
+  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
 
   const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
     searchTerm,
     guildId
   );
-
-  const { data: guildsData } = useQuery<ApiResponse<GuildsResponse>>({
-    queryKey: ["guilds"],
-    queryFn: () => getGuilds(),
-    staleTime: 3 * 60 * 1000,
-  });
-
-  const { data: meData } = useQuery<ApiResponse<MeResponse>>({
-    queryKey: ["me"],
-    queryFn: () => getMe(),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const guilds = useMemo(() => {
-    const rawGuilds = guildsData?.data?.data || [];
-    return rawGuilds.map((guild) => ({
-      ...guild,
-      id: encodeGuildId(guild.id),
-    }));
-  }, [guildsData]);
-
-  // 로그인 상태 확인 (meData API 응답으로 판단)
-  const isLoggedIn = useMemo(() => {
-    return !!meData?.data?.data?.username;
-  }, [meData]);
 
   // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
   useEffect(() => {
@@ -64,18 +35,6 @@ const Home: NextPage = () => {
       openNoGuildModal();
     }
   }, [isLoggedIn, guilds, openNoGuildModal]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && guilds.length > 0) {
-      const savedEncodedId = localStorage.getItem("guildId");
-      if (savedEncodedId) {
-        setGuildId(savedEncodedId);
-      } else {
-        localStorage.setItem("guildId", guilds[0].id);
-        setGuildId(guilds[0].id);
-      }
-    }
-  }, [guilds]);
 
   useEffect(() => {
     if (searchTerm.length < 2 && searchTerm !== "") {
@@ -94,11 +53,6 @@ const Home: NextPage = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
   };
 
-  const handleGuildChange = (encodedGuildId: string) => {
-    localStorage.setItem("guildId", encodedGuildId);
-    setGuildId(encodedGuildId);
-  };
-
   return (
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
@@ -111,10 +65,7 @@ const Home: NextPage = () => {
               onGuildChange={handleGuildChange}
             />
           )}
-          <DiscordLoginButton
-            onClick={handleDiscordLogin}
-            username={meData?.data?.data?.username}
-          />
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
         <div className="flex w-64 h-64 mx-auto">
           <Image src={MainLogo} alt="메인 로고" />
