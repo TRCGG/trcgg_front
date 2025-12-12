@@ -35,7 +35,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
         type="button"
         onClick={handleClick}
         onMouseEnter={() => username && setIsDropdownOpen(true)}
-        className="flex h-[40px] min-x-[80px] items-center justify-center gap-1 rounded p-2 text-white bg-[#5865F2] hover:bg-[#4752C4] transition whitespace-nowrap"
+        className="flex h-[40px] min-w-[80px] items-center justify-center gap-1 rounded p-2 text-white bg-[#5865F2] hover:bg-[#4752C4] transition whitespace-nowrap"
       >
         {!username && <FaDiscord className="w-[24px] h-[24px]" />}
         {username || "로그인"}
@@ -50,7 +50,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 rounded-b text-sm"
+            className="w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 rounded-b text-sm cursor-pointer"
           >
             로그아웃
           </button>
