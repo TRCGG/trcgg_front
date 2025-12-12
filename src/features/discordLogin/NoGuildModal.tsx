@@ -1,5 +1,6 @@
 import React from "react";
 import Modal from "@/components/modal/Modal";
+import { logout } from "@/services/auth";
 
 interface NoGuildModalProps {
   isOpen: boolean;
@@ -12,16 +13,13 @@ const NoGuildModal = ({ isOpen, onClose }: NoGuildModalProps) => {
     window.open("https://kr.dicoall.com/server/1081871833747427328", "_blank");
   };
 
-  const handleClose = () => {
-    // 쿠키 삭제
-    document.cookie.split(";").forEach((cookie) => {
-      const name = cookie.split("=")[0].trim();
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    });
+  const handleClose = async () => {
+    // 백엔드 로그아웃 API 호출
+    await logout();
     onClose();
 
     // 페이지 새로고침으로 로그아웃 상태 반영
-    window.location.reload();
+    window.location.href = "/";
   };
 
   return (

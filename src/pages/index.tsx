@@ -53,16 +53,17 @@ const Home: NextPage = () => {
     }));
   }, [guildsData]);
 
+  // 로그인 상태 확인 (meData API 응답으로 판단)
+  const isLoggedIn = useMemo(() => {
+    return !!meData?.data?.data?.username;
+  }, [meData]);
+
   // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
   useEffect(() => {
-    const isLoggedIn = document.cookie.split(";").some((cookie) => {
-      return cookie.trim().startsWith("session_uid=");
-    });
-
-    if (isLoggedIn && guildsData && guilds.length === 0) {
+    if (isLoggedIn && guilds.length === 0) {
       openNoGuildModal();
     }
-  }, [guildsData, guilds, openNoGuildModal]);
+  }, [isLoggedIn, guilds, openNoGuildModal]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && guilds.length > 0) {
@@ -103,11 +104,13 @@ const Home: NextPage = () => {
       {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-32 justify-end">
         <div className="self-end m-3 flex gap-3 items-center">
-          <GuildDropdown
-            guilds={guilds}
-            selectedGuildId={guildId}
-            onGuildChange={handleGuildChange}
-          />
+          {isLoggedIn && (
+            <GuildDropdown
+              guilds={guilds}
+              selectedGuildId={guildId}
+              onGuildChange={handleGuildChange}
+            />
+          )}
           <DiscordLoginButton
             onClick={handleDiscordLogin}
             username={meData?.data?.data?.username}

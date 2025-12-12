@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { FaDiscord } from "react-icons/fa";
 import useClickOutside from "@/hooks/common/useClickOutside";
+import { logout } from "@/services/auth";
 
 interface DiscordLoginButtonProps {
   onClick?: () => void;
@@ -13,14 +14,12 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
 
   useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
 
-  const handleLogout = () => {
-    // 쿠키 삭제
-    document.cookie.split(";").forEach((cookie) => {
-      const name = cookie.split("=")[0].trim();
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    });
+  const handleLogout = async () => {
+    // 백엔드 로그아웃 API 호출
+    await logout();
 
-    window.location.reload();
+    // 페이지 새로고침하여 상태 초기화
+    window.location.href = "/";
   };
 
   const handleClick = () => {

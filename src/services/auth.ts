@@ -25,3 +25,15 @@ export const getMe = async (): Promise<ApiResponse<MeResponse>> => {
     };
   }
 };
+
+export const logout = async (): Promise<ApiResponse<null>> => {
+  try {
+    return await api.post("/api/auth/logout");
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Unknown error",
+      status: 500,
+    };
+  }
+};
