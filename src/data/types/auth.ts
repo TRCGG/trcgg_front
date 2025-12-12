@@ -1,13 +1,16 @@
 export interface UserInfo {
   id: string;
   username: string;
+  global_name: string;
   avatar: string;
 }
 
 export interface MeResponse {
   status: string;
   message: string;
-  data: UserInfo;
+  data: {
+    user: UserInfo;
+  };
 }
 
 export interface GuildInfo {

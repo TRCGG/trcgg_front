@@ -30,10 +30,10 @@ const useGuildManagement = () => {
   }, [guildsData]);
 
   const isLoggedIn = useMemo(() => {
-    return !!meData?.data?.data?.username;
+    return !!meData?.data?.data?.user?.username;
   }, [meData]);
 
-  const username = meData?.data?.data?.username;
+  const username = meData?.data?.data?.user?.global_name || meData?.data?.data?.user?.username;
 
   useEffect(() => {
     if (typeof window !== "undefined" && guilds.length > 0) {
