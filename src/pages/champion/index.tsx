@@ -8,6 +8,10 @@ import TitleBox from "@/components/ui/TitleBox";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
 import { getCurrentYearMonth } from "@/utils/parseTime";
+import { useQuery } from "@tanstack/react-query";
+import { getChampionStatistics } from "@/services/statistics";
+import { ApiResponse } from "@/services/apiService";
+import { ChampionStatisticsResponse } from "@/data/types/statistics";
 
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +24,17 @@ const Champion: NextPage = () => {
     isError,
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
+
+  const {
+    data: championStatisticsData,
+    isLoading: isLoadingStatistics,
+    isError: isErrorStatistics,
+  } = useQuery<ApiResponse<ChampionStatisticsResponse>>({
+    queryKey: ["championStatistics", guildId],
+    queryFn: () => getChampionStatistics(guildId),
+    enabled: !!guildId,
+    staleTime: 10 * 60 * 1000,
+  });
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -45,34 +60,25 @@ const Champion: NextPage = () => {
       <div className="mt-6">
         <ChampionRankHeader />
         <div className="space-y-3 mt-2">
-          <ChampionRankItem
-            rank={1}
-            championName="아리"
-            championNameEng="Ahri"
-            position="MID"
-            winRate="65.5"
-            gameCount={42}
-            tier={1}
-            isPopular
-          />
-          <ChampionRankItem
-            rank={2}
-            championName="야스오"
-            championNameEng="Yasuo"
-            position="MID"
-            winRate="58.3"
-            gameCount={38}
-          />
-          <ChampionRankItem
-            rank={3}
-            championName="징크스"
-            championNameEng="Jinx"
-            position="ADC"
-            winRate="62.1"
-            gameCount={35}
-            tier={5}
-            isPopular
-          />
+          {isLoadingStatistics && (
+            <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
+          )}
+          {isErrorStatistics && (
+            <div className="text-center py-10 text-redText">데이터를 불러오는데 실패했습니다.</div>
+          )}
+          {!isLoadingStatistics &&
+            !isErrorStatistics &&
+            championStatisticsData?.data?.data?.map((champion, index) => (
+              <ChampionRankItem
+                key={champion.champNameEng}
+                rank={index + 1}
+                championName={champion.champName}
+                championNameEng={champion.champNameEng}
+                position="MID"
+                winRate={champion.winRate.toFixed(2)}
+                gameCount={champion.totalCount}
+              />
+            ))}
         </div>
       </div>
     </div>

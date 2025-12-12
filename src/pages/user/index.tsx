@@ -9,6 +9,10 @@ import PositionFilter from "@/features/statistics/PositionFilter";
 import UserRankHeader from "@/features/statistics/UserRankHeader";
 import UserRankItem from "@/features/statistics/UserRankItem";
 import { getCurrentYearMonth } from "@/utils/parseTime";
+import { useQuery } from "@tanstack/react-query";
+import { getUserStatistics } from "@/services/statistics";
+import { ApiResponse } from "@/services/apiService";
+import { UserStatisticsResponse } from "@/data/types/statistics";
 
 const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +26,17 @@ const User: NextPage = () => {
     isError,
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
+
+  const {
+    data: userStatisticsData,
+    isLoading: isLoadingStatistics,
+    isError: isErrorStatistics,
+  } = useQuery<ApiResponse<UserStatisticsResponse>>({
+    queryKey: ["userStatistics", guildId],
+    queryFn: () => getUserStatistics(guildId),
+    enabled: !!guildId,
+    staleTime: 60 * 1000,
+  });
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -53,36 +68,27 @@ const User: NextPage = () => {
       <div className="mt-1">
         <UserRankHeader />
         <div className="space-y-3 mt-2">
-          <UserRankItem
-            rank={1}
-            position="MID"
-            nickname="플레이어1"
-            totalGames={1234}
-            wins={823}
-            losses={411}
-            kda={3.45}
-            winRate={66.667}
-          />
-          <UserRankItem
-            rank={2}
-            position="TOP"
-            nickname="플레이어2"
-            totalGames={987}
-            wins={543}
-            losses={444}
-            kda={2.89}
-            winRate={55.016}
-          />
-          <UserRankItem
-            rank={3}
-            position="ADC"
-            nickname="플레이어3"
-            totalGames={856}
-            wins={498}
-            losses={358}
-            kda={4.12}
-            winRate={58.178}
-          />
+          {isLoadingStatistics && (
+            <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
+          )}
+          {isErrorStatistics && (
+            <div className="text-center py-10 text-redText">데이터를 불러오는데 실패했습니다.</div>
+          )}
+          {!isLoadingStatistics &&
+            !isErrorStatistics &&
+            userStatisticsData?.data?.data?.map((user, index) => (
+              <UserRankItem
+                key={user.playerCode}
+                rank={index + 1}
+                position="MID"
+                nickname={`${user.riotName}#${user.riotNameTag}`}
+                totalGames={user.totalCount}
+                wins={user.winCount}
+                losses={user.loseCount}
+                kda={user.kda}
+                winRate={user.winRate}
+              />
+            ))}
         </div>
       </div>
     </div>
