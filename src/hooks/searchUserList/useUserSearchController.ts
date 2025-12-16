@@ -16,18 +16,14 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
   );
   // 검색 버튼 클릭 callback함수, 라우팅 처리 포함
   const handleSearchButtonClick = async () => {
-    if (!debouncedTerm.riotName) {
-      return;
-    }
-    if (!guildId) {
-      console.error("디스코드 길드 코드를 입력해 로그인을 해주세요.");
+    if (!debouncedTerm.riotName || !guildId) {
       return;
     }
 
     const users = data?.data?.data ?? [];
     if (users.length === 1) {
       router.push(
-        `/summoners/${encodeURIComponent(users[0].riot_name)}/${encodeURIComponent(users[0].riot_name_tag)}`
+        `/summoners/${encodeURIComponent(users[0].riot_account.riotName)}/${encodeURIComponent(users[0].riot_account.riotNameTag)}`
       );
     } else {
       router.push(`/summoners/${encodeURIComponent(debouncedTerm.riotName)}`);

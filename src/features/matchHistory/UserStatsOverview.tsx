@@ -4,12 +4,12 @@ import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
 import LaneSupportLogo from "@/assets/images/laneSupport.png";
 import LaneBottomLogo from "@/assets/images/laneBottom.png";
-import { SummaryData } from "@/data/types/record";
+import { SummaryStats } from "@/data/types/record";
 
 interface Props {
   riotName: string;
   riotTag: string;
-  monthData: SummaryData;
+  monthData: SummaryStats;
   mostChampion: string;
   mostLane: string;
   totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: number };
@@ -76,7 +76,8 @@ const userStatsOverview = ({
               이번달
             </div>
             <div className="flex items-center text-white">
-              {monthData.total_count}전 {monthData.win}승 {monthData.lose}패 ({monthData.win_rate}
+              {monthData.totalCount}전 {monthData.winCount}승 {monthData.loseCount}패 (
+              {monthData.winRate}
               %)
             </div>
           </div>

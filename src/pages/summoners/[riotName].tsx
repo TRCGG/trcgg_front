@@ -41,9 +41,10 @@ const RiotProfilePage = () => {
   });
 
   useEffect(() => {
-    if (userRecordData?.data?.data && userRecordData?.data?.data.player.length === 1) {
+    const data = userRecordData?.data?.data;
+    if (data && Array.isArray(data) && data.length === 1) {
       router.push(
-        `/summoners/${userRecordData?.data?.data.player[0].riot_name}/${userRecordData?.data?.data.player[0].riot_name_tag}`
+        `/summoners/${encodeURIComponent(data[0].riotName)}/${encodeURIComponent(data[0].riotNameTag)}`
       );
     }
   }, [router, userRecordData?.data?.data]);

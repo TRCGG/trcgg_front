@@ -1,31 +1,44 @@
 import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
 import CardWithTitle from "@/components/ui/CardWithTitle";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
-import { PlayerStatsData, RecentGame } from "@/data/types/record";
+import {
+  MatchDashboardData,
+  RecentGameRecord,
+  UserRecentRecordsResponse,
+} from "@/data/types/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ApiResponse } from "@/services/apiService";
+import { getRecentRecords } from "@/services/record";
 
 interface Props {
   riotName: string;
   riotTag: string;
-  data: PlayerStatsData;
+  data: MatchDashboardData;
 }
 
 const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
-  const mostLane = data.record_data.reduce((prev, curr) =>
-    curr.total_count > prev.total_count ? curr : prev
+  const guildId =
+    typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
+
+  // 최근 전적 데이터 가져오기
+  const { data: recentRecordsData } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
+    queryKey: ["userRecentRecords", riotName, riotTag, guildId],
+    queryFn: () => getRecentRecords(riotName, riotTag, guildId ?? ""),
+    staleTime: 3 * 60 * 1000,
+    enabled: !!guildId && !!riotName && !!riotTag,
+  });
+
+  const mostLane = data.lines.reduce((prev, curr) =>
+    curr.totalCount > prev.totalCount ? curr : prev
   ).position;
 
-  const totalGameCount = data.record_data.reduce((sum, curr) => sum + curr.total_count, 0);
-  const winCount = data.record_data.reduce((sum, curr) => sum + curr.win, 0);
-  const loseCount = data.record_data.reduce((sum, curr) => sum + curr.lose, 0);
-  const winRate =
-    totalGameCount > 0 ? Math.round((winCount / totalGameCount) * 100 * 100) / 100 : 0;
   const totalStatData = {
-    totalGameCount,
-    winCount,
-    loseCount,
-    winRate,
+    totalGameCount: data.summary.totalCount,
+    winCount: data.summary.winCount,
+    loseCount: data.summary.loseCount,
+    winRate: data.summary.winRate,
   };
 
   return (
@@ -35,24 +48,24 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
         riotName={riotName}
         riotTag={riotTag}
         totalData={totalStatData}
-        monthData={data.month_data[0]}
-        mostChampion={data.most_pick_data[0].champ_name_eng}
+        monthData={data.summary}
+        mostChampion={data.mostPicks[0]?.champName || ""}
         mostLane={mostLane}
       />
       <div className="flex gap-3 flex-col md:flex-row">
         {/* 모스트 픽 */}
-        {data.most_pick_data && (
+        {data.mostPicks && data.mostPicks.length > 0 && (
           <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
-            <MostPickRank mostPickData={data.most_pick_data.slice(0, 5)} />
+            <MostPickRank mostPickData={data.mostPicks.slice(0, 5)} />
           </CardWithTitle>
         )}
 
         {/* 최근 전적 */}
-        {data.recent_data && (
+        {recentRecordsData?.data?.data && recentRecordsData.data.data.length > 0 && (
           <CardWithTitle title="Recent Matches" className="w-full">
             <div className="flex flex-1 flex-col gap-4">
-              {data.recent_data.map((datum: RecentGame) => (
-                <MatchItem matchData={datum} key={datum.game_id} />
+              {recentRecordsData.data.data.map((datum: RecentGameRecord) => (
+                <MatchItem matchData={datum} key={datum.gameId} />
               ))}
             </div>
           </CardWithTitle>

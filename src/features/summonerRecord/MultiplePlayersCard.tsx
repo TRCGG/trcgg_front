@@ -1,11 +1,11 @@
 import Card from "@/components/ui/Card";
 import React from "react";
 import { useRouter } from "next/router";
-import { Player } from "@/data/types/record";
+import { PlayerInfo } from "@/data/types/record";
 
 interface Props {
   riotName: string;
-  players: Player[];
+  players: PlayerInfo[];
 }
 
 const MultiplePlayersCard = ({ riotName, players }: Props) => {
@@ -20,14 +20,16 @@ const MultiplePlayersCard = ({ riotName, players }: Props) => {
           <div className="flex flex-col gap-2 items-center">
             {players.map((player) => (
               <button
-                key={player.puuid}
+                key={player.playerCode}
                 type="button"
                 className="bg-darkBg1 w-full max-w-[900px] p-4 text-left"
                 onClick={() =>
-                  router.push(`/summoners/${player.riot_name}/${player.riot_name_tag}`)
+                  router.push(
+                    `/summoners/${encodeURIComponent(player.riotName)}/${encodeURIComponent(player.riotNameTag)}`
+                  )
                 }
               >
-                {player.riot_name} #{player.riot_name_tag}
+                {player.riotName} #{player.riotNameTag}
               </button>
             ))}
           </div>

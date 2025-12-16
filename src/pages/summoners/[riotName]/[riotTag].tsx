@@ -5,7 +5,7 @@ import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { MultiplePlayers, PlayerStatsData, UserRecordResponse } from "@/data/types/record";
+import { MatchDashboardData, UserRecordResponse } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
@@ -43,8 +43,9 @@ const RiotProfilePage = () => {
     enabled: !!riotName && !!guildId,
   });
 
-  const isPlayerStatsData = (data: PlayerStatsData | MultiplePlayers): data is PlayerStatsData => {
-    return "month_data" in data; // 타입 좁히기
+  // 타입 가드: MatchDashboardData인지 확인
+  const isMatchDashboardData = (data: unknown): data is MatchDashboardData => {
+    return !Array.isArray(data) && typeof data === "object" && data !== null && "summary" in data;
   };
 
   return (
@@ -69,14 +70,9 @@ const RiotProfilePage = () => {
           );
         }
 
-        if (userRecordData?.data?.data && isPlayerStatsData(userRecordData.data.data)) {
-          return (
-            <UserRecordPanel
-              riotName={riotNameString}
-              riotTag={riotTagString}
-              data={userRecordData.data.data}
-            />
-          );
+        const data = userRecordData?.data?.data;
+        if (data && isMatchDashboardData(data)) {
+          return <UserRecordPanel riotName={riotNameString} riotTag={riotTagString} data={data} />;
         }
 
         return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;

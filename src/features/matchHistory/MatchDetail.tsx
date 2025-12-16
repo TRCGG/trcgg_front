@@ -9,15 +9,15 @@ const MatchDetail = ({ participantData }: Props) => {
   const mapParticipantData = (participants: GameParticipant[]) => {
     const totalTeamKills = participants.reduce((sum, p) => sum + p.kill, 0);
     return participants.map((participant) => ({
-      name: participant.riot_name,
-      tag: participant.riot_name_tag,
-      championImage: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${participant.champ_name_eng}.png`,
+      name: participant.riotName,
+      tag: participant.riotNameTag,
+      championImage: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${participant.champNameEng}.png`,
       kda: `${participant.kill} / ${participant.death} / ${participant.assist}`,
       kdaRate: (participant.kill + participant.assist) / participant.death,
-      damage: participant.total_damage_champions,
-      damageTaken: participant.total_damage_taken,
-      visionScore: participant.vision_score,
-      wards: participant.vision_bought,
+      damage: participant.totalDamageChampions,
+      damageTaken: participant.totalDamageTaken,
+      visionScore: participant.visionScore,
+      wards: participant.visionBought,
       items: [
         participant.item0,
         participant.item1,
@@ -25,11 +25,11 @@ const MatchDetail = ({ participantData }: Props) => {
         participant.item3,
         participant.item4,
         participant.item5,
-        // matchData.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭
+        // participant.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭)
       ],
-      spells: [participant.summoner_spell_1_key, participant.summoner_spell_2_key],
-      keystone: participant.keyston_icon,
-      perk: participant.substyle_icon,
+      spells: [participant.summonerSpell1Key, participant.summonerSpell2Key],
+      keystone: participant.keystoneIcon,
+      perk: participant.substyleIcon,
       killParticipation: totalTeamKills
         ? Number((((participant.kill + participant.assist) / totalTeamKills) * 100).toFixed(2))
         : 0,
@@ -37,11 +37,11 @@ const MatchDetail = ({ participantData }: Props) => {
   };
 
   const winParticipants = mapParticipantData(
-    participantData.filter((participant) => participant.game_result === "승")
+    participantData.filter((participant) => participant.gameResult === "승")
   );
 
   const loseParticipants = mapParticipantData(
-    participantData.filter((participant) => participant.game_result === "패")
+    participantData.filter((participant) => participant.gameResult === "패")
   );
 
   return (

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Card from "@/components/ui/Card";
-import { UserRecordResponse } from "@/data/types/record";
+import { UserRecordResponse, PlayerInfo } from "@/data/types/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -13,7 +13,15 @@ interface Props {
 
 const SummonerSearchResult = ({ riotNameString, userRecordData, isLoading }: Props) => {
   const router = useRouter();
-  const players = userRecordData?.data?.player;
+
+  // 타입 가드: data가 PlayerInfo[] 배열인지 확인
+  const isPlayerInfoArray = (data: unknown): data is PlayerInfo[] => {
+    return Array.isArray(data);
+  };
+
+  const players =
+    userRecordData?.data && isPlayerInfoArray(userRecordData.data) ? userRecordData.data : null;
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = players ? Math.ceil(players.length / itemsPerPage) : 1;
@@ -42,14 +50,16 @@ const SummonerSearchResult = ({ riotNameString, userRecordData, isLoading }: Pro
             <div className="flex flex-col gap-2 items-center">
               {pagedPlayers?.map((player) => (
                 <button
-                  key={player.puuid}
+                  key={player.playerCode}
                   type="button"
                   className="bg-darkBg1 w-full max-w-[900px] p-4 text-left"
                   onClick={() =>
-                    router.push(`/summoners/${player.riot_name}/${player.riot_name_tag}`)
+                    router.push(
+                      `/summoners/${encodeURIComponent(player.riotName)}/${encodeURIComponent(player.riotNameTag)}`
+                    )
                   }
                 >
-                  {player.riot_name} #{player.riot_name_tag}
+                  {player.riotName} #{player.riotNameTag}
                 </button>
               ))}
             </div>

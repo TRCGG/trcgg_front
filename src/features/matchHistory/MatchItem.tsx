@@ -2,27 +2,27 @@ import React, { useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Image from "next/image";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
-import { GameRecordResponse, RecentGame } from "@/data/types/record";
+import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
 
 interface Props {
-  matchData: RecentGame;
+  matchData: RecentGameRecord;
 }
 
 const MatchItem = ({ matchData }: Props) => {
   const [isOpen, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!isOpen);
-  const isWin = matchData.game_result === "승";
+  const isWin = matchData.gameResult === "승";
 
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
   const { data: gameData } = useQuery<ApiResponse<GameRecordResponse>>({
-    queryKey: ["gameData", matchData.game_id, guildId],
-    queryFn: () => getGameRecords(matchData.game_id, guildId),
+    queryKey: ["gameData", matchData.gameId, guildId],
+    queryFn: () => getGameRecords(matchData.gameId, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: isOpen && !!guildId,
   });
@@ -53,7 +53,7 @@ const MatchItem = ({ matchData }: Props) => {
           <div className="flex flex-col text-xs sm:text-sm">
             <span
               className="relative group cursor-pointer text-sm sm:text-base"
-              title={new Date(matchData.create_date).toLocaleString("ko-KR", {
+              title={new Date(matchData.createDate).toLocaleString("ko-KR", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -62,9 +62,9 @@ const MatchItem = ({ matchData }: Props) => {
                 hour12: true,
               })}
             >
-              {formatTimeAgo(matchData.create_date)}
+              {formatTimeAgo(matchData.createDate)}
               <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white whitespace-nowrap z-10 text-sm sm:text-base">
-                {new Date(matchData.create_date).toLocaleString("ko-KR", {
+                {new Date(matchData.createDate).toLocaleString("ko-KR", {
                   year: "numeric",
                   month: "2-digit",
                   day: "2-digit",
@@ -78,9 +78,11 @@ const MatchItem = ({ matchData }: Props) => {
             <span className={` ${isWin ? "text-blueText" : "text-redText"}`}>
               {isWin ? "승리" : "패배"}
             </span>
-            <span className="whitespace-nowrap">
-              {Math.floor(matchData.time_played / 60)}분 {matchData.time_played % 60}초
-            </span>
+            {matchData.timePlayed && (
+              <span className="whitespace-nowrap">
+                {Math.floor(matchData.timePlayed / 60)}분 {matchData.timePlayed % 60}초
+              </span>
+            )}
           </div>
 
           {/* 2. 챔피온 아이콘 */}
@@ -89,49 +91,57 @@ const MatchItem = ({ matchData }: Props) => {
               width={64}
               height={64}
               alt="챔피언"
-              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champ_name_eng}.png`}
+              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.championNameEng || matchData.championName}.png`}
             />
           </div>
 
           {/* 챔피온 명 (모바일 숨김, sm 이상 표시) */}
           <div className="hidden sm:block text-base sm:text-lg whitespace-nowrap">
-            {matchData.champ_name}
+            {matchData.championName}
           </div>
 
           {/* 4. 스펠, 룬, 아이템 */}
           <div className="flex items-center gap-x-3">
             <div className="flex">
               <div className="flex flex-col gap-0 w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
-                <Image
-                  width={32}
-                  height={32}
-                  alt="스펠 1"
-                  title={matchData.summoner_spell_1_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summoner_spell_1_key}.png`}
-                />
-                <Image
-                  width={32}
-                  height={32}
-                  alt="스펠 2"
-                  title={matchData.summoner_spell_2_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summoner_spell_2_key}.png`}
-                />
+                {matchData.summonerSpell1Key && (
+                  <Image
+                    width={32}
+                    height={32}
+                    alt="스펠 1"
+                    title={matchData.summonerSpell1Name}
+                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
+                  />
+                )}
+                {matchData.summonerSpell2Key && (
+                  <Image
+                    width={32}
+                    height={32}
+                    alt="스펠 2"
+                    title={matchData.summonerSpell2Name}
+                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
+                  />
+                )}
               </div>
               <div className="flex flex-col w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
-                <Image
-                  width={32}
-                  height={32}
-                  alt="메인 룬"
-                  title={matchData.keyston_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.keyston_icon}`}
-                />
-                <Image
-                  width={32}
-                  height={32}
-                  alt="서브 룬"
-                  title={matchData.substyle_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.substyle_icon}`}
-                />
+                {matchData.keystoneIcon && (
+                  <Image
+                    width={32}
+                    height={32}
+                    alt="메인 룬"
+                    title={matchData.keystoneName}
+                    src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.keystoneIcon}`}
+                  />
+                )}
+                {matchData.substyleIcon && (
+                  <Image
+                    width={32}
+                    height={32}
+                    alt="서브 룬"
+                    title={matchData.substyleName}
+                    src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.substyleIcon}`}
+                  />
+                )}
               </div>
             </div>
 
