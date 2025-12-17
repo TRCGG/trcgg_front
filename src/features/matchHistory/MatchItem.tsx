@@ -91,13 +91,13 @@ const MatchItem = ({ matchData }: Props) => {
               width={64}
               height={64}
               alt="챔피언"
-              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.championNameEng || matchData.championName}.png`}
+              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
             />
           </div>
 
           {/* 챔피온 명 (모바일 숨김, sm 이상 표시) */}
           <div className="hidden sm:block text-base sm:text-lg whitespace-nowrap">
-            {matchData.championName}
+            {matchData.champNameEng}
           </div>
 
           {/* 4. 스펠, 룬, 아이템 */}

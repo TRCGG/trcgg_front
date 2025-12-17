@@ -142,7 +142,6 @@ export interface UserRecentRecordsResponse {
  * 최근 게임 레코드
  *
  * @interface RecentGameRecord
- * @description 최근 게임 목록에서 사용하는 타입 (API 응답 명세 미완성 - 추후 업데이트 필요)
  */
 export interface RecentGameRecord {
   gameId: string;
@@ -150,15 +149,21 @@ export interface RecentGameRecord {
   createDate: string; // ISO format e.g. "2025-12-05T12:00:00.000Z"
   gameResult: "승" | "패";
   gameTeam: "red" | "blue";
-  championName: string;
-  championNameEng?: string; // TODO: API 응답 명세 확인 필요
+  timePlayed: number;
+  riotName: string;
+  riotNameTag: string;
+  champName: string;
+  champNameEng: string;
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
+  level: number;
   kill: number;
   death: number;
   assist: number;
-  kda: number;
+  pentaKills: number;
   totalDamageChampions: number;
+  totalDamageTaken: number;
   visionScore: number;
+  visionBought: number;
   item0: number;
   item1: number;
   item2: number;
@@ -166,19 +171,14 @@ export interface RecentGameRecord {
   item4: number;
   item5: number;
   item6: number;
-  summonerSpell1Key?: string; // TODO: API 응답 명세 확인 필요
+  summonerSpell1Key: string;
   summonerSpell1Name: string;
-  summonerSpell2Key?: string; // TODO: API 응답 명세 확인 필요
-  summonerSpell2Name?: string;
-  keystoneIcon?: string; // TODO: API 응답 명세 확인 필요
+  summonerSpell2Key: string;
+  summonerSpell2Name: string;
+  keystoneIcon: string;
   keystoneName: string;
-  substyleIcon?: string; // TODO: API 응답 명세 확인 필요
-  substyleName?: string;
-  level?: number;
-  totalDamageTaken?: number;
-  visionBought?: number;
-  timePlayed?: number;
-  pentaKills?: number;
+  substyleIcon: string;
+  substyleName: string;
 }
 
 /**
