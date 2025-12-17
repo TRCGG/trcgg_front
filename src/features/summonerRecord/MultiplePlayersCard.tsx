@@ -1,11 +1,11 @@
 import Card from "@/components/ui/Card";
 import React from "react";
 import { useRouter } from "next/router";
-import { PlayerInfo } from "@/data/types/record";
+import { MultiplePlayerInfo } from "@/data/types/record";
 
 interface Props {
   riotName: string;
-  players: PlayerInfo[];
+  players: MultiplePlayerInfo[];
 }
 
 const MultiplePlayersCard = ({ riotName, players }: Props) => {

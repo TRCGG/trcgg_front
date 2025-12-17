@@ -4,23 +4,23 @@
  * @interface UserRecordResponse
  * @property {string} status - 응답 상태 (예: "success", "fail")
  * @property {string} message - 응답 메세지
- * @property {MatchDashboardData | PlayerInfo[]} data - 매치 대시보드 데이터 또는 여러 플레이어 정보 배열
+ * @property {MatchDashboardData | MultiplePlayerInfo[]} data - 매치 대시보드 데이터 또는 여러 플레이어 정보 배열
  */
 export interface UserRecordResponse {
   status: string;
   message: string;
-  data: MatchDashboardData | PlayerInfo[];
+  data: MatchDashboardData | MultiplePlayerInfo[];
 }
 
 /**
- * 플레이어 기본 정보
+ * 여러 플레이어 검색 결과 정보
  *
- * @interface PlayerInfo
+ * @interface MultiplePlayerInfo
  * @property {string} playerCode - 플레이어 코드 (예: "PLR_000001")
  * @property {string} riotName - 라이엇 게임 이름
  * @property {string} riotNameTag - 라이엇 태그
  */
-export interface PlayerInfo {
+export interface MultiplePlayerInfo {
   playerCode: string;
   riotName: string;
   riotNameTag: string;

@@ -23,7 +23,7 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
     const users = data?.data?.data ?? [];
     if (users.length === 1) {
       router.push(
-        `/summoners/${encodeURIComponent(users[0].riot_account.riotName)}/${encodeURIComponent(users[0].riot_account.riotNameTag)}`
+        `/summoners/${encodeURIComponent(users[0].riotName)}/${encodeURIComponent(users[0].riotNameTag)}`
       );
     } else {
       router.push(`/summoners/${encodeURIComponent(debouncedTerm.riotName)}`);

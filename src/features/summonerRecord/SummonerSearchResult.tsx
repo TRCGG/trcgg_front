@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Card from "@/components/ui/Card";
-import { UserRecordResponse, PlayerInfo } from "@/data/types/record";
+import { UserRecordResponse, MultiplePlayerInfo } from "@/data/types/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -14,8 +14,8 @@ interface Props {
 const SummonerSearchResult = ({ riotNameString, userRecordData, isLoading }: Props) => {
   const router = useRouter();
 
-  // 타입 가드: data가 PlayerInfo[] 배열인지 확인
-  const isPlayerInfoArray = (data: unknown): data is PlayerInfo[] => {
+  // 타입 가드: data가 MultiplePlayerInfo[] 배열인지 확인
+  const isPlayerInfoArray = (data: unknown): data is MultiplePlayerInfo[] => {
     return Array.isArray(data);
   };
 

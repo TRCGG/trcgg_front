@@ -1,8 +1,12 @@
-export interface GuildMember {
-  id: number;
-  status: string;
-  account: string;
-  mainAccount: string | null;
+/**
+ * 플레이어 정보 (User Search API 응답)
+ *
+ * @interface PlayerInfo
+ */
+export interface PlayerInfo {
+  playerCode: string;
+  riotName: string;
+  riotNameTag: string;
   isMain: boolean;
   guildId: string;
   createDate: string;
@@ -10,24 +14,13 @@ export interface GuildMember {
   isDeleted: boolean;
 }
 
-export interface RiotAccount {
-  id: number;
-  puuid: string;
-  playerCode: string;
-  riotName: string;
-  riotNameTag: string;
-  createDate: string;
-  updateDate: string;
-  isDeleted: boolean;
-}
-
-export interface PlayerInfo {
-  guild_member: GuildMember;
-  riot_account: RiotAccount;
-}
-
+/**
+ * 유저 검색 결과
+ *
+ * @interface UserSearchResult
+ */
 export interface UserSearchResult {
-  data: PlayerInfo[];
-  message: string;
   status: string;
+  message: string;
+  data: PlayerInfo[];
 }
