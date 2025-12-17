@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import useModal from "@/hooks/common/useModal";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCa
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -19,20 +20,15 @@ const RiotProfilePage = () => {
   const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
-  const [guildId, setGuildId] = useState<string>("");
-  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+
+  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
+
   const {
     data: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGuildId(localStorage.getItem("guildId") || "");
-    }
-  }, []);
 
   const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
     ApiResponse<UserRecordResponse>
@@ -58,6 +54,11 @@ const RiotProfilePage = () => {
         isError={isError}
         users={userSearchData?.data}
         openDiscordModal={open}
+        guilds={guilds}
+        selectedGuildId={guildId}
+        onGuildChange={handleGuildChange}
+        username={username}
+        isLoggedIn={isLoggedIn}
       />
 
       {/* 메인 콘텐츠 */}
@@ -78,7 +79,7 @@ const RiotProfilePage = () => {
         return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
       })()}
 
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
+      <DiscordLoginModal isOpen={isOpen} close={close} onSave={handleGuildChange} />
     </div>
   );
 };

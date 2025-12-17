@@ -4,6 +4,7 @@ import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import React, { useState } from "react";
 import useModal from "@/hooks/common/useModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
@@ -16,8 +17,7 @@ import { ChampionStatisticsResponse } from "@/data/types/statistics";
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
-  const [guildId, setGuildId] = useState<string>("");
-  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
     data: userSearchData,
     isLoading,
@@ -46,9 +46,14 @@ const Champion: NextPage = () => {
         isError={isError}
         users={userSearchData?.data}
         openDiscordModal={open}
+        guilds={guilds}
+        selectedGuildId={guildId}
+        onGuildChange={handleGuildChange}
+        username={username}
+        isLoggedIn={isLoggedIn}
       />
 
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
+      <DiscordLoginModal isOpen={isOpen} close={close} onSave={handleGuildChange} />
       <TitleBox
         className="mt-10"
         clanName="TRC 난민캠프"

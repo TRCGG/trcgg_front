@@ -6,28 +6,36 @@ import MainLogo from "@/assets/images/mainLogo.png";
 import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useModal from "@/hooks/common/useModal";
-import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
+import NoGuildModal from "@/features/discordLogin/NoGuildModal";
+import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 
 const Home: NextPage = () => {
-  const { isOpen, open, close } = useModal();
+  const {
+    isOpen: isNoGuildModalOpen,
+    open: openNoGuildModal,
+    close: closeNoGuildModal,
+  } = useModal();
   const [searchTerm, setSearchTerm] = useState("");
-  const [guildId, setGuildId] = useState<string>("");
-  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
   const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
+
+  const { guildId, guilds, isLoggedIn, username, handleGuildChange, isLoadingGuilds } =
+    useGuildManagement();
 
   const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
     searchTerm,
     guildId
   );
 
+  // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGuildId(localStorage.getItem("guildId") || "");
+    if (isLoggedIn && !isLoadingGuilds && guilds.length === 0) {
+      openNoGuildModal();
     }
-  }, []);
+  }, [isLoggedIn, isLoadingGuilds, guilds, openNoGuildModal]);
 
   useEffect(() => {
     if (searchTerm.length < 2 && searchTerm !== "") {
@@ -42,12 +50,23 @@ const Home: NextPage = () => {
 
   useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
+  const handleDiscordLogin = async () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
+  };
+
   return (
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-32 justify-end">
-        <div className="self-end m-3">
-          <DiscordLoginButton onClick={open} />
+        <div className="self-end m-3 flex gap-3 items-center">
+          {isLoggedIn && (
+            <GuildDropdown
+              guilds={guilds}
+              selectedGuildId={guildId}
+              onGuildChange={handleGuildChange}
+            />
+          )}
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
         <div className="flex w-64 h-64 mx-auto">
           <Image src={MainLogo} alt="메인 로고" />
@@ -82,7 +101,7 @@ const Home: NextPage = () => {
           <div className="text-blueText text-md">최소 2글자 이상 작성해주세요.</div>
         )}
       </main>
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
+      <NoGuildModal isOpen={isNoGuildModalOpen} onClose={closeNoGuildModal} />
     </div>
   );
 };
