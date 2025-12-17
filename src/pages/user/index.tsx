@@ -87,7 +87,7 @@ const User: NextPage = () => {
               <UserRankItem
                 key={user.playerCode}
                 rank={index + 1}
-                position="MID"
+                position={user.position}
                 nickname={`${user.riotName}#${user.riotNameTag}`}
                 totalGames={user.totalCount}
                 wins={user.win}

@@ -6,7 +6,7 @@ export const getUserStatistics = async (
   guildId: string
 ): Promise<ApiResponse<UserStatisticsResponse>> => {
   try {
-    return await api.get(`/api/statistics/${guildId}/users`);
+    return await api.get(`/api/statistics/${guildId}/users?position=ALL`);
   } catch (error) {
     return {
       data: null,
@@ -20,7 +20,7 @@ export const getChampionStatistics = async (
   guildId: string
 ): Promise<ApiResponse<ChampionStatisticsResponse>> => {
   try {
-    return await api.get(`/api/statistics/${guildId}/champions`);
+    return await api.get(`/api/statistics/${guildId}/champions?position=ALL`);
   } catch (error) {
     return {
       data: null,

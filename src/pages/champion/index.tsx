@@ -79,7 +79,7 @@ const Champion: NextPage = () => {
                 rank={index + 1}
                 championName={champion.champName}
                 championNameEng={champion.champNameEng}
-                position="MID"
+                position={champion.position}
                 winRate={champion.winRate}
                 gameCount={champion.totalCount}
               />

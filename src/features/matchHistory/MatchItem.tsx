@@ -97,7 +97,7 @@ const MatchItem = ({ matchData }: Props) => {
 
           {/* 챔피온 명 (모바일 숨김, sm 이상 표시) */}
           <div className="hidden sm:block text-base sm:text-lg whitespace-nowrap">
-            {matchData.champNameEng}
+            {matchData.champName}
           </div>
 
           {/* 4. 스펠, 룬, 아이템 */}
