@@ -13,7 +13,7 @@ const MostPickRank = ({ mostPickData }: Props) => {
       kda: champRecord.kda,
       winRate: champRecord.winRate,
       games: champRecord.totalCount,
-      championImg: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champRecord.champName}.png`,
+      championImg: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champRecord.champNameEng}.png`,
     };
   });
 

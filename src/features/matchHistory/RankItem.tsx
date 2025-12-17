@@ -4,8 +4,8 @@ import Image from "next/image";
 interface RankItemProps {
   rank: number;
   championName: string;
-  kda: number;
-  winRate: number;
+  kda: string;
+  winRate: string;
   games: number;
   championImg: string;
 }

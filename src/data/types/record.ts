@@ -32,12 +32,14 @@ export interface MultiplePlayerInfo {
  * @interface MatchDashboardData
  * @property {SummaryStats} summary - 전체 전적 요약
  * @property {LineStats[]} lines - 포지션별 전적
- * @property {MostPickStats[]} mostPicks - 가장 많이 플레이한 챔피언 (Top 5)
+ * @property {MostPickStats[]} mostPicks - 가장 많이 플레이한 챔피언
+ * @property {SynergyStats[]} synergy - 함께 플레이한 유저 통계
  */
 export interface MatchDashboardData {
   summary: SummaryStats;
   lines: LineStats[];
   mostPicks: MostPickStats[];
+  synergy: SynergyStats[];
 }
 
 /**
@@ -45,17 +47,17 @@ export interface MatchDashboardData {
  *
  * @interface SummaryStats
  * @property {number} totalCount - 총 게임 수
- * @property {number} winCount - 승리 수
- * @property {number} loseCount - 패배 수
- * @property {number} winRate - 승률 (예: 60.0)
- * @property {number} kda - KDA (예: 3.5)
+ * @property {number} win - 승리 수
+ * @property {number} lose - 패배 수
+ * @property {string} winRate - 승률
+ * @property {string} kda - KDA
  */
 export interface SummaryStats {
   totalCount: number;
-  winCount: number;
-  loseCount: number;
-  winRate: number;
-  kda: number;
+  win: number;
+  lose: number;
+  winRate: string;
+  kda: string;
 }
 
 /**
@@ -64,30 +66,62 @@ export interface SummaryStats {
  * @interface LineStats
  * @property {"TOP" | "JUG" | "MID" | "ADC" | "SUP"} position - 포지션
  * @property {number} totalCount - 해당 포지션 총 게임 수
- * @property {number} winRate - 승률 (예: 55.5)
- * @property {number} kda - KDA (예: 4.1)
+ * @property {number} win - 승리 수
+ * @property {number} lose - 패배 수
+ * @property {string} winRate - 승률
+ * @property {string} kda - KDA
  */
 export interface LineStats {
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
   totalCount: number;
-  winRate: number;
-  kda: number;
+  win: number;
+  lose: number;
+  winRate: string;
+  kda: string;
 }
 
 /**
  * 모스트 픽 챔피언 통계
  *
  * @interface MostPickStats
- * @property {string} champName - 챔피언 이름
+ * @property {string} champName - 챔피언 이름 (한글)
+ * @property {string} champNameEng - 챔피언 이름 (영문)
  * @property {number} totalCount - 플레이 횟수
- * @property {number} winRate - 승률 (예: 66.6)
- * @property {number} kda - KDA (예: 4.5)
+ * @property {number} win - 승리 수
+ * @property {number} lose - 패배 수
+ * @property {string} winRate - 승률
+ * @property {string} kda - KDA
  */
 export interface MostPickStats {
   champName: string;
+  champNameEng: string;
   totalCount: number;
-  winRate: number;
-  kda: number;
+  win: number;
+  lose: number;
+  winRate: string;
+  kda: string;
+}
+
+/**
+ * 함께 플레이한 유저 통계
+ *
+ * @interface SynergyStats
+ * @property {string} riotName - 라이엇 게임 이름
+ * @property {string} riotNameTag - 라이엇 태그
+ * @property {number} totalCount - 함께 플레이한 게임 수
+ * @property {number} win - 승리 수
+ * @property {number} lose - 패배 수
+ * @property {string} winRate
+ * @property {string} kda
+ */
+export interface SynergyStats {
+  riotName: string;
+  riotNameTag: string;
+  totalCount: number;
+  win: number;
+  lose: number;
+  winRate: string;
+  kda: string;
 }
 
 /**

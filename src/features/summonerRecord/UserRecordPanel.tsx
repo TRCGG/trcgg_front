@@ -36,8 +36,8 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
 
   const totalStatData = {
     totalGameCount: data.summary.totalCount,
-    winCount: data.summary.winCount,
-    loseCount: data.summary.loseCount,
+    winCount: data.summary.win,
+    loseCount: data.summary.lose,
     winRate: data.summary.winRate,
   };
 
@@ -49,7 +49,7 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
         riotTag={riotTag}
         totalData={totalStatData}
         monthData={data.summary}
-        mostChampion={data.mostPicks[0]?.champName || ""}
+        mostChampion={data.mostPicks[0]?.champNameEng || ""}
         mostLane={mostLane}
       />
       <div className="flex gap-3 flex-col md:flex-row">

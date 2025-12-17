@@ -12,7 +12,7 @@ interface Props {
   monthData: SummaryStats;
   mostChampion: string;
   mostLane: string;
-  totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: number };
+  totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: string };
 }
 
 const laneImageMap: Record<string, StaticImageData> = {
@@ -76,9 +76,7 @@ const userStatsOverview = ({
               이번달
             </div>
             <div className="flex items-center text-white">
-              {monthData.totalCount}전 {monthData.winCount}승 {monthData.loseCount}패 (
-              {monthData.winRate}
-              %)
+              {monthData.totalCount}전 {monthData.win}승 {monthData.lose}패 ({monthData.winRate}%)
             </div>
           </div>
         )}
