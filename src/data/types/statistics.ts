@@ -3,10 +3,10 @@ export interface UserStatistics {
   riotName: string;
   riotNameTag: string;
   totalCount: number;
-  winCount: number;
-  loseCount: number;
-  winRate: number;
-  kda: number;
+  win: number;
+  lose: number;
+  winRate: string;
+  kda: string;
 }
 
 export interface UserStatisticsResponse {
@@ -19,10 +19,10 @@ export interface ChampionStatistics {
   champName: string;
   champNameEng: string;
   totalCount: number;
-  winCount: number;
-  loseCount: number;
-  winRate: number;
-  kda: number;
+  win: number;
+  lose: number;
+  winRate: string;
+  kda: string;
 }
 
 export interface ChampionStatisticsResponse {

@@ -90,8 +90,8 @@ const User: NextPage = () => {
                 position="MID"
                 nickname={`${user.riotName}#${user.riotNameTag}`}
                 totalGames={user.totalCount}
-                wins={user.winCount}
-                losses={user.loseCount}
+                wins={user.win}
+                losses={user.lose}
                 kda={user.kda}
                 winRate={user.winRate}
               />

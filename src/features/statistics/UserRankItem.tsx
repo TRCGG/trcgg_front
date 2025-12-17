@@ -12,8 +12,8 @@ interface Props {
   totalGames: number;
   wins: number;
   losses: number;
-  kda: number;
-  winRate: number;
+  kda: string;
+  winRate: string;
   className?: string;
 }
 
@@ -72,14 +72,14 @@ const UserRankItem = ({
         </span>
       </div>
 
-      {/* KDA (소숫점 2자리) */}
+      {/* KDA */}
       <div className="flex-shrink-0 w-20 text-center">
-        <span className="text-sm text-primary1">{kda.toFixed(2)}</span>
+        <span className="text-sm text-primary1">{kda}</span>
       </div>
 
-      {/* 승률 (소숫점 3자리) */}
+      {/* 승률 */}
       <div className="flex-shrink-0 w-20 text-center">
-        <span className="text-sm text-primary1">{winRate.toFixed(3)}%</span>
+        <span className="text-sm text-primary1">{winRate}%</span>
       </div>
     </div>
   );
