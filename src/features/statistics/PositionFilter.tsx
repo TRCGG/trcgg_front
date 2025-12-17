@@ -1,18 +1,19 @@
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import LaneTopLogo from "@/assets/images/laneTop.png";
 import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
 import LaneSupportLogo from "@/assets/images/laneSupport.png";
 import LaneBottomLogo from "@/assets/images/laneBottom.png";
+import { Position } from "@/services/statistics";
 
 interface Props {
-  selectedPosition: string;
-  onSelectPosition: (position: string) => void;
+  selectedPosition: Position;
+  onSelectPosition: (position: Position) => void;
   className?: string;
 }
 
-const positions = [
-  { label: "전체", value: "전체", icon: null },
+const positions: Array<{ label: string; value: Position; icon: StaticImageData | null }> = [
+  { label: "전체", value: "ALL", icon: null },
   { label: "탑", value: "TOP", icon: LaneTopLogo },
   { label: "정글", value: "JUG", icon: LaneJungleLogo },
   { label: "미드", value: "MID", icon: LaneMidLogo },

@@ -2,11 +2,14 @@ import { ApiResponse } from "@/services/apiService";
 import { UserStatisticsResponse, ChampionStatisticsResponse } from "@/data/types/statistics";
 import api from "@/services/index";
 
+export type Position = "ALL" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
+
 export const getUserStatistics = async (
-  guildId: string
+  guildId: string,
+  position: Position
 ): Promise<ApiResponse<UserStatisticsResponse>> => {
   try {
-    return await api.get(`/api/statistics/${guildId}/users?position=ALL`);
+    return await api.get(`/api/statistics/${guildId}/users?position=${position}`);
   } catch (error) {
     return {
       data: null,

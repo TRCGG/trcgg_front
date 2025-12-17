@@ -11,14 +11,14 @@ import UserRankHeader from "@/features/statistics/UserRankHeader";
 import UserRankItem from "@/features/statistics/UserRankItem";
 import { getCurrentYearMonth } from "@/utils/parseTime";
 import { useQuery } from "@tanstack/react-query";
-import { getUserStatistics } from "@/services/statistics";
+import { getUserStatistics, Position } from "@/services/statistics";
 import { ApiResponse } from "@/services/apiService";
 import { UserStatisticsResponse } from "@/data/types/statistics";
 
 const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
-  const [selectedPosition, setSelectedPosition] = useState<string>("전체");
+  const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
@@ -33,10 +33,10 @@ const User: NextPage = () => {
     isLoading: isLoadingStatistics,
     isError: isErrorStatistics,
   } = useQuery<ApiResponse<UserStatisticsResponse>>({
-    queryKey: ["userStatistics", guildId],
-    queryFn: () => getUserStatistics(guildId),
+    queryKey: ["userStatistics", guildId, selectedPosition],
+    queryFn: () => getUserStatistics(guildId, selectedPosition),
     enabled: !!guildId,
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5분
   });
 
   return (
@@ -85,7 +85,7 @@ const User: NextPage = () => {
             !isErrorStatistics &&
             userStatisticsData?.data?.data?.map((user, index) => (
               <UserRankItem
-                key={user.playerCode}
+                key={`${selectedPosition}-${user.playerCode}`}
                 rank={index + 1}
                 position={user.position}
                 nickname={`${user.riotName}#${user.riotNameTag}`}
