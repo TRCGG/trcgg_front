@@ -28,13 +28,17 @@ export const getAllRecords = async (
 export const getRecentRecords = async (
   riotName: string,
   riotNameTag: string | null,
+  page: number,
   guildId?: string
 ): Promise<ApiResponse<UserRecentRecordsResponse>> => {
   const params: Record<string, string> = {};
   if (riotNameTag) params.riot_name_tag = riotNameTag;
 
   try {
-    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games`, params);
+    return await api.get(
+      `/api/matches/${guildId ?? ""}/${riotName}/games?page=${page}&limit=10`,
+      params
+    );
   } catch (error) {
     return {
       data: null,
