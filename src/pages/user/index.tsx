@@ -85,19 +85,30 @@ const User: NextPage = () => {
           )}
           {!isLoadingStatistics &&
             !isErrorStatistics &&
-            userStatisticsData?.data?.data?.map((user, index) => (
-              <UserRankItem
-                key={user.playerCode}
-                rank={index + 1}
-                position={user.position}
-                riotName={user.riotName}
-                riotNameTag={user.riotNameTag}
-                totalGames={user.totalCount}
-                wins={user.win}
-                losses={user.lose}
-                kda={user.kda}
-                winRate={user.winRate}
-              />
+            (userStatisticsData?.data?.data && userStatisticsData.data.data.length > 0 ? (
+              <>
+                {userStatisticsData.data.data.map((user, index) => (
+                  <UserRankItem
+                    key={user.playerCode}
+                    rank={index + 1}
+                    position={user.position}
+                    riotName={user.riotName}
+                    riotNameTag={user.riotNameTag}
+                    totalGames={user.totalCount}
+                    wins={user.win}
+                    losses={user.lose}
+                    kda={user.kda}
+                    winRate={user.winRate}
+                  />
+                ))}
+                <div className="mt-4 text-sm text-primary2 text-center">
+                  통계는 30판 이상 플레이한 기록이 있을 경우에만 집계 및 표시됩니다.
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
+                30판 이상 플레이한 유저가 없어 통계 데이터를 확인할 수 없습니다.
+              </div>
             ))}
         </div>
       </div>

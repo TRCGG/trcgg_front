@@ -73,16 +73,27 @@ const Champion: NextPage = () => {
           )}
           {!isLoadingStatistics &&
             !isErrorStatistics &&
-            championStatisticsData?.data?.data?.map((champion, index) => (
-              <ChampionRankItem
-                key={champion.champNameEng}
-                rank={index + 1}
-                championName={champion.champName}
-                championNameEng={champion.champNameEng}
-                position={champion.position}
-                winRate={champion.winRate}
-                gameCount={champion.totalCount}
-              />
+            (championStatisticsData?.data?.data && championStatisticsData.data.data.length > 0 ? (
+              <>
+                {championStatisticsData.data.data.map((champion, index) => (
+                  <ChampionRankItem
+                    key={champion.champNameEng}
+                    rank={index + 1}
+                    championName={champion.champName}
+                    championNameEng={champion.champNameEng}
+                    position={champion.position}
+                    winRate={champion.winRate}
+                    gameCount={champion.totalCount}
+                  />
+                ))}
+                <div className="mt-4 text-sm text-primary2 text-center">
+                  통계는 30판 이상 플레이한 기록이 있을 경우에만 집계 및 표시됩니다.
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
+                30판 이상 플레이한 챔피언이 없어 통계 데이터를 확인할 수 없습니다.
+              </div>
             ))}
         </div>
       </div>
