@@ -59,7 +59,7 @@ const Champion: NextPage = () => {
         clanName="TRC 난민캠프"
         title="대상 분석"
         date={getCurrentYearMonth()}
-        description="챔피언 판 수 N회 이상 기록 시 등장"
+        description="챔피언 플레이 기록이 30판 이상인 경우에만 통계에 표시"
       />
 
       <div className="mt-6">
@@ -86,9 +86,6 @@ const Champion: NextPage = () => {
                     gameCount={champion.totalCount}
                   />
                 ))}
-                <div className="mt-4 text-sm text-primary2 text-center">
-                  통계는 30판 이상 플레이한 기록이 있을 경우에만 집계 및 표시됩니다.
-                </div>
               </>
             ) : (
               <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">

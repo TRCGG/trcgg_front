@@ -31,7 +31,7 @@ const PositionFilter = ({ selectedPosition, onSelectPosition, className }: Props
             key={position.value}
             type="button"
             onClick={() => onSelectPosition(position.value)}
-            className={`flex items-center gap-2 px-4 py-2 rounded border transition-colors border-border2 ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded border transition-colors border-border2 ${
               isSelected
                 ? "bg-primary1 text-blueDarken"
                 : "bg-darkBg2 text-primary2 hover:bg-grayHover"
@@ -43,10 +43,10 @@ const PositionFilter = ({ selectedPosition, onSelectPosition, className }: Props
                 alt={position.label}
                 width={20}
                 height={20}
-                className="w-5 h-5 object-contain"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
               />
             )}
-            <span className="text-sm font-medium">{position.label}</span>
+            <span className="text-xs sm:text-sm font-medium">{position.label}</span>
           </button>
         );
       })}

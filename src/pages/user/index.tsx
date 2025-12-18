@@ -65,7 +65,7 @@ const User: NextPage = () => {
         clanName="TRC 난민캠프"
         title="유저 분석"
         date={getCurrentYearMonth()}
-        description="내전 판 수 N회 이상 기록 시 등장"
+        description="내전 플레이 기록이 30판 이상인 경우에만 통계에 표시"
       />
 
       <PositionFilter
@@ -101,9 +101,6 @@ const User: NextPage = () => {
                     winRate={user.winRate}
                   />
                 ))}
-                <div className="mt-4 text-sm text-primary2 text-center">
-                  통계는 30판 이상 플레이한 기록이 있을 경우에만 집계 및 표시됩니다.
-                </div>
               </>
             ) : (
               <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
