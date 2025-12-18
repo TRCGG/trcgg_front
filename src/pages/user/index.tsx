@@ -41,15 +41,6 @@ const User: NextPage = () => {
     placeholderData: undefined,
   });
 
-  // 디버깅: 데이터 변경 확인
-  React.useEffect(() => {
-    console.log("=== User Statistics Updated ===");
-    console.log("Selected Position:", selectedPosition);
-    console.log("Data Length:", userStatisticsData?.data?.data?.length);
-    console.log("First User:", userStatisticsData?.data?.data?.[0]);
-    console.log("================================");
-  }, [selectedPosition, userStatisticsData]);
-
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <SummonerPageHeader

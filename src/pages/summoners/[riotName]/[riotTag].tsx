@@ -63,7 +63,7 @@ const RiotProfilePage = () => {
 
       {/* 메인 콘텐츠 */}
       {(() => {
-        if (isLoadingUserRecord) {
+        if (!riotName || !guildId || isLoadingUserRecord) {
           return (
             <main>
               <LoadingSpinner />
