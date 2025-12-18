@@ -1,4 +1,5 @@
 import Image, { StaticImageData } from "next/image";
+import { useRouter } from "next/router";
 import LaneTopLogo from "@/assets/images/laneTop.png";
 import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
@@ -8,7 +9,8 @@ import LaneBottomLogo from "@/assets/images/laneBottom.png";
 interface Props {
   rank: number;
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
-  nickname: string;
+  riotName: string;
+  riotNameTag: string;
   totalGames: number;
   wins: number;
   losses: number;
@@ -32,7 +34,8 @@ const formatNumber = (num: number): string => {
 const UserRankItem = ({
   rank,
   position,
-  nickname,
+  riotName,
+  riotNameTag,
   totalGames,
   wins,
   losses,
@@ -40,6 +43,8 @@ const UserRankItem = ({
   winRate,
   className,
 }: Props) => {
+  const router = useRouter();
+
   return (
     <div
       className={`flex items-center gap-3 bg-darkBg2 rounded border border-border2 p-3 ${className || ""}`}
@@ -61,8 +66,23 @@ const UserRankItem = ({
       </div>
 
       {/* 닉네임 */}
-      <div className="flex-1 min-w-0">
-        <p className="text-base text-primary1 truncate">{nickname}</p>
+      <div className="flex-1 min-w-0 relative group">
+        <button
+          type="button"
+          className="text-base text-primary1 truncate w-full text-left hover:text-primary2 transition-colors"
+          onClick={() => {
+            router.push(
+              `/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotNameTag)}`
+            );
+          }}
+        >
+          {riotName}
+        </button>
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white z-10 whitespace-nowrap">
+          <span>{riotName}</span>
+          <span className="text-primary2"> #{riotNameTag}</span>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black" />
+        </div>
       </div>
 
       {/* 전적 (n전 n승 n패) */}

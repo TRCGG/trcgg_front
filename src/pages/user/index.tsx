@@ -37,7 +37,18 @@ const User: NextPage = () => {
     queryFn: () => getUserStatistics(guildId, selectedPosition),
     enabled: !!guildId,
     staleTime: 5 * 60 * 1000, // 5분
+    structuralSharing: false,
+    placeholderData: undefined,
   });
+
+  // 디버깅: 데이터 변경 확인
+  React.useEffect(() => {
+    console.log("=== User Statistics Updated ===");
+    console.log("Selected Position:", selectedPosition);
+    console.log("Data Length:", userStatisticsData?.data?.data?.length);
+    console.log("First User:", userStatisticsData?.data?.data?.[0]);
+    console.log("================================");
+  }, [selectedPosition, userStatisticsData]);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -74,7 +85,7 @@ const User: NextPage = () => {
 
       <div className="mt-1">
         <UserRankHeader />
-        <div className="space-y-3 mt-2">
+        <div key={selectedPosition} className="space-y-3 mt-2">
           {isLoadingStatistics && (
             <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
           )}
@@ -85,10 +96,11 @@ const User: NextPage = () => {
             !isErrorStatistics &&
             userStatisticsData?.data?.data?.map((user, index) => (
               <UserRankItem
-                key={`${selectedPosition}-${user.playerCode}`}
+                key={user.playerCode}
                 rank={index + 1}
                 position={user.position}
-                nickname={`${user.riotName}#${user.riotNameTag}`}
+                riotName={user.riotName}
+                riotNameTag={user.riotNameTag}
                 totalGames={user.totalCount}
                 wins={user.win}
                 losses={user.lose}
