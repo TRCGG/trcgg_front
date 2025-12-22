@@ -60,7 +60,7 @@ const RankItem: React.FC<RankItemProps> = ({
       <div className="ml-1 w-28 text-center whitespace-nowrap">{championName}</div>
 
       {/* KDA */}
-      <div className={`ml-2 w-18 ${getKDAColor(rank)} whitespace-nowrap`}>{kda} KDA</div>
+      <div className={`ml-2 w-[72px] ${getKDAColor(rank)} whitespace-nowrap`}>{kda} KDA</div>
 
       {/* 승률 및 게임 수 */}
       <div className="flex flex-col ml-6 text-center whitespace-nowrap text-xs sm:text-sm">
