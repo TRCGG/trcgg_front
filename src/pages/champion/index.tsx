@@ -30,6 +30,8 @@ const Champion: NextPage = () => {
   const {
     data: championStatisticsData,
     isLoading: isLoadingStatistics,
+    isFetching: isFetchingStatistics,
+    isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
   } = useQuery<ApiResponse<ChampionStatisticsResponse>>({
     queryKey: ["championStatistics", guildId],
@@ -94,15 +96,16 @@ const Champion: NextPage = () => {
       <div className="mt-6">
         <ChampionRankHeader />
         <div className="space-y-3 mt-2">
-          {isLoadingStatistics && (
+          {(isLoadingStatistics || isFetchingStatistics) && (
             <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
           )}
+
           {isErrorStatistics && (
             <div className="text-center py-10 text-redText">데이터를 불러오는데 실패했습니다.</div>
           )}
-          {!isLoadingStatistics &&
-            !isErrorStatistics &&
-            (allChampions.length > 0 ? (
+
+          {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+            allChampions.length > 0 && (
               <>
                 {displayedChampions.map((champion, index) => (
                   <ChampionRankItem
@@ -118,11 +121,15 @@ const Champion: NextPage = () => {
                 {/* 무한 스크롤 트리거 */}
                 {hasMore && <div ref={observerTarget} className="h-10" />}
               </>
-            ) : (
+            )}
+
+          {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+            isFetchedStatistics &&
+            allChampions.length === 0 && (
               <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
                 30판 이상 플레이한 챔피언이 없어 통계 데이터를 확인할 수 없습니다.
               </div>
-            ))}
+            )}
         </div>
       </div>
     </div>
