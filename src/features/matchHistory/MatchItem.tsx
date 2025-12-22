@@ -9,6 +9,7 @@ import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
 import SpriteImage from "@/components/ui/SpriteImage";
 import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -22,7 +23,9 @@ const MatchItem = ({ matchData }: Props) => {
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const { data: gameData } = useQuery<ApiResponse<GameRecordResponse>>({
+  const { data: gameData, isLoading: isLoadingGameData } = useQuery<
+    ApiResponse<GameRecordResponse>
+  >({
     queryKey: ["gameData", matchData.gameId, guildId],
     queryFn: () => getGameRecords(matchData.gameId, guildId),
     staleTime: 3 * 60 * 1000,
@@ -202,10 +205,15 @@ const MatchItem = ({ matchData }: Props) => {
         </div>
       </div>
 
-      {isOpen && gameData?.data?.data && (
-        <div className="flex flex-col w-full">
-          <MatchDetail participantData={gameData?.data?.data} />
-        </div>
+      {isOpen && (
+        <>
+          {isLoadingGameData && <LoadingSpinner />}
+          {!isLoadingGameData && gameData?.data?.data && (
+            <div className="flex flex-col w-full">
+              <MatchDetail participantData={gameData?.data?.data} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
