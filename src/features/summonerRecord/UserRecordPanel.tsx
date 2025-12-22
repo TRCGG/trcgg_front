@@ -19,11 +19,12 @@ interface Props {
 }
 
 const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
-  const DISPLAY_COUNT = 5;
+  const RECORD_DISPLAY_COUNT = 5;
+  const MOST_PICK_DISTPLAY_COUNT = 10;
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const [displayCount, setDisplayCount] = useState(DISPLAY_COUNT);
+  const [displayCount, setDisplayCount] = useState(RECORD_DISPLAY_COUNT);
 
   // 최근 전적 데이터 가져오기
   const { data: recentRecordsData, isFetching } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
@@ -63,7 +64,7 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
         {/* 모스트 픽 */}
         {data.mostPicks && data.mostPicks.length > 0 && (
           <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
-            <MostPickRank mostPickData={data.mostPicks.slice(0, 5)} />
+            <MostPickRank mostPickData={data.mostPicks.slice(0, MOST_PICK_DISTPLAY_COUNT)} />
           </CardWithTitle>
         )}
 
@@ -79,7 +80,7 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
               {hasMoreData && (
                 <button
                   type="button"
-                  onClick={() => setDisplayCount((prev) => prev + DISPLAY_COUNT)}
+                  onClick={() => setDisplayCount((prev) => prev + RECORD_DISPLAY_COUNT)}
                   disabled={isFetching}
                   className="w-full py-3 rounded bg-darkBg2 border border-border2 text-primary1 hover:bg-grayHover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
