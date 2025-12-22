@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useModal from "@/hooks/common/useModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
@@ -17,6 +17,8 @@ import { ChampionStatisticsResponse } from "@/data/types/statistics";
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
+  const [displayCount, setDisplayCount] = useState(10);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
     data: userSearchData,
@@ -35,6 +37,33 @@ const Champion: NextPage = () => {
     enabled: !!guildId,
     staleTime: 10 * 60 * 1000,
   });
+
+  const allChampions = championStatisticsData?.data?.data || [];
+  const displayedChampions = allChampions.slice(0, displayCount);
+  const hasMore = allChampions.length > displayCount;
+
+  // 무한 스크롤
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setDisplayCount((prev) => prev + 10);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore]);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -73,9 +102,9 @@ const Champion: NextPage = () => {
           )}
           {!isLoadingStatistics &&
             !isErrorStatistics &&
-            (championStatisticsData?.data?.data && championStatisticsData.data.data.length > 0 ? (
+            (allChampions.length > 0 ? (
               <>
-                {championStatisticsData.data.data.map((champion, index) => (
+                {displayedChampions.map((champion, index) => (
                   <ChampionRankItem
                     key={champion.champNameEng}
                     rank={index + 1}
@@ -86,6 +115,8 @@ const Champion: NextPage = () => {
                     gameCount={champion.totalCount}
                   />
                 ))}
+                {/* 무한 스크롤 트리거 */}
+                {hasMore && <div ref={observerTarget} className="h-10" />}
               </>
             ) : (
               <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
