@@ -11,7 +11,7 @@ const MatchDetail = ({ participantData }: Props) => {
     return participants.map((participant) => ({
       name: participant.riotName,
       tag: participant.riotNameTag,
-      championImage: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${participant.champNameEng}.png`,
+      champNameEng: participant.champNameEng,
       kda: `${participant.kill} / ${participant.death} / ${participant.assist}`,
       kdaRate: (participant.kill + participant.assist) / participant.death,
       damage: participant.totalDamageChampions,

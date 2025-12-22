@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { CSSProperties } from "react";
 import { SpriteImage as SpriteImageType } from "@/data/types/sprite";
 
@@ -22,13 +23,14 @@ const SpriteImage = ({ spriteData, width, height, alt, title, className, fallbac
   if (!spriteData) {
     if (fallbackSrc) {
       return (
-        <img
+        <Image
           src={fallbackSrc}
           alt={alt}
           title={title}
           width={width}
           height={height}
           className={className}
+          unoptimized
         />
       );
     }
@@ -37,21 +39,26 @@ const SpriteImage = ({ spriteData, width, height, alt, title, className, fallbac
 
   const spriteUrl = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/sprite/${spriteData.sprite}`;
 
-  // 스케일 비율 계산 (원본 sprite 크기는 48x48, 표시할 크기에 맞게 조정)
   const scaleX = width / spriteData.w;
   const scaleY = height / spriteData.h;
 
   const style: CSSProperties = {
-    width: `${width}px`,
-    height: `${height}px`,
+    width: `${spriteData.w}px`,
+    height: `${spriteData.h}px`,
     backgroundImage: `url(${spriteUrl})`,
-    backgroundPosition: `-${spriteData.x * scaleX}px -${spriteData.y * scaleY}px`,
-    backgroundSize: `${1024 * scaleX}px ${1024 * scaleY}px`, // sprite sheet는 보통 512px 또는 1024px
+    backgroundPosition: `-${spriteData.x}px -${spriteData.y}px`,
     backgroundRepeat: "no-repeat",
+    backgroundSize: "auto",
+    transform: `scale(${scaleX}, ${scaleY})`,
+    transformOrigin: "top left",
     display: "inline-block",
   };
 
-  return <div style={style} className={className} title={title} role="img" aria-label={alt} />;
+  return (
+    <div style={{ width, height, overflow: "hidden" }} className={className}>
+      <div style={style} title={title} role="img" aria-label={alt} />
+    </div>
+  );
 };
 
 export default SpriteImage;

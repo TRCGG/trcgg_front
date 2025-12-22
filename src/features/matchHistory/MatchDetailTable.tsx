@@ -6,12 +6,12 @@ import EyeIcon from "@/assets/images/eye.png";
 import SwordIcon from "@/assets/images/sword.png";
 import WardIcon from "@/assets/images/ward.png";
 import SpriteImage from "@/components/ui/SpriteImage";
-import { getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
+import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
 
 interface Player {
   name: string;
   tag: string;
-  championImage: string;
+  champNameEng: string;
   kda: string;
   kdaRate: number;
   damage: number;
@@ -55,7 +55,14 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
 
             {/* 2. 챔피언 이미지 */}
             <div className="flex text-left w-[36px] h-[36px]">
-              <Image width={36} height={36} alt="챔피언" src={player.championImage} />
+              <SpriteImage
+                spriteData={getChampionSprite(player.champNameEng)}
+                width={36}
+                height={36}
+                alt="챔피언"
+                fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${player.champNameEng}.png`}
+                className="w-[36px] h-[36px]"
+              />
             </div>
 
             {/* 3. 빌드(룬, 스펠, 아이템) */}

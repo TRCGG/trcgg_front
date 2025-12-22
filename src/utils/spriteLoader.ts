@@ -1,6 +1,6 @@
 import { SpriteImage } from "@/data/types/sprite";
 
-const DDRAGON_VERSION = process.env.NEXT_PUBLIC_DDRAGON_VERSION || "14.23.1";
+const DDRAGON_VERSION = process.env.NEXT_PUBLIC_DDRAGON_VERSION;
 
 // 메모리 캐시
 let spriteDataCache: {

@@ -6,12 +6,12 @@ import EyeIcon from "@/assets/images/eye.png";
 import SwordIcon from "@/assets/images/sword.png";
 import WardIcon from "@/assets/images/ward.png";
 import SpriteImage from "@/components/ui/SpriteImage";
-import { getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
+import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
 
 interface Player {
   name: string;
   tag: string;
-  championImage: string;
+  champNameEng: string;
   kda: string;
   kdaRate: number;
   damage: number;
@@ -39,7 +39,14 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
           <React.Fragment key={`${player.name}-${player.tag}`}>
             {/* 1. 챔피언 이미지, 룬 스펠 */}
             <div className="flex gap-1 w-[56px] h-[24px]">
-              <Image width={24} height={24} alt="챔피언" src={player.championImage} />
+              <SpriteImage
+                spriteData={getChampionSprite(player.champNameEng)}
+                width={24}
+                height={24}
+                alt="챔피언"
+                fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${player.champNameEng}.png`}
+                className="w-[24px] h-[24px]"
+              />
               <div className="flex">
                 <div className="flex flex-col gap-0">
                   <SpriteImage
