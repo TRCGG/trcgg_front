@@ -33,12 +33,12 @@ const MatchItem = ({ matchData }: Props) => {
   });
 
   const itemArr = [
-    matchData.item0,
-    matchData.item1,
-    matchData.item2,
-    matchData.item3,
-    matchData.item4,
-    matchData.item5,
+    { slot: 0, itemId: matchData.item0 },
+    { slot: 1, itemId: matchData.item1 },
+    { slot: 2, itemId: matchData.item2 },
+    { slot: 3, itemId: matchData.item3 },
+    { slot: 4, itemId: matchData.item4 },
+    { slot: 5, itemId: matchData.item5 },
     // matchData.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭)
   ];
 
@@ -91,14 +91,24 @@ const MatchItem = ({ matchData }: Props) => {
           </div>
 
           {/* 2. 챔피온 아이콘 */}
-          <div className="flex justify-center w-[36px] h-[36px] sm:w-[64px] sm:h-[64px]">
+          <div className="flex justify-center">
+            {/* 모바일 */}
+            <SpriteImage
+              spriteData={getChampionSprite(matchData.champNameEng)}
+              width={36}
+              height={36}
+              alt="챔피언"
+              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              className="w-9 h-9 sm:hidden"
+            />
+            {/* 데스크탑 */}
             <SpriteImage
               spriteData={getChampionSprite(matchData.champNameEng)}
               width={64}
               height={64}
               alt="챔피언"
               fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
-              className="sm:w-[64px] sm:h-[64px] w-[36px] h-[36px]"
+              className="hidden sm:block w-16 h-16"
             />
           </div>
 
@@ -110,7 +120,33 @@ const MatchItem = ({ matchData }: Props) => {
           {/* 4. 스펠, 룬, 아이템 */}
           <div className="flex items-center gap-x-3">
             <div className="flex">
-              <div className="flex flex-col gap-0 w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
+              {/* 스펠 - 모바일 */}
+              <div className="flex flex-col gap-0 sm:hidden">
+                {matchData.summonerSpell1Key && (
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell1Key)}
+                    width={18}
+                    height={18}
+                    alt="스펠 1"
+                    title={matchData.summonerSpell1Name}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
+                    className="w-[18px] h-[18px]"
+                  />
+                )}
+                {matchData.summonerSpell2Key && (
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell2Key)}
+                    width={18}
+                    height={18}
+                    alt="스펠 2"
+                    title={matchData.summonerSpell2Name}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
+                    className="w-[18px] h-[18px]"
+                  />
+                )}
+              </div>
+              {/* 스펠 - 데스크탑 */}
+              <div className="hidden sm:flex flex-col gap-0">
                 {matchData.summonerSpell1Key && (
                   <SpriteImage
                     spriteData={getSummonerSpellSprite(matchData.summonerSpell1Key)}
@@ -119,7 +155,7 @@ const MatchItem = ({ matchData }: Props) => {
                     alt="스펠 1"
                     title={matchData.summonerSpell1Name}
                     fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
-                    className="sm:w-[32px] sm:h-[32px] w-[18px] h-[18px]"
+                    className="w-8 h-8"
                   />
                 )}
                 {matchData.summonerSpell2Key && (
@@ -130,10 +166,11 @@ const MatchItem = ({ matchData }: Props) => {
                     alt="스펠 2"
                     title={matchData.summonerSpell2Name}
                     fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
-                    className="sm:w-[32px] sm:h-[32px] w-[18px] h-[18px]"
+                    className="w-8 h-8"
                   />
                 )}
               </div>
+              {/* 룬 */}
               <div className="flex flex-col w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
                 {matchData.keystoneIcon && (
                   <Image
@@ -160,24 +197,40 @@ const MatchItem = ({ matchData }: Props) => {
               </div>
             </div>
 
-            <div className="grid place-items-center grid-cols-3 grid-rows-2 w-[54px] sm:flex sm:flex-row sm:items-center sm:w-[192px] sm:h-[32px]">
-              {itemArr
-                .filter((item) => item !== 0)
-                .map((item, index) => (
+            {/* 5. 아이템 */}
+            {/* 모바일 */}
+            <div className="grid place-items-center grid-cols-3 grid-rows-2 gap-0.5 sm:hidden">
+              {itemArr.map((item) =>
+                item.itemId !== 0 ? (
                   <SpriteImage
-                    key={item}
-                    spriteData={getItemSprite(item)}
+                    key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                    spriteData={getItemSprite(item.itemId)}
+                    width={18}
+                    height={18}
+                    alt={`아이템 ${item.slot + 1}`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item.itemId}.png`}
+                    className="w-[18px] h-[18px]"
+                  />
+                ) : null
+              )}
+            </div>
+            {/* 데스크탑 */}
+            <div className="hidden sm:flex flex-row items-center gap-0">
+              {itemArr.map((item) =>
+                item.itemId !== 0 ? (
+                  <SpriteImage
+                    key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                    spriteData={getItemSprite(item.itemId)}
                     width={32}
                     height={32}
-                    alt={`아이템 ${index + 1}`}
-                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
-                    className="w-[18px] h-[18px] sm:w-[32px] sm:h-[32px]"
+                    alt={`아이템 ${item.slot + 1}`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item.itemId}.png`}
+                    className="w-8 h-8"
                   />
-                ))}
+                ) : null
+              )}
             </div>
           </div>
-
-          {/* 5. 아이템 */}
 
           {/* 6. KDA */}
           <div className="flex flex-col sm:text-lg whitespace-nowrap items-center">

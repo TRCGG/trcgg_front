@@ -45,14 +45,24 @@ const RankItem: React.FC<RankItemProps> = ({
       </div>
 
       {/* 챔피언 아이콘 */}
-      <div className="flex items-center justify-center w-[28px] h-[28px] sm:w-[52px] sm:h-[52px] shrink-0 flex-none ml-1">
+      <div className="flex items-center justify-center shrink-0 flex-none ml-1">
+        {/* 모바일 */}
+        <SpriteImage
+          spriteData={getChampionSprite(championNameEng)}
+          alt={championName}
+          width={28}
+          height={28}
+          fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+          className="w-7 h-7 sm:hidden"
+        />
+        {/* 데스크탑 */}
         <SpriteImage
           spriteData={getChampionSprite(championNameEng)}
           alt={championName}
           width={52}
           height={52}
           fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
-          className="w-[28px] h-[28px] sm:w-[52px] sm:h-[52px]"
+          className="hidden sm:block w-[52px] h-[52px]"
         />
       </div>
 

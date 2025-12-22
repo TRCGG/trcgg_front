@@ -65,7 +65,7 @@ const ChampionRankItem = ({
             width={48}
             height={48}
             fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
-            className="w-12 h-12 rounded"
+            className="w-12 h-12"
           />
         </div>
 
@@ -123,7 +123,7 @@ const ChampionRankItem = ({
             width={40}
             height={40}
             fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
-            className="w-10 h-10 rounded"
+            className="w-10 h-10"
           />
         </div>
 
