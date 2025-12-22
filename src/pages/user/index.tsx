@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useModal from "@/hooks/common/useModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
@@ -19,6 +19,8 @@ const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { isOpen, open, close } = useModal();
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
+  const [displayCount, setDisplayCount] = useState(10);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
@@ -40,6 +42,38 @@ const User: NextPage = () => {
     structuralSharing: false,
     placeholderData: undefined,
   });
+
+  const allUsers = userStatisticsData?.data?.data || [];
+  const displayedUsers = allUsers.slice(0, displayCount);
+  const hasMore = allUsers.length > displayCount;
+
+  // 포지션 변경 시 displayCount 리셋
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [selectedPosition]);
+
+  // 무한 스크롤
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setDisplayCount((prev) => prev + 10);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore]);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -85,9 +119,9 @@ const User: NextPage = () => {
           )}
           {!isLoadingStatistics &&
             !isErrorStatistics &&
-            (userStatisticsData?.data?.data && userStatisticsData.data.data.length > 0 ? (
+            (allUsers.length > 0 ? (
               <>
-                {userStatisticsData.data.data.map((user, index) => (
+                {displayedUsers.map((user, index) => (
                   <UserRankItem
                     key={user.playerCode}
                     rank={index + 1}
@@ -101,6 +135,8 @@ const User: NextPage = () => {
                     winRate={user.winRate}
                   />
                 ))}
+                {/* 무한 스크롤 트리거 */}
+                {hasMore && <div ref={observerTarget} className="h-10" />}
               </>
             ) : (
               <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">

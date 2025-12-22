@@ -10,10 +10,10 @@ const MostPickRank = ({ mostPickData }: Props) => {
     return {
       rank: index + 1,
       championName: champRecord.champName,
+      championNameEng: champRecord.champNameEng,
       kda: champRecord.kda,
       winRate: champRecord.winRate,
       games: champRecord.totalCount,
-      championImg: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champRecord.champNameEng}.png`,
     };
   });
 

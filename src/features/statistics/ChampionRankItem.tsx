@@ -4,6 +4,8 @@ import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
 import LaneSupportLogo from "@/assets/images/laneSupport.png";
 import LaneBottomLogo from "@/assets/images/laneBottom.png";
+import SpriteImage from "@/components/ui/SpriteImage";
+import { getChampionSprite } from "@/utils/spriteLoader";
 
 interface Props {
   rank: number;
@@ -57,11 +59,12 @@ const ChampionRankItem = ({
 
         {/* 챔피언 아이콘 */}
         <div className="flex-shrink-0 flex items-center justify-center">
-          <Image
-            src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+          <SpriteImage
+            spriteData={getChampionSprite(championNameEng)}
             alt={championName}
             width={48}
             height={48}
+            fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
             className="w-12 h-12 rounded"
           />
         </div>
@@ -114,11 +117,12 @@ const ChampionRankItem = ({
 
         {/* 챔피언 아이콘 */}
         <div className="flex-shrink-0">
-          <Image
-            src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+          <SpriteImage
+            spriteData={getChampionSprite(championNameEng)}
             alt={championName}
             width={40}
             height={40}
+            fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
             className="w-10 h-10 rounded"
           />
         </div>

@@ -5,6 +5,8 @@ import ShieldIcon from "@/assets/images/shield.png";
 import EyeIcon from "@/assets/images/eye.png";
 import SwordIcon from "@/assets/images/sword.png";
 import WardIcon from "@/assets/images/ward.png";
+import SpriteImage from "@/components/ui/SpriteImage";
+import { getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
 
 interface Player {
   name: string;
@@ -40,17 +42,21 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
               <Image width={24} height={24} alt="챔피언" src={player.championImage} />
               <div className="flex">
                 <div className="flex flex-col gap-0">
-                  <Image
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(player.spells[0])}
                     width={12}
                     height={12}
                     alt="스펠 1"
-                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${player.spells[0]}.png`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${player.spells[0]}.png`}
+                    className="w-[12px] h-[12px]"
                   />
-                  <Image
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(player.spells[1])}
                     width={12}
                     height={12}
                     alt="스펠 2"
-                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${player.spells[1]}.png`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${player.spells[1]}.png`}
+                    className="w-[12px] h-[12px]"
                   />
                 </div>
                 <div className="flex flex-col">
@@ -59,12 +65,16 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
                     height={12}
                     alt="룬 1"
                     src={`https://ddragon.leagueoflegends.com/cdn/img/${player.keystone}`}
+                    loading="lazy"
+                    unoptimized
                   />
                   <Image
                     width={12}
                     height={12}
-                    alt="룬 1"
+                    alt="룬 2"
                     src={`https://ddragon.leagueoflegends.com/cdn/img/${player.perk}`}
+                    loading="lazy"
+                    unoptimized
                   />
                 </div>
               </div>
@@ -82,12 +92,14 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
                 {player.items
                   .filter((item) => item !== 0)
                   .map((item, index) => (
-                    <Image
+                    <SpriteImage
                       key={item}
+                      spriteData={getItemSprite(item)}
                       width={12}
                       height={12}
                       alt={`아이템 ${index + 1}`}
-                      src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
+                      fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
+                      className="w-[12px] h-[12px]"
                     />
                   ))}
               </div>

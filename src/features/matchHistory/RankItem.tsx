@@ -1,13 +1,14 @@
-import Image from "next/image";
+import SpriteImage from "@/components/ui/SpriteImage";
+import { getChampionSprite } from "@/utils/spriteLoader";
 
 // RankItem 컴포넌트의 props 타입 정의
 interface RankItemProps {
   rank: number;
   championName: string;
+  championNameEng: string;
   kda: string;
   winRate: string;
   games: number;
-  championImg: string;
 }
 
 const getWinRateColor = (rank: number): string => {
@@ -29,10 +30,10 @@ const getRankBgColor = (rank: number): string => {
 const RankItem: React.FC<RankItemProps> = ({
   rank,
   championName,
+  championNameEng,
   kda,
   winRate,
   games,
-  championImg,
 }) => {
   return (
     <div className="flex h-[28px] sm:h-[52px] items-center justify-between md:justify-center">
@@ -45,7 +46,14 @@ const RankItem: React.FC<RankItemProps> = ({
 
       {/* 챔피언 아이콘 */}
       <div className="flex items-center justify-center w-[28px] h-[28px] sm:w-[52px] sm:h-[52px] shrink-0 flex-none ml-1">
-        <Image alt={championName} src={championImg} width={52} height={52} />
+        <SpriteImage
+          spriteData={getChampionSprite(championNameEng)}
+          alt={championName}
+          width={52}
+          height={52}
+          fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+          className="w-[28px] h-[28px] sm:w-[52px] sm:h-[52px]"
+        />
       </div>
 
       {/* 챔피언 정보 */}

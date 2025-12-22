@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
+import SpriteImage from "@/components/ui/SpriteImage";
+import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -87,11 +89,13 @@ const MatchItem = ({ matchData }: Props) => {
 
           {/* 2. 챔피온 아이콘 */}
           <div className="flex justify-center w-[36px] h-[36px] sm:w-[64px] sm:h-[64px]">
-            <Image
+            <SpriteImage
+              spriteData={getChampionSprite(matchData.champNameEng)}
               width={64}
               height={64}
               alt="챔피언"
-              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              className="sm:w-[64px] sm:h-[64px] w-[36px] h-[36px]"
             />
           </div>
 
@@ -105,21 +109,25 @@ const MatchItem = ({ matchData }: Props) => {
             <div className="flex">
               <div className="flex flex-col gap-0 w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
                 {matchData.summonerSpell1Key && (
-                  <Image
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell1Key)}
                     width={32}
                     height={32}
                     alt="스펠 1"
                     title={matchData.summonerSpell1Name}
-                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
+                    className="sm:w-[32px] sm:h-[32px] w-[18px] h-[18px]"
                   />
                 )}
                 {matchData.summonerSpell2Key && (
-                  <Image
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell2Key)}
                     width={32}
                     height={32}
                     alt="스펠 2"
                     title={matchData.summonerSpell2Name}
-                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
+                    className="sm:w-[32px] sm:h-[32px] w-[18px] h-[18px]"
                   />
                 )}
               </div>
@@ -131,6 +139,8 @@ const MatchItem = ({ matchData }: Props) => {
                     alt="메인 룬"
                     title={matchData.keystoneName}
                     src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.keystoneIcon}`}
+                    loading="lazy"
+                    unoptimized
                   />
                 )}
                 {matchData.substyleIcon && (
@@ -140,6 +150,8 @@ const MatchItem = ({ matchData }: Props) => {
                     alt="서브 룬"
                     title={matchData.substyleName}
                     src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.substyleIcon}`}
+                    loading="lazy"
+                    unoptimized
                   />
                 )}
               </div>
@@ -149,12 +161,14 @@ const MatchItem = ({ matchData }: Props) => {
               {itemArr
                 .filter((item) => item !== 0)
                 .map((item, index) => (
-                  <Image
+                  <SpriteImage
                     key={item}
+                    spriteData={getItemSprite(item)}
                     width={32}
                     height={32}
                     alt={`아이템 ${index + 1}`}
-                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
+                    className="w-[18px] h-[18px] sm:w-[32px] sm:h-[32px]"
                   />
                 ))}
             </div>
