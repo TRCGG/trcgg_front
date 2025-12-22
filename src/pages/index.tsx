@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
+import Image from "next/image";
 import NavBar from "@/components/layout/NavBar";
 import SearchBar from "@/components/form/SearchBar";
-import MainLogo from "@/assets/images/mainLogo.png";
-import Image from "next/image";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
-import useModal from "@/hooks/common/useModal";
 import NoGuildModal from "@/features/discordLogin/NoGuildModal";
 import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
+import useModal from "@/hooks/common/useModal";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import MainLogo from "@/assets/images/mainLogo.png";
 
 const Home: NextPage = () => {
   const {

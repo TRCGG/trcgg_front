@@ -7,7 +7,7 @@ import {
   UserRecentRecordsResponse,
 } from "@/data/types/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getRecentRecords } from "@/services/record";
@@ -19,35 +19,23 @@ interface Props {
 }
 
 const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
+  const DISPLAY_COUNT = 5;
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const [page, setPage] = useState(1);
-  const [allRecords, setAllRecords] = useState<RecentGameRecord[]>([]);
+  const [displayCount, setDisplayCount] = useState(DISPLAY_COUNT);
 
   // 최근 전적 데이터 가져오기
   const { data: recentRecordsData, isFetching } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
-    queryKey: ["userRecentRecords", riotName, riotTag, guildId, page],
-    queryFn: () => getRecentRecords(riotName, riotTag, page, guildId ?? ""),
+    queryKey: ["userRecentRecords", riotName, riotTag, guildId],
+    queryFn: () => getRecentRecords(riotName, riotTag, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: !!guildId && !!riotName && !!riotTag,
   });
 
-  // 새 데이터가 로드되면 누적
-  useEffect(() => {
-    if (recentRecordsData?.data?.data) {
-      const newData = recentRecordsData.data.data;
-      if (page === 1) {
-        // 첫 페이지는 덮어쓰기
-        setAllRecords(newData);
-      } else {
-        // 이후 페이지는 추가
-        setAllRecords((prev) => [...prev, ...newData]);
-      }
-    }
-  }, [recentRecordsData, page]);
-
-  const hasMoreData = recentRecordsData?.data?.data && recentRecordsData.data.data.length === 10;
+  const allRecords = recentRecordsData?.data?.data || [];
+  const displayedRecords = allRecords.slice(0, displayCount);
+  const hasMoreData = allRecords.length > displayCount;
 
   const mostLane = data.lines.reduce((prev, curr) =>
     curr.totalCount > prev.totalCount ? curr : prev
@@ -80,10 +68,10 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
         )}
 
         {/* 최근 전적 */}
-        {allRecords && allRecords.length > 0 && (
+        {displayedRecords && displayedRecords.length > 0 && (
           <CardWithTitle title="Recent Matches" className="w-full">
             <div className="flex flex-1 flex-col gap-4">
-              {allRecords.map((datum: RecentGameRecord) => (
+              {displayedRecords.map((datum: RecentGameRecord) => (
                 <MatchItem matchData={datum} key={datum.gameId} />
               ))}
 
@@ -91,7 +79,7 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
               {hasMoreData && (
                 <button
                   type="button"
-                  onClick={() => setPage((prev) => prev + 1)}
+                  onClick={() => setDisplayCount((prev) => prev + DISPLAY_COUNT)}
                   disabled={isFetching}
                   className="w-full py-3 rounded bg-darkBg2 border border-border2 text-primary1 hover:bg-grayHover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
