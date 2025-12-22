@@ -53,7 +53,7 @@ const GuildDropdown = ({ guilds, selectedGuildId, onGuildChange }: GuildDropdown
       </button>
 
       {isOpen && (
-        <div className="absolute top-full w-full bg-darkBg2 rounded-b shadow-lg z-10 overflow-hidden divide-y divide-border2">
+        <div className="absolute top-full w-full bg-darkBg2 rounded-b shadow-lg z-50 overflow-hidden divide-y divide-border2">
           {guilds.map((guild, index) => {
             const isSelected = selectedGuild?.id === guild.id;
             const isLast = index === guilds.length - 1;

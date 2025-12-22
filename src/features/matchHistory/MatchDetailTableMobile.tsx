@@ -115,26 +115,26 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
 
             {/* 6. 준 피해량, 받은 피해량 */}
             <div className="flex flex-col items-baseline">
-              <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center">
+              <div className="flex gap-x-1.5 items-center">
+                <div className="flex items-center justify-center w-4 h-4">
                   <Image
                     src={SwordIcon}
                     alt="sword icon"
-                    width={20}
-                    height={20}
+                    width={16}
+                    height={16}
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <span>{player.damage.toLocaleString()}</span>
               </div>
 
-              <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center">
+              <div className="flex gap-x-1.5 items-center">
+                <div className="flex items-center justify-center w-4 h-4">
                   <Image
                     src={ShieldIcon}
                     alt="shield icon"
-                    width={20}
-                    height={20}
+                    width={16}
+                    height={16}
                     className="w-full h-full object-contain"
                   />
                 </div>
@@ -144,25 +144,25 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
 
             {/* 시야 점수, 제어 와드 개수 */}
             <div className="flex flex-col items-baseline">
-              <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center">
+              <div className="flex gap-x-1.5 items-center">
+                <div className="flex items-center justify-center w-4 h-4">
                   <Image
                     src={EyeIcon}
                     alt="vision score icon"
-                    width={20}
-                    height={20}
+                    width={16}
+                    height={16}
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <span>{player.visionScore}</span>
               </div>
-              <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center w-5 h-5">
+              <div className="flex gap-x-1.5 items-center">
+                <div className="flex items-center justify-center w-4 h-4">
                   <Image
                     src={WardIcon}
                     alt="ward icon"
-                    width={20}
-                    height={20}
+                    width={16}
+                    height={16}
                     className="w-full h-full object-contain"
                   />
                 </div>
