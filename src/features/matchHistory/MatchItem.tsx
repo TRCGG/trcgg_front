@@ -53,7 +53,7 @@ const MatchItem = ({ matchData }: Props) => {
         }}
         className={`flex w-full h-auto min-h-[40px] sm:min-h-[94px] rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
       >
-        <div className="w-full grid grid-cols-[1.2fr_1fr_1.8fr_2fr] sm:grid-cols-[0.8fr_0.8fr_1fr_2.5fr_1.2fr] items-center justify-between px-3">
+        <div className="w-full grid grid-cols-[1.2fr_1fr_2.5fr_1.6fr] sm:grid-cols-[0.8fr_0.8fr_1fr_2.5fr_1.2fr] items-center justify-between pl-3 pr-1 sm:px-3">
           {/* 1. 시간 및 승/패 */}
           <div className="flex flex-col text-xs sm:text-sm">
             <span
@@ -118,7 +118,7 @@ const MatchItem = ({ matchData }: Props) => {
           </div>
 
           {/* 4. 스펠, 룬, 아이템 */}
-          <div className="flex items-center gap-x-3">
+          <div className="flex items-center gap-x-1.5 sm:gap-x-3">
             <div className="flex">
               {/* 스펠 - 모바일 */}
               <div className="flex flex-col gap-0 sm:hidden">
