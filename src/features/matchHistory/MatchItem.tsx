@@ -10,6 +10,7 @@ import { formatTimeAgo } from "@/utils/parseTime";
 import SpriteImage from "@/components/ui/SpriteImage";
 import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { getKdaColor } from "@/utils/statColors";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -237,7 +238,9 @@ const MatchItem = ({ matchData }: Props) => {
             <span>
               {matchData.kill} / {matchData.death} / {matchData.assist}
             </span>
-            <span className="text-sm text-neonGreen">
+            <span
+              className={`text-sm font-semibold ${getKdaColor((matchData.kill + matchData.assist) / matchData.death)}`}
+            >
               {((matchData.kill + matchData.assist) / matchData.death).toFixed(2)} KDA
             </span>
           </div>

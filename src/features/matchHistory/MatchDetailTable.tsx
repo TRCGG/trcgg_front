@@ -7,6 +7,7 @@ import SwordIcon from "@/assets/images/sword.png";
 import WardIcon from "@/assets/images/ward.png";
 import SpriteImage from "@/components/ui/SpriteImage";
 import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
+import { getKdaColor } from "@/utils/statColors";
 
 interface Player {
   name: string;
@@ -125,7 +126,9 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
             {/* 4. KDA */}
             <div className="flex flex-col">
               <span>{player.kda}</span>
-              <span className="text-xs text-neonGreen">{player.kdaRate.toFixed(2)} KDA</span>
+              <span className={`text-xs font-semibold ${getKdaColor(player.kdaRate)}`}>
+                {player.kdaRate.toFixed(2)} KDA
+              </span>
             </div>
 
             {/* 5. 킬 관여율 */}
