@@ -88,7 +88,14 @@ const RiotProfilePage = () => {
 
         // 단일 검색 결과인 경우
         if (data && isMatchDashboardData(data)) {
-          return <UserRecordPanel riotName={riotNameString} riotTag={riotTagString} data={data} />;
+          return (
+            <UserRecordPanel
+              key={`${riotNameString}-${riotTagString}`}
+              riotName={riotNameString}
+              riotTag={riotTagString}
+              data={data}
+            />
+          );
         }
 
         return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
