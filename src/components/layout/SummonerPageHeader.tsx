@@ -19,7 +19,6 @@ interface Props {
   isLoading: boolean;
   isError: boolean;
   users: PlayerInfo[] | undefined;
-  openDiscordModal: () => void;
   guilds: GuildInfo[];
   selectedGuildId: string;
   onGuildChange: (encodedGuildId: string) => void;
@@ -34,7 +33,6 @@ const SummonerPageHeader = ({
   isLoading,
   isError,
   users,
-  openDiscordModal,
   guilds,
   selectedGuildId,
   onGuildChange,
@@ -47,10 +45,14 @@ const SummonerPageHeader = ({
 
   useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
+  const handleDiscordLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
+  };
+
   return (
     <header className="flex flex-col md:flex-row justify-start md:justify-between mt-2 md:mt-10 md:items-center md:gap-10 md:min-w-[1080px]">
       <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
-        <div className="block md:hidden self-end flex gap-3 items-center">
+        <div className="md:hidden self-end flex gap-3 items-center">
           {isLoggedIn && (
             <GuildDropdown
               guilds={guilds}
@@ -58,7 +60,7 @@ const SummonerPageHeader = ({
               onGuildChange={onGuildChange}
             />
           )}
-          <DiscordLoginButton onClick={openDiscordModal} username={username} />
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
         <div className="w-[113px] h-[30px] justify-start">
           <Image
@@ -99,7 +101,7 @@ const SummonerPageHeader = ({
           </div>
         )}
         <div className="hidden md:block">
-          <DiscordLoginButton onClick={openDiscordModal} username={username} />
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
       </div>
     </header>

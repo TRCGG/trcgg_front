@@ -53,8 +53,8 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
     <main className="mt-10 md:mt-12 flex flex-col gap-3 md:min-w-[1080px]">
       {/* Summary */}
       <UserStatsOverview
-        riotName={riotName}
-        riotTag={riotTag}
+        riotName={data.member.riotName}
+        riotTag={data.member.riotNameTag}
         totalData={totalStatData}
         monthData={data.summary}
         mostChampion={data.mostPicks[0]?.champNameEng || ""}

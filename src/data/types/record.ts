@@ -27,15 +27,41 @@ export interface MultiplePlayerInfo {
 }
 
 /**
+ * 멤버 정보
+ *
+ * @interface MemberInfo
+ * @property {string} playerCode - 플레이어 코드 (예: "PLR_000436")
+ * @property {string} riotName - 라이엇 게임 이름
+ * @property {string} riotNameTag - 라이엇 태그
+ * @property {boolean} isMain - 메인 계정 여부
+ * @property {string} guildId - 길드 ID
+ * @property {string} createDate - 생성 날짜 (ISO format)
+ * @property {string} updateDate - 수정 날짜 (ISO format)
+ * @property {boolean} isDeleted - 삭제 여부
+ */
+export interface MemberInfo {
+  playerCode: string;
+  riotName: string;
+  riotNameTag: string;
+  isMain: boolean;
+  guildId: string;
+  createDate: string;
+  updateDate: string;
+  isDeleted: boolean;
+}
+
+/**
  * 매치 대시보드 데이터
  *
  * @interface MatchDashboardData
+ * @property {MemberInfo} member - 멤버 정보
  * @property {SummaryStats} summary - 전체 전적 요약
  * @property {LineStats[]} lines - 포지션별 전적
  * @property {MostPickStats[]} mostPicks - 가장 많이 플레이한 챔피언
  * @property {SynergyStats[]} synergy - 함께 플레이한 유저 통계
  */
 export interface MatchDashboardData {
+  member: MemberInfo;
   summary: SummaryStats;
   lines: LineStats[];
   mostPicks: MostPickStats[];

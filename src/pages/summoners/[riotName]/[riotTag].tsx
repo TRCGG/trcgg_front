@@ -1,7 +1,5 @@
 import { useRouter } from "next/router";
-import useModal from "@/hooks/common/useModal";
 import React, { useState } from "react";
-import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -19,7 +17,6 @@ const RiotProfilePage = () => {
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
   const [searchTerm, setSearchTerm] = useState("");
-  const { isOpen, open, close } = useModal();
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
 
@@ -41,7 +38,13 @@ const RiotProfilePage = () => {
 
   // 타입 가드: MatchDashboardData인지 확인
   const isMatchDashboardData = (data: unknown): data is MatchDashboardData => {
-    return !Array.isArray(data) && typeof data === "object" && data !== null && "summary" in data;
+    return (
+      !Array.isArray(data) &&
+      typeof data === "object" &&
+      data !== null &&
+      "member" in data &&
+      "summary" in data
+    );
   };
 
   return (
@@ -53,7 +56,6 @@ const RiotProfilePage = () => {
         isLoading={isLoading}
         isError={isError}
         users={userSearchData?.data}
-        openDiscordModal={open}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}
@@ -78,8 +80,6 @@ const RiotProfilePage = () => {
 
         return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
       })()}
-
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={handleGuildChange} />
     </div>
   );
 };

@@ -33,10 +33,6 @@ const RiotProfilePage = () => {
     enabled: !!riotName && !!guildId,
   });
 
-  const handleDiscordLogin = async () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
-  };
-
   useEffect(() => {
     const data = userRecordData?.data?.data;
     if (data && Array.isArray(data) && data.length === 1) {
@@ -55,7 +51,6 @@ const RiotProfilePage = () => {
         isLoading={isLoading}
         isError={isError}
         users={userSearchData?.data}
-        openDiscordModal={handleDiscordLogin}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}
@@ -68,7 +63,6 @@ const RiotProfilePage = () => {
         userRecordData={userRecordData?.data ?? null}
         isLoading={isLoadingUserRecord}
       />
-      {/* <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} /> */}
     </div>
   );
 };

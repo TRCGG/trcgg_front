@@ -1,8 +1,6 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
 import React, { useState, useEffect, useRef } from "react";
-import useModal from "@/hooks/common/useModal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
@@ -17,7 +15,6 @@ import { UserStatisticsResponse } from "@/data/types/statistics";
 
 const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { isOpen, open, close } = useModal();
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -86,15 +83,12 @@ const User: NextPage = () => {
         isLoading={isLoading}
         isError={isError}
         users={userSearchData?.data}
-        openDiscordModal={open}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}
         username={username}
         isLoggedIn={isLoggedIn}
       />
-
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={handleGuildChange} />
 
       <TitleBox
         className="mt-10"
