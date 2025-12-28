@@ -31,7 +31,8 @@ const SummonerSearchResult = ({ riotNameString, userRecordData, isLoading }: Pro
     setCurrentPage(pageNum);
   };
 
-  if (isLoading || (players && players.length === 1)) {
+  // 로딩 중이거나 데이터가 아직 없을 때 로딩 스피너 표시
+  if (isLoading || !userRecordData || (players && players.length === 1)) {
     return (
       <main>
         <LoadingSpinner />
