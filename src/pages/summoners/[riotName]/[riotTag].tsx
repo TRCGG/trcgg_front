@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { MatchDashboardData, UserRecordResponse } from "@/data/types/record";
+import { MatchDashboardData, MultiplePlayerInfo, UserRecordResponse } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
+import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
@@ -47,6 +48,11 @@ const RiotProfilePage = () => {
     );
   };
 
+  // 타입 가드: MultiplePlayerInfo[] 배열인지 확인
+  const isMultiplePlayerInfo = (data: unknown): data is MultiplePlayerInfo[] => {
+    return Array.isArray(data);
+  };
+
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <SummonerPageHeader
@@ -74,6 +80,13 @@ const RiotProfilePage = () => {
         }
 
         const data = userRecordData?.data?.data;
+
+        // 다중 검색 결과인 경우
+        if (data && isMultiplePlayerInfo(data)) {
+          return <MultiplePlayersCard riotName={riotNameString} players={data} />;
+        }
+
+        // 단일 검색 결과인 경우
         if (data && isMatchDashboardData(data)) {
           return <UserRecordPanel riotName={riotNameString} riotTag={riotTagString} data={data} />;
         }
