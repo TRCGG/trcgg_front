@@ -31,13 +31,23 @@ const useDebouncedRiotNameTag = (searchTerm: string) => {
     []
   );
 
+  const flushDebounce = (term: string) => {
+    debouncedSearch.cancel();
+    const [riotName, riotNameTag] = handleRiotNameSearch(term);
+    setDebouncedTerm({
+      riotName: riotName || "",
+      riotNameTag: riotNameTag || null,
+    });
+    setTyping(false);
+  };
+
   useEffect(() => {
     setTyping(true);
     debouncedSearch(searchTerm);
     return () => debouncedSearch.cancel();
   }, [searchTerm, debouncedSearch]);
 
-  return { debouncedTerm, isTyping };
+  return { debouncedTerm, isTyping, flushDebounce };
 };
 
 export default useDebouncedRiotNameTag;
