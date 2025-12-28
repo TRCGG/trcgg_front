@@ -57,7 +57,7 @@ const Home: NextPage = () => {
   return (
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
-      <header className="flex flex-col w-full gap-32 justify-end">
+      <header className="flex flex-col w-full gap-10 md:gap-20 justify-end">
         <div className="self-end m-3 flex gap-3 items-center">
           {isLoggedIn && (
             <GuildDropdown
@@ -68,7 +68,7 @@ const Home: NextPage = () => {
           )}
           <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
-        <div className="flex w-64 h-64 mx-auto">
+        <div className="flex w-[250px] h-[250px] md:w-[400px] md:h-[400px] mx-auto">
           <Image src={MainLogo} alt="메인 로고" />
         </div>
       </header>

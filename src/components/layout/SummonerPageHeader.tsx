@@ -62,12 +62,12 @@ const SummonerPageHeader = ({
           )}
           <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
-        <div className="w-[113px] h-[30px] justify-start">
+        <div className="w-[115px] h-[64px] justify-start">
           <Image
             src={TextLogo}
             alt="logo"
-            width={113}
-            height={30}
+            width={115}
+            height={64}
             className="cursor-pointer"
             onClick={() => router.push("/")}
           />
