@@ -12,7 +12,7 @@ export const getAllRecords = async (
   guildId?: string
 ): Promise<ApiResponse<UserRecordResponse>> => {
   const params: Record<string, string> = {};
-  if (riotNameTag) params.riot_name_tag = riotNameTag;
+  if (riotNameTag) params.riotNameTag = riotNameTag;
 
   try {
     return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/dashboard`, params);
@@ -31,7 +31,7 @@ export const getRecentRecords = async (
   guildId?: string
 ): Promise<ApiResponse<UserRecentRecordsResponse>> => {
   const params: Record<string, string> = {};
-  if (riotNameTag) params.riot_name_tag = riotNameTag;
+  if (riotNameTag) params.riotNameTag = riotNameTag;
 
   try {
     return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games?limit=200`, params);
