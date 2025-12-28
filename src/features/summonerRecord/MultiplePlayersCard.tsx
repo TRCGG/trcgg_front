@@ -13,7 +13,7 @@ const MultiplePlayersCard = ({ riotName, players }: Props) => {
   return (
     <main className="mt-14 flex flex-col gap-3 md:min-w-[1080px]">
       <div className="flex flex-col text-white">
-        <Card className="w-full p-4 text-center mt-10">
+        <Card className="w-full p-4 text-center">
           <p>해당 클랜 내 &quot;{riotName}&quot; 유저에 대한 검색 결과입니다.</p>
         </Card>
         <Card className="w-full p-2">
