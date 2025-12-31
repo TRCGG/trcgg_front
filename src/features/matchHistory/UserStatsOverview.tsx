@@ -50,7 +50,7 @@ const UserStatsOverview = ({
 
   return (
     <div
-      className="flex bg-darkBg2 text-primary1 p-4 rounded border border-border2 relative bg-no-repeat bg-right-top w-full md:min-w-[1080px] mx-auto"
+      className="flex flex-col sm:flex-row bg-darkBg2 text-primary1 p-4 rounded border border-border2 relative bg-no-repeat bg-right-top w-full md:min-w-[1080px] mx-auto"
       style={{
         backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0) 100%), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg)`,
         backgroundPosition: "top right",
@@ -101,7 +101,7 @@ const UserStatsOverview = ({
 
       {/* 새로고침 버튼 */}
       {onRefresh && (
-        <div className="flex items-center p-4">
+        <div className="flex items-center justify-center sm:justify-end p-4 w-full sm:w-auto">
           <button
             type="button"
             onClick={handleRefreshClick}
