@@ -1,4 +1,6 @@
 import Image, { StaticImageData } from "next/image";
+import { useState } from "react";
+import { MdRefresh } from "react-icons/md";
 import LaneTopLogo from "@/assets/images/laneTop.png";
 import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
@@ -13,6 +15,7 @@ interface Props {
   mostChampion: string;
   mostLane: string;
   totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: string };
+  onRefresh?: () => Promise<void>;
 }
 
 const laneImageMap: Record<string, StaticImageData> = {
@@ -23,14 +26,28 @@ const laneImageMap: Record<string, StaticImageData> = {
   SUP: LaneSupportLogo,
 };
 
-const userStatsOverview = ({
+const UserStatsOverview = ({
   riotName,
   riotTag,
   monthData,
   mostChampion,
   mostLane,
   totalData,
+  onRefresh,
 }: Props) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshClick = async () => {
+    if (!onRefresh || isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div
       className="flex bg-darkBg2 text-primary1 p-4 rounded border border-border2 relative bg-no-repeat bg-right-top w-full md:min-w-[1080px] mx-auto"
@@ -52,7 +69,7 @@ const userStatsOverview = ({
       </div>
 
       {/* 유저 정보 */}
-      <div className="flex flex-col p-4 gap-3">
+      <div className="flex flex-col p-4 gap-3 flex-1">
         <div className="text-3xl md:text-4xl font-bold text-white">
           {riotName} <span className="font-medium text-gray">#{riotTag}</span>
         </div>
@@ -81,7 +98,24 @@ const userStatsOverview = ({
           </div>
         )}
       </div>
+
+      {/* 새로고침 버튼 */}
+      {onRefresh && (
+        <div className="flex items-center p-4">
+          <button
+            type="button"
+            onClick={handleRefreshClick}
+            disabled={isRefreshing}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              isRefreshing ? "bg-white text-darkBg2" : "bg-primary1 text-darkBg2 hover:bg-primary2"
+            } disabled:cursor-not-allowed`}
+          >
+            <MdRefresh className={`text-xl ${isRefreshing ? "animate-spin" : ""}`} />
+            <span className="font-medium">{isRefreshing ? "갱신중" : "새로고침"}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
-export default userStatsOverview;
+export default UserStatsOverview;

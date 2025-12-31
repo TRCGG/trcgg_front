@@ -28,9 +28,11 @@ const RiotProfilePage = () => {
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
 
-  const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
-    ApiResponse<UserRecordResponse>
-  >({
+  const {
+    data: userRecordData,
+    isLoading: isLoadingUserRecord,
+    refetch: refetchUserRecords,
+  } = useQuery<ApiResponse<UserRecordResponse>>({
     queryKey: ["userRecords", riotNameString, riotTagString, guildId],
     queryFn: () => getAllRecords(riotNameString, riotTagString, guildId),
     staleTime: 3 * 60 * 1000,
@@ -94,6 +96,7 @@ const RiotProfilePage = () => {
               riotName={riotNameString}
               riotTag={riotTagString}
               data={data}
+              onRefreshRecords={refetchUserRecords}
             />
           );
         }

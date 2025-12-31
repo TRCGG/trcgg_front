@@ -16,9 +16,10 @@ interface Props {
   riotName: string;
   riotTag: string;
   data: MatchDashboardData;
+  onRefreshRecords?: () => void;
 }
 
-const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
+const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) => {
   const RECORD_DISPLAY_COUNT = 5;
   const MOST_PICK_DISTPLAY_COUNT = 10;
   const guildId =
@@ -27,7 +28,11 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
   const [displayCount, setDisplayCount] = useState(RECORD_DISPLAY_COUNT);
 
   // 최근 전적 데이터 가져오기
-  const { data: recentRecordsData, isFetching } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
+  const {
+    data: recentRecordsData,
+    isFetching,
+    refetch: refetchRecentRecords,
+  } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
     queryKey: ["userRecentRecords", riotName, riotTag, guildId],
     queryFn: () => getRecentRecords(riotName, riotTag, guildId),
     staleTime: 3 * 60 * 1000,
@@ -49,6 +54,13 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
     winRate: data.summary.winRate,
   };
 
+  const handleRefresh = async () => {
+    if (onRefreshRecords) {
+      await onRefreshRecords();
+    }
+    await refetchRecentRecords();
+  };
+
   return (
     <main className="mt-10 md:mt-12 flex flex-col gap-3 md:min-w-[1080px]">
       {/* Summary */}
@@ -59,6 +71,7 @@ const UserRecordPanel = ({ riotName, riotTag, data }: Props) => {
         monthData={data.summary}
         mostChampion={data.mostPicks[0]?.champNameEng || ""}
         mostLane={mostLane}
+        onRefresh={handleRefresh}
       />
       <div className="flex gap-3 flex-col md:flex-row">
         {/* 모스트 픽 */}
