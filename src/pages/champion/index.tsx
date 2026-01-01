@@ -4,17 +4,19 @@ import React, { useState, useEffect, useRef } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
+import PositionFilter from "@/features/statistics/PositionFilter";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
 import { getCurrentYearMonth } from "@/utils/parseTime";
 import { useQuery } from "@tanstack/react-query";
-import { getChampionStatistics } from "@/services/statistics";
+import { getChampionStatistics, Position } from "@/services/statistics";
 import { ApiResponse } from "@/services/apiService";
 import { ChampionStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
   const observerTarget = useRef<HTMLDivElement>(null);
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
@@ -32,10 +34,12 @@ const Champion: NextPage = () => {
     isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
   } = useQuery<ApiResponse<ChampionStatisticsResponse>>({
-    queryKey: ["championStatistics", guildId],
-    queryFn: () => getChampionStatistics(guildId),
+    queryKey: ["championStatistics", guildId, selectedPosition],
+    queryFn: () => getChampionStatistics(guildId, selectedPosition),
     enabled: !!guildId,
     staleTime: 10 * 60 * 1000,
+    structuralSharing: false,
+    placeholderData: undefined,
   });
 
   const allChampions = championStatisticsData?.data?.data || [];
@@ -45,6 +49,11 @@ const Champion: NextPage = () => {
   // 현재 선택된 클랜 이름 가져오기
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
   const clanName = selectedGuild?.name || "클랜";
+
+  // 포지션 변경 시 displayCount 리셋
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [selectedPosition]);
 
   // 무한 스크롤
   useEffect(() => {
@@ -92,9 +101,15 @@ const Champion: NextPage = () => {
         description="챔피언 플레이 기록이 30판 이상인 경우에만 통계에 표시"
       />
 
-      <div className="mt-6">
+      <PositionFilter
+        selectedPosition={selectedPosition}
+        onSelectPosition={setSelectedPosition}
+        className="mt-4"
+      />
+
+      <div className="mt-1">
         <ChampionRankHeader />
-        <div className="space-y-3 mt-2">
+        <div key={selectedPosition} className="space-y-3 mt-2">
           {(() => {
             // 비로그인 상태
             if (!isLoggedIn) {
