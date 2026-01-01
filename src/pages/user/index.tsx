@@ -46,6 +46,10 @@ const User: NextPage = () => {
   const displayedUsers = allUsers.slice(0, displayCount);
   const hasMore = allUsers.length > displayCount;
 
+  // 현재 선택된 클랜 이름 가져오기
+  const selectedGuild = guilds.find((guild) => guild.id === guildId);
+  const clanName = selectedGuild?.name || "클랜";
+
   // 포지션 변경 시 displayCount 리셋
   useEffect(() => {
     setDisplayCount(10);
@@ -92,7 +96,7 @@ const User: NextPage = () => {
 
       <TitleBox
         className="mt-10"
-        clanName="TRC 난민캠프"
+        clanName={clanName}
         title="유저 분석"
         date={getCurrentYearMonth()}
         description="내전 플레이 기록이 30판 이상인 경우에만 통계에 표시"

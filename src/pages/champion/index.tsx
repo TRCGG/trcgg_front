@@ -41,6 +41,10 @@ const Champion: NextPage = () => {
   const displayedChampions = allChampions.slice(0, displayCount);
   const hasMore = allChampions.length > displayCount;
 
+  // 현재 선택된 클랜 이름 가져오기
+  const selectedGuild = guilds.find((guild) => guild.id === guildId);
+  const clanName = selectedGuild?.name || "클랜";
+
   // 무한 스크롤
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -81,7 +85,7 @@ const Champion: NextPage = () => {
       />
       <TitleBox
         className="mt-10"
-        clanName="TRC 난민캠프"
+        clanName={clanName}
         title="대상 분석"
         date={getCurrentYearMonth()}
         description="챔피언 플레이 기록이 30판 이상인 경우에만 통계에 표시"
