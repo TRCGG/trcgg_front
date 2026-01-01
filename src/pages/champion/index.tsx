@@ -46,6 +46,12 @@ const Champion: NextPage = () => {
   const displayedChampions = allChampions.slice(0, displayCount);
   const hasMore = allChampions.length > displayCount;
 
+  // 게임 수 상위 10위 챔피언 계산
+  const popularChampions = [...allChampions]
+    .sort((a, b) => b.totalCount - a.totalCount)
+    .slice(0, 10)
+    .map((c) => c.champNameEng);
+
   // 현재 선택된 클랜 이름 가져오기
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
   const clanName = selectedGuild?.name || "클랜";
@@ -136,17 +142,35 @@ const Champion: NextPage = () => {
                 {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
                   allChampions.length > 0 && (
                     <>
-                      {displayedChampions.map((champion, index) => (
-                        <ChampionRankItem
-                          key={champion.champNameEng}
-                          rank={index + 1}
-                          championName={champion.champName}
-                          championNameEng={champion.champNameEng}
-                          position={champion.position}
-                          winRate={champion.winRate}
-                          gameCount={champion.totalCount}
-                        />
-                      ))}
+                      {displayedChampions.map((champion, index) => {
+                        const rank = index + 1;
+                        const totalChampions = allChampions.length;
+
+                        // 티어 계산 (겹치지 않을 때만 부여)
+                        let tier: 1 | 5 | undefined;
+                        if (rank <= 10 && totalChampions - rank >= 10) {
+                          tier = 1; // 승률 상위 10위
+                        } else if (totalChampions - rank < 10 && rank > 10) {
+                          tier = 5; // 승률 하위 10위
+                        }
+
+                        // 인기 여부 계산
+                        const isPopular = popularChampions.includes(champion.champNameEng);
+
+                        return (
+                          <ChampionRankItem
+                            key={champion.champNameEng}
+                            rank={rank}
+                            championName={champion.champName}
+                            championNameEng={champion.champNameEng}
+                            position={champion.position}
+                            winRate={champion.winRate}
+                            gameCount={champion.totalCount}
+                            tier={tier}
+                            isPopular={isPopular}
+                          />
+                        );
+                      })}
                       {/* 무한 스크롤 트리거 */}
                       {hasMore && <div ref={observerTarget} className="h-10" />}
                     </>
