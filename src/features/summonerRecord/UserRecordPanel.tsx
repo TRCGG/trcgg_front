@@ -47,11 +47,17 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     curr.totalCount > prev.totalCount ? curr : prev
   ).position;
 
+  // lines 데이터를 합산하여 전체 통계 계산
+  const totalGames = data.lines.reduce((sum, line) => sum + line.totalCount, 0);
+  const totalWins = data.lines.reduce((sum, line) => sum + line.win, 0);
+  const totalLoses = data.lines.reduce((sum, line) => sum + line.lose, 0);
+  const calculatedWinRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(2) : "0.00";
+
   const totalStatData = {
-    totalGameCount: data.summary.totalCount,
-    winCount: data.summary.win,
-    loseCount: data.summary.lose,
-    winRate: data.summary.winRate,
+    totalGameCount: totalGames,
+    winCount: totalWins,
+    loseCount: totalLoses,
+    winRate: calculatedWinRate,
   };
 
   const handleRefresh = async () => {
