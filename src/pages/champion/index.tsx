@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getChampionStatistics } from "@/services/statistics";
 import { ApiResponse } from "@/services/apiService";
 import { ChampionStatisticsResponse } from "@/data/types/statistics";
+import TextCard from "@/components/ui/TextCard";
 
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -94,40 +95,58 @@ const Champion: NextPage = () => {
       <div className="mt-6">
         <ChampionRankHeader />
         <div className="space-y-3 mt-2">
-          {(isLoadingStatistics || isFetchingStatistics) && (
-            <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
-          )}
+          {(() => {
+            // 비로그인 상태
+            if (!isLoggedIn) {
+              return <TextCard text="로그인 후 이용해주세요" />;
+            }
 
-          {isErrorStatistics && (
-            <div className="text-center py-10 text-redText">데이터를 불러오는데 실패했습니다.</div>
-          )}
+            // 소속 클랜 없음
+            if (guilds.length === 0) {
+              return <TextCard text="소속된 클랜이 없습니다" />;
+            }
 
-          {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
-            allChampions.length > 0 && (
+            return (
               <>
-                {displayedChampions.map((champion, index) => (
-                  <ChampionRankItem
-                    key={champion.champNameEng}
-                    rank={index + 1}
-                    championName={champion.champName}
-                    championNameEng={champion.champNameEng}
-                    position={champion.position}
-                    winRate={champion.winRate}
-                    gameCount={champion.totalCount}
-                  />
-                ))}
-                {/* 무한 스크롤 트리거 */}
-                {hasMore && <div ref={observerTarget} className="h-10" />}
-              </>
-            )}
+                {(isLoadingStatistics || isFetchingStatistics) && (
+                  <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
+                )}
 
-          {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
-            isFetchedStatistics &&
-            allChampions.length === 0 && (
-              <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
-                30판 이상 플레이한 챔피언이 없어 통계 데이터를 확인할 수 없습니다.
-              </div>
-            )}
+                {isErrorStatistics && (
+                  <div className="text-center py-10 text-redText">
+                    데이터를 불러오는데 실패했습니다.
+                  </div>
+                )}
+
+                {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+                  allChampions.length > 0 && (
+                    <>
+                      {displayedChampions.map((champion, index) => (
+                        <ChampionRankItem
+                          key={champion.champNameEng}
+                          rank={index + 1}
+                          championName={champion.champName}
+                          championNameEng={champion.champNameEng}
+                          position={champion.position}
+                          winRate={champion.winRate}
+                          gameCount={champion.totalCount}
+                        />
+                      ))}
+                      {/* 무한 스크롤 트리거 */}
+                      {hasMore && <div ref={observerTarget} className="h-10" />}
+                    </>
+                  )}
+
+                {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+                  isFetchedStatistics &&
+                  allChampions.length === 0 && (
+                    <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
+                      30판 이상 플레이한 챔피언이 없어 통계 데이터를 확인할 수 없습니다.
+                    </div>
+                  )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

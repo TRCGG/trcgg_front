@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getUserStatistics, Position } from "@/services/statistics";
 import { ApiResponse } from "@/services/apiService";
 import { UserStatisticsResponse } from "@/data/types/statistics";
+import TextCard from "@/components/ui/TextCard";
 
 const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -111,43 +112,61 @@ const User: NextPage = () => {
       <div className="mt-1">
         <UserRankHeader />
         <div key={selectedPosition} className="space-y-3 mt-2">
-          {(isLoadingStatistics || isFetchingStatistics) && (
-            <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
-          )}
+          {(() => {
+            // 비로그인 상태
+            if (!isLoggedIn) {
+              return <TextCard text="로그인 후 이용해주세요" />;
+            }
 
-          {isErrorStatistics && (
-            <div className="text-center py-10 text-redText">데이터를 불러오는데 실패했습니다.</div>
-          )}
+            // 소속 클랜 없음
+            if (guilds.length === 0) {
+              return <TextCard text="소속된 클랜이 없습니다" />;
+            }
 
-          {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
-            allUsers.length > 0 && (
+            return (
               <>
-                {displayedUsers.map((user, index) => (
-                  <UserRankItem
-                    key={user.playerCode}
-                    rank={index + 1}
-                    position={user.position}
-                    riotName={user.riotName}
-                    riotNameTag={user.riotNameTag}
-                    totalGames={user.totalCount}
-                    wins={user.win}
-                    losses={user.lose}
-                    kda={user.kda}
-                    winRate={user.winRate}
-                  />
-                ))}
-                {/* 무한 스크롤 트리거 */}
-                {hasMore && <div ref={observerTarget} className="h-10" />}
-              </>
-            )}
+                {(isLoadingStatistics || isFetchingStatistics) && (
+                  <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
+                )}
 
-          {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
-            isFetchedStatistics &&
-            allUsers.length === 0 && (
-              <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
-                30판 이상 플레이한 유저가 없어 통계 데이터를 확인할 수 없습니다.
-              </div>
-            )}
+                {isErrorStatistics && (
+                  <div className="text-center py-10 text-redText">
+                    데이터를 불러오는데 실패했습니다.
+                  </div>
+                )}
+
+                {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+                  allUsers.length > 0 && (
+                    <>
+                      {displayedUsers.map((user, index) => (
+                        <UserRankItem
+                          key={user.playerCode}
+                          rank={index + 1}
+                          position={user.position}
+                          riotName={user.riotName}
+                          riotNameTag={user.riotNameTag}
+                          totalGames={user.totalCount}
+                          wins={user.win}
+                          losses={user.lose}
+                          kda={user.kda}
+                          winRate={user.winRate}
+                        />
+                      ))}
+                      {/* 무한 스크롤 트리거 */}
+                      {hasMore && <div ref={observerTarget} className="h-10" />}
+                    </>
+                  )}
+
+                {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+                  isFetchedStatistics &&
+                  allUsers.length === 0 && (
+                    <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
+                      30판 이상 플레이한 유저가 없어 통계 데이터를 확인할 수 없습니다.
+                    </div>
+                  )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

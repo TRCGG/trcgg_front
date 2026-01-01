@@ -11,6 +11,7 @@ import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import TextCard from "@/components/ui/TextCard";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -73,6 +74,16 @@ const RiotProfilePage = () => {
 
       {/* 메인 콘텐츠 */}
       {(() => {
+        // 비로그인 상태
+        if (!isLoggedIn) {
+          return <TextCard text="로그인 후 이용해주세요" />;
+        }
+
+        // 소속 클랜 없음
+        if (guilds.length === 0) {
+          return <TextCard text="소속된 클랜이 없습니다" />;
+        }
+
         if (!riotName || !guildId || isLoadingUserRecord) {
           return (
             <main>
