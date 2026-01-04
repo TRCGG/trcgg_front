@@ -12,10 +12,10 @@ export const getAllRecords = async (
   guildId?: string
 ): Promise<ApiResponse<UserRecordResponse>> => {
   const params: Record<string, string> = {};
-  if (riotNameTag) params.riot_name_tag = riotNameTag;
+  if (riotNameTag) params.riotNameTag = riotNameTag;
 
   try {
-    return await api.get(`/record/all/${riotName}/${guildId ?? ""}`, params);
+    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/dashboard`, params);
   } catch (error) {
     return {
       data: null,
@@ -31,10 +31,10 @@ export const getRecentRecords = async (
   guildId?: string
 ): Promise<ApiResponse<UserRecentRecordsResponse>> => {
   const params: Record<string, string> = {};
-  if (riotNameTag) params.riot_name_tag = riotNameTag;
+  if (riotNameTag) params.riotNameTag = riotNameTag;
 
   try {
-    return await api.get(`/record/recent/${riotName}/${guildId ?? ""}`, params);
+    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games?limit=200`, params);
   } catch (error) {
     return {
       data: null,
@@ -49,7 +49,7 @@ export const getGameRecords = async (
   guildId?: string
 ): Promise<ApiResponse<GameRecordResponse>> => {
   try {
-    return await api.get(`/record/result/${gameId}/${guildId ?? ""}`);
+    return await api.get(`/api/matches/${guildId ?? ""}/games/${gameId}`);
   } catch (error) {
     return {
       data: null,

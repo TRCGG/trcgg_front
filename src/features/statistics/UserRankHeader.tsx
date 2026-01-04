@@ -4,7 +4,7 @@ interface Props {
 
 const UserRankHeader = ({ className }: Props) => {
   return (
-    <div className={`flex items-center gap-3 px-3 py-2 ${className || ""}`}>
+    <div className={`hidden md:flex items-center gap-3 px-3 py-2 ${className || ""}`}>
       {/* 순위 (빈 공간) */}
       <div className="flex-shrink-0 w-8 text-center" />
 

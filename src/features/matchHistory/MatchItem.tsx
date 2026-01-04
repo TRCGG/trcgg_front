@@ -2,38 +2,44 @@ import React, { useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Image from "next/image";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
-import { GameRecordResponse, RecentGame } from "@/data/types/record";
+import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
+import SpriteImage from "@/components/ui/SpriteImage";
+import { getChampionSprite, getItemSprite, getSummonerSpellSprite } from "@/utils/spriteLoader";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { getKdaColor } from "@/utils/statColors";
 
 interface Props {
-  matchData: RecentGame;
+  matchData: RecentGameRecord;
 }
 
 const MatchItem = ({ matchData }: Props) => {
   const [isOpen, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!isOpen);
-  const isWin = matchData.game_result === "승";
+  const isWin = matchData.gameResult === "승";
 
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const { data: gameData } = useQuery<ApiResponse<GameRecordResponse>>({
-    queryKey: ["gameData", matchData.game_id, guildId],
-    queryFn: () => getGameRecords(matchData.game_id, guildId),
+  const { data: gameData, isLoading: isLoadingGameData } = useQuery<
+    ApiResponse<GameRecordResponse>
+  >({
+    queryKey: ["gameData", matchData.gameId, guildId],
+    queryFn: () => getGameRecords(matchData.gameId, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: isOpen && !!guildId,
   });
 
   const itemArr = [
-    matchData.item0,
-    matchData.item1,
-    matchData.item2,
-    matchData.item3,
-    matchData.item4,
-    matchData.item5,
+    { slot: 0, itemId: matchData.item0 },
+    { slot: 1, itemId: matchData.item1 },
+    { slot: 2, itemId: matchData.item2 },
+    { slot: 3, itemId: matchData.item3 },
+    { slot: 4, itemId: matchData.item4 },
+    { slot: 5, itemId: matchData.item5 },
     // matchData.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭)
   ];
 
@@ -48,12 +54,12 @@ const MatchItem = ({ matchData }: Props) => {
         }}
         className={`flex w-full h-auto min-h-[40px] sm:min-h-[94px] rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
       >
-        <div className="w-full grid grid-cols-[1.2fr_1fr_1.8fr_2fr] sm:grid-cols-[0.8fr_0.8fr_1fr_2.5fr_1.2fr] items-center justify-between px-3">
+        <div className="w-full grid grid-cols-[1.2fr_1fr_2.5fr_1.6fr] sm:grid-cols-[80px_75px_90px_271px_100px] items-center justify-between pl-3 pr-1 sm:px-3">
           {/* 1. 시간 및 승/패 */}
           <div className="flex flex-col text-xs sm:text-sm">
             <span
               className="relative group cursor-pointer text-sm sm:text-base"
-              title={new Date(matchData.create_date).toLocaleString("ko-KR", {
+              title={new Date(matchData.createDate).toLocaleString("ko-KR", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
@@ -62,9 +68,9 @@ const MatchItem = ({ matchData }: Props) => {
                 hour12: true,
               })}
             >
-              {formatTimeAgo(matchData.create_date)}
+              {formatTimeAgo(matchData.createDate)}
               <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white whitespace-nowrap z-10 text-sm sm:text-base">
-                {new Date(matchData.create_date).toLocaleString("ko-KR", {
+                {new Date(matchData.createDate).toLocaleString("ko-KR", {
                   year: "numeric",
                   month: "2-digit",
                   day: "2-digit",
@@ -78,86 +84,163 @@ const MatchItem = ({ matchData }: Props) => {
             <span className={` ${isWin ? "text-blueText" : "text-redText"}`}>
               {isWin ? "승리" : "패배"}
             </span>
-            <span className="whitespace-nowrap">
-              {Math.floor(matchData.time_played / 60)}분 {matchData.time_played % 60}초
-            </span>
+            {matchData.timePlayed && (
+              <span className="whitespace-nowrap">
+                {Math.floor(matchData.timePlayed / 60)}분 {matchData.timePlayed % 60}초
+              </span>
+            )}
           </div>
 
           {/* 2. 챔피온 아이콘 */}
-          <div className="flex justify-center w-[36px] h-[36px] sm:w-[64px] sm:h-[64px]">
-            <Image
+          <div className="flex justify-center">
+            {/* 모바일 */}
+            <SpriteImage
+              spriteData={getChampionSprite(matchData.champNameEng)}
+              width={36}
+              height={36}
+              alt="챔피언"
+              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              className="w-9 h-9 sm:hidden"
+            />
+            {/* 데스크탑 */}
+            <SpriteImage
+              spriteData={getChampionSprite(matchData.champNameEng)}
               width={64}
               height={64}
               alt="챔피언"
-              src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champ_name_eng}.png`}
+              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              className="hidden sm:block w-16 h-16"
             />
           </div>
 
           {/* 챔피온 명 (모바일 숨김, sm 이상 표시) */}
           <div className="hidden sm:block text-base sm:text-lg whitespace-nowrap">
-            {matchData.champ_name}
+            {matchData.champName}
           </div>
 
           {/* 4. 스펠, 룬, 아이템 */}
-          <div className="flex items-center gap-x-3">
+          <div className="flex items-center justify-center gap-x-1.5 sm:gap-x-3 sm:justify-start">
             <div className="flex">
-              <div className="flex flex-col gap-0 w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
-                <Image
-                  width={32}
-                  height={32}
-                  alt="스펠 1"
-                  title={matchData.summoner_spell_1_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summoner_spell_1_key}.png`}
-                />
-                <Image
-                  width={32}
-                  height={32}
-                  alt="스펠 2"
-                  title={matchData.summoner_spell_2_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summoner_spell_2_key}.png`}
-                />
+              {/* 스펠 - 모바일 */}
+              <div className="flex flex-col gap-0 sm:hidden">
+                {matchData.summonerSpell1Key && (
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell1Key)}
+                    width={18}
+                    height={18}
+                    alt="스펠 1"
+                    title={matchData.summonerSpell1Name}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
+                    className="w-[18px] h-[18px]"
+                  />
+                )}
+                {matchData.summonerSpell2Key && (
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell2Key)}
+                    width={18}
+                    height={18}
+                    alt="스펠 2"
+                    title={matchData.summonerSpell2Name}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
+                    className="w-[18px] h-[18px]"
+                  />
+                )}
               </div>
-              <div className="flex flex-col w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
-                <Image
-                  width={32}
-                  height={32}
-                  alt="메인 룬"
-                  title={matchData.keyston_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.keyston_icon}`}
-                />
-                <Image
-                  width={32}
-                  height={32}
-                  alt="서브 룬"
-                  title={matchData.substyle_name}
-                  src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.substyle_icon}`}
-                />
-              </div>
-            </div>
-
-            <div className="grid place-items-center grid-cols-3 grid-rows-2 w-[54px] sm:flex sm:flex-row sm:items-center sm:w-[192px] sm:h-[32px]">
-              {itemArr
-                .filter((item) => item !== 0)
-                .map((item, index) => (
-                  <Image
-                    key={item}
+              {/* 스펠 - 데스크탑 */}
+              <div className="hidden sm:flex flex-col gap-0">
+                {matchData.summonerSpell1Key && (
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell1Key)}
                     width={32}
                     height={32}
-                    alt={`아이템 ${index + 1}`}
-                    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item}.png`}
+                    alt="스펠 1"
+                    title={matchData.summonerSpell1Name}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell1Key}.png`}
+                    className="w-8 h-8"
                   />
-                ))}
+                )}
+                {matchData.summonerSpell2Key && (
+                  <SpriteImage
+                    spriteData={getSummonerSpellSprite(matchData.summonerSpell2Key)}
+                    width={32}
+                    height={32}
+                    alt="스펠 2"
+                    title={matchData.summonerSpell2Name}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/spell/${matchData.summonerSpell2Key}.png`}
+                    className="w-8 h-8"
+                  />
+                )}
+              </div>
+              {/* 룬 */}
+              <div className="flex flex-col w-[18px] h-[36px] sm:w-[32px] sm:h-[64px]">
+                {matchData.keystoneIcon && (
+                  <Image
+                    width={32}
+                    height={32}
+                    alt="메인 룬"
+                    title={matchData.keystoneName}
+                    src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.keystoneIcon}`}
+                    loading="lazy"
+                    unoptimized
+                  />
+                )}
+                {matchData.substyleIcon && (
+                  <Image
+                    width={32}
+                    height={32}
+                    alt="서브 룬"
+                    title={matchData.substyleName}
+                    src={`https://ddragon.leagueoflegends.com/cdn/img/${matchData.substyleIcon}`}
+                    loading="lazy"
+                    unoptimized
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* 5. 아이템 */}
+            {/* 모바일 */}
+            <div className="grid place-items-center grid-cols-3 grid-rows-2 gap-0.5 sm:hidden">
+              {itemArr.map((item) =>
+                item.itemId !== 0 ? (
+                  <SpriteImage
+                    key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                    spriteData={getItemSprite(item.itemId)}
+                    width={18}
+                    height={18}
+                    alt={`아이템 ${item.slot + 1}`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item.itemId}.png`}
+                    className="w-[18px] h-[18px]"
+                  />
+                ) : null
+              )}
+            </div>
+            {/* 데스크탑 */}
+            <div className="hidden sm:flex flex-row items-center gap-0">
+              {itemArr.map((item) =>
+                item.itemId !== 0 ? (
+                  <SpriteImage
+                    key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                    spriteData={getItemSprite(item.itemId)}
+                    width={32}
+                    height={32}
+                    alt={`아이템 ${item.slot + 1}`}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${item.itemId}.png`}
+                    className="w-8 h-8"
+                  />
+                ) : null
+              )}
             </div>
           </div>
-
-          {/* 5. 아이템 */}
 
           {/* 6. KDA */}
           <div className="flex flex-col sm:text-lg whitespace-nowrap items-center">
             <span>
               {matchData.kill} / {matchData.death} / {matchData.assist}
             </span>
-            <span className="text-sm text-neonGreen">
+            <span
+              className={`text-sm font-semibold ${getKdaColor((matchData.kill + matchData.assist) / matchData.death)}`}
+            >
               {((matchData.kill + matchData.assist) / matchData.death).toFixed(2)} KDA
             </span>
           </div>
@@ -178,10 +261,15 @@ const MatchItem = ({ matchData }: Props) => {
         </div>
       </div>
 
-      {isOpen && gameData?.data?.data && (
-        <div className="flex flex-col w-full">
-          <MatchDetail participantData={gameData?.data?.data} />
-        </div>
+      {isOpen && (
+        <>
+          {isLoadingGameData && <LoadingSpinner />}
+          {!isLoadingGameData && gameData?.data?.data && (
+            <div className="flex flex-col w-full">
+              <MatchDetail participantData={gameData?.data?.data} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

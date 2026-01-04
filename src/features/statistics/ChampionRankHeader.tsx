@@ -4,7 +4,7 @@ interface Props {
 
 const ChampionRankHeader = ({ className }: Props) => {
   return (
-    <div className={`flex items-center gap-3 px-3 py-2 ${className || ""}`}>
+    <div className={`hidden md:flex items-center gap-3 px-3 py-2 ${className || ""}`}>
       {/* 랭크 */}
       <div className="flex-shrink-0 w-8 text-center">
         <span className="text-sm font-medium text-primary2" />
