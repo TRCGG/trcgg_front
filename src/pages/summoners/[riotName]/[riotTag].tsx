@@ -1,16 +1,17 @@
 import { useRouter } from "next/router";
-import useModal from "@/hooks/common/useModal";
-import React, { useEffect, useState } from "react";
-import DiscordLoginModal from "@/features/discordLogin/DiscordLoginModal";
+import React, { useState } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { MultiplePlayers, PlayerStatsData, UserRecordResponse } from "@/data/types/record";
+import { MatchDashboardData, MultiplePlayerInfo, UserRecordResponse } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
+import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import TextCard from "@/components/ui/TextCard";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -18,9 +19,9 @@ const RiotProfilePage = () => {
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
   const [searchTerm, setSearchTerm] = useState("");
-  const { isOpen, open, close } = useModal();
-  const [guildId, setGuildId] = useState<string>("");
-  const onGuildIdSaved = (newGuildId: string) => setGuildId(newGuildId);
+
+  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
+
   const {
     data: userSearchData,
     isLoading,
@@ -28,23 +29,31 @@ const RiotProfilePage = () => {
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGuildId(localStorage.getItem("guildId") || "");
-    }
-  }, []);
-
-  const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
-    ApiResponse<UserRecordResponse>
-  >({
+  const {
+    data: userRecordData,
+    isLoading: isLoadingUserRecord,
+    refetch: refetchUserRecords,
+  } = useQuery<ApiResponse<UserRecordResponse>>({
     queryKey: ["userRecords", riotNameString, riotTagString, guildId],
     queryFn: () => getAllRecords(riotNameString, riotTagString, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: !!riotName && !!guildId,
   });
 
-  const isPlayerStatsData = (data: PlayerStatsData | MultiplePlayers): data is PlayerStatsData => {
-    return "month_data" in data; // 타입 좁히기
+  // 타입 가드: MatchDashboardData인지 확인
+  const isMatchDashboardData = (data: unknown): data is MatchDashboardData => {
+    return (
+      !Array.isArray(data) &&
+      typeof data === "object" &&
+      data !== null &&
+      "member" in data &&
+      "summary" in data
+    );
+  };
+
+  // 타입 가드: MultiplePlayerInfo[] 배열인지 확인
+  const isMultiplePlayerInfo = (data: unknown): data is MultiplePlayerInfo[] => {
+    return Array.isArray(data);
   };
 
   return (
@@ -56,12 +65,26 @@ const RiotProfilePage = () => {
         isLoading={isLoading}
         isError={isError}
         users={userSearchData?.data}
-        openDiscordModal={open}
+        guilds={guilds}
+        selectedGuildId={guildId}
+        onGuildChange={handleGuildChange}
+        username={username}
+        isLoggedIn={isLoggedIn}
       />
 
       {/* 메인 콘텐츠 */}
       {(() => {
-        if (isLoadingUserRecord) {
+        // 비로그인 상태
+        if (!isLoggedIn) {
+          return <TextCard text="로그인 후 이용해주세요" />;
+        }
+
+        // 소속 클랜 없음
+        if (guilds.length === 0) {
+          return <TextCard text="소속된 클랜이 없습니다" />;
+        }
+
+        if (!riotName || !guildId || isLoadingUserRecord) {
           return (
             <main>
               <LoadingSpinner />
@@ -69,20 +92,28 @@ const RiotProfilePage = () => {
           );
         }
 
-        if (userRecordData?.data?.data && isPlayerStatsData(userRecordData.data.data)) {
+        const data = userRecordData?.data?.data;
+
+        // 다중 검색 결과인 경우
+        if (data && isMultiplePlayerInfo(data)) {
+          return <MultiplePlayersCard riotName={riotNameString} players={data} />;
+        }
+
+        // 단일 검색 결과인 경우
+        if (data && isMatchDashboardData(data)) {
           return (
             <UserRecordPanel
+              key={`${riotNameString}-${riotTagString}`}
               riotName={riotNameString}
               riotTag={riotTagString}
-              data={userRecordData.data.data}
+              data={data}
+              onRefreshRecords={refetchUserRecords}
             />
           );
         }
 
         return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
       })()}
-
-      <DiscordLoginModal isOpen={isOpen} close={close} onSave={onGuildIdSaved} />
     </div>
   );
 };

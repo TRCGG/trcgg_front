@@ -1,12 +1,26 @@
+/**
+ * 플레이어 정보 (User Search API 응답)
+ *
+ * @interface PlayerInfo
+ */
 export interface PlayerInfo {
-  player_id: string;
-  riot_name: string;
-  riot_name_tag: string;
-  guild_id: string;
-  puuid: string;
+  playerCode: string;
+  riotName: string;
+  riotNameTag: string;
+  isMain: boolean;
+  guildId: string;
+  createDate: string;
+  updateDate: string;
+  isDeleted: boolean;
 }
+
+/**
+ * 유저 검색 결과
+ *
+ * @interface UserSearchResult
+ */
 export interface UserSearchResult {
-  data: PlayerInfo[];
-  message: string;
   status: string;
+  message: string;
+  data: PlayerInfo[];
 }

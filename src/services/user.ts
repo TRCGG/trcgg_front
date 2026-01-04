@@ -8,10 +8,10 @@ export const getUsers = async (
   guildId?: string
 ): Promise<ApiResponse<UserSearchResult>> => {
   const params: Record<string, string> = {};
-  if (riotNameTag) params.riot_name_tag = riotNameTag;
+  if (riotNameTag) params.riotNameTag = riotNameTag;
 
   try {
-    return await api.get(`/account/search/${riotName}/${guildId ?? ""}`, params);
+    return await api.get(`/api/guildMember/${guildId ?? ""}/${riotName}`, params);
   } catch (error) {
     return {
       data: null,

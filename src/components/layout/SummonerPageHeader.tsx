@@ -7,8 +7,10 @@ import NavBar from "@/components/layout/NavBar";
 import SearchBarSmall from "@/components/form/SearchBarSmall";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
+import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import { PlayerInfo } from "@/data/types/user";
+import { GuildInfo } from "@/data/types/auth";
 
 interface Props {
   searchTerm: string;
@@ -17,7 +19,11 @@ interface Props {
   isLoading: boolean;
   isError: boolean;
   users: PlayerInfo[] | undefined;
-  openDiscordModal: () => void;
+  guilds: GuildInfo[];
+  selectedGuildId: string;
+  onGuildChange: (encodedGuildId: string) => void;
+  username?: string;
+  isLoggedIn: boolean;
 }
 
 const SummonerPageHeader = ({
@@ -27,7 +33,11 @@ const SummonerPageHeader = ({
   isLoading,
   isError,
   users,
-  openDiscordModal,
+  guilds,
+  selectedGuildId,
+  onGuildChange,
+  username,
+  isLoggedIn,
 }: Props) => {
   const router = useRouter();
   const searchContainerRef = useRef(null);
@@ -35,18 +45,29 @@ const SummonerPageHeader = ({
 
   useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
+  const handleDiscordLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
+  };
+
   return (
     <header className="flex flex-col md:flex-row justify-start md:justify-between mt-2 md:mt-10 md:items-center md:gap-10 md:min-w-[1080px]">
       <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
-        <div className="block md:hidden self-end">
-          <DiscordLoginButton onClick={openDiscordModal} />
+        <div className="md:hidden self-end flex gap-3 items-center">
+          {isLoggedIn && (
+            <GuildDropdown
+              guilds={guilds}
+              selectedGuildId={selectedGuildId}
+              onGuildChange={onGuildChange}
+            />
+          )}
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
-        <div className="w-[113px] h-[30px] justify-start">
+        <div className="w-[115px] h-[64px] justify-start">
           <Image
             src={TextLogo}
             alt="logo"
-            width={113}
-            height={30}
+            width={115}
+            height={64}
             className="cursor-pointer"
             onClick={() => router.push("/")}
           />
@@ -68,10 +89,19 @@ const SummonerPageHeader = ({
           />
         </div>
       </div>
-      <div className="flex items-center justify-start md:justify-end gap-4 mt-3 md:mt-0">
+      <div className="flex items-center justify-start md:justify-end gap-3 mt-3 md:mt-0">
         <NavBar />
+        {isLoggedIn && (
+          <div className="hidden md:block">
+            <GuildDropdown
+              guilds={guilds}
+              selectedGuildId={selectedGuildId}
+              onGuildChange={onGuildChange}
+            />
+          </div>
+        )}
         <div className="hidden md:block">
-          <DiscordLoginButton onClick={openDiscordModal} />
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
       </div>
     </header>

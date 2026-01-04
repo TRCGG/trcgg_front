@@ -4,6 +4,8 @@ import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
 import LaneSupportLogo from "@/assets/images/laneSupport.png";
 import LaneBottomLogo from "@/assets/images/laneBottom.png";
+import SpriteImage from "@/components/ui/SpriteImage";
+import { getChampionSprite } from "@/utils/spriteLoader";
 
 interface Props {
   rank: number;
@@ -47,61 +49,117 @@ const ChampionRankItem = ({
     }
   };
   return (
-    <div
-      className={`flex items-center gap-3 bg-darkBg2 rounded border border-border2 p-3 ${className || ""}`}
-    >
-      {/* 랭크 */}
-      <div className="flex-shrink-0 w-8 text-center">
-        <span className="text-lg font-bold text-primary1">{rank}</span>
+    <div className={`bg-darkBg2 rounded border border-border2 p-3 ${className || ""}`}>
+      {/* 데스크톱 레이아웃 */}
+      <div className="hidden md:flex items-center gap-3">
+        {/* 랭크 */}
+        <div className="flex-shrink-0 w-8 text-center">
+          <span className="text-lg font-bold text-primary1">{rank}</span>
+        </div>
+
+        {/* 챔피언 아이콘 */}
+        <div className="flex-shrink-0 flex items-center justify-center">
+          <SpriteImage
+            spriteData={getChampionSprite(championNameEng)}
+            alt={championName}
+            width={48}
+            height={48}
+            fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+            className="w-12 h-12"
+          />
+        </div>
+
+        {/* 챔피언 이름 + 태그 */}
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <p className="text-base text-primary1 truncate">{championName}</p>
+          {tier && (
+            <span
+              className={`${getTierBgClass(tier)} text-white text-xs px-2 py-1 font-bold flex-shrink-0`}
+            >
+              {tier}
+            </span>
+          )}
+          {isPopular && (
+            <span className="bg-redPopular text-white text-xs px-2 py-1 font-bold flex-shrink-0">
+              인기
+            </span>
+          )}
+        </div>
+
+        {/* 라인 */}
+        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
+          <Image
+            src={laneImageMap[position] || LaneMidLogo}
+            alt={position}
+            width={48}
+            height={48}
+            className="w-full h-full object-contain"
+          />
+        </div>
+
+        {/* 승률 */}
+        <div className="flex-shrink-0 w-20 text-center">
+          <span className="text-sm text-primary1">{winRate}%</span>
+        </div>
+
+        {/* 게임 수 */}
+        <div className="flex-shrink-0 w-20 text-center">
+          <span className="text-sm text-primary2">{gameCount}게임</span>
+        </div>
       </div>
 
-      {/* 챔피언 아이콘 */}
-      <div className="flex-shrink-0 flex items-center justify-center">
-        <Image
-          src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
-          alt={championName}
-          width={48}
-          height={48}
-          className="w-12 h-12 rounded"
-        />
-      </div>
+      {/* 모바일 레이아웃 */}
+      <div className="flex md:hidden items-center gap-2">
+        {/* 순위 */}
+        <div className="flex-shrink-0 w-6 text-center">
+          <span className="text-base font-bold text-primary1">{rank}</span>
+        </div>
 
-      {/* 챔피언 이름 + 태그 */}
-      <div className="flex-1 min-w-0 flex items-center gap-2">
-        <p className="text-base text-primary1 truncate">{championName}</p>
-        {tier && (
-          <span
-            className={`${getTierBgClass(tier)} text-white text-xs px-2 py-1 font-bold flex-shrink-0`}
-          >
-            {tier}
-          </span>
-        )}
-        {isPopular && (
-          <span className="bg-redPopular text-white text-xs px-2 py-1 font-bold flex-shrink-0">
-            인기
-          </span>
-        )}
-      </div>
+        {/* 챔피언 아이콘 */}
+        <div className="flex-shrink-0">
+          <SpriteImage
+            spriteData={getChampionSprite(championNameEng)}
+            alt={championName}
+            width={40}
+            height={40}
+            fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+            className="w-10 h-10"
+          />
+        </div>
 
-      {/* 라인 */}
-      <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
-        <Image
-          src={laneImageMap[position] || LaneMidLogo}
-          alt={position}
-          width={48}
-          height={48}
-          className="w-full h-full object-contain"
-        />
-      </div>
+        {/* 챔피언 이름 + 라인 */}
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <p className="text-sm text-primary1 truncate">{championName}</p>
+          {tier && (
+            <span
+              className={`${getTierBgClass(tier)} text-white text-xs px-1.5 py-0.5 font-bold flex-shrink-0`}
+            >
+              {tier}
+            </span>
+          )}
+          {isPopular && (
+            <span className="bg-redPopular text-white text-xs px-1.5 py-0.5 font-bold flex-shrink-0">
+              인기
+            </span>
+          )}
+        </div>
 
-      {/* 승률 */}
-      <div className="flex-shrink-0 w-20 text-center">
-        <span className="text-sm text-primary1">{winRate}%</span>
-      </div>
+        {/* 라인 아이콘 */}
+        <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+          <Image
+            src={laneImageMap[position] || LaneMidLogo}
+            alt={position}
+            width={24}
+            height={24}
+            className="w-full h-full object-contain"
+          />
+        </div>
 
-      {/* 게임 수 */}
-      <div className="flex-shrink-0 w-20 text-center">
-        <span className="text-sm text-primary2">{gameCount}게임</span>
+        {/* 승률 + 게임 수 */}
+        <div className="flex-shrink-0 text-right">
+          <div className="text-sm text-primary1">{winRate}%</div>
+          <div className="text-xs text-primary2">{gameCount}게임</div>
+        </div>
       </div>
     </div>
   );

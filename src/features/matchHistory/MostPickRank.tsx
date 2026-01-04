@@ -1,19 +1,19 @@
-import { ChampionRecord } from "@/data/types/record";
+import { MostPickStats } from "@/data/types/record";
 import RankItem from "./RankItem";
 
 interface Props {
-  mostPickData: ChampionRecord[];
+  mostPickData: MostPickStats[];
 }
 
 const MostPickRank = ({ mostPickData }: Props) => {
   const rankData = mostPickData.map((champRecord, index) => {
     return {
       rank: index + 1,
-      championName: champRecord.champ_name,
+      championName: champRecord.champName,
+      championNameEng: champRecord.champNameEng,
       kda: champRecord.kda,
-      winRate: champRecord.win_rate,
-      games: champRecord.total_count,
-      championImg: `https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champRecord.champ_name_eng}.png`,
+      winRate: champRecord.winRate,
+      games: champRecord.totalCount,
     };
   });
 
