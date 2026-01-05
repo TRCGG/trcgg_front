@@ -85,16 +85,16 @@ const UserRankItem = ({
           </div>
         </div>
 
-        {/* 전적 (n전 n승 n패) */}
-        <div className="flex-shrink-0 w-32 text-center">
-          <span className="text-sm text-primary2">
-            {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
-          </span>
-        </div>
-
         {/* KDA */}
         <div className="flex-shrink-0 w-20 text-center">
-          <span className="text-sm text-primary1">{kda}</span>
+          <span className="text-sm text-primary2">{kda}</span>
+        </div>
+
+        {/* 전적 (n전 n승 n패) */}
+        <div className="flex-shrink-0 w-32 text-center">
+          <span className="text-sm text-primary1">
+            {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
+          </span>
         </div>
 
         {/* 승률 */}
@@ -121,7 +121,7 @@ const UserRankItem = ({
           />
         </div>
 
-        {/* 닉네임 + 전적 */}
+        {/* 닉네임 + KDA */}
         <div className="flex-1 min-w-0">
           <button
             type="button"
@@ -134,14 +134,14 @@ const UserRankItem = ({
           >
             {riotName}
           </button>
-          <div className="text-xs text-primary2">
-            {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
-          </div>
+          <div className="text-xs text-primary2">{kda}</div>
         </div>
 
-        {/* KDA + 승률 */}
+        {/* 전적 + 승률 */}
         <div className="flex-shrink-0 text-right">
-          <div className="text-sm text-primary1">{kda}</div>
+          <div className="text-sm text-primary1">
+            {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
+          </div>
           <div className="text-xs text-primary2">{winRate}%</div>
         </div>
       </div>
