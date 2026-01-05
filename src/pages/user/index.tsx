@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
@@ -14,10 +14,15 @@ import { ApiResponse } from "@/services/apiService";
 import { UserStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
+type SortBy = "totalGames" | "winRate";
+type SortOrder = "asc" | "desc";
+
 const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
+  const [sortBy, setSortBy] = useState<SortBy>("winRate");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
@@ -43,9 +48,45 @@ const User: NextPage = () => {
     placeholderData: undefined,
   });
 
-  const allUsers = userStatisticsData?.data?.data || [];
-  const displayedUsers = allUsers.slice(0, displayCount);
-  const hasMore = allUsers.length > displayCount;
+  // 정렬 핸들러
+  const handleSort = (column: SortBy) => {
+    if (sortBy === column) {
+      // 같은 컬럼 선택 시
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+  };
+
+  // 정렬된 사용자 목록
+  const sortedUsers = useMemo(() => {
+    const users = [...(userStatisticsData?.data?.data || [])];
+
+    users.sort((a, b) => {
+      let aValue: number;
+      let bValue: number;
+
+      if (sortBy === "totalGames") {
+        aValue = a.totalCount || 0;
+        bValue = b.totalCount || 0;
+      } else {
+        // winRate
+        aValue = parseFloat(a.winRate) || 0;
+        bValue = parseFloat(b.winRate) || 0;
+      }
+
+      if (sortOrder === "asc") {
+        return aValue - bValue;
+      }
+      return bValue - aValue;
+    });
+
+    return users;
+  }, [userStatisticsData?.data?.data, sortBy, sortOrder]);
+
+  const displayedUsers = sortedUsers.slice(0, displayCount);
+  const hasMore = sortedUsers.length > displayCount;
 
   // 현재 선택된 클랜 이름 가져오기
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
@@ -110,7 +151,7 @@ const User: NextPage = () => {
       />
 
       <div className="mt-1">
-        <UserRankHeader />
+        <UserRankHeader sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
         <div key={selectedPosition} className="space-y-3 mt-2">
           {(() => {
             // 비로그인 상태
@@ -136,7 +177,7 @@ const User: NextPage = () => {
                 )}
 
                 {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
-                  allUsers.length > 0 && (
+                  sortedUsers.length > 0 && (
                     <>
                       {displayedUsers.map((user, index) => (
                         <UserRankItem
@@ -159,7 +200,7 @@ const User: NextPage = () => {
 
                 {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
                   isFetchedStatistics &&
-                  allUsers.length === 0 && (
+                  sortedUsers.length === 0 && (
                     <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
                       20판 이상 플레이한 유저가 없어 통계 데이터를 확인할 수 없습니다.
                     </div>
