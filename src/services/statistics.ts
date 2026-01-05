@@ -9,8 +9,12 @@ export const getUserStatistics = async (
   position: Position
 ): Promise<ApiResponse<UserStatisticsResponse>> => {
   try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
     return await api.get(
-      `/api/statistics/${guildId}/users?position=${position}&sortBy=winRate&limit=100000`
+      `/api/statistics/${guildId}/users?position=${position}&sortBy=winRate&limit=100000&year=${year}&month=${month}`
     );
   } catch (error) {
     return {
@@ -26,8 +30,12 @@ export const getChampionStatistics = async (
   position: Position
 ): Promise<ApiResponse<ChampionStatisticsResponse>> => {
   try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
     return await api.get(
-      `/api/statistics/${guildId}/champions?position=${position}&sortBy=winRate&limit=100000`
+      `/api/statistics/${guildId}/champions?position=${position}&sortBy=winRate&limit=100000&year=${year}&month=${month}`
     );
   } catch (error) {
     return {
