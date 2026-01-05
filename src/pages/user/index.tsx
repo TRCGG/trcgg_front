@@ -100,7 +100,7 @@ const User: NextPage = () => {
         clanName={clanName}
         title="유저 분석"
         date={getCurrentYearMonth()}
-        description="내전 플레이 기록이 30판 이상인 경우에만 통계에 표시"
+        description="내전 플레이 기록이 20판 이상인 경우에만 통계에 표시"
       />
 
       <PositionFilter
@@ -161,7 +161,7 @@ const User: NextPage = () => {
                   isFetchedStatistics &&
                   allUsers.length === 0 && (
                     <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
-                      30판 이상 플레이한 유저가 없어 통계 데이터를 확인할 수 없습니다.
+                      20판 이상 플레이한 유저가 없어 통계 데이터를 확인할 수 없습니다.
                     </div>
                   )}
               </>
