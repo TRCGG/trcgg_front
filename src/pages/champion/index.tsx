@@ -102,7 +102,7 @@ const Champion: NextPage = () => {
       <TitleBox
         className="mt-10"
         clanName={clanName}
-        title="대상 분석"
+        title="챔피언 분석"
         date={getCurrentYearMonth()}
         description="챔피언 플레이 기록이 20판 이상인 경우에만 통계에 표시"
       />

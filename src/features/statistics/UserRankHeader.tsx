@@ -14,14 +14,14 @@ const UserRankHeader = ({ className }: Props) => {
       {/* 닉네임 (빈 공간) */}
       <div className="flex-1 min-w-0" />
 
-      {/* 전적 */}
-      <div className="flex-shrink-0 w-32 text-center">
-        <span className="text-sm font-medium text-primary2">전적</span>
-      </div>
-
       {/* KDA */}
       <div className="flex-shrink-0 w-20 text-center">
         <span className="text-sm font-medium text-primary2">KDA</span>
+      </div>
+
+      {/* 전적 */}
+      <div className="flex-shrink-0 w-32 text-center">
+        <span className="text-sm font-medium text-primary2">전적</span>
       </div>
 
       {/* 승률 */}
