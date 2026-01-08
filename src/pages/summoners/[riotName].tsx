@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { UserRecordResponse, MultiplePlayerInfo } from "@/data/types/record";
+import { UserRecordResponse, MultiplePlayerInfo, MatchDashboardData } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
@@ -43,6 +43,27 @@ const RiotProfilePage = () => {
     return Array.isArray(value);
   };
 
+  // 타입 가드: MatchDashboardData인지 확인
+  const isMatchDashboardData = (value: unknown): value is MatchDashboardData => {
+    return (
+      !Array.isArray(value) &&
+      typeof value === "object" &&
+      value !== null &&
+      "member" in value &&
+      "summary" in value
+    );
+  };
+
+  // 유효한 매치 데이터가 있는지 확인
+  const hasValidMatchData = (value: MatchDashboardData): boolean => {
+    return (
+      value.summary.totalCount > 0 ||
+      value.lines.length > 0 ||
+      value.mostPicks.length > 0 ||
+      value.synergy.length > 0
+    );
+  };
+
   // 자동 리다이렉트
   useEffect(() => {
     if (!data) return;
@@ -54,7 +75,7 @@ const RiotProfilePage = () => {
       );
     }
     // 배열이 아니면 MatchDashboardData (단일 사용자 데이터)
-    else if (!isPlayerInfoArray(data)) {
+    else if (isMatchDashboardData(data) && hasValidMatchData(data)) {
       router.push(
         `/summoners/${encodeURIComponent(data.member.riotName)}/${encodeURIComponent(data.member.riotNameTag)}`
       );
@@ -98,13 +119,18 @@ const RiotProfilePage = () => {
           );
         }
 
-        // 단일 사용자 데이터인 경우 (자동 리다이렉트를 위해 로딩 표시)
-        if (data && !isPlayerInfoArray(data)) {
-          return (
-            <main>
-              <LoadingSpinner />
-            </main>
-          );
+        // 단일 사용자 데이터인 경우
+        if (data && isMatchDashboardData(data)) {
+          // 유효한 매치 데이터가 있으면 리다이렉트를 위해 로딩 표시
+          if (hasValidMatchData(data)) {
+            return (
+              <main>
+                <LoadingSpinner />
+              </main>
+            );
+          }
+          // 빈 데이터면 EmptySearchResultCard 표시
+          return <EmptySearchResultCard riotName={riotNameString} />;
         }
 
         // 다중 검색 결과인 경우
@@ -122,6 +148,9 @@ const RiotProfilePage = () => {
           if (data.length > 1) {
             return <MultiplePlayersCard players={data} riotName={riotNameString} />;
           }
+
+          // 빈 배열인 경우
+          return <EmptySearchResultCard riotName={riotNameString} />;
         }
 
         // 검색 결과 없음
