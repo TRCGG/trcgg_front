@@ -51,6 +51,16 @@ const RiotProfilePage = () => {
     );
   };
 
+  // 유효한 매치 데이터가 있는지 확인
+  const hasValidMatchData = (data: MatchDashboardData): boolean => {
+    return (
+      data.summary.totalCount > 0 ||
+      data.lines.length > 0 ||
+      data.mostPicks.length > 0 ||
+      data.synergy.length > 0
+    );
+  };
+
   // 타입 가드: MultiplePlayerInfo[] 배열인지 확인
   const isMultiplePlayerInfo = (data: unknown): data is MultiplePlayerInfo[] => {
     return Array.isArray(data);
@@ -100,7 +110,7 @@ const RiotProfilePage = () => {
         }
 
         // 단일 검색 결과인 경우
-        if (data && isMatchDashboardData(data)) {
+        if (data && isMatchDashboardData(data) && hasValidMatchData(data)) {
           return (
             <UserRecordPanel
               key={`${riotNameString}-${riotTagString}`}
