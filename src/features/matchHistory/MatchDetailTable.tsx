@@ -34,12 +34,12 @@ interface MatchDetailProps {
 const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
   return (
     <div className={`${isWin ? "bg-blueLighten" : "bg-redLighten"} rounded-md text-base`}>
-      <div className="grid grid-cols-[1.5fr_0.5fr_1.5fr_1fr_1fr_1fr_1fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
+      <div className="grid grid-cols-[0.7fr_100px_1.2fr_0.8fr_0.7fr_1fr_0.8fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
         {/* 제목 행 */}
         {isWin && (
           <>
-            <div className="bg-border1 text-white font-bold w-full">소환사명</div>
             <div className="bg-border1 text-white font-bold w-full">챔피언</div>
+            <div className="bg-border1 text-white font-bold w-full">소환사명</div>
             <div className="bg-border1 text-white font-bold w-full">빌드</div>
             <div className="bg-border1 text-white font-bold w-full">KDA</div>
             <div className="bg-border1 text-white font-bold w-full">킬관여율</div>
@@ -51,10 +51,7 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
         {/* 데이터 행 */}
         {players.map((player) => (
           <React.Fragment key={`${player.name}-${player.tag}`}>
-            {/* 1. 챔피언 이름 */}
-            <PlayerNameButton name={player.name} tag={player.tag} />
-
-            {/* 2. 챔피언 이미지 */}
+            {/* 1. 챔피언 이미지 */}
             <div className="flex text-left w-[36px] h-[36px]">
               <SpriteImage
                 spriteData={getChampionSprite(player.champNameEng)}
@@ -65,6 +62,9 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
                 className="w-[36px] h-[36px]"
               />
             </div>
+
+            {/* 2. 소환사명 */}
+            <PlayerNameButton name={player.name} tag={player.tag} isCenter={false} />
 
             {/* 3. 빌드(룬, 스펠, 아이템) */}
             <div className="flex gap-x-2">
