@@ -1,5 +1,7 @@
 import React from "react";
+import { useRouter } from "next/router";
 import { PlayerInfo } from "@/data/types/user";
+import { addRecentSearch } from "@/utils/recentSearches";
 
 interface Props {
   users: PlayerInfo[] | undefined;
@@ -10,6 +12,12 @@ interface Props {
 }
 
 const SearchBarResultList = ({ users, isLoading, isError, enable, searchTerm }: Props) => {
+  const router = useRouter();
+
+  const handleUserClick = (riotName: string, riotTag: string) => {
+    addRecentSearch({ riotName, riotTag });
+    router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
+  };
   if (isLoading || isError || !users || !Array.isArray(users) || searchTerm.length < 2) {
     return null;
   }
@@ -23,10 +31,11 @@ const SearchBarResultList = ({ users, isLoading, isError, enable, searchTerm }: 
       <div className="max-h-[430px] overflow-y-auto scrollbar-thin scrollbar-thumb-border1 scrollbar-track-darkBg2">
         <div className="px-3 py-2 text-sm font-bold">소환사 리스트</div>
         {users.map((user) => (
-          <a
+          <button
+            type="button"
             key={user.playerCode}
-            href={`/summoners/${encodeURIComponent(user.riotName)}/${encodeURIComponent(user.riotNameTag)}`}
-            className="flex items-center gap-2 border-t border-rankBg1 px-3 py-2 hover:bg-rankBg2 focus:bg-gray-100 focus:outline-none focus:ring-0 last-of-type:md:rounded-bl-lg last-of-type:md:rounded-br-lg"
+            onClick={() => handleUserClick(user.riotName, user.riotNameTag)}
+            className="flex items-center gap-2 border-t border-rankBg1 px-3 py-2 hover:bg-rankBg2 focus:bg-gray-100 focus:outline-none focus:ring-0 last-of-type:md:rounded-bl-lg last-of-type:md:rounded-br-lg w-full text-left"
           >
             <span className="flex flex-1 flex-col truncate">
               <span className="truncate text-sm text-white">
@@ -34,7 +43,7 @@ const SearchBarResultList = ({ users, isLoading, isError, enable, searchTerm }: 
                 <em className="ml-1 text-gray">#{user.riotNameTag}</em>
               </span>
             </span>
-          </a>
+          </button>
         ))}
       </div>
     </div>

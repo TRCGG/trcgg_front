@@ -1,19 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import NavBar from "@/components/layout/NavBar";
 import SearchBar from "@/components/form/SearchBar";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import NoGuildModal from "@/features/discordLogin/NoGuildModal";
 import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
+import RecentSearchList from "@/features/search/RecentSearchList";
 import useModal from "@/hooks/common/useModal";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import { addRecentSearch } from "@/utils/recentSearches";
+import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 import MainLogo from "@/assets/images/mainLogo.png";
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const {
     isOpen: isNoGuildModalOpen,
     open: openNoGuildModal,
@@ -29,6 +34,35 @@ const Home: NextPage = () => {
     searchTerm,
     guildId
   );
+
+  // 검색 실행 및 최근 검색어 저장
+  const handleSearch = () => {
+    alert(`handleSearch 호출됨! searchTerm: ${searchTerm}`);
+    const [riotName, riotTag] = handleRiotNameSearch(searchTerm);
+    alert(`파싱 결과 - riotName: ${riotName}, riotTag: ${riotTag}`);
+
+    // 최근 검색어 저장 (동기 처리)
+    if (riotName && riotTag) {
+      alert("최근 검색어 저장 시도!");
+      addRecentSearch({ riotName, riotTag });
+      alert("addRecentSearch 호출 완료");
+
+      // 저장 확인
+      const saved = localStorage.getItem("recentSearches");
+      alert(`localStorage 확인: ${saved}`);
+    } else {
+      alert("riotName 또는 riotTag가 없음");
+    }
+
+    // 페이지 이동
+    handleSearchButtonClick();
+  };
+
+  // 최근 검색어 클릭 핸들러
+  const handleRecentSearchClick = (riotName: string, riotTag: string) => {
+    addRecentSearch({ riotName, riotTag });
+    router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
+  };
 
   // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
   useEffect(() => {
@@ -83,18 +117,22 @@ const Home: NextPage = () => {
           <SearchBar
             value={searchTerm}
             onChange={setSearchTerm}
-            onSearch={handleSearchButtonClick}
+            onSearch={handleSearch}
             placeholder="플레이어 이름#KR1"
             onFocus={() => setIsSearchFocused(true)}
           />
-          {/* 검색 결과 */}
-          <SearchBarResultList
-            isLoading={isLoading}
-            isError={isError}
-            users={data?.data}
-            enable={isSearchFocused}
-            searchTerm={searchTerm}
-          />
+          {/* 검색 결과 또는 최근 검색어 */}
+          {searchTerm.length >= 2 ? (
+            <SearchBarResultList
+              isLoading={isLoading}
+              isError={isError}
+              users={data?.data}
+              enable={isSearchFocused}
+              searchTerm={searchTerm}
+            />
+          ) : (
+            <RecentSearchList enable={isSearchFocused} onSearchClick={handleRecentSearchClick} />
+          )}
         </div>
         {/* 검색 경고메세지 */}
         {nameLengthAlert && (
