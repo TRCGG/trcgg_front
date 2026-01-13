@@ -12,8 +12,6 @@ import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import { PlayerInfo } from "@/data/types/user";
 import { GuildInfo } from "@/data/types/auth";
-import { addRecentSearch } from "@/utils/recentSearches";
-import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 
 interface Props {
   searchTerm: string;
@@ -52,23 +50,8 @@ const SummonerPageHeader = ({
     window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
   };
 
-  // 검색 실행 및 최근 검색어 저장
-  const handleSearch = () => {
-    const [riotName, riotTag] = handleRiotNameSearch(searchTerm);
-
-    // 최근 검색어 저장 (동기 처리)
-    if (riotName && riotTag) {
-      addRecentSearch({ riotName, riotTag });
-    }
-
-    // 페이지 이동
-    onSearch();
-  };
-
   // 최근 검색어 클릭 핸들러
   const handleRecentSearchClick = (riotName: string, riotTag: string) => {
-    // 최근 검색어 저장 후 페이지 이동
-    addRecentSearch({ riotName, riotTag });
     router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
   };
 
@@ -99,7 +82,7 @@ const SummonerPageHeader = ({
           <SearchBarSmall
             value={searchTerm}
             onChange={setSearchTerm}
-            onSearch={handleSearch}
+            onSearch={onSearch}
             placeholder="플레이어 이름#KR1"
             onFocus={() => setIsSearchFocused(true)}
           />

@@ -13,8 +13,6 @@ import useModal from "@/hooks/common/useModal";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
-import { addRecentSearch } from "@/utils/recentSearches";
-import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 import MainLogo from "@/assets/images/mainLogo.png";
 
 const Home: NextPage = () => {
@@ -35,32 +33,13 @@ const Home: NextPage = () => {
     guildId
   );
 
-  // 검색 실행 및 최근 검색어 저장
+  // 검색 실행 (페이지 이동 후 해당 페이지 useEffect에서 최근 검색어 저장)
   const handleSearch = () => {
-    alert(`handleSearch 호출됨! searchTerm: ${searchTerm}`);
-    const [riotName, riotTag] = handleRiotNameSearch(searchTerm);
-    alert(`파싱 결과 - riotName: ${riotName}, riotTag: ${riotTag}`);
-
-    // 최근 검색어 저장 (동기 처리)
-    if (riotName && riotTag) {
-      alert("최근 검색어 저장 시도!");
-      addRecentSearch({ riotName, riotTag });
-      alert("addRecentSearch 호출 완료");
-
-      // 저장 확인
-      const saved = localStorage.getItem("recentSearches");
-      alert(`localStorage 확인: ${saved}`);
-    } else {
-      alert("riotName 또는 riotTag가 없음");
-    }
-
-    // 페이지 이동
     handleSearchButtonClick();
   };
 
   // 최근 검색어 클릭 핸들러
   const handleRecentSearchClick = (riotName: string, riotTag: string) => {
-    addRecentSearch({ riotName, riotTag });
     router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
   };
 

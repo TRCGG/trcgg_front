@@ -1,7 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
 import { PlayerInfo } from "@/data/types/user";
-import { addRecentSearch } from "@/utils/recentSearches";
 
 interface Props {
   users: PlayerInfo[] | undefined;
@@ -15,7 +14,6 @@ const SearchBarResultList = ({ users, isLoading, isError, enable, searchTerm }: 
   const router = useRouter();
 
   const handleUserClick = (riotName: string, riotTag: string) => {
-    addRecentSearch({ riotName, riotTag });
     router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
   };
   if (isLoading || isError || !users || !Array.isArray(users) || searchTerm.length < 2) {

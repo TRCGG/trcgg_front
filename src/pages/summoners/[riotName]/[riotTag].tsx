@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -12,6 +12,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TextCard from "@/components/ui/TextCard";
+import { addRecentSearch } from "@/utils/recentSearches";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -19,6 +20,13 @@ const RiotProfilePage = () => {
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
   const [searchTerm, setSearchTerm] = useState("");
+
+  // 페이지 로드 시 최근 검색어에 저장
+  useEffect(() => {
+    if (riotNameString && riotTagString) {
+      addRecentSearch({ riotName: riotNameString, riotTag: riotTagString });
+    }
+  }, [riotNameString, riotTagString]);
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
 
