@@ -55,7 +55,7 @@ const PositionStats = ({ linesData }: Props) => {
               alt={line.position}
               width={48}
               height={48}
-              className="w-full h-full object-contain hidden sm:block"
+              className="w-full h-full object-contain"
             />
           </div>
 
