@@ -28,8 +28,11 @@ const MatchDetail = ({ participantData }: Props) => {
         // participant.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭)
       ],
       spells: [participant.summonerSpell1Key, participant.summonerSpell2Key],
+      spellNames: [participant.summonerSpell1Name, participant.summonerSpell2Name],
       keystone: participant.keystoneIcon,
+      keystoneName: participant.keystoneName,
       perk: participant.substyleIcon,
+      perkName: participant.substyleName,
       killParticipation: totalTeamKills
         ? Number((((participant.kill + participant.assist) / totalTeamKills) * 100).toFixed(2))
         : 0,
