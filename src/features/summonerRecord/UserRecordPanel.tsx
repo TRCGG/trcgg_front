@@ -80,7 +80,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         onRefresh={handleRefresh}
       />
       <div className="flex gap-3 flex-col md:flex-row">
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-3">
           {/* 모스트 픽 */}
           {data.mostPicks && data.mostPicks.length > 0 && (
             <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
