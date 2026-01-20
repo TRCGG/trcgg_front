@@ -74,64 +74,83 @@ const RiotProfilePage = () => {
     return Array.isArray(data);
   };
 
+  // 배경 이미지용 mostChampion 가져오기
+  const data = userRecordData?.data?.data;
+  const mostChampion =
+    data && isMatchDashboardData(data) && data.mostPicks && data.mostPicks.length > 0
+      ? data.mostPicks[0].champNameEng
+      : "";
+
   return (
-    <div className="w-full md:max-w-[1080px] mx-auto">
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData?.data}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+    <div
+      className="w-full min-h-screen pb-10"
+      style={
+        mostChampion
+          ? {
+              background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover`,
+              backgroundColor: "#191b20",
+            }
+          : {
+              backgroundColor: "#191b20",
+            }
+      }
+    >
+      <div className="w-full md:max-w-[1080px] mx-auto">
+        <SummonerPageHeader
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          onSearch={handleSearchButtonClick}
+          isLoading={isLoading}
+          isError={isError}
+          users={userSearchData?.data}
+          guilds={guilds}
+          selectedGuildId={guildId}
+          onGuildChange={handleGuildChange}
+          username={username}
+          isLoggedIn={isLoggedIn}
+        />
 
-      {/* 메인 콘텐츠 */}
-      {(() => {
-        // 비로그인 상태
-        if (!isLoggedIn) {
-          return <TextCard text="로그인 후 이용해주세요" />;
-        }
+        {/* 메인 콘텐츠 */}
+        {(() => {
+          // 비로그인 상태
+          if (!isLoggedIn) {
+            return <TextCard text="로그인 후 이용해주세요" />;
+          }
 
-        // 소속 클랜 없음
-        if (guilds.length === 0) {
-          return <TextCard text="소속된 클랜이 없습니다" />;
-        }
+          // 소속 클랜 없음
+          if (guilds.length === 0) {
+            return <TextCard text="소속된 클랜이 없습니다" />;
+          }
 
-        if (!riotName || !guildId || isLoadingUserRecord) {
-          return (
-            <main>
-              <LoadingSpinner />
-            </main>
-          );
-        }
+          if (!riotName || !guildId || isLoadingUserRecord) {
+            return (
+              <main>
+                <LoadingSpinner />
+              </main>
+            );
+          }
 
-        const data = userRecordData?.data?.data;
+          // 다중 검색 결과인 경우
+          if (data && isMultiplePlayerInfo(data)) {
+            return <MultiplePlayersCard riotName={riotNameString} players={data} />;
+          }
 
-        // 다중 검색 결과인 경우
-        if (data && isMultiplePlayerInfo(data)) {
-          return <MultiplePlayersCard riotName={riotNameString} players={data} />;
-        }
+          // 단일 검색 결과인 경우
+          if (data && isMatchDashboardData(data) && hasValidMatchData(data)) {
+            return (
+              <UserRecordPanel
+                key={`${riotNameString}-${riotTagString}`}
+                riotName={riotNameString}
+                riotTag={riotTagString}
+                data={data}
+                onRefreshRecords={refetchUserRecords}
+              />
+            );
+          }
 
-        // 단일 검색 결과인 경우
-        if (data && isMatchDashboardData(data) && hasValidMatchData(data)) {
-          return (
-            <UserRecordPanel
-              key={`${riotNameString}-${riotTagString}`}
-              riotName={riotNameString}
-              riotTag={riotTagString}
-              data={data}
-              onRefreshRecords={refetchUserRecords}
-            />
-          );
-        }
-
-        return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
-      })()}
+          return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
+        })()}
+      </div>
     </div>
   );
 };
