@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getRecentRecords } from "@/services/record";
 import PositionStats from "@/features/matchHistory/PositionStats";
+import TeamworkStats from "@/features/matchHistory/TeamworkStats";
 
 interface Props {
   riotName: string;
@@ -92,6 +93,13 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           <CardWithTitle title="Position Record">
             <PositionStats linesData={data.lines} />
           </CardWithTitle>
+
+          {/* 팀워크 */}
+          {data.synergy && data.synergy.length > 0 && (
+            <CardWithTitle title="Teamwork">
+              <TeamworkStats synergyData={data.synergy} />
+            </CardWithTitle>
+          )}
         </div>
 
         {/* 최근 전적 */}
