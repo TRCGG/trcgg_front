@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getRecentRecords } from "@/services/record";
+import PositionStats from "@/features/matchHistory/PositionStats";
 
 interface Props {
   riotName: string;
@@ -79,12 +80,19 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         onRefresh={handleRefresh}
       />
       <div className="flex gap-3 flex-col md:flex-row">
-        {/* 모스트 픽 */}
-        {data.mostPicks && data.mostPicks.length > 0 && (
-          <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
-            <MostPickRank mostPickData={data.mostPicks.slice(0, MOST_PICK_DISTPLAY_COUNT)} />
+        <div className="flex flex-col">
+          {/* 모스트 픽 */}
+          {data.mostPicks && data.mostPicks.length > 0 && (
+            <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
+              <MostPickRank mostPickData={data.mostPicks.slice(0, MOST_PICK_DISTPLAY_COUNT)} />
+            </CardWithTitle>
+          )}
+
+          {/* 포지션 전적 */}
+          <CardWithTitle title="Position Record">
+            <PositionStats linesData={data.lines} />
           </CardWithTitle>
-        )}
+        </div>
 
         {/* 최근 전적 */}
         {displayedRecords && displayedRecords.length > 0 && (
