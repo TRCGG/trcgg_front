@@ -58,17 +58,17 @@ const RankItem: React.FC<RankItemProps> = ({
       </div>
 
       {/* 챔피언 정보 */}
-      <div className="ml-1 w-20 text-left whitespace-nowrap">{championName}</div>
+      <div className="ml-1 w-20 text-left whitespace-nowrap text-xs sm:text-sm">{championName}</div>
 
       {/* KDA */}
-      <div className={`ml-2 w-[72px] font-semibold ${getKdaColor(kda)} whitespace-nowrap`}>
+      <div className={`ml-2 w-[72px] text-xs sm:text-sm ${getKdaColor(kda)} whitespace-nowrap`}>
         {kda} KDA
       </div>
 
       {/* 승률 및 게임 수 */}
       <div className="flex flex-col ml-6 text-center whitespace-nowrap text-xs sm:text-sm">
-        <div className={`font-semibold ${getWinRateColor(winRate)}`}>{winRate}%</div>
-        <div className="text-gray">{games} 게임</div>
+        <div className={`${getWinRateColor(winRate)}`}>{winRate}%</div>
+        <div className="text-gray font-xs">{games} 게임</div>
       </div>
     </div>
   );
