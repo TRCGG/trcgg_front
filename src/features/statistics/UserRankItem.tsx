@@ -8,7 +8,7 @@ import LaneBottomLogo from "@/assets/images/laneBottom.png";
 
 interface Props {
   rank: number;
-  position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
+  position?: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
   riotName: string;
   riotNameTag: string;
   totalGames: number;
@@ -55,15 +55,17 @@ const UserRankItem = ({
         </div>
 
         {/* 라인 아이콘 */}
-        <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
-          <Image
-            src={laneImageMap[position] || LaneMidLogo}
-            alt={position}
-            width={48}
-            height={48}
-            className="w-full h-full object-contain"
-          />
-        </div>
+        {position && (
+          <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
+            <Image
+              src={laneImageMap[position] || LaneMidLogo}
+              alt={position}
+              width={48}
+              height={48}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        )}
 
         {/* 닉네임 */}
         <div className="flex-1 min-w-0 relative group">
@@ -111,15 +113,17 @@ const UserRankItem = ({
         </div>
 
         {/* 라인 아이콘 */}
-        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-          <Image
-            src={laneImageMap[position] || LaneMidLogo}
-            alt={position}
-            width={32}
-            height={32}
-            className="w-full h-full object-contain"
-          />
-        </div>
+        {position && (
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+            <Image
+              src={laneImageMap[position] || LaneMidLogo}
+              alt={position}
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        )}
 
         {/* 닉네임 + KDA */}
         <div className="flex-1 min-w-0">
