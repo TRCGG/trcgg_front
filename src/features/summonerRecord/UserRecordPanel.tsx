@@ -84,19 +84,19 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         <div className="flex flex-col gap-3">
           {/* 모스트 픽 */}
           {data.mostPicks && data.mostPicks.length > 0 && (
-            <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
+            <CardWithTitle title="모스트 픽" className="md:w-[350px] w-full self-start">
               <MostPickRank mostPickData={data.mostPicks.slice(0, MOST_PICK_DISTPLAY_COUNT)} />
             </CardWithTitle>
           )}
 
           {/* 포지션 전적 */}
-          <CardWithTitle title="Position Record">
+          <CardWithTitle title="포지션 승률">
             <PositionStats linesData={data.lines} />
           </CardWithTitle>
 
           {/* 팀워크 */}
           {data.synergy && data.synergy.length > 0 && (
-            <CardWithTitle title="Teamwork">
+            <CardWithTitle title="팀워크">
               <TeamworkStats synergyData={data.synergy} />
             </CardWithTitle>
           )}
@@ -104,7 +104,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
 
         {/* 최근 전적 */}
         {displayedRecords && displayedRecords.length > 0 && (
-          <CardWithTitle title="Recent Matches" className="w-full">
+          <CardWithTitle title="최근 전적" className="w-full">
             <div className="flex flex-1 flex-col gap-4">
               {displayedRecords.map((datum: RecentGameRecord) => (
                 <MatchItem matchData={datum} key={datum.gameId} />
