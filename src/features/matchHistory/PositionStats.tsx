@@ -59,7 +59,7 @@ const PositionStats = ({ linesData }: Props) => {
           </div>
 
           {/* 통계 정보 */}
-          <div className="flex-shrink-0 flex items-center justify-center">
+          <div className="flex-shrink-0 flex items-center justify-between">
             <div className="flex-1">
               {/* 첫 번째 줄: n전 m승 b패 */}
               <div className="text-sm text-primary1">
