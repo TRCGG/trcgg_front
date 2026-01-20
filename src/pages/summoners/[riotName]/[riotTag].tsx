@@ -87,7 +87,7 @@ const RiotProfilePage = () => {
       style={
         mostChampion
           ? {
-              background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover`,
+              background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`,
               backgroundColor: "#191b20",
             }
           : {
