@@ -183,7 +183,7 @@ const User: NextPage = () => {
                         <UserRankItem
                           key={user.playerCode}
                           rank={index + 1}
-                          position={user.position}
+                          position={selectedPosition === "ALL" ? undefined : user.position}
                           riotName={user.riotName}
                           riotNameTag={user.riotNameTag}
                           totalGames={user.totalCount}

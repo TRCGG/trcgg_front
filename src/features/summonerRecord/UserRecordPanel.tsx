@@ -11,6 +11,8 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getRecentRecords } from "@/services/record";
+import PositionStats from "@/features/matchHistory/PositionStats";
+import TeamworkStats from "@/features/matchHistory/TeamworkStats";
 
 interface Props {
   riotName: string;
@@ -68,28 +70,41 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   };
 
   return (
-    <main className="mt-10 md:mt-12 flex flex-col gap-3 md:min-w-[1080px]">
+    <main className="mt-6 md:mt-8 px-4 md:px-0 flex flex-col gap-3 md:min-w-[1080px]">
       {/* Summary */}
       <UserStatsOverview
         riotName={data.member.riotName}
         riotTag={data.member.riotNameTag}
         totalData={totalStatData}
         monthData={data.summary}
-        mostChampion={data.mostPicks[0]?.champNameEng || ""}
         mostLane={mostLane}
         onRefresh={handleRefresh}
       />
       <div className="flex gap-3 flex-col md:flex-row">
-        {/* 모스트 픽 */}
-        {data.mostPicks && data.mostPicks.length > 0 && (
-          <CardWithTitle title="Most Pick" className="md:w-[350px] w-full self-start">
-            <MostPickRank mostPickData={data.mostPicks.slice(0, MOST_PICK_DISTPLAY_COUNT)} />
+        <div className="flex flex-col gap-3">
+          {/* 모스트 픽 */}
+          {data.mostPicks && data.mostPicks.length > 0 && (
+            <CardWithTitle title="모스트 픽" className="md:w-[350px] w-full self-start">
+              <MostPickRank mostPickData={data.mostPicks.slice(0, MOST_PICK_DISTPLAY_COUNT)} />
+            </CardWithTitle>
+          )}
+
+          {/* 포지션 전적 */}
+          <CardWithTitle title="포지션 승률">
+            <PositionStats linesData={data.lines} />
           </CardWithTitle>
-        )}
+
+          {/* 팀워크 */}
+          {data.synergy && data.synergy.length > 0 && (
+            <CardWithTitle title="팀워크">
+              <TeamworkStats synergyData={data.synergy.slice(0, RECORD_DISPLAY_COUNT)} />
+            </CardWithTitle>
+          )}
+        </div>
 
         {/* 최근 전적 */}
         {displayedRecords && displayedRecords.length > 0 && (
-          <CardWithTitle title="Recent Matches" className="w-full">
+          <CardWithTitle title="최근 전적" className="w-full">
             <div className="flex flex-1 flex-col gap-4">
               {displayedRecords.map((datum: RecentGameRecord) => (
                 <MatchItem matchData={datum} key={datum.gameId} />

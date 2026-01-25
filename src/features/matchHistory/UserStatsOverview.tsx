@@ -12,7 +12,6 @@ interface Props {
   riotName: string;
   riotTag: string;
   monthData: SummaryStats;
-  mostChampion: string;
   mostLane: string;
   totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: string };
   onRefresh?: () => Promise<void>;
@@ -30,7 +29,6 @@ const UserStatsOverview = ({
   riotName,
   riotTag,
   monthData,
-  mostChampion,
   mostLane,
   totalData,
   onRefresh,
@@ -49,14 +47,7 @@ const UserStatsOverview = ({
   };
 
   return (
-    <div
-      className="flex flex-col sm:flex-row bg-darkBg2 text-primary1 p-4 rounded border border-border2 relative bg-no-repeat bg-right-top w-full md:min-w-[1080px] mx-auto"
-      style={{
-        backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0) 100%), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg)`,
-        backgroundPosition: "top right",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="flex flex-col sm:flex-row bg-darkBg2/70 backdrop-blur-md text-primary1 p-4 rounded border border-border2 relative w-full md:min-w-[1080px] mx-auto">
       {/* 라인 로고 */}
       <div className="w-[130px] h-[130px] sm:w-[140px] sm:h-[140px]">
         <Image
