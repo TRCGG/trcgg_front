@@ -6,6 +6,7 @@ import TextLogo from "@/assets/images/textLogo.png";
 import NavBar from "@/components/layout/NavBar";
 import SearchBarSmall from "@/components/form/SearchBarSmall";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
+import RecentSearchList from "@/features/search/RecentSearchList";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import useClickOutside from "@/hooks/common/useClickOutside";
@@ -49,8 +50,13 @@ const SummonerPageHeader = ({
     window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
   };
 
+  // 최근 검색어 클릭 핸들러
+  const handleRecentSearchClick = (riotName: string, riotTag: string) => {
+    router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
+  };
+
   return (
-    <header className="flex flex-col md:flex-row justify-start md:justify-between mt-2 md:mt-10 md:items-center md:gap-10 md:min-w-[1080px]">
+    <header className="flex flex-col md:flex-row justify-start md:justify-between pt-4 md:pt-6 px-4 md:px-0 md:items-center md:gap-10 md:min-w-[1080px]">
       <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
         <div className="md:hidden self-end flex gap-3 items-center">
           {isLoggedIn && (
@@ -80,13 +86,18 @@ const SummonerPageHeader = ({
             placeholder="플레이어 이름#KR1"
             onFocus={() => setIsSearchFocused(true)}
           />
-          <SearchBarResultList
-            isLoading={isLoading}
-            isError={isError}
-            users={users}
-            enable={isSearchFocused}
-            searchTerm={searchTerm}
-          />
+          {/* 검색 결과 또는 최근 검색어 */}
+          {searchTerm.length >= 2 ? (
+            <SearchBarResultList
+              isLoading={isLoading}
+              isError={isError}
+              users={users}
+              enable={isSearchFocused}
+              searchTerm={searchTerm}
+            />
+          ) : (
+            <RecentSearchList enable={isSearchFocused} onSearchClick={handleRecentSearchClick} />
+          )}
         </div>
       </div>
       <div className="flex items-center justify-start md:justify-end gap-3 mt-3 md:mt-0">

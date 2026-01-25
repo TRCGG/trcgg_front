@@ -13,8 +13,10 @@ export const getUserStatistics = async (
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
 
+    const positionParam = position === "ALL" ? "" : `position=${position}&`;
+
     return await api.get(
-      `/api/statistics/${guildId}/users?position=${position}&sortBy=winRate&limit=100000&year=${year}&month=${month}`
+      `/api/statistics/${guildId}/users?${positionParam}sortBy=winRate&limit=100000&year=${year}&month=${month}`
     );
   } catch (error) {
     return {

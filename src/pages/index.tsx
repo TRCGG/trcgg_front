@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import NavBar from "@/components/layout/NavBar";
 import SearchBar from "@/components/form/SearchBar";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import NoGuildModal from "@/features/discordLogin/NoGuildModal";
 import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SearchBarResultList from "@/features/search/SearchBarResultList";
+import RecentSearchList from "@/features/search/RecentSearchList";
 import useModal from "@/hooks/common/useModal";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
@@ -14,6 +16,7 @@ import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import MainLogo from "@/assets/images/mainLogo.png";
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const {
     isOpen: isNoGuildModalOpen,
     open: openNoGuildModal,
@@ -29,6 +32,16 @@ const Home: NextPage = () => {
     searchTerm,
     guildId
   );
+
+  // 검색 실행 (페이지 이동 후 해당 페이지 useEffect에서 최근 검색어 저장)
+  const handleSearch = () => {
+    handleSearchButtonClick();
+  };
+
+  // 최근 검색어 클릭 핸들러
+  const handleRecentSearchClick = (riotName: string, riotTag: string) => {
+    router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
+  };
 
   // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
   useEffect(() => {
@@ -83,18 +96,22 @@ const Home: NextPage = () => {
           <SearchBar
             value={searchTerm}
             onChange={setSearchTerm}
-            onSearch={handleSearchButtonClick}
+            onSearch={handleSearch}
             placeholder="플레이어 이름#KR1"
             onFocus={() => setIsSearchFocused(true)}
           />
-          {/* 검색 결과 */}
-          <SearchBarResultList
-            isLoading={isLoading}
-            isError={isError}
-            users={data?.data}
-            enable={isSearchFocused}
-            searchTerm={searchTerm}
-          />
+          {/* 검색 결과 또는 최근 검색어 */}
+          {searchTerm.length >= 2 ? (
+            <SearchBarResultList
+              isLoading={isLoading}
+              isError={isError}
+              users={data?.data}
+              enable={isSearchFocused}
+              searchTerm={searchTerm}
+            />
+          ) : (
+            <RecentSearchList enable={isSearchFocused} onSearchClick={handleRecentSearchClick} />
+          )}
         </div>
         {/* 검색 경고메세지 */}
         {nameLengthAlert && (
