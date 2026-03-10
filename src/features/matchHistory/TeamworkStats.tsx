@@ -38,7 +38,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       {/* 탭 */}
       <div className="flex gap-2 border-b border-border2">
         <button
@@ -104,7 +104,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
         <button
           type="button"
           onClick={handleShowMore}
-          className="w-full py-3 rounded bg-darkBg2 border border-border2 text-primary1 hover:bg-grayHover transition-colors"
+          className="w-full py-2 rounded bg-darkBg1 border border-border2 text-primary2 hover:bg-grayHover transition-colors text-sm"
         >
           더보기
         </button>
