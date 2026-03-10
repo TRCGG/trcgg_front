@@ -31,7 +31,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
   }, [synergyData, sortType]);
 
   const displayedData = sortedData.slice(0, displayCount);
-  const hasMore = sortedData.length > displayCount;
+  const hasMore = sortedData.length > displayCount && displayCount < 10;
 
   const handleShowMore = () => {
     setDisplayCount(10);
@@ -104,7 +104,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
         <button
           type="button"
           onClick={handleShowMore}
-          className="w-full py-2 sm:py-3 rounded bg-darkBg2 border border-border2 text-primary1 hover:bg-grayHover transition-colors text-sm"
+          className="w-full py-3 rounded bg-darkBg2 border border-border2 text-primary1 hover:bg-grayHover transition-colors"
         >
           더보기
         </button>
