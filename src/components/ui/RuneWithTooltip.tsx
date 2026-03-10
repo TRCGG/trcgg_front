@@ -37,7 +37,7 @@ const RuneWithTooltip = ({ iconPath, runeName, width, height, alt = "룬" }: Pro
   );
 
   return (
-    <Tooltip content={tooltipContent}>
+    <Tooltip content={tooltipContent} className="block leading-none">
       <div style={{ width: `${width}px`, height: `${height}px`, display: "block", lineHeight: 0 }}>
         <Image
           width={width}
