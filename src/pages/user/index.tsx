@@ -160,15 +160,16 @@ const User: NextPage = () => {
       />
 
       {/* 기간 선택 토글 + 드롭다운 */}
-      <div className="flex items-center gap-3 mt-3">
-        <div className="flex rounded overflow-hidden border border-border2">
+      <div className="flex flex-wrap items-center gap-3 mt-3">
+        {/* 세그먼트 컨트롤 토글 */}
+        <div className="flex p-0.5 rounded-lg bg-rankBg1 border border-border1">
           <button
             type="button"
             onClick={() => setDateMode("recent")}
-            className={`px-3 py-1.5 text-sm transition-colors ${
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
               dateMode === "recent"
-                ? "bg-blueText2 text-darkBg1 font-medium"
-                : "bg-darkBg2 text-primary2 hover:text-primary1"
+                ? "bg-primary1 text-darkBg2 shadow"
+                : "text-primary2 hover:text-primary1"
             }`}
           >
             최근 1개월
@@ -176,45 +177,80 @@ const User: NextPage = () => {
           <button
             type="button"
             onClick={() => setDateMode("monthly")}
-            className={`px-3 py-1.5 text-sm transition-colors ${
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
               dateMode === "monthly"
-                ? "bg-blueText2 text-darkBg1 font-medium"
-                : "bg-darkBg2 text-primary2 hover:text-primary1"
+                ? "bg-primary1 text-darkBg2 shadow"
+                : "text-primary2 hover:text-primary1"
             }`}
           >
             월별
           </button>
         </div>
 
-        <select
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(Number(e.target.value))}
-          disabled={dateMode === "recent"}
-          className={`bg-darkBg2 border border-border2 rounded px-2 py-1.5 text-sm transition-colors ${
-            dateMode === "recent" ? "text-primary3 cursor-not-allowed opacity-40" : "text-primary1"
-          }`}
-        >
-          {YEAR_OPTIONS.map((year) => (
-            <option key={year} value={year}>
-              {year}년
-            </option>
-          ))}
-        </select>
+        {/* 구분선 */}
+        <div className="hidden sm:block h-5 w-px bg-border1" />
 
-        <select
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(Number(e.target.value))}
-          disabled={dateMode === "recent"}
-          className={`bg-darkBg2 border border-border2 rounded px-2 py-1.5 text-sm transition-colors ${
-            dateMode === "recent" ? "text-primary3 cursor-not-allowed opacity-40" : "text-primary1"
+        {/* 연도 드롭다운 */}
+        <div
+          className={`relative transition-opacity duration-200 ${
+            dateMode === "recent" ? "opacity-30 pointer-events-none" : "opacity-100"
           }`}
         >
-          {MONTH_OPTIONS.map((month) => (
-            <option key={month} value={month}>
-              {month}월
-            </option>
-          ))}
-        </select>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            disabled={dateMode === "recent"}
+            className="appearance-none bg-rankBg2 border border-border1 hover:border-blueText2 rounded-lg pl-3 pr-8 py-1.5 text-sm text-primary1 cursor-pointer focus:outline-none focus:border-blueText2 transition-colors duration-150"
+          >
+            {YEAR_OPTIONS.map((year) => (
+              <option key={year} value={year}>
+                {year}년
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center">
+            <svg
+              className="w-3 h-3 text-primary2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        {/* 월 드롭다운 */}
+        <div
+          className={`relative transition-opacity duration-200 ${
+            dateMode === "recent" ? "opacity-30 pointer-events-none" : "opacity-100"
+          }`}
+        >
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            disabled={dateMode === "recent"}
+            className="appearance-none bg-rankBg2 border border-border1 hover:border-blueText2 rounded-lg pl-3 pr-8 py-1.5 text-sm text-primary1 cursor-pointer focus:outline-none focus:border-blueText2 transition-colors duration-150"
+          >
+            {MONTH_OPTIONS.map((month) => (
+              <option key={month} value={month}>
+                {month}월
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center">
+            <svg
+              className="w-3 h-3 text-primary2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       <PositionFilter
