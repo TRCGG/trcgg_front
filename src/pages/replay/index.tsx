@@ -96,7 +96,7 @@ const Replay: NextPage = () => {
     setUploadResult(null);
     setUploadError(null);
     try {
-      const result = await uploadReplays(guildId, files);
+      const result = await uploadReplays(guildId, files, username ?? "");
       setUploadResult(result.data);
       setFiles([]);
       await refetchList();

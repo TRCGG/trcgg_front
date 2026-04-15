@@ -6,10 +6,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export const uploadReplays = async (
   guildId: string,
-  files: File[]
+  files: File[],
+  nick: string
 ): Promise<ReplayUploadResponse> => {
   const formData = new FormData();
   formData.append("guildId", guildId);
+  formData.append("nick", nick);
   files.forEach((file) => formData.append("files", file));
 
   const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
