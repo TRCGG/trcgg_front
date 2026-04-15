@@ -9,8 +9,9 @@ export const uploadReplays = async (
   files: File[],
   nick: string
 ): Promise<ReplayUploadResponse> => {
+  const decodedGuildId = atob(guildId);
   const formData = new FormData();
-  formData.append("guildId", guildId);
+  formData.append("guildId", decodedGuildId);
   formData.append("nick", nick);
   files.forEach((file) => formData.append("files", file));
 
