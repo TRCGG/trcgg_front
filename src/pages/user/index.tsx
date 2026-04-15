@@ -7,15 +7,25 @@ import TitleBox from "@/components/ui/TitleBox";
 import PositionFilter from "@/features/statistics/PositionFilter";
 import UserRankHeader from "@/features/statistics/UserRankHeader";
 import UserRankItem from "@/features/statistics/UserRankItem";
-import { getCurrentYearMonth } from "@/utils/parseTime";
 import { useQuery } from "@tanstack/react-query";
 import { getUserStatistics, Position } from "@/services/statistics";
 import { ApiResponse } from "@/services/apiService";
 import { UserStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
+type DateMode = "recent" | "monthly";
 type SortBy = "totalGames" | "winRate";
 type SortOrder = "asc" | "desc";
+
+const now = new Date();
+const CURRENT_YEAR = now.getFullYear();
+const CURRENT_MONTH = now.getMonth() + 1;
+const START_YEAR = 2024;
+const YEAR_OPTIONS = Array.from(
+  { length: CURRENT_YEAR - START_YEAR + 1 },
+  (_, i) => START_YEAR + i
+);
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => i + 1);
 
 const User: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +33,9 @@ const User: NextPage = () => {
   const [displayCount, setDisplayCount] = useState(10);
   const [sortBy, setSortBy] = useState<SortBy>("winRate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [dateMode, setDateMode] = useState<DateMode>("recent");
+  const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
+  const [selectedMonth, setSelectedMonth] = useState(CURRENT_MONTH);
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
@@ -33,6 +46,9 @@ const User: NextPage = () => {
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
 
+  const queryYear = dateMode === "monthly" ? selectedYear : undefined;
+  const queryMonth = dateMode === "monthly" ? selectedMonth : undefined;
+
   const {
     data: userStatisticsData,
     isLoading: isLoadingStatistics,
@@ -40,8 +56,8 @@ const User: NextPage = () => {
     isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
   } = useQuery<ApiResponse<UserStatisticsResponse>>({
-    queryKey: ["userStatistics", guildId, selectedPosition],
-    queryFn: () => getUserStatistics(guildId, selectedPosition),
+    queryKey: ["userStatistics", guildId, selectedPosition, dateMode, queryYear, queryMonth],
+    queryFn: () => getUserStatistics(guildId, selectedPosition, queryYear, queryMonth),
     enabled: !!guildId,
     staleTime: 5 * 60 * 1000, // 5분
     structuralSharing: false,
@@ -140,9 +156,66 @@ const User: NextPage = () => {
         className="mt-10"
         clanName={clanName}
         title="유저 분석"
-        date={getCurrentYearMonth()}
         description="내전 플레이 기록이 5판 이상인 경우에만 통계에 표시"
       />
+
+      {/* 기간 선택 토글 + 드롭다운 */}
+      <div className="flex items-center gap-3 mt-3">
+        <div className="flex rounded overflow-hidden border border-border2">
+          <button
+            type="button"
+            onClick={() => setDateMode("recent")}
+            className={`px-3 py-1.5 text-sm transition-colors ${
+              dateMode === "recent"
+                ? "bg-blueText2 text-darkBg1 font-medium"
+                : "bg-darkBg2 text-primary2 hover:text-primary1"
+            }`}
+          >
+            최근 1개월
+          </button>
+          <button
+            type="button"
+            onClick={() => setDateMode("monthly")}
+            className={`px-3 py-1.5 text-sm transition-colors ${
+              dateMode === "monthly"
+                ? "bg-blueText2 text-darkBg1 font-medium"
+                : "bg-darkBg2 text-primary2 hover:text-primary1"
+            }`}
+          >
+            월별
+          </button>
+        </div>
+
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(Number(e.target.value))}
+          disabled={dateMode === "recent"}
+          className={`bg-darkBg2 border border-border2 rounded px-2 py-1.5 text-sm transition-colors ${
+            dateMode === "recent" ? "text-primary3 cursor-not-allowed opacity-40" : "text-primary1"
+          }`}
+        >
+          {YEAR_OPTIONS.map((year) => (
+            <option key={year} value={year}>
+              {year}년
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(Number(e.target.value))}
+          disabled={dateMode === "recent"}
+          className={`bg-darkBg2 border border-border2 rounded px-2 py-1.5 text-sm transition-colors ${
+            dateMode === "recent" ? "text-primary3 cursor-not-allowed opacity-40" : "text-primary1"
+          }`}
+        >
+          {MONTH_OPTIONS.map((month) => (
+            <option key={month} value={month}>
+              {month}월
+            </option>
+          ))}
+        </select>
+      </div>
 
       <PositionFilter
         selectedPosition={selectedPosition}

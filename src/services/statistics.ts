@@ -6,17 +6,16 @@ export type Position = "ALL" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
 
 export const getUserStatistics = async (
   guildId: string,
-  position: Position
+  position: Position,
+  year?: number,
+  month?: number
 ): Promise<ApiResponse<UserStatisticsResponse>> => {
   try {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-
     const positionParam = position === "ALL" ? "" : `position=${position}&`;
+    const yearMonthParam = year && month ? `&year=${year}&month=${month}` : "";
 
     return await api.get(
-      `/api/statistics/${guildId}/users?${positionParam}sortBy=winRate&limit=100000&year=${year}&month=${month}`
+      `/api/statistics/${guildId}/users?${positionParam}sortBy=winRate&limit=100000${yearMonthParam}`
     );
   } catch (error) {
     return {
