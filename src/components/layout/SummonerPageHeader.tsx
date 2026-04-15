@@ -78,7 +78,7 @@ const SummonerPageHeader = ({
             onClick={() => router.push("/")}
           />
         </div>
-        <div ref={searchContainerRef} className="w-full md:w-[400px] z-10">
+        <div ref={searchContainerRef} className="w-full md:w-[300px] z-10">
           <SearchBarSmall
             value={searchTerm}
             onChange={setSearchTerm}
