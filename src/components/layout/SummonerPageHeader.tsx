@@ -100,7 +100,7 @@ const SummonerPageHeader = ({
           )}
         </div>
       </div>
-      <div className="flex items-center justify-start md:justify-end mt-3 md:mt-0">
+      <div className="flex items-center justify-start md:justify-end mt-3 md:mt-0 gap-3">
         <NavBar />
         {isLoggedIn && (
           <div className="hidden md:block">
