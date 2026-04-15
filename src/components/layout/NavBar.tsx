@@ -8,6 +8,7 @@ const NavBar = () => {
     { href: "/summoners", label: "내전 전적", href2: "/" },
     { href: "/champion", label: "챔피언 분석" },
     { href: "/user", label: "유저 분석" },
+    { href: "/replay", label: "리플레이 업로드" },
   ];
 
   return (
