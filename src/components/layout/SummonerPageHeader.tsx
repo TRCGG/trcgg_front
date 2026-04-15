@@ -56,7 +56,7 @@ const SummonerPageHeader = ({
   };
 
   return (
-    <header className="flex flex-col md:flex-row justify-start md:justify-between pt-4 md:pt-6 px-4 md:px-0 md:items-center md:gap-10 md:min-w-[1080px]">
+    <header className="flex flex-col md:flex-row justify-start md:justify-between pt-4 md:pt-6 px-4 md:px-0 md:items-center md:min-w-[1080px]">
       <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
         <div className="md:hidden self-end flex gap-3 items-center">
           {isLoggedIn && (
