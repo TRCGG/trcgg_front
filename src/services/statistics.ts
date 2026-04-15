@@ -28,15 +28,15 @@ export const getUserStatistics = async (
 
 export const getChampionStatistics = async (
   guildId: string,
-  position: Position
+  position: Position,
+  year?: number,
+  month?: number
 ): Promise<ApiResponse<ChampionStatisticsResponse>> => {
   try {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
+    const yearMonthParam = year && month ? `&year=${year}&month=${month}` : "";
 
     return await api.get(
-      `/api/statistics/${guildId}/champions?position=${position}&sortBy=winRate&limit=100000&year=${year}&month=${month}`
+      `/api/statistics/${guildId}/champions?position=${position}&sortBy=winRate&limit=100000${yearMonthParam}`
     );
   } catch (error) {
     return {
