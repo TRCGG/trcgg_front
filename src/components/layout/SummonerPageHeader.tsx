@@ -56,7 +56,7 @@ const SummonerPageHeader = ({
   };
 
   return (
-    <header className="flex flex-col md:flex-row justify-start md:justify-between pt-4 md:pt-6 px-4 md:px-0 md:items-center md:gap-10 md:min-w-[1080px]">
+    <header className="flex flex-col md:flex-row justify-start md:justify-between pt-4 md:pt-6 px-4 md:px-0 md:items-center md:min-w-[1080px]">
       <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
         <div className="md:hidden self-end flex gap-3 items-center">
           {isLoggedIn && (
@@ -78,7 +78,7 @@ const SummonerPageHeader = ({
             onClick={() => router.push("/")}
           />
         </div>
-        <div ref={searchContainerRef} className="w-full md:w-[400px] z-10">
+        <div ref={searchContainerRef} className="w-full md:w-[300px] z-10">
           <SearchBarSmall
             value={searchTerm}
             onChange={setSearchTerm}
@@ -100,7 +100,7 @@ const SummonerPageHeader = ({
           )}
         </div>
       </div>
-      <div className="flex items-center justify-start md:justify-end gap-3 mt-3 md:mt-0">
+      <div className="flex items-center justify-start md:justify-end mt-3 md:mt-0 gap-3">
         <NavBar />
         {isLoggedIn && (
           <div className="hidden md:block">

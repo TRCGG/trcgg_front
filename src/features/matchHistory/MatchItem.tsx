@@ -169,8 +169,29 @@ const MatchItem = ({ matchData }: Props) => {
                   />
                 )}
               </div>
-              {/* 룬 */}
-              <div className="flex flex-col gap-0 w-[18px] sm:w-[32px]">
+              {/* 룬 - 모바일 */}
+              <div className="flex flex-col gap-0 sm:hidden">
+                {matchData.keystoneIcon && (
+                  <RuneWithTooltip
+                    iconPath={matchData.keystoneIcon}
+                    runeName={matchData.keystoneName}
+                    width={18}
+                    height={18}
+                    alt="메인 룬"
+                  />
+                )}
+                {matchData.substyleIcon && (
+                  <RuneWithTooltip
+                    iconPath={matchData.substyleIcon}
+                    runeName={matchData.substyleName}
+                    width={18}
+                    height={18}
+                    alt="서브 룬"
+                  />
+                )}
+              </div>
+              {/* 룬 - 데스크탑 */}
+              <div className="hidden sm:flex flex-col gap-0">
                 {matchData.keystoneIcon && (
                   <RuneWithTooltip
                     iconPath={matchData.keystoneIcon}

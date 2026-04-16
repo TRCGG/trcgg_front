@@ -26,7 +26,7 @@ const GuildDropdown = ({ guilds, selectedGuildId, onGuildChange }: GuildDropdown
 
   if (guilds.length === 0) {
     return (
-      <div className="bg-darkBg2 text-white py-2 px-4 rounded flex items-center gap-2 w-[180px] border border-border2">
+      <div className="bg-darkBg2 text-white py-2 px-4 rounded flex items-center gap-2 w-[180px] border border-border2 text-sm">
         <span className="flex-1 text-left">가입된 길드 없음</span>
       </div>
     );
@@ -37,7 +37,7 @@ const GuildDropdown = ({ guilds, selectedGuildId, onGuildChange }: GuildDropdown
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-darkBg2 text-white py-2 px-4 rounded flex items-center gap-2 w-[180px] border border-border2"
+        className="bg-darkBg2 text-white py-2 px-4 rounded flex items-center gap-2 w-[150px] border border-border2 text-sm"
       >
         <span className="flex-1 text-left truncate">
           {selectedGuild ? selectedGuild.name : "길드 선택"}
@@ -63,7 +63,7 @@ const GuildDropdown = ({ guilds, selectedGuildId, onGuildChange }: GuildDropdown
                 key={guild.id}
                 type="button"
                 onClick={() => handleSelectGuild(guild)}
-                className={`w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors flex items-center justify-between bg-darkBg2
+                className={`w-full text-left px-4 py-2 text-white text-sm hover:bg-grayHover transition-colors flex items-center justify-between bg-darkBg2
                 ${isLast ? "rounded-b" : ""}`}
               >
                 <span className="truncate">{guild.name}</span>

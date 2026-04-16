@@ -97,7 +97,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           {/* 팀워크 */}
           {data.synergy && data.synergy.length > 0 && (
             <CardWithTitle title="팀워크">
-              <TeamworkStats synergyData={data.synergy.slice(0, RECORD_DISPLAY_COUNT)} />
+              <TeamworkStats synergyData={data.synergy} />
             </CardWithTitle>
           )}
         </div>
