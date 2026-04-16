@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
@@ -32,7 +32,8 @@ const Champion: NextPage = () => {
   const [dateMode, setDateMode] = useState<DateMode>("recent");
   const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
   const [selectedMonth, setSelectedMonth] = useState(CURRENT_MONTH);
-  const observerTarget = useRef<HTMLDivElement>(null);
+  const observerInstance = useRef<IntersectionObserver | null>(null);
+  const hasMoreRef = useRef(false);
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
     data: userSearchData,
@@ -62,6 +63,7 @@ const Champion: NextPage = () => {
   const allChampions = championStatisticsData?.data?.data || [];
   const displayedChampions = allChampions.slice(0, displayCount);
   const hasMore = allChampions.length > displayCount;
+  hasMoreRef.current = hasMore;
 
   // 게임 수 상위 10위 챔피언 계산
   const popularChampions = [...allChampions]
@@ -78,28 +80,23 @@ const Champion: NextPage = () => {
     setDisplayCount(10);
   }, [selectedPosition]);
 
-  // 무한 스크롤
-  useEffect(() => {
-    const observer = new IntersectionObserver(
+  // 무한 스크롤 - callback ref: sentinel이 DOM에 마운트되는 순간 즉시 등록
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    if (observerInstance.current) {
+      observerInstance.current.disconnect();
+      observerInstance.current = null;
+    }
+    if (!node) return;
+    observerInstance.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting && hasMoreRef.current) {
           setDisplayCount((prev) => prev + 10);
         }
       },
       { threshold: 1.0 }
     );
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasMore, isFetchingStatistics]);
+    observerInstance.current.observe(node);
+  }, []);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -282,7 +279,7 @@ const Champion: NextPage = () => {
                         );
                       })}
                       {/* 무한 스크롤 트리거 */}
-                      {hasMore && <div ref={observerTarget} className="h-10" />}
+                      {hasMore && <div ref={sentinelRef} className="h-10" />}
                     </>
                   )}
 

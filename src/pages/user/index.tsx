@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
@@ -36,7 +36,8 @@ const User: NextPage = () => {
   const [dateMode, setDateMode] = useState<DateMode>("recent");
   const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR);
   const [selectedMonth, setSelectedMonth] = useState(CURRENT_MONTH);
-  const observerTarget = useRef<HTMLDivElement>(null);
+  const observerInstance = useRef<IntersectionObserver | null>(null);
+  const hasMoreRef = useRef(false);
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
@@ -103,6 +104,7 @@ const User: NextPage = () => {
 
   const displayedUsers = sortedUsers.slice(0, displayCount);
   const hasMore = sortedUsers.length > displayCount;
+  hasMoreRef.current = hasMore;
 
   // 현재 선택된 클랜 이름 가져오기
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
@@ -113,28 +115,23 @@ const User: NextPage = () => {
     setDisplayCount(10);
   }, [selectedPosition]);
 
-  // 무한 스크롤
-  useEffect(() => {
-    const observer = new IntersectionObserver(
+  // 무한 스크롤 - callback ref: sentinel이 DOM에 마운트되는 순간 즉시 등록
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    if (observerInstance.current) {
+      observerInstance.current.disconnect();
+      observerInstance.current = null;
+    }
+    if (!node) return;
+    observerInstance.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting && hasMoreRef.current) {
           setDisplayCount((prev) => prev + 10);
         }
       },
       { threshold: 1.0 }
     );
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasMore, isFetchingStatistics]);
+    observerInstance.current.observe(node);
+  }, []);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
@@ -303,7 +300,7 @@ const User: NextPage = () => {
                         />
                       ))}
                       {/* 무한 스크롤 트리거 */}
-                      {hasMore && <div ref={observerTarget} className="h-10" />}
+                      {hasMore && <div ref={sentinelRef} className="h-10" />}
                     </>
                   )}
 
