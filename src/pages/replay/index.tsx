@@ -362,7 +362,9 @@ const Replay: NextPage = () => {
                             <span className="text-primary1">{item.fileName}</span>
                           </div>
                           <span className="text-xs text-redText">
-                            {FAIL_REASON_LABEL[item.reason]}
+                            {item.reason.includes("duplicate")
+                              ? "이미 등록된 리플레이 데이터입니다"
+                              : FAIL_REASON_LABEL[item.reason]}
                           </span>
                         </div>
                       ))}
@@ -385,7 +387,7 @@ const Replay: NextPage = () => {
         </div>
 
         {/* 헤더 */}
-        <div className="grid grid-cols-[2rem_1fr_1fr_1fr] gap-2 px-3 py-2 text-xs text-primary2 border-b border-border2">
+        <div className="grid grid-cols-[1.5rem_70px_60px_1fr] sm:grid-cols-[2rem_120px_90px_1fr] gap-2 px-3 py-2 text-xs text-primary2 border-b border-border2">
           <span>#</span>
           <span>게시자</span>
           <span>시간</span>
@@ -405,7 +407,7 @@ const Replay: NextPage = () => {
             {replayList.map((log, index) => (
               <li
                 key={log.replayCode}
-                className="grid grid-cols-[2rem_1fr_1fr_1fr] gap-2 items-center px-3 py-2.5 text-sm border-b border-border2 last:border-0 hover:bg-rankBg3 transition-colors"
+                className="grid grid-cols-[1.5rem_70px_60px_1fr] sm:grid-cols-[2rem_120px_90px_1fr] gap-2 items-center px-3 py-2.5 text-sm border-b border-border2 last:border-0 hover:bg-rankBg3 transition-colors"
               >
                 <span className="text-primary2 text-xs">{index + 1}</span>
                 <span className="text-primary1 truncate">{log.createUser}</span>
