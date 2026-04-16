@@ -134,7 +134,7 @@ const User: NextPage = () => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [hasMore]);
+  }, [hasMore, isFetchingStatistics]);
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
