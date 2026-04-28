@@ -157,7 +157,7 @@ const User: NextPage = () => {
 
   useEffect(() => {
     setDisplayCount(10);
-  }, [selectedPosition]);
+  }, [selectedPosition, dateMode, querySeason, queryFromMonth, queryToMonth]);
 
   const sentinelRef = useCallback((node: HTMLDivElement | null) => {
     if (observerInstance.current) {
