@@ -3,20 +3,35 @@ import { UserStatisticsResponse, ChampionStatisticsResponse } from "@/data/types
 import api from "@/services/index";
 
 export type Position = "ALL" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
+export type DatePreset = "recent" | "season" | "range";
+
+const buildQuery = (params: Record<string, string | number | undefined>): string => {
+  const parts = Object.entries(params)
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => `${k}=${v}`);
+  return parts.length ? `?${parts.join("&")}` : "";
+};
 
 export const getUserStatistics = async (
   guildId: string,
   position: Position,
-  year?: number,
-  month?: number
+  datePreset?: DatePreset,
+  season?: string,
+  fromMonth?: number,
+  toMonth?: number
 ): Promise<ApiResponse<UserStatisticsResponse>> => {
   try {
-    const positionParam = position === "ALL" ? "" : `position=${position}&`;
-    const yearMonthParam = year && month ? `&year=${year}&month=${month}` : "";
+    const query = buildQuery({
+      position: position !== "ALL" ? position : undefined,
+      sortBy: "winRate",
+      limit: 100000,
+      datePreset,
+      season,
+      fromMonth,
+      toMonth,
+    });
 
-    return await api.get(
-      `/api/statistics/${guildId}/users?${positionParam}sortBy=winRate&limit=100000${yearMonthParam}`
-    );
+    return await api.get(`/api/statistics/${guildId}/users${query}`);
   } catch (error) {
     return {
       data: null,
@@ -29,15 +44,23 @@ export const getUserStatistics = async (
 export const getChampionStatistics = async (
   guildId: string,
   position: Position,
-  year?: number,
-  month?: number
+  datePreset?: DatePreset,
+  season?: string,
+  fromMonth?: number,
+  toMonth?: number
 ): Promise<ApiResponse<ChampionStatisticsResponse>> => {
   try {
-    const yearMonthParam = year && month ? `&year=${year}&month=${month}` : "";
+    const query = buildQuery({
+      position,
+      sortBy: "winRate",
+      limit: 100000,
+      datePreset,
+      season,
+      fromMonth,
+      toMonth,
+    });
 
-    return await api.get(
-      `/api/statistics/${guildId}/champions?position=${position}&sortBy=winRate&limit=100000${yearMonthParam}`
-    );
+    return await api.get(`/api/statistics/${guildId}/champions${query}`);
   } catch (error) {
     return {
       data: null,

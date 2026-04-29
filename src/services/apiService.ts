@@ -88,7 +88,7 @@ class ApiService {
 
     // 에러 처리: 401 에러 시 로그아웃
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.addErrorInterceptor(async (error, requestOptions) => {
+    this.addErrorInterceptor(async (error) => {
       if (error && typeof error === "object" && "status" in error && error.status === 401) {
         // 토큰 만료 또는 인증 오류
         if (typeof window !== "undefined") {
@@ -213,12 +213,15 @@ class ApiService {
 
       // 응답 데이터 파싱
       let data: unknown;
-      const contentType = response.headers.get("content-type");
-
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
+      if (response.status === 204) {
+        data = null;
       } else {
-        data = await response.text();
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
       }
 
       // 응답 인터셉터 적용
