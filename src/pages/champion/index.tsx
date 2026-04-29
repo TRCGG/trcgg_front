@@ -151,7 +151,7 @@ const Champion: NextPage = () => {
 
   useEffect(() => {
     setDisplayCount(10);
-  }, [selectedPosition, dateMode, querySeason, queryFromMonth, queryToMonth, sortBy, sortOrder]);
+  }, [selectedPosition, dateMode, querySeason, queryFromMonth, queryToMonth]);
 
   const sentinelRef = useCallback((node: HTMLDivElement | null) => {
     if (observerInstance.current) {
@@ -346,7 +346,7 @@ const Champion: NextPage = () => {
 
                         return (
                           <ChampionRankItem
-                            key={champion.champNameEng}
+                            key={`${champion.champNameEng}_${champion.position}`}
                             rank={rank}
                             championName={champion.champName}
                             championNameEng={champion.champNameEng}
