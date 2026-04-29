@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
@@ -14,6 +14,8 @@ import { ChampionStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
+type SortBy = "totalGames" | "winRate";
+type SortOrder = "asc" | "desc";
 
 const now = new Date();
 const CURRENT_YEAR = now.getFullYear();
@@ -45,6 +47,8 @@ const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
+  const [sortBy, setSortBy] = useState<SortBy>("winRate");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [dateMode, setDateMode] = useState<DateMode>("recent");
   const [selectedSeason, setSelectedSeason] = useState(String(CURRENT_YEAR));
   const [draftRangeSeason, setDraftRangeSeason] = useState(String(CURRENT_YEAR));
@@ -102,6 +106,15 @@ const Champion: NextPage = () => {
     placeholderData: undefined,
   });
 
+  const handleSort = (column: SortBy) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+  };
+
   const handleApplyRange = () => {
     const from = Math.min(draftFromMonth, draftToMonth);
     const to = Math.max(draftFromMonth, draftToMonth);
@@ -110,22 +123,40 @@ const Champion: NextPage = () => {
     setAppliedRange({ season: draftRangeSeason, fromMonth: from, toMonth: to });
   };
 
-  const allChampions = championStatisticsData?.data?.data || [];
-  const displayedChampions = allChampions.slice(0, displayCount);
-  const hasMore = allChampions.length > displayCount;
-  hasMoreRef.current = hasMore;
+  const allChampions = useMemo(
+    () => championStatisticsData?.data?.data || [],
+    [championStatisticsData]
+  );
 
-  const popularChampions = [...allChampions]
-    .sort((a, b) => b.totalCount - a.totalCount)
-    .slice(0, 10)
-    .map((c) => c.champNameEng);
+  const popularChampions = useMemo(
+    () =>
+      [...allChampions]
+        .sort((a, b) => b.totalCount - a.totalCount)
+        .slice(0, 10)
+        .map((c) => c.champNameEng),
+    [allChampions]
+  );
+
+  const sortedChampions = useMemo(() => {
+    const champions = [...allChampions];
+    champions.sort((a, b) => {
+      const aValue = sortBy === "totalGames" ? a.totalCount : parseFloat(a.winRate) || 0;
+      const bValue = sortBy === "totalGames" ? b.totalCount : parseFloat(b.winRate) || 0;
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    });
+    return champions;
+  }, [allChampions, sortBy, sortOrder]);
+
+  const displayedChampions = sortedChampions.slice(0, displayCount);
+  const hasMore = sortedChampions.length > displayCount;
+  hasMoreRef.current = hasMore;
 
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
   const clanName = selectedGuild?.name || "클랜";
 
   useEffect(() => {
     setDisplayCount(10);
-  }, [selectedPosition, dateMode, querySeason, queryFromMonth, queryToMonth]);
+  }, [selectedPosition, dateMode, querySeason, queryFromMonth, queryToMonth, sortBy, sortOrder]);
 
   const sentinelRef = useCallback((node: HTMLDivElement | null) => {
     if (observerInstance.current) {
@@ -279,7 +310,7 @@ const Champion: NextPage = () => {
       />
 
       <div className="mt-1">
-        <ChampionRankHeader />
+        <ChampionRankHeader sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
         <div key={selectedPosition} className="space-y-3 mt-2">
           {(() => {
             if (!isLoggedIn) {
@@ -303,7 +334,7 @@ const Champion: NextPage = () => {
                 )}
 
                 {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
-                  allChampions.length > 0 && (
+                  sortedChampions.length > 0 && (
                     <>
                       {displayedChampions.map((champion, index) => {
                         const rank = index + 1;
@@ -338,7 +369,7 @@ const Champion: NextPage = () => {
 
                 {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
                   isFetchedStatistics &&
-                  allChampions.length === 0 && (
+                  sortedChampions.length === 0 && (
                     <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">
                       5판 이상 플레이한 챔피언이 없어 통계 데이터를 확인할 수 없습니다.
                     </div>
