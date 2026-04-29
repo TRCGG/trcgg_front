@@ -123,29 +123,24 @@ const Champion: NextPage = () => {
     setAppliedRange({ season: draftRangeSeason, fromMonth: from, toMonth: to });
   };
 
-  const allChampions = useMemo(
-    () => championStatisticsData?.data?.data || [],
-    [championStatisticsData]
-  );
-
   const popularChampions = useMemo(
     () =>
-      [...allChampions]
+      [...(championStatisticsData?.data?.data || [])]
         .sort((a, b) => b.totalCount - a.totalCount)
         .slice(0, 10)
         .map((c) => c.champNameEng),
-    [allChampions]
+    [championStatisticsData?.data?.data]
   );
 
   const sortedChampions = useMemo(() => {
-    const champions = [...allChampions];
+    const champions = [...(championStatisticsData?.data?.data || [])];
     champions.sort((a, b) => {
       const aValue = sortBy === "totalGames" ? a.totalCount : parseFloat(a.winRate) || 0;
       const bValue = sortBy === "totalGames" ? b.totalCount : parseFloat(b.winRate) || 0;
       return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
     });
     return champions;
-  }, [allChampions, sortBy, sortOrder]);
+  }, [championStatisticsData?.data?.data, sortBy, sortOrder]);
 
   const displayedChampions = sortedChampions.slice(0, displayCount);
   const hasMore = sortedChampions.length > displayCount;
@@ -338,7 +333,7 @@ const Champion: NextPage = () => {
                     <>
                       {displayedChampions.map((champion, index) => {
                         const rank = index + 1;
-                        const totalChampions = allChampions.length;
+                        const totalChampions = sortedChampions.length;
 
                         let tier: 1 | 5 | undefined;
                         if (rank <= 10 && totalChampions - rank >= 10) {
