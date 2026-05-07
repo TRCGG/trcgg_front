@@ -206,6 +206,9 @@ export interface RecentGameRecord {
   keystoneName: string;
   substyleIcon: string;
   substyleName: string;
+  mmrDelta?: number | null;
+  preMmr?: number | null;
+  postMmr?: number | null;
 }
 
 /**

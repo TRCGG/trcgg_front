@@ -22,6 +22,19 @@ const MatchItem = ({ matchData }: Props) => {
   const [isOpen, setOpen] = useState(false);
   const toggleOpen = () => setOpen(!isOpen);
   const isWin = matchData.gameResult === "승";
+  const { mmrDelta } = matchData;
+  const showMmrDelta = mmrDelta !== undefined && mmrDelta !== null;
+  const hasMmrRange =
+    matchData.preMmr !== undefined &&
+    matchData.preMmr !== null &&
+    matchData.postMmr !== undefined &&
+    matchData.postMmr !== null;
+  let mmrDeltaClassName = "text-gray";
+  if (showMmrDelta && mmrDelta > 0) {
+    mmrDeltaClassName = "text-green-500";
+  } else if (showMmrDelta && mmrDelta < 0) {
+    mmrDeltaClassName = "text-redText";
+  }
 
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
@@ -89,6 +102,15 @@ const MatchItem = ({ matchData }: Props) => {
             {matchData.timePlayed && (
               <span className="whitespace-nowrap">
                 {Math.floor(matchData.timePlayed / 60)}분 {matchData.timePlayed % 60}초
+              </span>
+            )}
+            {showMmrDelta && (
+              <span
+                className={`text-xs font-semibold whitespace-nowrap ${mmrDeltaClassName}`}
+                title={hasMmrRange ? `${matchData.preMmr} -> ${matchData.postMmr}` : undefined}
+              >
+                {mmrDelta > 0 ? "+" : ""}
+                {mmrDelta} MMR
               </span>
             )}
           </div>
