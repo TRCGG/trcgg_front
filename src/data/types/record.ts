@@ -41,6 +41,7 @@ export interface MultiplePlayerInfo {
  */
 export interface MemberInfo {
   playerCode: string;
+  puuid?: string;
   riotName: string;
   riotNameTag: string;
   isMain: boolean;

@@ -7,10 +7,13 @@ import LaneMidLogo from "@/assets/images/laneMid.png";
 import LaneSupportLogo from "@/assets/images/laneSupport.png";
 import LaneBottomLogo from "@/assets/images/laneBottom.png";
 import { SummaryStats } from "@/data/types/record";
+import MmrBadge from "@/components/mmr/MmrBadge";
 
 interface Props {
   riotName: string;
   riotTag: string;
+  puuid?: string;
+  guildId?: string;
   monthData: SummaryStats;
   mostLane: string;
   totalData: { totalGameCount: number; winCount: number; loseCount: number; winRate: string };
@@ -28,6 +31,8 @@ const laneImageMap: Record<string, StaticImageData> = {
 const UserStatsOverview = ({
   riotName,
   riotTag,
+  puuid,
+  guildId,
   monthData,
   mostLane,
   totalData,
@@ -88,6 +93,13 @@ const UserStatsOverview = ({
             </div>
           </div>
         )}
+
+        <div className="flex flex-row gap-2">
+          <div className="flex items-center justify-center rounded-lg bg-primary1 text-darkBg2 w-12 h-6 font-bold">
+            MMR
+          </div>
+          <MmrBadge puuid={puuid} guildId={guildId} />
+        </div>
       </div>
 
       {/* 새로고침 버튼 */}

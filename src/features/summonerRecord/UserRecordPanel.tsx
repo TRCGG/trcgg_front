@@ -75,6 +75,8 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
       <UserStatsOverview
         riotName={data.member.riotName}
         riotTag={data.member.riotNameTag}
+        puuid={data.member.puuid}
+        guildId={guildId}
         totalData={totalStatData}
         monthData={data.summary}
         mostLane={mostLane}
