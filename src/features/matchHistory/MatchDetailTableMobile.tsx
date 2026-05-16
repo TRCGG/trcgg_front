@@ -11,6 +11,7 @@ import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
+import Tooltip from "@/components/ui/Tooltip";
 
 interface Player {
   name: string;
@@ -138,7 +139,7 @@ const MatchDetailTableMobile = ({
                 />
                 <span className="tabular-nums">{player.damage.toLocaleString()}</span>
               </div>
-              <div className="h-1 w-full rounded-full overflow-hidden bg-rankBg2">
+              <div className="h-1 w-full rounded-full overflow-hidden bg-black">
                 <div
                   className="h-full rounded-full bg-blueText"
                   style={{ width: `${(player.damage / maxDamage) * 100}%` }}
@@ -154,7 +155,7 @@ const MatchDetailTableMobile = ({
                 />
                 <span className="tabular-nums">{player.damageTaken.toLocaleString()}</span>
               </div>
-              <div className="h-1 w-full rounded-full overflow-hidden bg-rankBg2">
+              <div className="h-1 w-full rounded-full overflow-hidden bg-black">
                 <div
                   className="h-full rounded-full bg-redText"
                   style={{ width: `${(player.damageTaken / maxDamageTaken) * 100}%` }}
@@ -165,27 +166,31 @@ const MatchDetailTableMobile = ({
             {/* 시야 점수, 제어 와드 개수 */}
             <div className="flex flex-col items-baseline">
               <div className="flex gap-x-1.5 items-center">
-                <div className="flex items-center justify-center w-4 h-4">
-                  <Image
-                    src={EyeIcon}
-                    alt="vision score icon"
-                    width={16}
-                    height={16}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+                <Tooltip content="시야 점수">
+                  <div className="flex items-center justify-center w-4 h-4">
+                    <Image
+                      src={EyeIcon}
+                      alt="vision score icon"
+                      width={16}
+                      height={16}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </Tooltip>
                 <span>{player.visionScore}</span>
               </div>
               <div className="flex gap-x-1.5 items-center">
-                <div className="flex items-center justify-center w-4 h-4">
-                  <Image
-                    src={WardIcon}
-                    alt="ward icon"
-                    width={16}
-                    height={16}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
+                <Tooltip content="제어 와드 개수">
+                  <div className="flex items-center justify-center w-4 h-4">
+                    <Image
+                      src={WardIcon}
+                      alt="ward icon"
+                      width={16}
+                      height={16}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </Tooltip>
                 <span>{player.wards}</span>
               </div>
             </div>

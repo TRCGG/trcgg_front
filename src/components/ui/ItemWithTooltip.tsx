@@ -50,7 +50,7 @@ const ItemWithTooltip = ({ itemId, width, height, className = "", alt = "아이�
         height={height}
         alt={alt}
         fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/item/${itemId}.png`}
-        className={className}
+        className={`rounded-[4px] ${className}`}
       />
     </Tooltip>
   );
