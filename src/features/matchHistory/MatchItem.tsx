@@ -7,6 +7,7 @@ import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
 import SpriteImage from "@/components/ui/SpriteImage";
+import Tooltip from "@/components/ui/Tooltip";
 import { getChampionSprite } from "@/utils/spriteLoader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { getKdaColor } from "@/utils/statColors";
@@ -86,7 +87,7 @@ const MatchItem = ({ matchData }: Props) => {
         {/* 본문 */}
         <div className="flex flex-1 items-center gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 min-w-0">
           {/* 챔피언 이미지 + 레벨 뱃지 */}
-          <div className="relative shrink-0">
+          <Tooltip content={matchData.champName} compact className="relative shrink-0">
             <SpriteImage
               spriteData={getChampionSprite(matchData.champNameEng)}
               width={40}
@@ -106,7 +107,7 @@ const MatchItem = ({ matchData }: Props) => {
             <span className="absolute -bottom-1 -right-1 bg-black text-primary1 text-[9px] font-bold rounded px-1 leading-4 border border-border1">
               {matchData.level}
             </span>
-          </div>
+          </Tooltip>
 
           {/* 스펠 + 룬 */}
           {/* 모바일 */}

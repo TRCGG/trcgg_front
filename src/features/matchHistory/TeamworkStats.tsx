@@ -48,7 +48,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
   const hasMore = sortedData.length > displayCount && displayCount < 10;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full min-w-0">
       {/* 열 제목 헤더 */}
       <div className="flex items-center gap-2 sm:gap-4 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
         <div className="flex-1 min-w-0" />
@@ -73,7 +73,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
       </div>
 
       {/* 데이터 목록 */}
-      <div className="flex flex-col gap-1 sm:gap-2">
+      <div className="flex flex-col gap-1 sm:gap-2 w-full min-w-0">
         {displayedData.map((synergy) => (
           <button
             key={`${synergy.riotName}-${synergy.riotNameTag}`}
