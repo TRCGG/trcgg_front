@@ -94,8 +94,11 @@ const RiotProfilePage = () => {
     <>
       <Head>
         <title>{pageTitle}</title>
-        <meta property="og:title" content="GMOK - 전적 검색" />
-        <meta property="og:description" content="리그 오브 레전드 길드 전적 검색 서비스" />
+        <meta property="og:title" content="롤 길드 전적 검색 - 지목 | GMOK.KR" />
+        <meta
+          property="og:description"
+          content="리그 오브 레전드 길드 내 전적 검색 서비스를 제공하는 GMOK입니다."
+        />
         <meta property="og:url" content={pageUrl} />
       </Head>
       <div
