@@ -128,6 +128,12 @@ export interface MostPickStats {
   kda: string;
 }
 
+export interface MostPicksResponse {
+  status: string;
+  message: string;
+  data: MostPickStats[];
+}
+
 /**
  * 함께 플레이한 유저 통계
  *

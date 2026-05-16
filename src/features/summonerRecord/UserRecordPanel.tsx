@@ -3,6 +3,7 @@ import CardWithTitle from "@/components/ui/CardWithTitle";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
 import {
   MatchDashboardData,
+  MostPicksResponse,
   MostPickStats,
   RecentGameRecord,
   UserRecentRecordsResponse,
@@ -11,11 +12,12 @@ import MatchItem from "@/features/matchHistory/MatchItem";
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
-import { getRecentRecords } from "@/services/record";
+import { getMostPicks, getRecentRecords } from "@/services/record";
 import PositionStats from "@/features/matchHistory/PositionStats";
 import TeamworkStats from "@/features/matchHistory/TeamworkStats";
 import SummonerTabBar, { SummonerTab } from "@/features/summonerRecord/SummonerTabBar";
 import UserChampionRow from "@/features/matchHistory/UserChampionRow";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface Props {
   riotName: string;
@@ -47,6 +49,15 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     enabled: !!guildId && !!riotName && !!riotTag,
   });
 
+  const { data: mostPicksData, isLoading: isLoadingMostPicks } = useQuery<
+    ApiResponse<MostPicksResponse>
+  >({
+    queryKey: ["mostPicks", riotName, guildId],
+    queryFn: () => getMostPicks(riotName, guildId!),
+    staleTime: 3 * 60 * 1000,
+    enabled: activeTab === "champion" && !!guildId && !!riotName,
+  });
+
   const allRecords = recentRecordsData?.data?.data || [];
   const displayedRecords = allRecords.slice(0, displayCount);
   const hasMoreData = allRecords.length > displayCount;
@@ -68,14 +79,15 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   };
 
   const sortedChampions = useMemo((): MostPickStats[] => {
-    const sorted = [...data.mostPicks];
+    const source = mostPicksData?.data?.data ?? [];
+    const sorted = [...source];
     if (championSortType === "winRate") {
       sorted.sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate));
     } else {
       sorted.sort((a, b) => b.totalCount - a.totalCount);
     }
     return sorted;
-  }, [data.mostPicks, championSortType]);
+  }, [mostPicksData, championSortType]);
 
   const handleRefresh = async () => {
     if (onRefreshRecords) {
@@ -151,9 +163,11 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
       {/* ── 챔피언 탭 ── */}
       {activeTab === "champion" && (
         <CardWithTitle title="챔피언 전적">
-          {data.mostPicks.length === 0 ? (
+          {isLoadingMostPicks && <LoadingSpinner />}
+          {!isLoadingMostPicks && sortedChampions.length === 0 && (
             <div className="text-center text-primary2 py-8">챔피언 전적 데이터가 없습니다</div>
-          ) : (
+          )}
+          {!isLoadingMostPicks && sortedChampions.length > 0 && (
             <div className="flex flex-col gap-3">
               {/* 정렬 탭 */}
               <div className="flex gap-2 border-b border-border2">
