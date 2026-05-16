@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
@@ -13,6 +14,8 @@ import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
+import EyeIcon from "@/assets/images/eye.png";
+import WardIcon from "@/assets/images/ward.png";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -20,7 +23,7 @@ interface Props {
 
 const MatchItem = ({ matchData }: Props) => {
   const [isOpen, setOpen] = useState(false);
-  const toggleOpen = () => setOpen(!isOpen);
+  const toggleOpen = () => setOpen((prev) => !prev);
   const isWin = matchData.gameResult === "승";
 
   const guildId =
@@ -42,11 +45,18 @@ const MatchItem = ({ matchData }: Props) => {
     { slot: 3, itemId: matchData.item3 },
     { slot: 4, itemId: matchData.item4 },
     { slot: 5, itemId: matchData.item5 },
-    // matchData.item6, // Trinket(와드 토템, 예언자의 렌즈, 파란 정찰 와드 등을 통칭)
   ];
 
+  const kdaRate =
+    matchData.death === 0
+      ? matchData.kill + matchData.assist
+      : (matchData.kill + matchData.assist) / matchData.death;
+
+  const durationMin = Math.floor(matchData.timePlayed / 60);
+  const durationSec = String(matchData.timePlayed % 60).padStart(2, "0");
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       <div
         role="button"
         tabIndex={0}
@@ -54,224 +64,222 @@ const MatchItem = ({ matchData }: Props) => {
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") toggleOpen();
         }}
-        className={`flex w-full h-auto min-h-[40px] sm:min-h-[94px] rounded-md border-l-[15px] ${isWin ? "bg-blueDarken border-blue" : "bg-redDarken border-red"}`}
+        className={`flex w-full rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90 ${
+          isWin ? "bg-blueDarken" : "bg-redDarken"
+        }`}
       >
-        <div className="w-full grid grid-cols-[1.2fr_1fr_2.5fr_1.6fr] sm:grid-cols-[80px_75px_90px_271px_100px] items-center justify-between pl-3 pr-1 sm:px-3">
-          {/* 1. 시간 및 승/패 */}
-          <div className="flex flex-col text-xs sm:text-sm">
-            <span
-              className="relative group cursor-pointer text-sm sm:text-base"
-              title={new Date(matchData.createDate).toLocaleString("ko-KR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })}
-            >
-              {formatTimeAgo(matchData.createDate)}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white whitespace-nowrap z-10 text-sm sm:text-base">
-                {new Date(matchData.createDate).toLocaleString("ko-KR", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-black" />
-              </div>
+        {/* 좌측 - 승패 + 게임 시간 + 경과 시간 */}
+        <div
+          className={`flex flex-col items-center justify-center gap-1.5 w-[52px] sm:w-[68px] shrink-0 py-3 border-r ${
+            isWin ? "bg-blue/20 border-blue/30" : "bg-red/20 border-red/30"
+          }`}
+        >
+          <span className={`text-sm font-bold ${isWin ? "text-blueText" : "text-redText"}`}>
+            {isWin ? "승" : "패"}
+          </span>
+          <div className={`w-7 h-px ${isWin ? "bg-blueText/20" : "bg-redText/20"}`} />
+          <span className="text-primary2 text-[10px] text-center leading-snug">
+            {durationMin}:{durationSec}
+          </span>
+          <span className="text-primary2 text-[10px] text-center leading-snug whitespace-nowrap">
+            {formatTimeAgo(matchData.createDate)}
+          </span>
+        </div>
+
+        {/* 본문 */}
+        <div className="flex flex-1 items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-3 min-w-0">
+          {/* 챔피언 이미지 + 레벨 뱃지 */}
+          <div className="relative shrink-0">
+            <SpriteImage
+              spriteData={getChampionSprite(matchData.champNameEng)}
+              width={40}
+              height={40}
+              alt="챔피언"
+              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              className="w-10 h-10 sm:hidden rounded-md"
+            />
+            <SpriteImage
+              spriteData={getChampionSprite(matchData.champNameEng)}
+              width={56}
+              height={56}
+              alt="챔피언"
+              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
+              className="hidden sm:block w-14 h-14 rounded-md"
+            />
+            <span className="absolute -bottom-1 -right-1 bg-black text-primary1 text-[9px] font-bold rounded px-1 leading-4 border border-border1">
+              {matchData.level}
             </span>
-            <span className={` ${isWin ? "text-blueText" : "text-redText"}`}>
-              {isWin ? "승리" : "패배"}
+          </div>
+
+          {/* 스펠 + 룬 */}
+          {/* 모바일 */}
+          <div className="sm:hidden flex gap-0.5 shrink-0">
+            <div className="flex flex-col gap-0.5">
+              {matchData.summonerSpell1Key && (
+                <SpellWithTooltip
+                  spellKey={matchData.summonerSpell1Key}
+                  spellName={matchData.summonerSpell1Name}
+                  width={18}
+                  height={18}
+                  alt="스펠 1"
+                  className="w-[18px] h-[18px] rounded-sm"
+                />
+              )}
+              {matchData.summonerSpell2Key && (
+                <SpellWithTooltip
+                  spellKey={matchData.summonerSpell2Key}
+                  spellName={matchData.summonerSpell2Name}
+                  width={18}
+                  height={18}
+                  alt="스펠 2"
+                  className="w-[18px] h-[18px] rounded-sm"
+                />
+              )}
+            </div>
+            <div className="flex flex-col gap-0.5">
+              {matchData.keystoneIcon && (
+                <RuneWithTooltip
+                  iconPath={matchData.keystoneIcon}
+                  runeName={matchData.keystoneName}
+                  width={18}
+                  height={18}
+                  alt="메인 룬"
+                />
+              )}
+              {matchData.substyleIcon && (
+                <RuneWithTooltip
+                  iconPath={matchData.substyleIcon}
+                  runeName={matchData.substyleName}
+                  width={18}
+                  height={18}
+                  alt="서브 룬"
+                />
+              )}
+            </div>
+          </div>
+          {/* 데스크탑 */}
+          <div className="hidden sm:flex gap-0.5 shrink-0">
+            <div className="flex flex-col gap-0.5">
+              {matchData.summonerSpell1Key && (
+                <SpellWithTooltip
+                  spellKey={matchData.summonerSpell1Key}
+                  spellName={matchData.summonerSpell1Name}
+                  width={24}
+                  height={24}
+                  alt="스펠 1"
+                  className="w-6 h-6 rounded-sm"
+                />
+              )}
+              {matchData.summonerSpell2Key && (
+                <SpellWithTooltip
+                  spellKey={matchData.summonerSpell2Key}
+                  spellName={matchData.summonerSpell2Name}
+                  width={24}
+                  height={24}
+                  alt="스펠 2"
+                  className="w-6 h-6 rounded-sm"
+                />
+              )}
+            </div>
+            <div className="flex flex-col gap-0.5">
+              {matchData.keystoneIcon && (
+                <RuneWithTooltip
+                  iconPath={matchData.keystoneIcon}
+                  runeName={matchData.keystoneName}
+                  width={24}
+                  height={24}
+                  alt="메인 룬"
+                />
+              )}
+              {matchData.substyleIcon && (
+                <RuneWithTooltip
+                  iconPath={matchData.substyleIcon}
+                  runeName={matchData.substyleName}
+                  width={24}
+                  height={24}
+                  alt="서브 룬"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* KDA */}
+          <div className="flex flex-col justify-center shrink-0">
+            <div className="text-sm sm:text-base font-bold whitespace-nowrap">
+              <span className="text-primary1">{matchData.kill}</span>
+              <span className="text-primary2 mx-0.5 font-normal">/</span>
+              <span className="text-redText">{matchData.death}</span>
+              <span className="text-primary2 mx-0.5 font-normal">/</span>
+              <span className="text-primary1">{matchData.assist}</span>
+            </div>
+            <span className={`text-xs font-semibold ${getKdaColor(kdaRate)}`}>
+              {kdaRate.toFixed(2)} KDA
             </span>
-            {matchData.timePlayed && (
-              <span className="whitespace-nowrap">
-                {Math.floor(matchData.timePlayed / 60)}분 {matchData.timePlayed % 60}초
-              </span>
+          </div>
+
+          {/* 아이템 (데스크탑) */}
+          <div className="hidden sm:flex gap-1 flex-wrap min-w-0 flex-1 items-center">
+            {itemArr.map((item) =>
+              item.itemId !== 0 ? (
+                <ItemWithTooltip
+                  key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                  itemId={item.itemId}
+                  width={28}
+                  height={28}
+                  alt={`아이템 ${item.slot + 1}`}
+                  className="w-7 h-7"
+                />
+              ) : null
             )}
           </div>
 
-          {/* 2. 챔피온 아이콘 */}
-          <div className="flex justify-center">
-            {/* 모바일 */}
-            <SpriteImage
-              spriteData={getChampionSprite(matchData.champNameEng)}
-              width={36}
-              height={36}
-              alt="챔피언"
-              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
-              className="w-9 h-9 sm:hidden"
-            />
-            {/* 데스크탑 */}
-            <SpriteImage
-              spriteData={getChampionSprite(matchData.champNameEng)}
-              width={64}
-              height={64}
-              alt="챔피언"
-              fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${matchData.champNameEng}.png`}
-              className="hidden sm:block w-16 h-16"
-            />
+          {/* 아이템 (모바일) */}
+          <div className="sm:hidden grid grid-cols-3 gap-1 shrink-0">
+            {itemArr.map((item) =>
+              item.itemId !== 0 ? (
+                <ItemWithTooltip
+                  key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                  itemId={item.itemId}
+                  width={18}
+                  height={18}
+                  alt={`아이템 ${item.slot + 1}`}
+                  className="w-[18px] h-[18px]"
+                />
+              ) : null
+            )}
           </div>
 
-          {/* 챔피온 명 (모바일 숨김, sm 이상 표시) */}
-          <div className="hidden sm:block text-base sm:text-lg whitespace-nowrap">
-            {matchData.champName}
-          </div>
-
-          {/* 4. 스펠, 룬, 아이템 */}
-          <div className="flex items-center justify-center gap-x-1.5 sm:gap-x-3 sm:justify-start">
-            <div className="flex">
-              {/* 스펠 - 모바일 */}
-              <div className="flex flex-col gap-0 sm:hidden">
-                {matchData.summonerSpell1Key && (
-                  <SpellWithTooltip
-                    spellKey={matchData.summonerSpell1Key}
-                    spellName={matchData.summonerSpell1Name}
-                    width={18}
-                    height={18}
-                    alt="스펠 1"
-                    className="w-[18px] h-[18px]"
-                  />
-                )}
-                {matchData.summonerSpell2Key && (
-                  <SpellWithTooltip
-                    spellKey={matchData.summonerSpell2Key}
-                    spellName={matchData.summonerSpell2Name}
-                    width={18}
-                    height={18}
-                    alt="스펠 2"
-                    className="w-[18px] h-[18px]"
-                  />
-                )}
-              </div>
-              {/* 스펠 - 데스크탑 */}
-              <div className="hidden sm:flex flex-col gap-0">
-                {matchData.summonerSpell1Key && (
-                  <SpellWithTooltip
-                    spellKey={matchData.summonerSpell1Key}
-                    spellName={matchData.summonerSpell1Name}
-                    width={32}
-                    height={32}
-                    alt="스펠 1"
-                    className="w-8 h-8"
-                  />
-                )}
-                {matchData.summonerSpell2Key && (
-                  <SpellWithTooltip
-                    spellKey={matchData.summonerSpell2Key}
-                    spellName={matchData.summonerSpell2Name}
-                    width={32}
-                    height={32}
-                    alt="스펠 2"
-                    className="w-8 h-8"
-                  />
-                )}
-              </div>
-              {/* 룬 - 모바일 */}
-              <div className="flex flex-col gap-0 sm:hidden">
-                {matchData.keystoneIcon && (
-                  <RuneWithTooltip
-                    iconPath={matchData.keystoneIcon}
-                    runeName={matchData.keystoneName}
-                    width={18}
-                    height={18}
-                    alt="메인 룬"
-                  />
-                )}
-                {matchData.substyleIcon && (
-                  <RuneWithTooltip
-                    iconPath={matchData.substyleIcon}
-                    runeName={matchData.substyleName}
-                    width={18}
-                    height={18}
-                    alt="서브 룬"
-                  />
-                )}
-              </div>
-              {/* 룬 - 데스크탑 */}
-              <div className="hidden sm:flex flex-col gap-0">
-                {matchData.keystoneIcon && (
-                  <RuneWithTooltip
-                    iconPath={matchData.keystoneIcon}
-                    runeName={matchData.keystoneName}
-                    width={32}
-                    height={32}
-                    alt="메인 룬"
-                  />
-                )}
-                {matchData.substyleIcon && (
-                  <RuneWithTooltip
-                    iconPath={matchData.substyleIcon}
-                    runeName={matchData.substyleName}
-                    width={32}
-                    height={32}
-                    alt="서브 룬"
-                  />
-                )}
-              </div>
+          {/* 시야 (데스크탑) */}
+          <div className="hidden sm:flex flex-col gap-1 ml-auto shrink-0 text-primary2 text-xs">
+            <div className="flex items-center gap-1">
+              <Image src={EyeIcon} alt="시야 점수" width={14} height={14} />
+              <span>{matchData.visionScore}</span>
             </div>
-
-            {/* 5. 아이템 */}
-            {/* 모바일 */}
-            <div className="grid place-items-center grid-cols-3 grid-rows-2 gap-0.5 sm:hidden">
-              {itemArr.map((item) =>
-                item.itemId !== 0 ? (
-                  <ItemWithTooltip
-                    key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
-                    itemId={item.itemId}
-                    width={18}
-                    height={18}
-                    alt={`아이템 ${item.slot + 1}`}
-                    className="w-[18px] h-[18px]"
-                  />
-                ) : null
-              )}
+            <div className="flex items-center gap-1">
+              <Image src={WardIcon} alt="제어 와드" width={14} height={14} />
+              <span>{matchData.visionBought}</span>
             </div>
-            {/* 데스크탑 */}
-            <div className="hidden sm:flex flex-row items-center gap-0">
-              {itemArr.map((item) =>
-                item.itemId !== 0 ? (
-                  <ItemWithTooltip
-                    key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
-                    itemId={item.itemId}
-                    width={32}
-                    height={32}
-                    alt={`아이템 ${item.slot + 1}`}
-                    className="w-8 h-8"
-                  />
-                ) : null
-              )}
-            </div>
-          </div>
-
-          {/* 6. KDA */}
-          <div className="flex flex-col sm:text-lg whitespace-nowrap items-center">
-            <span>
-              {matchData.kill} / {matchData.death} / {matchData.assist}
-            </span>
-            <span
-              className={`text-sm font-semibold ${getKdaColor((matchData.kill + matchData.assist) / matchData.death)}`}
-            >
-              {((matchData.kill + matchData.assist) / matchData.death).toFixed(2)} KDA
-            </span>
           </div>
         </div>
 
         {/* 펼치기 버튼 */}
-        <div className="relative flex md:basis-10 md:flex-col justify-center">
-          <button
-            className={`flex flex-1 flex-col justify-center items-center rounded-md ${isWin ? "bg-blue hover:bg-blueHover" : "bg-red hover:bg-redHover"}`}
-            type="button"
-            onClick={toggleOpen}
-          >
-            <span className="sr-only">Show More Detail Games</span>
-            <MdKeyboardArrowDown
-              className={`text-[2rem] transition-transform duration-150 ease-out transform ${isOpen ? "rotate-[180deg]" : "rotate-[0deg]"} ${isWin ? "text-blueButton" : "text-redButton"}`}
-            />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleOpen();
+          }}
+          className={`flex flex-col justify-center items-center w-8 sm:w-10 shrink-0 transition-colors ${
+            isWin ? "bg-blue hover:bg-blueHover" : "bg-red hover:bg-redHover"
+          }`}
+        >
+          <span className="sr-only">펼치기</span>
+          <MdKeyboardArrowDown
+            className={`text-xl transition-transform duration-150 ${
+              isOpen ? "rotate-180" : "rotate-0"
+            } ${isWin ? "text-blueButton" : "text-redButton"}`}
+          />
+        </button>
       </div>
 
       {isOpen && (
@@ -279,7 +287,7 @@ const MatchItem = ({ matchData }: Props) => {
           {isLoadingGameData && <LoadingSpinner />}
           {!isLoadingGameData && gameData?.data?.data && (
             <div className="flex flex-col w-full">
-              <MatchDetail participantData={gameData?.data?.data} />
+              <MatchDetail participantData={gameData.data.data} />
             </div>
           )}
         </>
@@ -287,4 +295,5 @@ const MatchItem = ({ matchData }: Props) => {
     </div>
   );
 };
+
 export default MatchItem;

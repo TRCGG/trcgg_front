@@ -112,7 +112,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 grid-rows-2 max-w-[96px]">
+              <div className="grid grid-cols-3 grid-rows-2 max-w-[96px] gap-[3px]">
                 {player.items
                   .filter((item) => item !== 0)
                   .map((item, index) => (
@@ -141,7 +141,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
 
             {/* 6. 준 피해량 */}
             <div className="flex flex-col w-full px-2 gap-y-0.5">
-              <div className="flex items-center gap-x-1">
+              <div className="flex items-center gap-x-1 text-left">
                 <span className="text-xs tabular-nums">{player.damage.toLocaleString()}</span>
               </div>
               <div className="h-1.5 w-full rounded-full overflow-hidden bg-black">
@@ -154,7 +154,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
 
             {/* 7. 받은 피해량 */}
             <div className="flex flex-col w-full px-2 gap-y-0.5">
-              <div className="flex items-center gap-x-1">
+              <div className="flex items-center gap-x-1 text-left">
                 <span className="text-xs tabular-nums">{player.damageTaken.toLocaleString()}</span>
               </div>
               <div className="h-1.5 w-full rounded-full overflow-hidden bg-black">

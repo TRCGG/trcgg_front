@@ -103,7 +103,7 @@ const MatchDetailTableMobile = ({
             {/* 2. 챔피언 이름, 아이템 */}
             <div className="flex flex-col gap-x-1 text-left justify-self-start w-[72px] max-w-[72px]">
               <PlayerNameButton name={player.name} tag={player.tag} isCenter={false} />
-              <div className="w-[72px] flex">
+              <div className="w-[72px] flex gap-px">
                 {player.items
                   .filter((item) => item !== 0)
                   .map((item, index) => (
