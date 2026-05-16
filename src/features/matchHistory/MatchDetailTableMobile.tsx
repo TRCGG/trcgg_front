@@ -35,9 +35,16 @@ interface Player {
 interface MatchDetailProps {
   players: Player[];
   isWin: boolean;
+  maxDamage: number;
+  maxDamageTaken: number;
 }
 
-const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
+const MatchDetailTableMobile = ({
+  players,
+  isWin,
+  maxDamage,
+  maxDamageTaken,
+}: MatchDetailProps) => {
   return (
     <div className={`${isWin ? "bg-blueLighten" : "bg-redLighten"} rounded-md text-xs p-0.5`}>
       <div className="grid grid-cols-[1fr_1fr_1fr_1fr_0.7fr] place-items-center text-center gap-y-1 py-[2px]">
@@ -120,31 +127,38 @@ const MatchDetailTableMobile = ({ players, isWin }: MatchDetailProps) => {
             </div>
 
             {/* 6. 준 피해량, 받은 피해량 */}
-            <div className="flex flex-col items-baseline">
-              <div className="flex gap-x-1.5 items-center">
-                <div className="flex items-center justify-center w-4 h-4">
-                  <Image
-                    src={SwordIcon}
-                    alt="sword icon"
-                    width={16}
-                    height={16}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span>{player.damage.toLocaleString()}</span>
+            <div className="flex flex-col w-full px-1 gap-y-0.5">
+              <div className="flex items-center gap-x-1">
+                <Image
+                  src={SwordIcon}
+                  alt="sword icon"
+                  width={10}
+                  height={10}
+                  className="shrink-0"
+                />
+                <span className="tabular-nums">{player.damage.toLocaleString()}</span>
               </div>
-
-              <div className="flex gap-x-1.5 items-center">
-                <div className="flex items-center justify-center w-4 h-4">
-                  <Image
-                    src={ShieldIcon}
-                    alt="shield icon"
-                    width={16}
-                    height={16}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span>{player.damageTaken.toLocaleString()}</span>
+              <div className="h-1 w-full rounded-full overflow-hidden bg-rankBg2">
+                <div
+                  className="h-full rounded-full bg-blueText"
+                  style={{ width: `${(player.damage / maxDamage) * 100}%` }}
+                />
+              </div>
+              <div className="flex items-center gap-x-1 mt-0.5">
+                <Image
+                  src={ShieldIcon}
+                  alt="shield icon"
+                  width={10}
+                  height={10}
+                  className="shrink-0"
+                />
+                <span className="tabular-nums">{player.damageTaken.toLocaleString()}</span>
+              </div>
+              <div className="h-1 w-full rounded-full overflow-hidden bg-rankBg2">
+                <div
+                  className="h-full rounded-full bg-redText"
+                  style={{ width: `${(player.damageTaken / maxDamageTaken) * 100}%` }}
+                />
               </div>
             </div>
 

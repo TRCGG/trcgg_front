@@ -47,18 +47,42 @@ const MatchDetail = ({ participantData }: Props) => {
     participantData.filter((participant) => participant.gameResult === "패")
   );
 
+  const allMapped = [...winParticipants, ...loseParticipants];
+  const maxDamage = Math.max(...allMapped.map((p) => p.damage), 1);
+  const maxDamageTaken = Math.max(...allMapped.map((p) => p.damageTaken), 1);
+
   return (
     <>
       {/* PC */}
       <div className="hidden sm:flex sm:flex-col">
-        <MatchDetailTable players={winParticipants} isWin />
-        <MatchDetailTable players={loseParticipants} isWin={false} />
+        <MatchDetailTable
+          players={winParticipants}
+          isWin
+          maxDamage={maxDamage}
+          maxDamageTaken={maxDamageTaken}
+        />
+        <MatchDetailTable
+          players={loseParticipants}
+          isWin={false}
+          maxDamage={maxDamage}
+          maxDamageTaken={maxDamageTaken}
+        />
       </div>
 
       {/* 모바일 */}
       <div className="flex flex-col sm:hidden">
-        <MatchDetailTableMobile players={winParticipants} isWin />
-        <MatchDetailTableMobile players={loseParticipants} isWin={false} />
+        <MatchDetailTableMobile
+          players={winParticipants}
+          isWin
+          maxDamage={maxDamage}
+          maxDamageTaken={maxDamageTaken}
+        />
+        <MatchDetailTableMobile
+          players={loseParticipants}
+          isWin={false}
+          maxDamage={maxDamage}
+          maxDamageTaken={maxDamageTaken}
+        />
       </div>
     </>
   );
