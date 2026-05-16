@@ -1,4 +1,5 @@
 import SpriteImage from "@/components/ui/SpriteImage";
+import Tooltip from "@/components/ui/Tooltip";
 import { getChampionSprite } from "@/utils/spriteLoader";
 import { getKdaColor, getWinRateColor } from "@/utils/statColors";
 import { MostPickStats } from "@/data/types/record";
@@ -20,7 +21,7 @@ const UserChampionRow = ({ rank, data }: Props) => {
       </div>
 
       {/* 챔피언 아이콘 */}
-      <div className="shrink-0">
+      <Tooltip content={champName} compact className="shrink-0">
         <SpriteImage
           spriteData={getChampionSprite(champNameEng)}
           alt={champName}
@@ -37,7 +38,7 @@ const UserChampionRow = ({ rank, data }: Props) => {
           fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champNameEng}.png`}
           className="hidden sm:block w-12 h-12"
         />
-      </div>
+      </Tooltip>
 
       {/* 챔피언 이름 */}
       <div className="flex-1 min-w-0 sm:w-28 sm:flex-none">

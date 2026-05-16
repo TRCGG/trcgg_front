@@ -37,6 +37,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   const [activeTab, setActiveTab] = useState<SummonerTab>("overview");
   const [displayCount, setDisplayCount] = useState(RECORD_DISPLAY_COUNT);
   const [championSortType, setChampionSortType] = useState<ChampionSortType>("gameCount");
+  const [championSortOrder, setChampionSortOrder] = useState<"asc" | "desc">("desc");
 
   const {
     data: recentRecordsData,
@@ -78,18 +79,33 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     winRate: calculatedWinRate,
   };
 
+  const handleChampionSort = (type: ChampionSortType) => {
+    if (type === championSortType) {
+      setChampionSortOrder((prev) => (prev === "desc" ? "asc" : "desc"));
+    } else {
+      setChampionSortType(type);
+      setChampionSortOrder("desc");
+    }
+  };
+
+  const getSortIndicator = (type: ChampionSortType) => {
+    if (championSortType !== type) return "";
+    return championSortOrder === "desc" ? " ▼" : " ▲";
+  };
+
   const sortedChampions = useMemo((): MostPickStats[] => {
     const source = mostPicksData?.data?.data ?? [];
     const sorted = [...source];
+    const multiplier = championSortOrder === "asc" ? -1 : 1;
     if (championSortType === "winRate") {
-      sorted.sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate));
+      sorted.sort((a, b) => multiplier * (parseFloat(b.winRate) - parseFloat(a.winRate)));
     } else if (championSortType === "kda") {
-      sorted.sort((a, b) => parseFloat(b.kda) - parseFloat(a.kda));
+      sorted.sort((a, b) => multiplier * (parseFloat(b.kda) - parseFloat(a.kda)));
     } else {
-      sorted.sort((a, b) => b.totalCount - a.totalCount);
+      sorted.sort((a, b) => multiplier * (b.totalCount - a.totalCount));
     }
     return sorted;
-  }, [mostPicksData, championSortType]);
+  }, [mostPicksData, championSortType, championSortOrder]);
 
   const handleRefresh = async () => {
     if (onRefreshRecords) {
@@ -175,34 +191,34 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
               <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
                 <div className="w-5 sm:w-7 shrink-0" />
                 <div className="w-10 sm:w-12 shrink-0" />
-                <div className="flex-1 min-w-0" />
+                <div className="flex-1 min-w-0 sm:w-28 sm:flex-none" />
                 <button
                   type="button"
-                  onClick={() => setChampionSortType("gameCount")}
+                  onClick={() => handleChampionSort("gameCount")}
                   className={`w-14 sm:w-24 text-center transition-colors shrink-0 ${
                     championSortType === "gameCount" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
-                  판수{championSortType === "gameCount" ? " ▼" : ""}
+                  판수{getSortIndicator("gameCount")}
                 </button>
                 <div className="flex-1 min-w-0 hidden sm:block" />
                 <button
                   type="button"
-                  onClick={() => setChampionSortType("kda")}
+                  onClick={() => handleChampionSort("kda")}
                   className={`w-14 sm:w-20 text-center transition-colors shrink-0 ${
                     championSortType === "kda" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
-                  KDA{championSortType === "kda" ? " ▼" : ""}
+                  KDA{getSortIndicator("kda")}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setChampionSortType("winRate")}
+                  onClick={() => handleChampionSort("winRate")}
                   className={`w-12 sm:w-[70px] text-center transition-colors shrink-0 ${
                     championSortType === "winRate" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
-                  승률{championSortType === "winRate" ? " ▼" : ""}
+                  승률{getSortIndicator("winRate")}
                 </button>
               </div>
 
