@@ -42,7 +42,7 @@ interface MatchDetailProps {
 const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDetailProps) => {
   return (
     <div className={`${isWin ? "bg-blueLighten" : "bg-redLighten"} rounded-md text-base`}>
-      <div className="grid grid-cols-[0.7fr_100px_1.2fr_0.8fr_0.7fr_1fr_0.8fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
+      <div className="grid grid-cols-[0.7fr_100px_1.2fr_0.8fr_0.7fr_0.8fr_0.8fr_0.8fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
         {/* 제목 행 */}
         {isWin && (
           <>
@@ -51,7 +51,8 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
             <div className="bg-border1 text-white font-bold w-full">빌드</div>
             <div className="bg-border1 text-white font-bold w-full">KDA</div>
             <div className="bg-border1 text-white font-bold w-full">킬관여율</div>
-            <div className="bg-border1 text-white font-bold w-full">피해량</div>
+            <div className="bg-border1 text-white font-bold w-full">준 피해량</div>
+            <div className="bg-border1 text-white font-bold w-full">받은 피해량</div>
             <div className="bg-border1 text-white font-bold w-full">시야</div>
           </>
         )}
@@ -139,7 +140,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
             {/* 5. 킬 관여율 */}
             <div>{player.killParticipation}%</div>
 
-            {/* 6. 준 피해량, 받은 피해량 */}
+            {/* 6. 준 피해량 */}
             <div className="flex flex-col w-full px-2 gap-y-0.5">
               <div className="flex items-center gap-x-1">
                 <Image
@@ -157,7 +158,11 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                   style={{ width: `${(player.damage / maxDamage) * 100}%` }}
                 />
               </div>
-              <div className="flex items-center gap-x-1 mt-1">
+            </div>
+
+            {/* 7. 받은 피해량 */}
+            <div className="flex flex-col w-full px-2 gap-y-0.5">
+              <div className="flex items-center gap-x-1">
                 <Image
                   src={ShieldIcon}
                   alt="shield icon"
