@@ -71,6 +71,7 @@ const Home: NextPage = () => {
     <div className="flex flex-col justify-center items-center">
       {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-10 md:gap-20 justify-end">
+        <title>GMOK</title>
         <div className="self-end m-3 flex gap-3 items-center">
           {isLoggedIn && (
             <GuildDropdown

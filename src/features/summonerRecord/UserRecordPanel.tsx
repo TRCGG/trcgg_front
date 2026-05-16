@@ -195,7 +195,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
                 <button
                   type="button"
                   onClick={() => handleChampionSort("gameCount")}
-                  className={`w-14 sm:w-24 text-center transition-colors shrink-0 ${
+                  className={`w-14 sm:w-32 text-center transition-colors shrink-0 ${
                     championSortType === "gameCount" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
@@ -205,7 +205,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
                 <button
                   type="button"
                   onClick={() => handleChampionSort("kda")}
-                  className={`w-14 sm:w-20 text-center transition-colors shrink-0 ${
+                  className={`w-14 sm:w-28 text-center transition-colors shrink-0 ${
                     championSortType === "kda" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
@@ -214,7 +214,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
                 <button
                   type="button"
                   onClick={() => handleChampionSort("winRate")}
-                  className={`w-12 sm:w-[70px] text-center transition-colors shrink-0 ${
+                  className={`w-12 sm:w-24 text-center transition-colors shrink-0 ${
                     championSortType === "winRate" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >

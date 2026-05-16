@@ -46,10 +46,12 @@ const UserChampionRow = ({ rank, data }: Props) => {
       </div>
 
       {/* 게임 수 */}
-      <div className="w-14 sm:w-24 text-center shrink-0">
+      <div className="w-14 sm:w-32 text-center shrink-0">
         <div className="text-xs sm:text-sm text-primary1">{totalCount}게임</div>
-        <div className="text-xs text-primary2 mt-0.5">
-          {win}승 {lose}패
+        <div className="text-xs sm:text-sm mt-0.5">
+          <span className="text-blueText font-semibold">{win}승</span>
+          <span className="text-primary2 mx-0.5">/</span>
+          <span className="text-redText font-semibold">{lose}패</span>
         </div>
       </div>
 
@@ -69,13 +71,13 @@ const UserChampionRow = ({ rank, data }: Props) => {
       </div>
 
       {/* KDA */}
-      <div className="w-14 sm:w-20 text-center shrink-0">
+      <div className="w-14 sm:w-28 text-center shrink-0">
         <div className={`text-xs sm:text-sm font-semibold ${getKdaColor(kda)}`}>{kda}</div>
         <div className="text-xs text-primary2 mt-0.5">KDA</div>
       </div>
 
       {/* 승률 */}
-      <div className="w-12 sm:w-[70px] text-center shrink-0">
+      <div className="w-12 sm:w-24 text-center shrink-0">
         <div className={`text-xs sm:text-sm font-semibold ${getWinRateColor(winRate)}`}>
           {winRate}%
         </div>

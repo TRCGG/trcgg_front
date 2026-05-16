@@ -94,8 +94,8 @@ const RiotProfilePage = () => {
     <>
       <Head>
         <title>{pageTitle}</title>
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={`${riotNameString}의 전적`} />
+        <meta property="og:title" content="GMOK - 전적 검색" />
+        <meta property="og:description" content="리그 오브 레전드 길드 전적 검색 서비스" />
         <meta property="og:url" content={pageUrl} />
       </Head>
       <div
