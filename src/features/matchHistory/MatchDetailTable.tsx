@@ -135,19 +135,21 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
 
             {/* 4. KDA */}
             <div className="flex flex-col">
-              <span>{player.kda}</span>
+              <span className="text-sm">{player.kda}</span>
               <span className={`text-xs font-semibold ${getKdaColor(player.kdaRate)}`}>
                 {player.kdaRate.toFixed(2)} KDA
               </span>
             </div>
 
             {/* 5. 킬 관여율 */}
-            <div>{player.killParticipation}%</div>
+            <div className="text-sm">{player.killParticipation}%</div>
 
             {/* 6. 준 피해량 */}
             <div className="flex flex-col w-full px-2 gap-y-0.5">
               <div className="flex items-center gap-x-1 text-left">
-                <span className="text-xs tabular-nums">{player.damage.toLocaleString()}</span>
+                <span className="text-xs md:text-sm tabular-nums">
+                  {player.damage.toLocaleString()}
+                </span>
               </div>
               <div className="h-1.5 w-full rounded-full overflow-hidden bg-black">
                 <div
@@ -160,7 +162,9 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
             {/* 7. 받은 피해량 */}
             <div className="flex flex-col w-full px-2 gap-y-0.5">
               <div className="flex items-center gap-x-1 text-left">
-                <span className="text-xs tabular-nums">{player.damageTaken.toLocaleString()}</span>
+                <span className="text-xs md:text-sm tabular-nums">
+                  {player.damageTaken.toLocaleString()}
+                </span>
               </div>
               <div className="h-1.5 w-full rounded-full overflow-hidden bg-black">
                 <div
@@ -184,7 +188,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                     />
                   </div>
                 </Tooltip>
-                <span>{player.visionScore}</span>
+                <span className="text-sm">{player.visionScore}</span>
               </div>
               <div className="flex gap-x-1.5">
                 <Tooltip content="제어 와드 개수" compact>
@@ -198,7 +202,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                     />
                   </div>
                 </Tooltip>
-                <span>{player.wards}</span>
+                <span className="text-sm">{player.wards}</span>
               </div>
             </div>
           </React.Fragment>

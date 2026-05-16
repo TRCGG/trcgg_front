@@ -13,9 +13,9 @@ const UserChampionRow = ({ rank, data }: Props) => {
   const winPct = totalCount > 0 ? (win / totalCount) * 100 : 0;
 
   return (
-    <div className="bg-darkBg1 rounded border border-border2 p-2 sm:p-3 flex items-center gap-2 sm:gap-3">
+    <div className="bg-darkBg1 rounded border border-border2 p-2 sm:p-3 flex items-center gap-1 sm:gap-3">
       {/* 순위 */}
-      <div className="w-6 sm:w-7 text-center text-primary2 font-bold text-sm sm:text-base shrink-0">
+      <div className="w-5 sm:w-7 text-center text-primary2 font-bold text-xs sm:text-base shrink-0">
         {rank}
       </div>
 
@@ -40,12 +40,12 @@ const UserChampionRow = ({ rank, data }: Props) => {
       </div>
 
       {/* 챔피언 이름 */}
-      <div className="w-20 sm:w-28 min-w-0 shrink-0">
+      <div className="flex-1 min-w-0 sm:w-28 sm:flex-none">
         <div className="text-xs sm:text-sm text-primary1 truncate">{champName}</div>
       </div>
 
       {/* 게임 수 */}
-      <div className="w-16 sm:w-24 text-center shrink-0">
+      <div className="w-14 sm:w-24 text-center shrink-0">
         <div className="text-xs sm:text-sm text-primary1">{totalCount}게임</div>
         <div className="text-xs text-primary2 mt-0.5">
           {win}승 {lose}패
@@ -68,13 +68,13 @@ const UserChampionRow = ({ rank, data }: Props) => {
       </div>
 
       {/* KDA */}
-      <div className="w-16 sm:w-20 text-center shrink-0">
+      <div className="w-14 sm:w-20 text-center shrink-0">
         <div className={`text-xs sm:text-sm font-semibold ${getKdaColor(kda)}`}>{kda}</div>
         <div className="text-xs text-primary2 mt-0.5">KDA</div>
       </div>
 
       {/* 승률 */}
-      <div className="w-14 sm:w-[70px] text-center shrink-0">
+      <div className="w-12 sm:w-[70px] text-center shrink-0">
         <div className={`text-xs sm:text-sm font-semibold ${getWinRateColor(winRate)}`}>
           {winRate}%
         </div>

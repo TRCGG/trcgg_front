@@ -26,7 +26,7 @@ interface Props {
   onRefreshRecords?: () => void;
 }
 
-type ChampionSortType = "gameCount" | "winRate";
+type ChampionSortType = "gameCount" | "winRate" | "kda";
 
 const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) => {
   const RECORD_DISPLAY_COUNT = 5;
@@ -83,6 +83,8 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     const sorted = [...source];
     if (championSortType === "winRate") {
       sorted.sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate));
+    } else if (championSortType === "kda") {
+      sorted.sort((a, b) => parseFloat(b.kda) - parseFloat(a.kda));
     } else {
       sorted.sort((a, b) => b.totalCount - a.totalCount);
     }
@@ -168,30 +170,39 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
             <div className="text-center text-primary2 py-8">챔피언 전적 데이터가 없습니다</div>
           )}
           {!isLoadingMostPicks && sortedChampions.length > 0 && (
-            <div className="flex flex-col gap-3">
-              {/* 정렬 탭 */}
-              <div className="flex gap-2 border-b border-border2">
+            <div className="flex flex-col gap-1">
+              {/* 열 제목 헤더 */}
+              <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
+                <div className="w-5 sm:w-7 shrink-0" />
+                <div className="w-10 sm:w-12 shrink-0" />
+                <div className="flex-1 min-w-0" />
                 <button
                   type="button"
                   onClick={() => setChampionSortType("gameCount")}
-                  className={`px-4 py-2 text-sm transition-colors ${
-                    championSortType === "gameCount"
-                      ? "text-primary1 border-b-2 border-primary1"
-                      : "text-primary2 hover:text-primary1"
+                  className={`w-14 sm:w-24 text-center transition-colors shrink-0 ${
+                    championSortType === "gameCount" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
-                  판수 순
+                  판수{championSortType === "gameCount" ? " ▼" : ""}
+                </button>
+                <div className="flex-1 min-w-0 hidden sm:block" />
+                <button
+                  type="button"
+                  onClick={() => setChampionSortType("kda")}
+                  className={`w-14 sm:w-20 text-center transition-colors shrink-0 ${
+                    championSortType === "kda" ? "text-primary1" : "hover:text-primary1"
+                  }`}
+                >
+                  KDA{championSortType === "kda" ? " ▼" : ""}
                 </button>
                 <button
                   type="button"
                   onClick={() => setChampionSortType("winRate")}
-                  className={`px-4 py-2 text-sm transition-colors ${
-                    championSortType === "winRate"
-                      ? "text-primary1 border-b-2 border-primary1"
-                      : "text-primary2 hover:text-primary1"
+                  className={`w-12 sm:w-[70px] text-center transition-colors shrink-0 ${
+                    championSortType === "winRate" ? "text-primary1" : "hover:text-primary1"
                   }`}
                 >
-                  승률 순
+                  승률{championSortType === "winRate" ? " ▼" : ""}
                 </button>
               </div>
 
