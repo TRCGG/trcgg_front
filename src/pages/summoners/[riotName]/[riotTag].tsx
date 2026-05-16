@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import Head from "next/head";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -81,77 +82,93 @@ const RiotProfilePage = () => {
       ? data.mostPicks[0].champNameEng
       : "";
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gmok.kr";
+  const pageTitle = riotNameString
+    ? `${riotNameString}#${riotTagString} - GMOK`
+    : "GMOK - 전적 검색";
+  const pageUrl = riotNameString
+    ? `${siteUrl}/summoners/${encodeURIComponent(riotNameString)}/${encodeURIComponent(riotTagString)}`
+    : siteUrl;
+
   return (
-    <div
-      className="w-full min-h-screen pb-10"
-      style={
-        mostChampion
-          ? {
-              background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`,
-              backgroundColor: "#191b20",
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={`${riotNameString}의 전적`} />
+        <meta property="og:url" content={pageUrl} />
+      </Head>
+      <div
+        className="w-full min-h-screen pb-10"
+        style={
+          mostChampion
+            ? {
+                background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`,
+                backgroundColor: "#191b20",
+              }
+            : {
+                backgroundColor: "#191b20",
+              }
+        }
+      >
+        <div className="w-full md:max-w-[1080px] mx-auto">
+          <SummonerPageHeader
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            onSearch={handleSearchButtonClick}
+            isLoading={isLoading}
+            isError={isError}
+            users={userSearchData?.data}
+            guilds={guilds}
+            selectedGuildId={guildId}
+            onGuildChange={handleGuildChange}
+            username={username}
+            isLoggedIn={isLoggedIn}
+          />
+
+          {/* 메인 콘텐츠 */}
+          {(() => {
+            // 비로그인 상태
+            if (!isLoggedIn) {
+              return <TextCard text="로그인 후 이용해주세요" />;
             }
-          : {
-              backgroundColor: "#191b20",
+
+            // 소속 클랜 없음
+            if (guilds.length === 0) {
+              return <TextCard text="소속된 클랜이 없습니다" />;
             }
-      }
-    >
-      <div className="w-full md:max-w-[1080px] mx-auto">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData?.data}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
 
-        {/* 메인 콘텐츠 */}
-        {(() => {
-          // 비로그인 상태
-          if (!isLoggedIn) {
-            return <TextCard text="로그인 후 이용해주세요" />;
-          }
+            if (!riotName || !guildId || isLoadingUserRecord) {
+              return (
+                <main>
+                  <LoadingSpinner />
+                </main>
+              );
+            }
 
-          // 소속 클랜 없음
-          if (guilds.length === 0) {
-            return <TextCard text="소속된 클랜이 없습니다" />;
-          }
+            // 다중 검색 결과인 경우
+            if (data && isMultiplePlayerInfo(data)) {
+              return <MultiplePlayersCard riotName={riotNameString} players={data} />;
+            }
 
-          if (!riotName || !guildId || isLoadingUserRecord) {
-            return (
-              <main>
-                <LoadingSpinner />
-              </main>
-            );
-          }
+            // 단일 검색 결과인 경우
+            if (data && isMatchDashboardData(data) && hasValidMatchData(data)) {
+              return (
+                <UserRecordPanel
+                  key={`${riotNameString}-${riotTagString}`}
+                  riotName={riotNameString}
+                  riotTag={riotTagString}
+                  data={data}
+                  onRefreshRecords={refetchUserRecords}
+                />
+              );
+            }
 
-          // 다중 검색 결과인 경우
-          if (data && isMultiplePlayerInfo(data)) {
-            return <MultiplePlayersCard riotName={riotNameString} players={data} />;
-          }
-
-          // 단일 검색 결과인 경우
-          if (data && isMatchDashboardData(data) && hasValidMatchData(data)) {
-            return (
-              <UserRecordPanel
-                key={`${riotNameString}-${riotTagString}`}
-                riotName={riotNameString}
-                riotTag={riotTagString}
-                data={data}
-                onRefreshRecords={refetchUserRecords}
-              />
-            );
-          }
-
-          return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
-        })()}
+            return <EmptySearchResultCard riotName={riotNameString} riotTag={riotTagString} />;
+          })()}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
