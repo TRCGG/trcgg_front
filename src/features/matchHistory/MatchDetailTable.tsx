@@ -113,18 +113,23 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                 </div>
               </div>
               <div className="grid grid-cols-3 grid-rows-2 max-w-[96px] gap-[3px]">
-                {player.items
-                  .filter((item) => item !== 0)
-                  .map((item, index) => (
+                {[0, 1, 2, 3, 4, 5].map((slot) =>
+                  player.items[slot] !== 0 ? (
                     <ItemWithTooltip
-                      key={item}
-                      itemId={item}
+                      key={`slot-${slot}`}
+                      itemId={player.items[slot]}
                       width={18}
                       height={18}
-                      alt={`아이템 ${index + 1}`}
+                      alt={`아이템 ${slot + 1}`}
                       className="w-[18px] h-[18px]"
                     />
-                  ))}
+                  ) : (
+                    <div
+                      key={`empty-slot-${slot}`}
+                      className="w-[18px] h-[18px] rounded-[4px] bg-border1"
+                    />
+                  )
+                )}
               </div>
             </div>
 

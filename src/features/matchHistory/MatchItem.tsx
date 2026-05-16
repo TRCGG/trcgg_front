@@ -61,13 +61,13 @@ const MatchItem = ({ matchData }: Props) => {
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") toggleOpen();
         }}
-        className={`flex w-full rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-90 ${
+        className={`flex w-full rounded-lg cursor-pointer transition-opacity hover:opacity-90 ${
           isWin ? "bg-blueDarken" : "bg-redDarken"
         }`}
       >
         {/* 좌측 - 승패 + 게임 시간 + 경과 시간 */}
         <div
-          className={`flex flex-col items-center justify-center gap-1.5 w-[52px] sm:w-[68px] shrink-0 py-3 border-r ${
+          className={`flex flex-col items-center justify-center gap-1.5 w-[52px] sm:w-[68px] shrink-0 py-3 border-r rounded-l-lg ${
             isWin ? "bg-blue/20 border-blue/30" : "bg-red/20 border-red/30"
           }`}
         >
@@ -84,7 +84,7 @@ const MatchItem = ({ matchData }: Props) => {
         </div>
 
         {/* 본문 */}
-        <div className="flex flex-1 items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-3 min-w-0">
+        <div className="flex flex-1 items-center gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 min-w-0">
           {/* 챔피언 이미지 + 레벨 뱃지 */}
           <div className="relative shrink-0">
             <SpriteImage
@@ -226,7 +226,12 @@ const MatchItem = ({ matchData }: Props) => {
                   alt={`아이템 ${item.slot + 1}`}
                   className="w-7 h-7"
                 />
-              ) : null
+              ) : (
+                <div
+                  key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                  className="w-7 h-7 rounded-[4px] bg-border1"
+                />
+              )
             )}
           </div>
 
@@ -242,7 +247,12 @@ const MatchItem = ({ matchData }: Props) => {
                   alt={`아이템 ${item.slot + 1}`}
                   className="w-[18px] h-[18px]"
                 />
-              ) : null
+              ) : (
+                <div
+                  key={`${matchData.gameId}_${matchData.riotName}_slot${item.slot}`}
+                  className="w-[18px] h-[18px] rounded-[4px] bg-border1"
+                />
+              )
             )}
           </div>
         </div>
@@ -254,7 +264,7 @@ const MatchItem = ({ matchData }: Props) => {
             e.stopPropagation();
             toggleOpen();
           }}
-          className={`flex flex-col justify-center items-center w-8 sm:w-10 shrink-0 transition-colors ${
+          className={`flex flex-col justify-center items-center w-8 sm:w-10 shrink-0 transition-colors rounded-r-lg ${
             isWin ? "bg-blue hover:bg-blueHover" : "bg-red hover:bg-redHover"
           }`}
         >

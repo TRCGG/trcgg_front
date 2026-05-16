@@ -104,18 +104,23 @@ const MatchDetailTableMobile = ({
             <div className="flex flex-col gap-x-1 text-left justify-self-start w-[72px] max-w-[72px]">
               <PlayerNameButton name={player.name} tag={player.tag} isCenter={false} />
               <div className="w-[72px] flex gap-px">
-                {player.items
-                  .filter((item) => item !== 0)
-                  .map((item, index) => (
+                {[0, 1, 2, 3, 4, 5].map((slot) =>
+                  player.items[slot] !== 0 ? (
                     <ItemWithTooltip
-                      key={item}
-                      itemId={item}
+                      key={`slot-${slot}`}
+                      itemId={player.items[slot]}
                       width={12}
                       height={12}
-                      alt={`아이템 ${index + 1}`}
+                      alt={`아이템 ${slot + 1}`}
                       className="w-[12px] h-[12px]"
                     />
-                  ))}
+                  ) : (
+                    <div
+                      key={`empty-slot-${slot}`}
+                      className="w-[12px] h-[12px] rounded-[4px] bg-border1 shrink-0"
+                    />
+                  )
+                )}
               </div>
             </div>
 
