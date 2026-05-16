@@ -166,7 +166,7 @@ const MatchDetailTableMobile = ({
             {/* 시야 점수, 제어 와드 개수 */}
             <div className="flex flex-col items-baseline">
               <div className="flex gap-x-1.5 items-center">
-                <Tooltip content="시야 점수">
+                <Tooltip content="시야 점수" compact>
                   <div className="flex items-center justify-center w-4 h-4">
                     <Image
                       src={EyeIcon}
@@ -180,7 +180,7 @@ const MatchDetailTableMobile = ({
                 <span>{player.visionScore}</span>
               </div>
               <div className="flex gap-x-1.5 items-center">
-                <Tooltip content="제어 와드 개수">
+                <Tooltip content="제어 와드 개수" compact>
                   <div className="flex items-center justify-center w-4 h-4">
                     <Image
                       src={WardIcon}

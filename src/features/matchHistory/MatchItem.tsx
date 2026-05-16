@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Image from "next/image";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
@@ -14,8 +13,6 @@ import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
-import EyeIcon from "@/assets/images/eye.png";
-import WardIcon from "@/assets/images/ward.png";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -78,10 +75,10 @@ const MatchItem = ({ matchData }: Props) => {
             {isWin ? "승" : "패"}
           </span>
           <div className={`w-7 h-px ${isWin ? "bg-blueText/20" : "bg-redText/20"}`} />
-          <span className="text-primary2 text-[10px] text-center leading-snug">
+          <span className="text-primary2 text-xs text-center leading-snug">
             {durationMin}:{durationSec}
           </span>
-          <span className="text-primary2 text-[10px] text-center leading-snug whitespace-nowrap">
+          <span className="text-primary2 text-xs text-center leading-snug whitespace-nowrap">
             {formatTimeAgo(matchData.createDate)}
           </span>
         </div>
@@ -204,7 +201,7 @@ const MatchItem = ({ matchData }: Props) => {
           </div>
 
           {/* KDA */}
-          <div className="flex flex-col justify-center shrink-0">
+          <div className="flex flex-col justify-center items-center shrink-0">
             <div className="text-sm sm:text-base font-bold whitespace-nowrap">
               <span className="text-primary1">{matchData.kill}</span>
               <span className="text-primary2 mx-0.5 font-normal">/</span>
@@ -247,18 +244,6 @@ const MatchItem = ({ matchData }: Props) => {
                 />
               ) : null
             )}
-          </div>
-
-          {/* 시야 (데스크탑) */}
-          <div className="hidden sm:flex flex-col gap-1 ml-auto shrink-0 text-primary2 text-xs">
-            <div className="flex items-center gap-1">
-              <Image src={EyeIcon} alt="시야 점수" width={14} height={14} />
-              <span>{matchData.visionScore}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Image src={WardIcon} alt="제어 와드" width={14} height={14} />
-              <span>{matchData.visionBought}</span>
-            </div>
           </div>
         </div>
 

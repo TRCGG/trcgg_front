@@ -168,7 +168,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
             {/* 시야 점수, 제어 와드 개수 */}
             <div className="flex flex-col items-baseline">
               <div className="flex gap-x-1.5">
-                <Tooltip content="시야 점수">
+                <Tooltip content="시야 점수" compact>
                   <div className="flex items-center justify-center">
                     <Image
                       src={EyeIcon}
@@ -182,7 +182,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                 <span>{player.visionScore}</span>
               </div>
               <div className="flex gap-x-1.5">
-                <Tooltip content="제어 와드 개수">
+                <Tooltip content="제어 와드 개수" compact>
                   <div className="flex items-center justify-center w-5 h-5">
                     <Image
                       src={WardIcon}

@@ -54,8 +54,11 @@ const UserChampionRow = ({ rank, data }: Props) => {
 
       {/* 승패 바 */}
       <div className="flex-1 min-w-0 hidden sm:block">
-        <div className="relative h-2 rounded overflow-hidden bg-red">
-          <div className="absolute left-0 top-0 h-full bg-blue" style={{ width: `${winPct}%` }} />
+        <div className="relative h-2 rounded overflow-hidden bg-redText">
+          <div
+            className="absolute left-0 top-0 h-full bg-blueText"
+            style={{ width: `${winPct}%` }}
+          />
         </div>
         <div className="text-xs text-primary2 mt-1">
           <b className="text-blueText">{win}</b>
