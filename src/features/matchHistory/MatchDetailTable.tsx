@@ -4,16 +4,17 @@ import PlayerNameButton from "@/features/matchHistory/PlayerNameButton";
 import EyeIcon from "@/assets/images/eye.png";
 import WardIcon from "@/assets/images/ward.png";
 import SpriteImage from "@/components/ui/SpriteImage";
+import Tooltip from "@/components/ui/Tooltip";
 import { getChampionSprite } from "@/utils/spriteLoader";
 import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
-import Tooltip from "@/components/ui/Tooltip";
 
 interface Player {
   name: string;
   tag: string;
+  champName: string;
   champNameEng: string;
   kda: string;
   kdaRate: number;
@@ -60,7 +61,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
         {players.map((player) => (
           <React.Fragment key={`${player.name}-${player.tag}`}>
             {/* 1. 챔피언 이미지 */}
-            <div className="flex text-left w-[36px] h-[36px]">
+            <Tooltip content={player.champName} compact>
               <SpriteImage
                 spriteData={getChampionSprite(player.champNameEng)}
                 width={36}
@@ -69,7 +70,7 @@ const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDe
                 fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${player.champNameEng}.png`}
                 className="w-[36px] h-[36px]"
               />
-            </div>
+            </Tooltip>
 
             {/* 2. 소환사명 */}
             <PlayerNameButton name={player.name} tag={player.tag} isCenter={false} />

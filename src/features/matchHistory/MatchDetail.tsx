@@ -11,6 +11,7 @@ const MatchDetail = ({ participantData }: Props) => {
     return participants.map((participant) => ({
       name: participant.riotName,
       tag: participant.riotNameTag,
+      champName: participant.champName,
       champNameEng: participant.champNameEng,
       kda: `${participant.kill} / ${participant.death} / ${participant.assist}`,
       kdaRate: (participant.kill + participant.assist) / participant.death,
