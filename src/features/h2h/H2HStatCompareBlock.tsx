@@ -143,8 +143,8 @@ const H2HStatDiffBar = ({
 };
 
 interface Props {
-  mine: H2HMetrics;
-  oppos: H2HMetrics;
+  mine: H2HMetrics | null;
+  oppos: H2HMetrics | null;
 }
 
 interface Row {
@@ -158,44 +158,55 @@ interface Row {
 }
 
 const H2HStatCompareBlock = ({ mine, oppos }: Props) => {
+  // 게임이 없으면 객체는 있어도 모든 지표가 null로 온다 → 비교 불가
+  if (!mine || !oppos || mine.kda == null || oppos.kda == null) {
+    return (
+      <SectionCard title="평균 지표 비교" subtitle="왼쪽 — 나 / 오른쪽 — 상대">
+        <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
+          비교할 평균 지표가 아직 없어요
+        </div>
+      </SectionCard>
+    );
+  }
+
   const rows: Row[] = [
-    { label: "KDA", mine: mine.kda, oppo: oppos.kda, fmt: (v) => v.toFixed(2) },
+    { label: "KDA", mine: mine.kda ?? 0, oppo: oppos.kda ?? 0, fmt: (v) => v.toFixed(2) },
     {
       label: "분당 피해 (DPM)",
-      mine: mine.dpm,
-      oppo: oppos.dpm,
+      mine: mine.dpm ?? 0,
+      oppo: oppos.dpm ?? 0,
       fmt: (v) => Math.round(v).toLocaleString(),
     },
     {
       label: "라인 골드 차",
-      mine: mine.laneGoldDiff,
-      oppo: oppos.laneGoldDiff,
+      mine: mine.laneGoldDiff ?? 0,
+      oppo: oppos.laneGoldDiff ?? 0,
       fmt: (v) => Math.round(v).toLocaleString(),
       unit: "g",
       signed: true,
     },
     {
       label: "15분 이전 처치 관여",
-      mine: mine.tdBefore15,
-      oppo: oppos.tdBefore15,
+      mine: mine.tdBefore15 ?? 0,
+      oppo: oppos.tdBefore15 ?? 0,
       fmt: (v) => v.toFixed(1),
     },
     {
       label: "포탑 방패 파괴",
-      mine: mine.turretPlates,
-      oppo: oppos.turretPlates,
+      mine: mine.turretPlates ?? 0,
+      oppo: oppos.turretPlates ?? 0,
       fmt: (v) => v.toFixed(1),
     },
     {
       label: "분당 경험치",
-      mine: mine.expPerMin,
-      oppo: oppos.expPerMin,
+      mine: mine.expPerMin ?? 0,
+      oppo: oppos.expPerMin ?? 0,
       fmt: (v) => Math.round(v).toLocaleString(),
     },
     {
       label: "사망 시간 비율",
-      mine: mine.deadTimePct,
-      oppo: oppos.deadTimePct,
+      mine: mine.deadTimePct ?? 0,
+      oppo: oppos.deadTimePct ?? 0,
       fmt: (v) => v.toFixed(1),
       unit: "%",
       betterIs: "low",

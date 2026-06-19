@@ -41,15 +41,15 @@ export interface H2HProfile {
   seasonWR: number | null;
 }
 
-/** 평균 지표 (맞붙은 게임 평균) */
+/** 평균 지표 (맞붙은 게임 평균) — 게임이 없으면 각 필드가 null */
 export interface H2HMetrics {
-  kda: number;
-  dpm: number;
-  laneGoldDiff: number;
-  tdBefore15: number;
-  turretPlates: number;
-  expPerMin: number;
-  deadTimePct: number;
+  kda: number | null;
+  dpm: number | null;
+  laneGoldDiff: number | null;
+  tdBefore15: number | null;
+  turretPlates: number | null;
+  expPerMin: number | null;
+  deadTimePct: number | null;
   jungleCsEnemy: number | null;
 }
 
@@ -170,8 +170,8 @@ export interface H2HAgainst {
   winRate: number;
   streak: H2HResult[];
   seasonBreaks: H2HSeasonBreak[];
-  mine: H2HMetrics;
-  oppos: H2HMetrics;
+  mine: H2HMetrics | null;
+  oppos: H2HMetrics | null;
   laneMatrix: H2HLaneMatrix;
   topLane: H2HTopLane | null;
   matchups: H2HMatchup[];

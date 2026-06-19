@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { H2HDuoChamp, H2HLaneCombo } from "@/data/types/h2h";
 import { v2WinRateColor } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
-import { SortChip } from "./chips";
+import { SortChip, SortOption } from "./chips";
 
 const H2HDuoComboRow = ({ combo }: { combo: H2HDuoChamp }) => {
   const wr = Math.round((combo.wins / combo.count) * 100);
@@ -77,35 +78,57 @@ interface Props {
   topLaneCombo: H2HLaneCombo | null;
 }
 
-const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => (
-  <SectionCard
-    title="자주 가는 듀오 픽"
-    subtitle={`${combos.length}개 조합 · 판수 ≥ 2`}
-    rightSlot={<SortChip />}
-  >
-    <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-      {topLaneCombo && (
-        <H2HTopLanePairCard
-          label="가장 많이 함께한 포지션"
-          myLane={topLaneCombo.mine}
-          oppoLane={topLaneCombo.oppo}
-          count={topLaneCombo.count}
-          wins={topLaneCombo.wins}
-          separator="+"
-        />
-      )}
-      {combos.length > 0 ? (
-        combos.map((c, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <H2HDuoComboRow key={i} combo={c} />
-        ))
-      ) : (
-        <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
-          듀오 조합이 없어요
-        </div>
-      )}
-    </div>
-  </SectionCard>
-);
+type DuoSort = "count" | "winRate" | "kda";
+
+const SORT_OPTIONS: SortOption<DuoSort>[] = [
+  { key: "count", label: "판수순" },
+  { key: "winRate", label: "승률순" },
+  { key: "kda", label: "KDA순" },
+];
+
+const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
+  const [sortBy, setSortBy] = useState<DuoSort>("count");
+
+  const sorted = [...combos].sort((a, b) => {
+    if (sortBy === "winRate") {
+      return b.wins / b.count - a.wins / a.count;
+    }
+    if (sortBy === "kda") {
+      return (parseFloat(b.comboKda) || 0) - (parseFloat(a.comboKda) || 0);
+    }
+    return b.count - a.count;
+  });
+
+  return (
+    <SectionCard
+      title="자주 가는 듀오 픽"
+      subtitle={`${combos.length}개 조합 · 판수 ≥ 2`}
+      rightSlot={<SortChip value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />}
+    >
+      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+        {topLaneCombo && (
+          <H2HTopLanePairCard
+            label="가장 많이 함께한 포지션"
+            myLane={topLaneCombo.mine}
+            oppoLane={topLaneCombo.oppo}
+            count={topLaneCombo.count}
+            wins={topLaneCombo.wins}
+            separator="+"
+          />
+        )}
+        {sorted.length > 0 ? (
+          sorted.map((c, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <H2HDuoComboRow key={i} combo={c} />
+          ))
+        ) : (
+          <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
+            듀오 조합이 없어요
+          </div>
+        )}
+      </div>
+    </SectionCard>
+  );
+};
 
 export default H2HDuoCombos;

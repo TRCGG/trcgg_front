@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { H2HMatchup } from "@/data/types/h2h";
 import { TopLanePair, diffColor, v2WinRateColor } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
-import { SameLaneChip, SortChip } from "./chips";
+import { SameLaneChip, SortChip, SortOption } from "./chips";
 
 const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
   const wr = Math.round((matchup.wins / matchup.count) * 100);
@@ -102,20 +103,41 @@ interface Props {
   onToggleSameLane: (next: boolean) => void;
 }
 
+type MatchupSort = "count" | "winRate" | "kda";
+
+const SORT_OPTIONS: SortOption<MatchupSort>[] = [
+  { key: "count", label: "판수순" },
+  { key: "winRate", label: "승률순" },
+  { key: "kda", label: "KDA순" },
+];
+
 const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLane }: Props) => {
+  const [sortBy, setSortBy] = useState<MatchupSort>("count");
+
   const filtered = sameLaneOnly
     ? matchups.filter((m) => !m.oppoLane || m.oppoLane === m.myLane)
     : matchups;
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "winRate") {
+      return b.wins / b.count - a.wins / a.count;
+    }
+    if (sortBy === "kda") {
+      return (parseFloat(b.myKda) || 0) - (parseFloat(a.myKda) || 0);
+    }
+    return b.count - a.count;
+  });
+
   return (
     <SectionCard
       title="라인 · 챔피언 매치업"
-      subtitle={`${filtered.length}개 매치업${
+      subtitle={`${sorted.length}개 매치업${
         sameLaneOnly ? " · 맞라인(동일 position)만" : " · 같은 게임 적팀 전체"
       }`}
       rightSlot={
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <SameLaneChip active={sameLaneOnly} onChange={onToggleSameLane} />
-          <SortChip />
+          <SortChip value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
         </div>
       }
     >
@@ -123,8 +145,8 @@ const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLan
         {topLanePair && (
           <H2HTopLanePairCard label="가장 많이 맞붙은 라인" {...topLanePair} separator="vs" />
         )}
-        {filtered.length > 0 ? (
-          filtered.map((m, i) => (
+        {sorted.length > 0 ? (
+          sorted.map((m, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <H2HChampMatchupRow key={i} matchup={m} />
           ))
