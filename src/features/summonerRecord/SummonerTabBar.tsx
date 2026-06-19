@@ -1,4 +1,4 @@
-export type SummonerTab = "overview" | "champion";
+export type SummonerTab = "overview" | "champion" | "h2h";
 
 interface Props {
   activeTab: SummonerTab;
@@ -8,6 +8,7 @@ interface Props {
 const TABS: { key: SummonerTab; label: string }[] = [
   { key: "overview", label: "종합" },
   { key: "champion", label: "챔피언" },
+  { key: "h2h", label: "상대전적" },
 ];
 
 const SummonerTabBar = ({ activeTab, onTabChange }: Props) => (

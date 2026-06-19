@@ -21,6 +21,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import PositionFilter from "@/features/statistics/PositionFilter";
 import DateRangeFilter, { DateRangeValue } from "@/features/statistics/DateRangeFilter";
 import { Position } from "@/services/statistics";
+import H2HPanel from "@/features/h2h/H2HPanel";
 
 interface Props {
   riotName: string;
@@ -262,6 +263,9 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           </div>
         </CardWithTitle>
       )}
+
+      {/* ── 상대전적 탭 ── */}
+      {activeTab === "h2h" && <H2HPanel riotName={riotName} riotTag={riotTag} guildId={guildId} />}
     </main>
   );
 };
