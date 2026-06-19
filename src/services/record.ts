@@ -43,7 +43,13 @@ export const getRecentRecords = async (
 };
 
 export interface MostPicksParams {
+  datePreset?: "recent" | "season" | "range";
   season?: string;
+  fromMonth?: number;
+  toMonth?: number;
+  position?: "ALL" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
+  championName?: string;
+  sortBy?: "totalCount" | "winRate";
   page?: number;
   limit?: number;
 }
@@ -54,7 +60,13 @@ export const getMostPicks = async (
   params?: MostPicksParams
 ): Promise<ApiResponse<MostPicksResponse>> => {
   const query = buildQuery({
+    datePreset: params?.datePreset,
     season: params?.season,
+    fromMonth: params?.fromMonth,
+    toMonth: params?.toMonth,
+    position: params?.position,
+    championName: params?.championName,
+    sortBy: params?.sortBy,
     page: params?.page,
     limit: params?.limit ?? 100000,
   });

@@ -18,6 +18,9 @@ import TeamworkStats from "@/features/matchHistory/TeamworkStats";
 import SummonerTabBar, { SummonerTab } from "@/features/summonerRecord/SummonerTabBar";
 import UserChampionRow from "@/features/matchHistory/UserChampionRow";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import PositionFilter from "@/features/statistics/PositionFilter";
+import DateRangeFilter, { DateRangeValue } from "@/features/statistics/DateRangeFilter";
+import { Position } from "@/services/statistics";
 
 interface Props {
   riotName: string;
@@ -38,6 +41,10 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   const [displayCount, setDisplayCount] = useState(RECORD_DISPLAY_COUNT);
   const [championSortType, setChampionSortType] = useState<ChampionSortType>("gameCount");
   const [championSortOrder, setChampionSortOrder] = useState<"asc" | "desc">("desc");
+  const [championDateRange, setChampionDateRange] = useState<DateRangeValue>({
+    datePreset: "recent",
+  });
+  const [championPosition, setChampionPosition] = useState<Position>("ALL");
 
   const {
     data: recentRecordsData,
@@ -50,11 +57,20 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     enabled: !!guildId && !!riotName && !!riotTag,
   });
 
-  const { data: mostPicksData, isLoading: isLoadingMostPicks } = useQuery<
-    ApiResponse<MostPicksResponse>
-  >({
-    queryKey: ["mostPicks", riotName, guildId],
-    queryFn: () => getMostPicks(riotName, guildId!),
+  const {
+    data: mostPicksData,
+    isLoading: isLoadingMostPicks,
+    isFetching: isFetchingMostPicks,
+  } = useQuery<ApiResponse<MostPicksResponse>>({
+    queryKey: ["mostPicks", riotName, guildId, championDateRange, championPosition],
+    queryFn: () =>
+      getMostPicks(riotName, guildId!, {
+        datePreset: championDateRange.datePreset,
+        season: championDateRange.season,
+        fromMonth: championDateRange.fromMonth,
+        toMonth: championDateRange.toMonth,
+        position: championPosition,
+      }),
     staleTime: 3 * 60 * 1000,
     enabled: activeTab === "champion" && !!guildId && !!riotName,
   });
@@ -181,55 +197,69 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
       {/* ── 챔피언 탭 ── */}
       {activeTab === "champion" && (
         <CardWithTitle title="챔피언 전적">
-          {isLoadingMostPicks && <LoadingSpinner />}
-          {!isLoadingMostPicks && sortedChampions.length === 0 && (
-            <div className="text-center text-primary2 py-8">챔피언 전적 데이터가 없습니다</div>
-          )}
-          {!isLoadingMostPicks && sortedChampions.length > 0 && (
-            <div className="flex flex-col gap-1">
-              {/* 열 제목 헤더 */}
-              <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
-                <div className="w-5 sm:w-7 shrink-0" />
-                <div className="w-10 sm:w-12 shrink-0" />
-                <div className="flex-1 min-w-0 sm:w-28 sm:flex-none" />
-                <button
-                  type="button"
-                  onClick={() => handleChampionSort("gameCount")}
-                  className={`w-14 sm:w-32 text-center transition-colors shrink-0 ${
-                    championSortType === "gameCount" ? "text-primary1" : "hover:text-primary1"
-                  }`}
-                >
-                  판수{getSortIndicator("gameCount")}
-                </button>
-                <div className="flex-1 min-w-0 hidden sm:block" />
-                <button
-                  type="button"
-                  onClick={() => handleChampionSort("kda")}
-                  className={`w-14 sm:w-28 text-center transition-colors shrink-0 ${
-                    championSortType === "kda" ? "text-primary1" : "hover:text-primary1"
-                  }`}
-                >
-                  KDA{getSortIndicator("kda")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleChampionSort("winRate")}
-                  className={`w-12 sm:w-24 text-center transition-colors shrink-0 ${
-                    championSortType === "winRate" ? "text-primary1" : "hover:text-primary1"
-                  }`}
-                >
-                  승률{getSortIndicator("winRate")}
-                </button>
-              </div>
-
-              {/* 챔피언 목록 */}
-              <div className="flex flex-col gap-2">
-                {sortedChampions.map((champ, i) => (
-                  <UserChampionRow key={champ.champNameEng} rank={i + 1} data={champ} />
-                ))}
-              </div>
+          <div className="flex flex-col gap-4">
+            {/* 필터 영역: 기간 토글 + 라인 토글 */}
+            <div className="flex flex-wrap items-center gap-3">
+              <DateRangeFilter onChange={setChampionDateRange} />
+              <div className="hidden sm:block h-5 w-px bg-border1" />
+              <PositionFilter
+                selectedPosition={championPosition}
+                onSelectPosition={setChampionPosition}
+              />
             </div>
-          )}
+
+            {(isLoadingMostPicks || isFetchingMostPicks) && <LoadingSpinner />}
+            {!(isLoadingMostPicks || isFetchingMostPicks) && sortedChampions.length === 0 && (
+              <div className="text-center text-primary2 py-8 bg-darkBg2 rounded border border-border2">
+                챔피언 전적 데이터가 없습니다
+              </div>
+            )}
+            {!(isLoadingMostPicks || isFetchingMostPicks) && sortedChampions.length > 0 && (
+              <div className="flex flex-col gap-1">
+                {/* 열 제목 헤더 */}
+                <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
+                  <div className="w-5 sm:w-7 shrink-0" />
+                  <div className="w-10 sm:w-12 shrink-0" />
+                  <div className="flex-1 min-w-0 sm:w-28 sm:flex-none" />
+                  <button
+                    type="button"
+                    onClick={() => handleChampionSort("gameCount")}
+                    className={`w-14 sm:w-32 text-center transition-colors shrink-0 ${
+                      championSortType === "gameCount" ? "text-primary1" : "hover:text-primary1"
+                    }`}
+                  >
+                    판수{getSortIndicator("gameCount")}
+                  </button>
+                  <div className="flex-1 min-w-0 hidden sm:block" />
+                  <button
+                    type="button"
+                    onClick={() => handleChampionSort("kda")}
+                    className={`w-14 sm:w-28 text-center transition-colors shrink-0 ${
+                      championSortType === "kda" ? "text-primary1" : "hover:text-primary1"
+                    }`}
+                  >
+                    KDA{getSortIndicator("kda")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChampionSort("winRate")}
+                    className={`w-12 sm:w-24 text-center transition-colors shrink-0 ${
+                      championSortType === "winRate" ? "text-primary1" : "hover:text-primary1"
+                    }`}
+                  >
+                    승률{getSortIndicator("winRate")}
+                  </button>
+                </div>
+
+                {/* 챔피언 목록 */}
+                <div className="flex flex-col gap-2">
+                  {sortedChampions.map((champ, i) => (
+                    <UserChampionRow key={champ.champNameEng} rank={i + 1} data={champ} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </CardWithTitle>
       )}
     </main>
