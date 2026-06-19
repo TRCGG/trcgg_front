@@ -20,26 +20,16 @@ const H2HSummaryBanner = ({ relation, firstMet, lastMet, against, together }: Pr
   const primaryColor = isWith ? colors.blueText : colors.yellow;
 
   return (
-    <div
-      className="bg-darkBg2 border border-border2"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "auto 1fr auto",
-        alignItems: "center",
-        gap: 32,
-        padding: "20px 28px",
-        borderRadius: 4,
-      }}
-    >
+    <div className="bg-darkBg2 border border-border2 grid grid-cols-1 items-center gap-5 rounded px-4 py-4 sm:grid-cols-[auto_1fr_auto] sm:gap-8 sm:px-7 sm:py-5">
       {/* Big number */}
-      <div>
+      <div className="min-w-0">
         <div className="text-primary2" style={{ fontSize: 12, letterSpacing: "0.08em" }}>
           {label.toUpperCase()}
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 4 }}>
           <span
+            className="text-[40px] sm:text-5xl"
             style={{
-              fontSize: 48,
               fontWeight: 700,
               color: primaryColor,
               lineHeight: 1,
@@ -55,7 +45,7 @@ const H2HSummaryBanner = ({ relation, firstMet, lastMet, against, together }: Pr
             <b className="text-blueText">{wins}</b>승 <b className="text-redText">{losses}</b>패
           </span>
         </div>
-        <div className="text-primary2" style={{ fontSize: 11, marginTop: 4 }}>
+        <div className="text-primary2 mt-1 text-[11px]">
           총 {games}전 · 첫 만남 {formatFullDate(firstMet)} · 마지막 {formatFullDate(lastMet)}
         </div>
       </div>

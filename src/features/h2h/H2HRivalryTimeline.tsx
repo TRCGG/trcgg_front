@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { H2HResult, H2HSeasonBreak } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import { diffColor } from "./h2hHelpers";
@@ -14,16 +15,29 @@ interface Props {
   seasonBreaks?: H2HSeasonBreak[];
 }
 
+// 데스크톱은 넓고 낮게, 모바일은 좁고 높게 — viewBox 비율을 바꿔
+// 100% 폭으로 줄어도 높이가 충분히 확보되어 가독성을 유지한다.
+const DIMS = {
+  desktop: { w: 1040, h: 170, padL: 24, padR: 76, padT: 18, padB: 26, fz: 10, fzCur: 13, dotR: 4 },
+  mobile: { w: 360, h: 240, padL: 16, padR: 52, padT: 18, padB: 26, fz: 12, fzCur: 15, dotR: 4.5 },
+};
+
 const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const { w, h, padL, padR, padT, padB, fz, fzCur, dotR } = isMobile ? DIMS.mobile : DIMS.desktop;
+
   const pts = [0];
   streak.forEach((s) => pts.push(pts[pts.length - 1] + (s === "W" ? 1 : -1)));
 
-  const w = 1040;
-  const h = 170;
-  const padL = 24;
-  const padR = 76;
-  const padT = 18;
-  const padB = 26;
   const maxAbs = Math.max(2, ...pts.map((v) => Math.abs(v)));
   const x = (i: number) => padL + (i / (pts.length - 1 || 1)) * (w - padL - padR);
   const y = (v: number) => padT + (1 - (v + maxAbs) / (2 * maxAbs)) * (h - padT - padB);
@@ -66,10 +80,10 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
             strokeDasharray="4 4"
           />
           {/* zone labels */}
-          <text className="fill-blueText" x={padL} y={padT + 4} fontSize={10} opacity={0.75}>
+          <text className="fill-blueText" x={padL} y={padT + 4} fontSize={fz} opacity={0.75}>
             내 우위 ↑
           </text>
-          <text className="fill-redText" x={padL} y={h - padB + 2} fontSize={10} opacity={0.75}>
+          <text className="fill-redText" x={padL} y={h - padB + 2} fontSize={fz} opacity={0.75}>
             상대 우위 ↓
           </text>
           {/* season breaks */}
@@ -83,7 +97,7 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
                 y2={h - padB + 6}
                 strokeDasharray="2 3"
               />
-              <text className="fill-primary2" x={x(b.index) + 5} y={padT + 2} fontSize={10}>
+              <text className="fill-primary2" x={x(b.index) + 5} y={padT + 2} fontSize={fz}>
                 {b.label}
               </text>
             </g>
@@ -99,7 +113,7 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
                 className="stroke-darkBg2"
                 cx={x(i)}
                 cy={y(v)}
-                r={4}
+                r={dotR}
                 fill={streak[i - 1] === "W" ? colors.blueText : colors.redText}
                 strokeWidth={1.5}
               >
@@ -114,7 +128,7 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
             x={x(pts.length - 1) + 10}
             y={y(cur) + 4}
             fill={curColor}
-            fontSize={13}
+            fontSize={fzCur}
             fontWeight={700}
             style={{ fontFeatureSettings: '"tnum"' }}
           >

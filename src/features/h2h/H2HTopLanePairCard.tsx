@@ -27,7 +27,7 @@ const H2HTopLanePairCard = ({ label, myLane, oppoLane, count, wins, separator = 
         borderRadius: 4,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flexWrap: "wrap" }}>
         <span
           className="text-blueText"
           style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}

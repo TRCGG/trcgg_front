@@ -13,37 +13,17 @@ const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
   return (
     <div
       title={`${matchup.myChamp} vs ${matchup.oppoChamp}`}
-      className="bg-darkBg1 border border-border2"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "8px auto 1fr 90px 90px 56px",
-        alignItems: "center",
-        gap: 12,
-        padding: "10px 14px",
-        borderLeft: `3px solid ${v2WinRateColor(wr)}`,
-        borderRadius: 4,
-      }}
+      className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_auto_1fr_90px_90px_56px] sm:gap-3 sm:px-3.5"
+      style={{ borderLeft: `3px solid ${v2WinRateColor(wr)}` }}
     >
-      <span />
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span className="hidden sm:block" />
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         {matchup.myLane && <LaneIcon position={matchup.myLane} size={16} />}
-        <ChampIcon en={matchup.myChamp} size={40} mine />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            flexShrink: 0,
-            gap: 1,
-          }}
-        >
+        <ChampIcon en={matchup.myChamp} size={36} mine />
+        <div className="flex shrink-0 flex-col items-center gap-px">
           <span
             className="text-redText"
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-            }}
+            style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}
           >
             VS
           </span>
@@ -51,14 +31,17 @@ const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
             {matchup.count}판
           </span>
         </div>
-        <ChampIcon en={matchup.oppoChamp} size={40} />
+        <ChampIcon en={matchup.oppoChamp} size={36} />
         {matchup.oppoLane && <LaneIcon position={matchup.oppoLane} size={16} />}
       </div>
-      <div className="text-primary2" style={{ fontSize: 13, fontFeatureSettings: '"tnum"' }}>
+      <div
+        className="text-primary2 shrink-0 text-xs sm:text-[13px]"
+        style={{ fontFeatureSettings: '"tnum"' }}
+      >
         <b className="text-blueText">{matchup.wins}</b>승{" "}
         <b className="text-redText">{matchup.count - matchup.wins}</b>패
       </div>
-      <div style={{ textAlign: "center" }}>
+      <div className="hidden text-center sm:block">
         <div className="text-primary2" style={{ fontSize: 11 }}>
           내 KDA
         </div>
@@ -66,7 +49,7 @@ const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
           {matchup.myKda}
         </div>
       </div>
-      <div style={{ textAlign: "center" }}>
+      <div className="hidden text-center sm:block">
         <div className="text-primary2" style={{ fontSize: 11 }}>
           KDA Diff
         </div>
@@ -82,13 +65,8 @@ const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
         </div>
       </div>
       <div
-        style={{
-          textAlign: "right",
-          fontSize: 18,
-          fontWeight: 700,
-          color: v2WinRateColor(wr),
-          fontFeatureSettings: '"tnum"',
-        }}
+        className="ml-auto shrink-0 text-right text-base sm:ml-0 sm:text-lg"
+        style={{ fontWeight: 700, color: v2WinRateColor(wr), fontFeatureSettings: '"tnum"' }}
       >
         {wr}%
       </div>

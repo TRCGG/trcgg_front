@@ -17,75 +17,30 @@ const Side = ({ p, align }: SideProps) => {
   const isLeft = align === "left";
   return (
     <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: isLeft ? "row" : "row-reverse",
-        alignItems: "center",
-        gap: 16,
-        minWidth: 0,
-      }}
+      className={`flex flex-1 min-w-0 items-center gap-2 sm:gap-4 ${
+        isLeft ? "flex-row" : "flex-row-reverse"
+      }`}
     >
-      <div
-        className="bg-rankBg2 border border-border1"
-        style={{
-          position: "relative",
-          width: 64,
-          height: 64,
-          borderRadius: 6,
-          overflow: "hidden",
-          flexShrink: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <span className="text-primary2" style={{ fontWeight: 700, fontSize: 22 }}>
+      <div className="bg-rankBg2 border border-border1 relative flex h-11 w-11 shrink-0 items-center justify-center overflow-visible rounded-md sm:h-16 sm:w-16">
+        <span className="text-primary2 text-lg font-bold sm:text-[22px]">
           {p.riotName.slice(0, 1)}
         </span>
-        <div
-          className="bg-darkBg2 border border-border1"
-          style={{
-            position: "absolute",
-            right: -4,
-            bottom: -4,
-            width: 24,
-            height: 24,
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <LaneIcon position={p.mostLane} size={16} />
+        <div className="bg-darkBg2 border border-border1 absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full sm:h-6 sm:w-6">
+          <LaneIcon position={p.mostLane} size={14} />
         </div>
       </div>
-      <div style={{ minWidth: 0, textAlign: isLeft ? "left" : "right" }}>
+      <div className={`min-w-0 ${isLeft ? "text-left" : "text-right"}`}>
         <div
-          className="text-primary1"
-          style={{
-            fontSize: 18,
-            fontWeight: 700,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
+          className="text-primary1 truncate text-sm font-bold sm:text-lg"
+          title={`${p.riotName}#${p.riotNameTag}`}
         >
           {p.riotName}
-          <span className="text-primary2" style={{ fontWeight: 400, marginLeft: 4 }}>
-            #{p.riotNameTag}
-          </span>
+          <span className="text-primary2 ml-1 font-normal">#{p.riotNameTag}</span>
         </div>
         <div
-          className="text-primary2"
-          style={{
-            fontSize: 12,
-            marginTop: 4,
-            display: "flex",
-            flexDirection: isLeft ? "row" : "row-reverse",
-            gap: 8,
-            alignItems: "center",
-          }}
+          className={`text-primary2 mt-1 flex flex-wrap items-center gap-1.5 text-[11px] sm:gap-2 sm:text-xs ${
+            isLeft ? "flex-row" : "flex-row-reverse"
+          }`}
         >
           {p.mmr != null ? (
             <span className="text-yellow" style={{ fontFeatureSettings: '"tnum"' }}>
@@ -94,8 +49,8 @@ const Side = ({ p, align }: SideProps) => {
           ) : (
             <span className="text-primary2">MMR 집계 전</span>
           )}
-          <span className="bg-border1" style={{ width: 1, height: 10 }} />
-          <span>내전 승률 {p.seasonWR ?? "-"}%</span>
+          <span className="bg-border1 hidden h-2.5 w-px sm:inline-block" />
+          <span className="whitespace-nowrap">내전 승률 {p.seasonWR ?? "-"}%</span>
         </div>
       </div>
     </div>
@@ -109,31 +64,14 @@ const H2HVersusHero = ({ me, oppo, relation }: Props) => {
       : { label: "VS", color: colors.redText, bg: colors.red };
 
   return (
-    <div
-      className="bg-darkBg2 border border-border2"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 24,
-        padding: "20px 24px",
-        borderRadius: 4,
-      }}
-    >
+    <div className="bg-darkBg2 border border-border2 flex items-center gap-2 rounded px-3 py-4 sm:gap-6 sm:px-6 sm:py-5">
       <Side p={me} align="left" />
       <div
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-sm font-extrabold sm:h-20 sm:w-20 sm:text-lg"
         style={{
-          flexShrink: 0,
-          width: 80,
-          height: 80,
-          borderRadius: "50%",
           background: verbCfg.bg,
           border: `2px solid ${verbCfg.color}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           color: verbCfg.color,
-          fontSize: 18,
-          fontWeight: 800,
           letterSpacing: "0.04em",
         }}
       >

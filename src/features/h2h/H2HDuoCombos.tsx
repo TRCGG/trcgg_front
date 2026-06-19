@@ -12,30 +12,14 @@ const H2HDuoComboRow = ({ combo }: { combo: H2HDuoChamp }) => {
   return (
     <div
       title={`${combo.mine} + ${combo.oppo}`}
-      className="bg-darkBg1 border border-border2"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "8px auto 1fr 90px 56px",
-        alignItems: "center",
-        gap: 12,
-        padding: "10px 14px",
-        borderLeft: `3px solid ${v2WinRateColor(wr)}`,
-        borderRadius: 4,
-      }}
+      className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_auto_1fr_90px_56px] sm:gap-3 sm:px-3.5"
+      style={{ borderLeft: `3px solid ${v2WinRateColor(wr)}` }}
     >
-      <span />
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span className="hidden sm:block" />
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         {combo.mineLane && <LaneIcon position={combo.mineLane} size={16} />}
         <ChampIcon en={combo.mine} size={36} mine />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            flexShrink: 0,
-            gap: 1,
-          }}
-        >
+        <div className="flex shrink-0 flex-col items-center gap-px">
           <span className="text-blueText" style={{ fontSize: 11, fontWeight: 700 }}>
             +
           </span>
@@ -46,11 +30,14 @@ const H2HDuoComboRow = ({ combo }: { combo: H2HDuoChamp }) => {
         <ChampIcon en={combo.oppo} size={36} />
         {combo.oppoLane && <LaneIcon position={combo.oppoLane} size={16} />}
       </div>
-      <div className="text-primary2" style={{ fontSize: 13, fontFeatureSettings: '"tnum"' }}>
+      <div
+        className="text-primary2 shrink-0 text-xs sm:text-[13px]"
+        style={{ fontFeatureSettings: '"tnum"' }}
+      >
         <b className="text-blueText">{combo.wins}</b>승{" "}
         <b className="text-redText">{combo.count - combo.wins}</b>패
       </div>
-      <div style={{ textAlign: "center" }}>
+      <div className="hidden text-center sm:block">
         <div className="text-primary2" style={{ fontSize: 11 }}>
           듀오 KDA
         </div>
@@ -59,13 +46,8 @@ const H2HDuoComboRow = ({ combo }: { combo: H2HDuoChamp }) => {
         </div>
       </div>
       <div
-        style={{
-          textAlign: "right",
-          fontSize: 18,
-          fontWeight: 700,
-          color: v2WinRateColor(wr),
-          fontFeatureSettings: '"tnum"',
-        }}
+        className="ml-auto shrink-0 text-right text-base sm:ml-0 sm:text-lg"
+        style={{ fontWeight: 700, color: v2WinRateColor(wr), fontFeatureSettings: '"tnum"' }}
       >
         {wr}%
       </div>

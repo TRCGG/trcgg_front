@@ -17,8 +17,8 @@ const H2HStreakDots = ({ streak }: Props) => {
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <div style={{ display: "flex", gap: 3, flexWrap: "nowrap" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
         {streak.map((s, i) => {
           const isWin = s === "W";
           return (

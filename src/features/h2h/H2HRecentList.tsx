@@ -186,7 +186,7 @@ const H2HRecentDetail = ({ row }: { row: H2HRecent }) => {
           </span>
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {statSet.map((c) => (
           <DetailStatCell
             key={c.k}
@@ -217,19 +217,11 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <div
-        className="bg-darkBg1 border border-border2"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "8px 80px 50px auto 1fr auto auto",
-          alignItems: "center",
-          gap: 12,
-          padding: "10px 14px",
-          borderLeft: `3px solid ${accentText}`,
-          borderRadius: 4,
-        }}
+        className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_80px_50px_auto_1fr_auto_auto] sm:gap-3 sm:px-3.5"
+        style={{ borderLeft: `3px solid ${accentText}` }}
       >
-        <span />
-        <div>
+        <span className="hidden sm:block" />
+        <div className="shrink-0">
           <div style={{ fontSize: 13, fontWeight: 700, color: accentText }}>
             {isWin ? "승리" : "패배"}
           </div>
@@ -237,11 +229,11 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
             {formatAgo(row.playedDate)}
           </div>
         </div>
-        <div className="text-primary2" style={{ fontSize: 11 }}>
+        <div className="text-primary2 hidden sm:block" style={{ fontSize: 11 }}>
           {formatGameLen(row.gameLen)}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <LaneIcon position={row.myLane} size={16} />
           <ChampIcon en={row.myChamp} size={32} mine />
           <span
@@ -258,11 +250,11 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           <LaneIcon position={row.oppoLane} size={16} />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
-          <span className="text-primary1" style={{ fontFeatureSettings: '"tnum"' }}>
+        <div className="flex min-w-0 flex-col gap-0.5" style={{ fontSize: 11 }}>
+          <span className="text-primary1 truncate" style={{ fontFeatureSettings: '"tnum"' }}>
             <b className="text-blueText">나</b> · {row.myKda}
           </span>
-          <span className="text-primary2" style={{ fontFeatureSettings: '"tnum"' }}>
+          <span className="text-primary2 truncate" style={{ fontFeatureSettings: '"tnum"' }}>
             {mode === "with" ? "팀원" : "상대"} · {row.oppoKda}
           </span>
         </div>
@@ -272,6 +264,7 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           onClick={onToggle}
           disabled={noDetail}
           title={isCrossLane ? "교차 라인 게임은 세부 비교를 제공하지 않아요" : undefined}
+          className="shrink-0"
           style={{
             padding: "4px 10px",
             background: open ? colors.blue : colors.rankBg2,
@@ -286,7 +279,10 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
         >
           {open ? "접기" : "세부 보기"}
         </button>
-        <span className="text-primary2" style={{ fontSize: 10, whiteSpace: "nowrap" }}>
+        <span
+          className="text-primary2 hidden sm:inline"
+          style={{ fontSize: 10, whiteSpace: "nowrap" }}
+        >
           {formatPlayedDate(row.playedDate)}
         </span>
       </div>
