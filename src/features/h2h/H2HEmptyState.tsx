@@ -2,11 +2,18 @@ import { FrequentOpponent } from "@/data/types/h2h";
 import OpponentSearchInput from "./OpponentSearchInput";
 import FrequentOpponentCardLarge from "./FrequentOpponentCardLarge";
 
+interface Selected {
+  riotName: string;
+  riotNameTag?: string;
+}
+
 interface Props {
   frequent: FrequentOpponent[];
   isLoadingFrequent: boolean;
-  onSearch: (value: string) => void;
-  onSelect: (opponent: FrequentOpponent) => void;
+  guildId?: string;
+  meName: string;
+  meTag?: string;
+  onSelect: (opponent: Selected) => void;
 }
 
 type FrequentContentProps = Pick<Props, "frequent" | "isLoadingFrequent" | "onSelect">;
@@ -49,7 +56,14 @@ const FrequentContent = ({ frequent, isLoadingFrequent, onSelect }: FrequentCont
   );
 };
 
-const H2HEmptyState = ({ frequent, isLoadingFrequent, onSearch, onSelect }: Props) => (
+const H2HEmptyState = ({
+  frequent,
+  isLoadingFrequent,
+  guildId,
+  meName,
+  meTag,
+  onSelect,
+}: Props) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
     {/* Section title row */}
     <div
@@ -70,7 +84,13 @@ const H2HEmptyState = ({ frequent, isLoadingFrequent, onSearch, onSelect }: Prop
         </div>
       </div>
       <div style={{ minWidth: 280, flex: "0 1 360px" }}>
-        <OpponentSearchInput placeholder="맞상대 검색 (예: 구마유시#T1)" onSearch={onSearch} />
+        <OpponentSearchInput
+          guildId={guildId}
+          meName={meName}
+          meTag={meTag}
+          placeholder="맞상대 검색 (예: 구마유시#T1)"
+          onSelect={onSelect}
+        />
       </div>
     </div>
 

@@ -16,11 +16,14 @@ import H2HRecentList from "./H2HRecentList";
 
 interface Props {
   data: H2HDetail;
-  onSearch: (value: string) => void;
+  guildId?: string;
+  meName: string;
+  meTag?: string;
+  onSelect: (opponent: { riotName: string; riotNameTag?: string }) => void;
   onClear: () => void;
 }
 
-const H2HResultSection = ({ data, onSearch, onClear }: Props) => {
+const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: Props) => {
   const [relation, setRelation] = useState<H2HRelation>("against");
   const [sameLaneOnly, setSameLaneOnly] = useState(false);
 
@@ -50,9 +53,12 @@ const H2HResultSection = ({ data, onSearch, onClear }: Props) => {
         </div>
         <div style={{ minWidth: 280, flex: "0 1 360px" }}>
           <OpponentSearchInput
+            guildId={guildId}
+            meName={meName}
+            meTag={meTag}
             value={`${data.oppo.riotName}#${data.oppo.riotNameTag}`}
             showClear
-            onSearch={onSearch}
+            onSelect={onSelect}
             onClear={onClear}
           />
         </div>

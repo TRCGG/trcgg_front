@@ -24,14 +24,6 @@ interface SelectedOpponent {
   riotNameTag?: string;
 }
 
-const parseOpponentInput = (value: string): SelectedOpponent | null => {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  const [name, tag] = trimmed.split("#");
-  if (!name) return null;
-  return { riotName: name.trim(), riotNameTag: tag?.trim() || undefined };
-};
-
 const isCandidateList = (
   data: H2HDetail | H2HCandidate[] | null | undefined
 ): data is H2HCandidate[] => Array.isArray(data);
@@ -72,14 +64,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     [frequentData]
   );
 
-  const handleSearch = (value: string) => {
-    const parsed = parseOpponentInput(value);
-    if (parsed) setOpponent(parsed);
-  };
-
-  const handleSelect = (o: FrequentOpponent) => {
-    setOpponent({ riotName: o.riotName, riotNameTag: o.riotNameTag });
-  };
+  const handleSelect = (o: SelectedOpponent) => setOpponent(o);
 
   const handleClear = () => setOpponent(null);
 
@@ -89,7 +74,9 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
       <H2HEmptyState
         frequent={frequent}
         isLoadingFrequent={isLoadingFrequent}
-        onSearch={handleSearch}
+        guildId={guildId}
+        meName={riotName}
+        meTag={riotTag}
         onSelect={handleSelect}
       />
     );
@@ -159,7 +146,16 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
 
   // 정상 결과
   if (isH2HDetail(detail)) {
-    return <H2HResultSection data={detail} onSearch={handleSearch} onClear={handleClear} />;
+    return (
+      <H2HResultSection
+        data={detail}
+        guildId={guildId}
+        meName={riotName}
+        meTag={riotTag}
+        onSelect={handleSelect}
+        onClear={handleClear}
+      />
+    );
   }
 
   // 멤버 없음 / 오류

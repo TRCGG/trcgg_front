@@ -4,7 +4,7 @@ import LaneIcon from "./LaneIcon";
 
 interface Props {
   opponent: FrequentOpponent;
-  onSelect: (opponent: FrequentOpponent) => void;
+  onSelect: (opponent: { riotName: string; riotNameTag?: string }) => void;
 }
 
 const FrequentOpponentCardLarge = ({ opponent, onSelect }: Props) => {
@@ -12,7 +12,7 @@ const FrequentOpponentCardLarge = ({ opponent, onSelect }: Props) => {
   return (
     <button
       type="button"
-      onClick={() => onSelect(opponent)}
+      onClick={() => onSelect({ riotName: opponent.riotName, riotNameTag: opponent.riotNameTag })}
       className="bg-darkBg2 border border-border2 text-white"
       style={{
         display: "flex",
