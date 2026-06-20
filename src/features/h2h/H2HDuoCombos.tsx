@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { H2HDuoChamp, H2HLaneCombo } from "@/data/types/h2h";
+import useChampionKoNames from "@/hooks/useChampionKoNames";
 import { v2WinRateColor } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
@@ -10,11 +11,16 @@ import { SortChip, SortOption } from "./chips";
 
 const PAGE_SIZE = 5;
 
-const H2HDuoComboRow = ({ combo }: { combo: H2HDuoChamp }) => {
+interface RowProps {
+  combo: H2HDuoChamp;
+  koName: (en?: string | null) => string;
+}
+
+const H2HDuoComboRow = ({ combo, koName }: RowProps) => {
   const wr = Math.round((combo.wins / combo.count) * 100);
   return (
     <div
-      title={`${combo.mine} + ${combo.oppo}`}
+      title={`${koName(combo.mine)} + ${koName(combo.oppo)}`}
       className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_auto_1fr_90px_56px] sm:gap-3 sm:px-3.5"
       style={{ borderLeft: `3px solid ${v2WinRateColor(wr)}` }}
     >
@@ -72,6 +78,7 @@ const SORT_OPTIONS: SortOption<DuoSort>[] = [
 ];
 
 const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
+  const koName = useChampionKoNames();
   const [sortBy, setSortBy] = useState<DuoSort>("count");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -112,7 +119,7 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
         {sorted.length > 0 ? (
           shown.map((c, i) => (
             // eslint-disable-next-line react/no-array-index-key
-            <H2HDuoComboRow key={i} combo={c} />
+            <H2HDuoComboRow key={i} combo={c} koName={koName} />
           ))
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>

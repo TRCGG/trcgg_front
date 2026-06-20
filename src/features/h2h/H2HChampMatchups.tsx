@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { H2HMatchup } from "@/data/types/h2h";
+import useChampionKoNames from "@/hooks/useChampionKoNames";
 import { TopLanePair, diffColor, v2WinRateColor } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
@@ -10,12 +11,17 @@ import { SameLaneChip, SortChip, SortOption } from "./chips";
 
 const PAGE_SIZE = 5;
 
-const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
+interface RowProps {
+  matchup: H2HMatchup;
+  koName: (en?: string | null) => string;
+}
+
+const H2HChampMatchupRow = ({ matchup, koName }: RowProps) => {
   const wr = Math.round((matchup.wins / matchup.count) * 100);
   const kdaDiffNum = parseFloat(matchup.kdaDiff);
   return (
     <div
-      title={`${matchup.myChamp} vs ${matchup.oppoChamp}`}
+      title={`${koName(matchup.myChamp)} vs ${koName(matchup.oppoChamp)}`}
       className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_auto_1fr_90px_90px_56px] sm:gap-3 sm:px-3.5"
       style={{ borderLeft: `3px solid ${v2WinRateColor(wr)}` }}
     >
@@ -93,6 +99,7 @@ const SORT_OPTIONS: SortOption<MatchupSort>[] = [
 ];
 
 const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLane }: Props) => {
+  const koName = useChampionKoNames();
   const [sortBy, setSortBy] = useState<MatchupSort>("count");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -138,7 +145,7 @@ const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLan
         {sorted.length > 0 ? (
           shown.map((m, i) => (
             // eslint-disable-next-line react/no-array-index-key
-            <H2HChampMatchupRow key={i} matchup={m} />
+            <H2HChampMatchupRow key={i} matchup={m} koName={koName} />
           ))
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
