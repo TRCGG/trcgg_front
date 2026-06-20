@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { H2HRecent, H2HRecentDetailMetrics, H2HRelation } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import { POSITION_LABELS, formatAgo, formatGameLen, formatPlayedDate } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
 import SectionCard from "./SectionCard";
+import LoadMoreButton from "./LoadMoreButton";
 import { SameLaneChip } from "./chips";
+
+const PAGE_SIZE = 5;
 
 type MetricKey = keyof H2HRecentDetailMetrics;
 
@@ -300,8 +303,19 @@ interface Props {
 
 const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) => {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [visible, setVisible] = useState(PAGE_SIZE);
   const filtered =
     mode === "against" && sameLaneOnly ? rows.filter((r) => r.myLane === r.oppoLane) : rows;
+
+  // 모드/필터 변경 시 다시 5개부터, 펼침 상태 초기화
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+    setOpenIdx(null);
+  }, [mode, sameLaneOnly]);
+
+  const shown = filtered.slice(0, visible);
+  const remaining = filtered.length - shown.length;
+
   return (
     <SectionCard
       title={mode === "with" ? "최근 함께한 게임" : "최근 맞대결"}
@@ -314,7 +328,7 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
     >
       <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
         {filtered.length > 0 ? (
-          filtered.map((r, i) => (
+          shown.map((r, i) => (
             <H2HRecentRow
               key={r.matchId}
               row={r}
@@ -327,6 +341,9 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             최근 기록이 없어요
           </div>
+        )}
+        {remaining > 0 && (
+          <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />
         )}
       </div>
     </SectionCard>

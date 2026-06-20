@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { H2HDuoChamp, H2HLaneCombo } from "@/data/types/h2h";
 import { v2WinRateColor } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
+import LoadMoreButton from "./LoadMoreButton";
 import { SortChip, SortOption } from "./chips";
+
+const PAGE_SIZE = 5;
 
 const H2HDuoComboRow = ({ combo }: { combo: H2HDuoChamp }) => {
   const wr = Math.round((combo.wins / combo.count) * 100);
@@ -70,6 +73,7 @@ const SORT_OPTIONS: SortOption<DuoSort>[] = [
 
 const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
   const [sortBy, setSortBy] = useState<DuoSort>("count");
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   const sorted = [...combos].sort((a, b) => {
     if (sortBy === "winRate") {
@@ -80,6 +84,13 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
     }
     return b.count - a.count;
   });
+
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [sortBy]);
+
+  const shown = sorted.slice(0, visible);
+  const remaining = sorted.length - shown.length;
 
   return (
     <SectionCard
@@ -99,7 +110,7 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
           />
         )}
         {sorted.length > 0 ? (
-          sorted.map((c, i) => (
+          shown.map((c, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <H2HDuoComboRow key={i} combo={c} />
           ))
@@ -107,6 +118,9 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             듀오 조합이 없어요
           </div>
+        )}
+        {remaining > 0 && (
+          <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />
         )}
       </div>
     </SectionCard>

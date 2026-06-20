@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { H2HMatchup } from "@/data/types/h2h";
 import { TopLanePair, diffColor, v2WinRateColor } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
+import LoadMoreButton from "./LoadMoreButton";
 import { SameLaneChip, SortChip, SortOption } from "./chips";
+
+const PAGE_SIZE = 5;
 
 const H2HChampMatchupRow = ({ matchup }: { matchup: H2HMatchup }) => {
   const wr = Math.round((matchup.wins / matchup.count) * 100);
@@ -91,6 +94,7 @@ const SORT_OPTIONS: SortOption<MatchupSort>[] = [
 
 const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLane }: Props) => {
   const [sortBy, setSortBy] = useState<MatchupSort>("count");
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   const filtered = sameLaneOnly
     ? matchups.filter((m) => !m.oppoLane || m.oppoLane === m.myLane)
@@ -105,6 +109,14 @@ const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLan
     }
     return b.count - a.count;
   });
+
+  // 정렬/필터 변경 시 다시 5개부터
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [sortBy, sameLaneOnly]);
+
+  const shown = sorted.slice(0, visible);
+  const remaining = sorted.length - shown.length;
 
   return (
     <SectionCard
@@ -124,7 +136,7 @@ const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLan
           <H2HTopLanePairCard label="가장 많이 맞붙은 라인" {...topLanePair} separator="vs" />
         )}
         {sorted.length > 0 ? (
-          sorted.map((m, i) => (
+          shown.map((m, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <H2HChampMatchupRow key={i} matchup={m} />
           ))
@@ -132,6 +144,9 @@ const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLan
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             매치업이 없어요
           </div>
+        )}
+        {remaining > 0 && (
+          <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />
         )}
       </div>
     </SectionCard>
