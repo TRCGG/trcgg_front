@@ -1,11 +1,10 @@
 import Image from "next/image";
 import React from "react";
 import PlayerNameButton from "@/features/matchHistory/PlayerNameButton";
-import ShieldIcon from "@/assets/images/shield.png";
 import EyeIcon from "@/assets/images/eye.png";
-import SwordIcon from "@/assets/images/sword.png";
 import WardIcon from "@/assets/images/ward.png";
 import SpriteImage from "@/components/ui/SpriteImage";
+import Tooltip from "@/components/ui/Tooltip";
 import { getChampionSprite } from "@/utils/spriteLoader";
 import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
@@ -15,6 +14,7 @@ import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
 interface Player {
   name: string;
   tag: string;
+  champName: string;
   champNameEng: string;
   kda: string;
   kdaRate: number;
@@ -35,12 +35,14 @@ interface Player {
 interface MatchDetailProps {
   players: Player[];
   isWin: boolean;
+  maxDamage: number;
+  maxDamageTaken: number;
 }
 
-const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
+const MatchDetailTable = ({ players, isWin, maxDamage, maxDamageTaken }: MatchDetailProps) => {
   return (
     <div className={`${isWin ? "bg-blueLighten" : "bg-redLighten"} rounded-md text-base`}>
-      <div className="grid grid-cols-[0.7fr_100px_1.2fr_0.8fr_0.7fr_1fr_0.8fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
+      <div className="grid grid-cols-[0.7fr_100px_1.2fr_0.8fr_0.7fr_0.8fr_0.8fr_0.8fr] place-items-center text-center gap-y-1 py-[2px] whitespace-nowrap">
         {/* 제목 행 */}
         {isWin && (
           <>
@@ -49,7 +51,8 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
             <div className="bg-border1 text-white font-bold w-full">빌드</div>
             <div className="bg-border1 text-white font-bold w-full">KDA</div>
             <div className="bg-border1 text-white font-bold w-full">킬관여율</div>
-            <div className="bg-border1 text-white font-bold w-full">피해량</div>
+            <div className="bg-border1 text-white font-bold w-full">준 피해량</div>
+            <div className="bg-border1 text-white font-bold w-full">받은 피해량</div>
             <div className="bg-border1 text-white font-bold w-full">시야</div>
           </>
         )}
@@ -58,7 +61,7 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
         {players.map((player) => (
           <React.Fragment key={`${player.name}-${player.tag}`}>
             {/* 1. 챔피언 이미지 */}
-            <div className="flex text-left w-[36px] h-[36px]">
+            <Tooltip content={player.champName} compact>
               <SpriteImage
                 spriteData={getChampionSprite(player.champNameEng)}
                 width={36}
@@ -67,7 +70,7 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
                 fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${player.champNameEng}.png`}
                 className="w-[36px] h-[36px]"
               />
-            </div>
+            </Tooltip>
 
             {/* 2. 소환사명 */}
             <PlayerNameButton name={player.name} tag={player.tag} isCenter={false} />
@@ -110,87 +113,97 @@ const MatchDetailTable = ({ players, isWin }: MatchDetailProps) => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-3 grid-rows-2 max-w-[96px]">
-                {player.items
-                  .filter((item) => item !== 0)
-                  .map((item, index) => (
+              <div className="grid grid-cols-3 grid-rows-2 max-w-[96px] gap-[3px]">
+                {[0, 1, 2, 3, 4, 5].map((slot) =>
+                  player.items[slot] !== 0 ? (
                     <ItemWithTooltip
-                      key={item}
-                      itemId={item}
+                      key={`slot-${slot}`}
+                      itemId={player.items[slot]}
                       width={18}
                       height={18}
-                      alt={`아이템 ${index + 1}`}
+                      alt={`아이템 ${slot + 1}`}
                       className="w-[18px] h-[18px]"
                     />
-                  ))}
+                  ) : (
+                    <div
+                      key={`empty-slot-${slot}`}
+                      className="w-[18px] h-[18px] rounded-[4px] bg-border1"
+                    />
+                  )
+                )}
               </div>
             </div>
 
             {/* 4. KDA */}
             <div className="flex flex-col">
-              <span>{player.kda}</span>
+              <span className="text-sm">{player.kda}</span>
               <span className={`text-xs font-semibold ${getKdaColor(player.kdaRate)}`}>
                 {player.kdaRate.toFixed(2)} KDA
               </span>
             </div>
 
             {/* 5. 킬 관여율 */}
-            <div>{player.killParticipation}%</div>
+            <div className="text-sm">{player.killParticipation}%</div>
 
-            {/* 6. 준 피해량, 받은 피해량 */}
-            <div className="flex flex-col items-baseline">
-              <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center">
-                  <Image
-                    src={SwordIcon}
-                    alt="sword icon"
-                    width={20}
-                    height={20}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span>{player.damage.toLocaleString()}</span>
+            {/* 6. 준 피해량 */}
+            <div className="flex flex-col w-full px-2 gap-y-0.5">
+              <div className="flex items-center gap-x-1 text-left">
+                <span className="text-xs md:text-sm tabular-nums">
+                  {player.damage.toLocaleString()}
+                </span>
               </div>
+              <div className="h-1.5 w-full rounded-full overflow-hidden bg-black">
+                <div
+                  className="h-full rounded-full bg-blueText"
+                  style={{ width: `${(player.damage / maxDamage) * 100}%` }}
+                />
+              </div>
+            </div>
 
-              <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center">
-                  <Image
-                    src={ShieldIcon}
-                    alt="shield icon"
-                    width={20}
-                    height={20}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span>{player.damageTaken.toLocaleString()}</span>
+            {/* 7. 받은 피해량 */}
+            <div className="flex flex-col w-full px-2 gap-y-0.5">
+              <div className="flex items-center gap-x-1 text-left">
+                <span className="text-xs md:text-sm tabular-nums">
+                  {player.damageTaken.toLocaleString()}
+                </span>
+              </div>
+              <div className="h-1.5 w-full rounded-full overflow-hidden bg-black">
+                <div
+                  className="h-full rounded-full bg-redText"
+                  style={{ width: `${(player.damageTaken / maxDamageTaken) * 100}%` }}
+                />
               </div>
             </div>
 
             {/* 시야 점수, 제어 와드 개수 */}
             <div className="flex flex-col items-baseline">
               <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center">
-                  <Image
-                    src={EyeIcon}
-                    alt="vision score icon"
-                    width={20}
-                    height={20}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span>{player.visionScore}</span>
+                <Tooltip content="시야 점수" compact>
+                  <div className="flex items-center justify-center">
+                    <Image
+                      src={EyeIcon}
+                      alt="vision score icon"
+                      width={20}
+                      height={20}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </Tooltip>
+                <span className="text-sm">{player.visionScore}</span>
               </div>
               <div className="flex gap-x-1.5">
-                <div className="flex items-center justify-center w-5 h-5">
-                  <Image
-                    src={WardIcon}
-                    alt="ward icon"
-                    width={20}
-                    height={20}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <span>{player.wards}</span>
+                <Tooltip content="제어 와드 개수" compact>
+                  <div className="flex items-center justify-center w-5 h-5">
+                    <Image
+                      src={WardIcon}
+                      alt="ward icon"
+                      width={20}
+                      height={20}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                </Tooltip>
+                <span className="text-sm">{player.wards}</span>
               </div>
             </div>
           </React.Fragment>

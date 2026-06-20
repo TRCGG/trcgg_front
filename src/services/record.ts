@@ -1,21 +1,21 @@
 import { ApiResponse } from "@/services/apiService";
 import {
   GameRecordResponse,
+  MostPicksResponse,
   UserRecentRecordsResponse,
   UserRecordResponse,
 } from "@/data/types/record";
 import api from "@/services/index";
+import buildQuery from "@/utils/buildQuery";
 
 export const getAllRecords = async (
   riotName: string,
   riotNameTag: string | null,
   guildId?: string
 ): Promise<ApiResponse<UserRecordResponse>> => {
-  const params: Record<string, string> = {};
-  if (riotNameTag) params.riotNameTag = riotNameTag;
-
+  const query = buildQuery({ riotNameTag: riotNameTag ?? undefined });
   try {
-    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/dashboard`, params);
+    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/dashboard${query}`);
   } catch (error) {
     return {
       data: null,
@@ -30,11 +30,48 @@ export const getRecentRecords = async (
   riotNameTag: string | null,
   guildId?: string
 ): Promise<ApiResponse<UserRecentRecordsResponse>> => {
-  const params: Record<string, string> = {};
-  if (riotNameTag) params.riotNameTag = riotNameTag;
-
+  const query = buildQuery({ riotNameTag: riotNameTag ?? undefined, limit: 200 });
   try {
-    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games?limit=200`, params);
+    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games${query}`);
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Unknown error",
+      status: 500,
+    };
+  }
+};
+
+export interface MostPicksParams {
+  datePreset?: "recent" | "season" | "range";
+  season?: string;
+  fromMonth?: number;
+  toMonth?: number;
+  position?: "ALL" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
+  championName?: string;
+  sortBy?: "totalCount" | "winRate";
+  page?: number;
+  limit?: number;
+}
+
+export const getMostPicks = async (
+  riotName: string,
+  guildId: string,
+  params?: MostPicksParams
+): Promise<ApiResponse<MostPicksResponse>> => {
+  const query = buildQuery({
+    datePreset: params?.datePreset,
+    season: params?.season,
+    fromMonth: params?.fromMonth,
+    toMonth: params?.toMonth,
+    position: params?.position,
+    championName: params?.championName,
+    sortBy: params?.sortBy,
+    page: params?.page,
+    limit: params?.limit ?? 100000,
+  });
+  try {
+    return await api.get(`/api/matches/${guildId}/${riotName}/most-picks${query}`);
   } catch (error) {
     return {
       data: null,
