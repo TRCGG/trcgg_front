@@ -113,7 +113,11 @@ interface InsightCopy {
 }
 
 // 인사이트 type + 수치 → 한국어 문구 조립 (백엔드는 데이터만, 문구는 프론트)
-export const v2InsightCopy = (ins: H2HInsight): InsightCopy => {
+// koName: 영문 챔피언 키 → 한글명 변환 (미주입 시 영문 그대로)
+export const v2InsightCopy = (
+  ins: H2HInsight,
+  koName: (en?: string | null) => string = (en) => en ?? ""
+): InsightCopy => {
   const signed = (n: number) => (n > 0 ? "+" : "") + n;
   const md = (d: string) => {
     const x = new Date(d);
@@ -123,18 +127,18 @@ export const v2InsightCopy = (ins: H2HInsight): InsightCopy => {
     case "counterPick":
       return {
         title: "필승 카드",
-        body: `이 상대엔 ${ins.myChamp} 픽이 답`,
-        stat: `vs ${ins.oppoChamp} ${ins.wins}승 ${ins.losses}패 · ${Math.round(
+        body: `이 상대엔 ${koName(ins.myChamp)} 픽이 답`,
+        stat: `vs ${koName(ins.oppoChamp)} ${ins.wins}승 ${ins.losses}패 · ${Math.round(
           ins.winRate ?? 0
         )}% · KDA ${signed(ins.kdaDiff ?? 0)}`,
       };
     case "nemesis":
       return {
         title: "천적 주의보",
-        body: `${ins.oppoChamp} 픽 나오면 일단 긴장`,
-        stat: `내 ${ins.myChamp} vs ${ins.oppoChamp} ${ins.wins}승 ${ins.losses}패 · ${Math.round(
-          ins.winRate ?? 0
-        )}% · KDA ${signed(ins.kdaDiff ?? 0)}`,
+        body: `${koName(ins.oppoChamp)} 픽 나오면 일단 긴장`,
+        stat: `내 ${koName(ins.myChamp)} vs ${koName(ins.oppoChamp)} ${ins.wins}승 ${
+          ins.losses
+        }패 · ${Math.round(ins.winRate ?? 0)}% · KDA ${signed(ins.kdaDiff ?? 0)}`,
       };
     case "laneVsResult":
       return ins.direction === "laneLoseButWin"

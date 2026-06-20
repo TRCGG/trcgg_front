@@ -1,10 +1,12 @@
 import { H2HInsight } from "@/data/types/h2h";
 import colors from "@/styles/colors";
+import useChampionKoNames from "@/hooks/useChampionKoNames";
 import { v2InsightCopy } from "./h2hHelpers";
 import SectionCard from "./SectionCard";
 
 interface CardProps {
   insight: H2HInsight;
+  koName: (en?: string | null) => string;
 }
 
 const KIND_CFG: Record<string, { color: string; bg: string; icon: string }> = {
@@ -16,8 +18,8 @@ const KIND_CFG: Record<string, { color: string; bg: string; icon: string }> = {
   info: { color: colors.primary1, bg: colors.darkBg1, icon: "·" },
 };
 
-const H2HInsightCard = ({ insight }: CardProps) => {
-  const copy = v2InsightCopy(insight);
+const H2HInsightCard = ({ insight, koName }: CardProps) => {
+  const copy = v2InsightCopy(insight, koName);
   const cfg = KIND_CFG[insight.kind] || KIND_CFG.info;
   return (
     <div
@@ -83,21 +85,24 @@ interface Props {
   insights: H2HInsight[];
 }
 
-const H2HInsightStack = ({ insights }: Props) => (
-  <SectionCard title="인사이트" subtitle="맞붙을 때의 상성·카운터">
-    <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-      {insights.length > 0 ? (
-        insights.slice(0, 4).map((ins, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <H2HInsightCard key={i} insight={ins} />
-        ))
-      ) : (
-        <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
-          아직 인사이트가 없어요
-        </div>
-      )}
-    </div>
-  </SectionCard>
-);
+const H2HInsightStack = ({ insights }: Props) => {
+  const koName = useChampionKoNames();
+  return (
+    <SectionCard title="인사이트" subtitle="맞붙을 때의 상성·카운터">
+      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+        {insights.length > 0 ? (
+          insights.slice(0, 4).map((ins, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <H2HInsightCard key={i} insight={ins} koName={koName} />
+          ))
+        ) : (
+          <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
+            아직 인사이트가 없어요
+          </div>
+        )}
+      </div>
+    </SectionCard>
+  );
+};
 
 export default H2HInsightStack;
