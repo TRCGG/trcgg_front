@@ -1,10 +1,16 @@
 import { ApiResponse } from "@/services/apiService";
 import { UserStatisticsResponse, ChampionStatisticsResponse } from "@/data/types/statistics";
 import api from "@/services/index";
-import buildQuery from "@/utils/buildQuery";
 
 export type Position = "ALL" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
 export type DatePreset = "recent" | "season" | "range";
+
+const buildQuery = (params: Record<string, string | number | undefined>): string => {
+  const parts = Object.entries(params)
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => `${k}=${v}`);
+  return parts.length ? `?${parts.join("&")}` : "";
+};
 
 export const getUserStatistics = async (
   guildId: string,
