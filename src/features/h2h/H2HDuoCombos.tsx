@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { H2HDuoChamp, H2HLaneCombo, LanePosition } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import useChampionKoNames from "@/hooks/useChampionKoNames";
@@ -7,6 +7,9 @@ import ChampPortrait from "./ChampPortrait";
 import LaneTabs, { LaneTabValue } from "./LaneTabs";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
+import LoadMoreButton from "./LoadMoreButton";
+
+const PAGE_SIZE = 5;
 
 interface DuoGroup {
   champ: string;
@@ -225,6 +228,12 @@ interface Props {
 const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
   const koName = useChampionKoNames();
   const [lane, setLane] = useState<LaneTabValue>("ALL");
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  // 라인 탭 변경 시 다시 처음부터
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [lane]);
 
   const totalGames = combos.reduce((s, c) => s + c.count, 0) || 1;
   const laneShare = (v: LanePos) =>
@@ -257,6 +266,8 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
   const groups = Object.values(groupsMap).sort(
     (a, b) => b.games - a.games || b.wins / b.games - a.wins / a.games
   );
+  const shown = groups.slice(0, visible);
+  const remaining = groups.length - shown.length;
 
   return (
     <SectionCard
@@ -276,18 +287,21 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
           />
         )}
         {groups.length > 0 ? (
-          groups.map((g, i) => (
+          shown.map((g) => (
             <DuoGroupCard
               key={`${g.champ}|${g.lane}`}
               group={g}
               koName={koName}
-              defaultOpen={i < 2}
+              defaultOpen={false}
             />
           ))
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             해당 라인 듀오가 없어요
           </div>
+        )}
+        {remaining > 0 && (
+          <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />
         )}
       </div>
     </SectionCard>
