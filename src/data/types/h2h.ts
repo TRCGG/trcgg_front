@@ -196,7 +196,8 @@ export interface H2HDuoChamp {
   oppoLane: LanePosition;
   count: number;
   wins: number;
-  comboKda: string;
+  myKda: string; // 내 챔피언 기준 KDA (그룹 헤더용)
+  mateKda: string; // 함께한 팀원 기준 KDA (펼친 자식 행용)
 }
 
 /** 함께한 블록 */
