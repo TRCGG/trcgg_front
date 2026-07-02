@@ -8,8 +8,17 @@ import LaneTabs, { LaneTabValue } from "./LaneTabs";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
 import LoadMoreButton from "./LoadMoreButton";
+import { SameLaneChip, SortChip, SortOption } from "./chips";
 
 const PAGE_SIZE = 5;
+
+type MatchupSort = "count" | "winRate" | "kda";
+
+const SORT_OPTIONS: SortOption<MatchupSort>[] = [
+  { key: "count", label: "판수순" },
+  { key: "winRate", label: "승률순" },
+  { key: "kda", label: "KDA순" },
+];
 
 interface MatchupGroup {
   champ: string;
@@ -234,12 +243,13 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
   const koName = useChampionKoNames();
   const [lane, setLane] = useState<LaneTabValue>("ALL");
   const [sameLaneOnly, setSameLaneOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<MatchupSort>("count");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-  // 라인 탭·맞라인만 변경 시 다시 처음부터
+  // 라인 탭·맞라인만·정렬 변경 시 다시 처음부터
   useEffect(() => {
     setVisible(PAGE_SIZE);
-  }, [lane, sameLaneOnly]);
+  }, [lane, sameLaneOnly, sortBy]);
 
   const totalGames = matchups.reduce((s, m) => s + m.count, 0) || 1;
   const laneShare = (v: LanePos) =>
@@ -270,10 +280,16 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
     grp.kdaSum += (parseFloat(m.myKda) || 0) * m.count;
     grp.children.push(m);
   });
-  // 그룹 정렬 고정: 합산 판수 desc, 동률 시 승률 desc
-  const groups = Object.values(groupsMap).sort(
-    (a, b) => b.games - a.games || b.wins / b.games - a.wins / a.games
-  );
+  // 그룹 정렬: 선택 기준 desc, 동률 시 판수 desc
+  const groups = Object.values(groupsMap).sort((a, b) => {
+    if (sortBy === "winRate") {
+      return b.wins / b.games - a.wins / a.games || b.games - a.games;
+    }
+    if (sortBy === "kda") {
+      return b.kdaSum / b.games - a.kdaSum / a.games || b.games - a.games;
+    }
+    return b.games - a.games || b.wins / b.games - a.wins / a.games;
+  });
   const shown = groups.slice(0, visible);
   const remaining = groups.length - shown.length;
 
@@ -283,56 +299,8 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
       rightSlot={
         <div className="flex flex-wrap items-center justify-end gap-1.5">
           <LaneTabs value={lane} onChange={setLane} share={laneShare} />
-          <button
-            type="button"
-            onClick={() => setSameLaneOnly((v) => !v)}
-            className="border text-sm"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "6px 10px",
-              borderRadius: 999,
-              flexShrink: 0,
-              borderColor: sameLaneOnly ? colors.yellow : colors.border2,
-              background: sameLaneOnly ? "rgba(255,200,0,0.12)" : colors.darkBg2,
-              color: sameLaneOnly ? colors.yellow : colors.primary2,
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: sameLaneOnly ? colors.yellow : colors.primary2,
-              }}
-            />
-            맞라인만
-          </button>
-          <span
-            className="bg-rankBg2 border border-border2 text-primary1"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              padding: "6px 10px",
-              borderRadius: 999,
-              fontSize: 11,
-              flexShrink: 0,
-            }}
-          >
-            판수순
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
+          <SameLaneChip active={sameLaneOnly} onChange={setSameLaneOnly} />
+          <SortChip value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
         </div>
       }
     >
