@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { H2HMatchup, LanePosition } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import useChampionKoNames from "@/hooks/useChampionKoNames";
@@ -7,6 +7,9 @@ import ChampPortrait from "./ChampPortrait";
 import LaneTabs, { LaneTabValue } from "./LaneTabs";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
+import LoadMoreButton from "./LoadMoreButton";
+
+const PAGE_SIZE = 5;
 
 interface MatchupGroup {
   champ: string;
@@ -231,6 +234,12 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
   const koName = useChampionKoNames();
   const [lane, setLane] = useState<LaneTabValue>("ALL");
   const [sameLaneOnly, setSameLaneOnly] = useState(false);
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  // 라인 탭·맞라인만 변경 시 다시 처음부터
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [lane, sameLaneOnly]);
 
   const totalGames = matchups.reduce((s, m) => s + m.count, 0) || 1;
   const laneShare = (v: LanePos) =>
@@ -265,6 +274,8 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
   const groups = Object.values(groupsMap).sort(
     (a, b) => b.games - a.games || b.wins / b.games - a.wins / a.games
   );
+  const shown = groups.slice(0, visible);
+  const remaining = groups.length - shown.length;
 
   return (
     <SectionCard
@@ -330,18 +341,21 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
           <H2HTopLanePairCard label="가장 많이 맞붙은 라인" {...topLanePair} separator="vs" />
         )}
         {groups.length > 0 ? (
-          groups.map((g, i) => (
+          shown.map((g) => (
             <ChampGroup
               key={`${g.champ}|${g.lane}`}
               group={g}
               koName={koName}
-              defaultOpen={i < 2}
+              defaultOpen={false}
             />
           ))
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             해당 라인 매치업이 없어요
           </div>
+        )}
+        {remaining > 0 && (
+          <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />
         )}
       </div>
     </SectionCard>
