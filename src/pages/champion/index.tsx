@@ -106,41 +106,6 @@ const Champion: NextPage = () => {
     placeholderData: undefined,
   });
 
-  // 라인 비중(%) 계산용 전체 라인 데이터 — selectedPosition이 "ALL"일 땐 위 쿼리와
-  // queryKey가 같아 캐시를 공유하므로 중복 요청이 발생하지 않는다.
-  const { data: allPositionStatisticsData } = useQuery<ApiResponse<ChampionStatisticsResponse>>({
-    queryKey: [
-      "championStatistics",
-      guildId,
-      "ALL",
-      dateMode,
-      querySeason,
-      queryFromMonth,
-      queryToMonth,
-    ],
-    queryFn: () =>
-      getChampionStatistics(
-        guildId,
-        "ALL",
-        dateMode as DatePreset,
-        querySeason,
-        queryFromMonth,
-        queryToMonth
-      ),
-    enabled: !!guildId,
-    staleTime: 10 * 60 * 1000,
-    structuralSharing: false,
-  });
-
-  const laneShareStats = allPositionStatisticsData?.data?.data ?? [];
-  const laneShareTotal = laneShareStats.reduce((s, c) => s + c.totalCount, 0) || 1;
-  const laneShare = (position: Position) =>
-    Math.round(
-      (laneShareStats.filter((c) => c.position === position).reduce((s, c) => s + c.totalCount, 0) /
-        laneShareTotal) *
-        100
-    );
-
   const handleSort = (column: SortBy) => {
     if (sortBy === column) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -336,7 +301,6 @@ const Champion: NextPage = () => {
       <PositionFilter
         selectedPosition={selectedPosition}
         onSelectPosition={setSelectedPosition}
-        share={laneShareStats.length ? laneShare : undefined}
         className="mt-4"
       />
 
