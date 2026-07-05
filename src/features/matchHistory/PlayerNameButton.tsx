@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import Link from "next/link";
 import React from "react";
 
 const PlayerNameButton = ({
@@ -12,18 +12,14 @@ const PlayerNameButton = ({
   isCenter?: boolean;
   className?: string;
 }) => {
-  const router = useRouter();
   return (
     <div className="relative group min-w-0 w-full">
-      <button
-        type="button"
-        className={`truncate w-full overflow-hidden whitespace-nowrap ${isCenter ? "text-center" : "text-left"} ${className}`}
-        onClick={() => {
-          router.push(`/summoners/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
-        }}
+      <Link
+        href={`/summoners/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`}
+        className={`block truncate w-full overflow-hidden whitespace-nowrap ${isCenter ? "text-center" : "text-left"} ${className}`}
       >
         {name}
-      </button>
+      </Link>
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white z-10 whitespace-nowrap w-max">
         <span>{name}</span>
         <span className="text-primary2"> #{tag}</span>
