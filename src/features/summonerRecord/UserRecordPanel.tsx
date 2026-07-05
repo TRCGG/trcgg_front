@@ -85,6 +85,15 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   ).position;
 
   const totalGames = data.lines.reduce((sum, line) => sum + line.totalCount, 0);
+  // 라인 필터 비중(%) — 이미 로드된 라인별 통계(data.lines)로 프론트 계산
+  const championLaneShare = (position: Position) =>
+    Math.round(
+      (data.lines
+        .filter((line) => line.position === position)
+        .reduce((sum, line) => sum + line.totalCount, 0) /
+        (totalGames || 1)) *
+        100
+    );
   const totalWins = data.lines.reduce((sum, line) => sum + line.win, 0);
   const totalLoses = data.lines.reduce((sum, line) => sum + line.lose, 0);
   const calculatedWinRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(2) : "0.00";
@@ -206,6 +215,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
               <PositionFilter
                 selectedPosition={championPosition}
                 onSelectPosition={setChampionPosition}
+                share={championLaneShare}
               />
             </div>
 
