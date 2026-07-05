@@ -10,6 +10,8 @@ interface Props {
   selectedPosition: Position;
   onSelectPosition: (position: Position) => void;
   className?: string;
+  /** 각 라인의 플레이 비중(%) — "전체"엔 표기하지 않음. 미주입 시 % 숨김 */
+  share?: (position: Position) => number;
 }
 
 const positions: Array<{ label: string; value: Position; icon: StaticImageData | null }> = [
@@ -21,11 +23,12 @@ const positions: Array<{ label: string; value: Position; icon: StaticImageData |
   { label: "서폿", value: "SUP", icon: LaneSupportLogo },
 ];
 
-const PositionFilter = ({ selectedPosition, onSelectPosition, className }: Props) => {
+const PositionFilter = ({ selectedPosition, onSelectPosition, className, share }: Props) => {
   return (
     <div className={`flex gap-2 flex-wrap ${className || ""}`}>
       {positions.map((position) => {
         const isSelected = selectedPosition === position.value;
+        const pct = share && position.value !== "ALL" ? share(position.value) : null;
         return (
           <button
             key={position.value}
@@ -47,6 +50,15 @@ const PositionFilter = ({ selectedPosition, onSelectPosition, className }: Props
               />
             )}
             <span className="text-xs sm:text-sm font-medium">{position.label}</span>
+            {pct != null && (
+              <span
+                className={`text-[10px] font-bold tabular-nums ${
+                  isSelected ? "text-blueDarken" : "text-blueText"
+                }`}
+              >
+                {pct}%
+              </span>
+            )}
           </button>
         );
       })}
