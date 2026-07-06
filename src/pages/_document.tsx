@@ -8,6 +8,10 @@ class MyDocument extends Document {
     return (
       <Html lang="ko">
         <Head>
+          {/* 브라우저 탭 아이콘(파비콘) */}
+          <link rel="icon" type="image/png" href="/og-mini.png" />
+          <link rel="shortcut icon" type="image/png" href="/og-mini.png" />
+          <link rel="apple-touch-icon" href="/og-mini.png" />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="GMOK" />
           <meta property="og:title" content="롤 길드 전적 검색 - 지목 | GMOK.KR" />
