@@ -224,10 +224,7 @@ const H2HStatCompareBlock = ({ mine, oppos }: Props) => {
   }
 
   return (
-    <SectionCard
-      title="평균 지표 비교"
-      subtitle="왼쪽 — 나 / 오른쪽 — 상대 · 정글 매치업엔 상대 정글 CS 추가"
-    >
+    <SectionCard title="평균 지표 비교" subtitle="왼쪽 — 나 / 오른쪽 — 상대">
       <div style={{ padding: "4px 16px 12px" }}>
         <div
           className="text-primary2"

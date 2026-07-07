@@ -42,14 +42,6 @@ const Side = ({ p, align }: SideProps) => {
             isLeft ? "flex-row" : "flex-row-reverse"
           }`}
         >
-          {p.mmr != null ? (
-            <span className="text-yellow" style={{ fontFeatureSettings: '"tnum"' }}>
-              MMR {p.mmr}
-            </span>
-          ) : (
-            <span className="text-primary2">MMR 집계 전</span>
-          )}
-          <span className="bg-border1 hidden h-2.5 w-px sm:inline-block" />
           <span className="whitespace-nowrap">내전 승률 {p.seasonWR ?? "-"}%</span>
         </div>
       </div>

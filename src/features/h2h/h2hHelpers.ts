@@ -1,4 +1,4 @@
-import { H2HInsight, H2HLaneMatrix } from "@/data/types/h2h";
+import { H2HAgainst, H2HLaneMatrix, H2HMatchup } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 
 export type LanePos = "TOP" | "JUG" | "MID" | "ADC" | "SUP";
@@ -106,75 +106,148 @@ export const formatFullDate = (iso: string | null): string => {
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 };
 
-interface InsightCopy {
+export type InsightKind = "best" | "worst" | "lane" | "counter";
+
+export interface BuiltInsight {
+  kind: InsightKind;
   title: string;
   body: string;
   stat: string;
 }
 
-// 인사이트 type + 수치 → 한국어 문구 조립 (백엔드는 데이터만, 문구는 프론트)
-// koName: 영문 챔피언 키 → 한글명 변환 (미주입 시 영문 그대로)
-export const v2InsightCopy = (
-  ins: H2HInsight,
+interface InsightAgg {
+  key: string;
+  g: number; // games
+  w: number; // wins
+  champ?: string;
+  lane?: LanePos;
+}
+
+const laneLabel = (lane?: LanePos): string => (lane ? POSITION_LABELS[lane] : "");
+
+/**
+ * 인사이트는 프론트 소유(C-3) — 백엔드 insights는 무시하고 matchups/streak/winRate로 재생성한다.
+ * 카드마다 집계 단위가 다르다: (myChamp+myLane) / oppoChamp / myLane.
+ * koName: 영문 챔피언 키 → 한글명 변환 (미주입 시 영문 그대로)
+ */
+export const buildInsights = (
+  against: H2HAgainst,
   koName: (en?: string | null) => string = (en) => en ?? ""
-): InsightCopy => {
-  const signed = (n: number) => (n > 0 ? "+" : "") + n;
-  const md = (d: string) => {
-    const x = new Date(d);
-    return `${x.getMonth() + 1}/${x.getDate()}`;
+): BuiltInsight[] => {
+  const ms = against.matchups || [];
+  const wrOf = (w: number, g: number): number => (g ? Math.round((w / g) * 100) : 0);
+
+  const aggBy = (
+    keyFn: (m: H2HMatchup) => string,
+    extra: (m: H2HMatchup) => Partial<InsightAgg>
+  ): InsightAgg[] => {
+    const map: Record<string, InsightAgg> = {};
+    ms.forEach((m) => {
+      const k = keyFn(m);
+      if (!map[k]) map[k] = { key: k, g: 0, w: 0, ...extra(m) };
+      map[k].g += m.count;
+      map[k].w += m.wins;
+    });
+    return Object.values(map);
   };
-  switch (ins.type) {
-    case "counterPick":
-      return {
-        title: "필승 카드",
-        body: `이 상대엔 ${koName(ins.myChamp)} 픽이 답`,
-        stat: `vs ${koName(ins.oppoChamp)} ${ins.wins}승 ${ins.losses}패 · ${Math.round(
-          ins.winRate ?? 0
-        )}% · KDA ${signed(ins.kdaDiff ?? 0)}`,
-      };
-    case "nemesis":
-      return {
-        title: "천적 주의보",
-        body: `${koName(ins.oppoChamp)} 픽 나오면 일단 긴장`,
-        stat: `내 ${koName(ins.myChamp)} vs ${koName(ins.oppoChamp)} ${ins.wins}승 ${
-          ins.losses
-        }패 · ${Math.round(ins.winRate ?? 0)}% · KDA ${signed(ins.kdaDiff ?? 0)}`,
-      };
-    case "laneVsResult":
-      return ins.direction === "laneLoseButWin"
-        ? {
-            title: "한타로 다 뒤집음",
-            body: "라인 지고도 캐리한 판이 많다",
-            stat: `${ins.total}승 중 ${ins.laneCount}판은 라인 골드 열세였음`,
-          }
-        : {
-            title: "이기던 라인, 던진 한타",
-            body: "라인전 이기고도 진 판이 많다",
-            stat: `패배 ${ins.total}판 중 ${ins.laneCount}판은 라인 골드 우위였음`,
-          };
-    case "momentum": {
-      const up = ins.direction === "up";
-      return {
-        title: "요즘 기세",
-        body: up ? `최근 ${ins.recentN}판 ${ins.recentWins}승 — 슬슬 내 흐름` : "요즘 밀리는 중",
-        stat: `통산 ${Math.round(ins.careerWinRate ?? 0)}% → 최근 ${ins.recentN}판 ${Math.round(
-          ins.recentWinRate ?? 0
-        )}%`,
-      };
-    }
-    case "streak": {
-      const win = ins.streakKind === "win";
-      const cur =
-        (ins.currentLength ?? 0) > 1
-          ? ` · 현재 ${ins.currentLength}${win ? "연승" : "연패"} 진행 중`
-          : "";
-      return {
-        title: "역대 기록",
-        body: `역대 최장 ${ins.length}${win ? "연승" : "연패"}`,
-        stat: `${md(ins.fromDate ?? "")} ~ ${md(ins.toDate ?? "")}${cur}`,
-      };
-    }
-    default:
-      return { title: "", body: "", stat: "" };
+
+  // C-1: 최소 표본 games ≥ 3 (2판 100% 같은 과대표본 방지)
+  const my = aggBy(
+    (m) => `${m.myChamp}|${m.myLane}`,
+    (m) => ({ champ: m.myChamp, lane: m.myLane })
+  ).filter((x) => x.g >= 3);
+  const op = aggBy(
+    (m) => m.oppoChamp,
+    (m) => ({ champ: m.oppoChamp })
+  ).filter((x) => x.g >= 3);
+  const ln = aggBy(
+    (m) => m.myLane,
+    (m) => ({ lane: m.myLane })
+  ).filter((x) => x.g >= 3);
+
+  const byWrDesc = (a: InsightAgg, b: InsightAgg) => wrOf(b.w, b.g) - wrOf(a.w, a.g);
+  const rec = (x: InsightAgg) => `${x.g}판 ${wrOf(x.w, x.g)}% · ${x.w}승 ${x.g - x.w}패`;
+
+  const out: BuiltInsight[] = [];
+  let bestPickLane: LanePos | undefined;
+
+  // 최고의 픽 — my 그룹이 있으면 항상
+  if (my.length) {
+    const b = [...my].sort(byWrDesc)[0];
+    bestPickLane = b.lane;
+    out.push({
+      kind: "best",
+      title: "최고의 픽",
+      body: `내 ${koName(b.champ)} · ${laneLabel(b.lane)}`,
+      stat: rec(b),
+    });
   }
+  // 피해야 할 픽 — 최저 승률 & < 50%
+  if (my.length) {
+    const w = [...my].sort(byWrDesc).reverse()[0];
+    if (wrOf(w.w, w.g) < 50) {
+      out.push({
+        kind: "worst",
+        title: "피해야 할 픽",
+        body: `내 ${koName(w.champ)} · ${laneLabel(w.lane)}`,
+        stat: rec(w),
+      });
+    }
+  }
+  // 강한 상대 — 최고 승률 & ≥ 55%
+  if (op.length) {
+    const b = [...op].sort(byWrDesc)[0];
+    if (wrOf(b.w, b.g) >= 55) {
+      out.push({
+        kind: "lane",
+        title: "강한 상대",
+        body: `상대 ${koName(b.champ)} 픽이면 해볼 만함`,
+        stat: rec(b),
+      });
+    }
+  }
+  // 천적 챔피언 — 최저 승률 & < 50%
+  if (op.length) {
+    const n = [...op].sort(byWrDesc).reverse()[0];
+    if (wrOf(n.w, n.g) < 50) {
+      out.push({
+        kind: "counter",
+        title: "천적 챔피언",
+        body: `상대 ${koName(n.champ)} 픽이면 긴장`,
+        stat: rec(n),
+      });
+    }
+  }
+  // 라인 우위 — 최고 승률. C-2: 최고의 픽과 같은 라인이면 생략(중복 가드)
+  if (ln.length) {
+    const l = [...ln].sort(byWrDesc)[0];
+    if (l.lane !== bestPickLane) {
+      out.push({
+        kind: "lane",
+        title: "라인 우위",
+        body: `${laneLabel(l.lane)} 라인에서 우위`,
+        stat: rec(l),
+      });
+    }
+  }
+  // 요즘 기세 — B: 총 맞대결 ≥ 5 & |최근5판 승률 − 통산 승률| ≥ 20%p
+  const st = against.streak || [];
+  if (against.games >= 5 && st.length) {
+    const recent = st.slice(-5);
+    const rw = recent.filter((s) => s === "W").length;
+    const career = Math.round(against.winRate);
+    const rwr = Math.round((rw / recent.length) * 100);
+    if (Math.abs(rwr - career) >= 20) {
+      const up = rwr >= career;
+      out.push({
+        kind: up ? "best" : "worst",
+        title: "요즘 기세",
+        body: up ? `최근 ${recent.length}판 ${rw}승 — 흐름 좋음` : "최근 흐름은 주춤",
+        stat: `통산 ${career}% → 최근 ${recent.length}판 ${rwr}%`,
+      });
+    }
+  }
+
+  // 노출: 코드 순서대로, 상위 6장
+  return out.slice(0, 6);
 };

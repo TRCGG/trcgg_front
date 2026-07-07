@@ -28,8 +28,7 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
   const initialRelation: H2HRelation =
     data.against.games === 0 && data.together.games > 0 ? "with" : "against";
   const [relation, setRelation] = useState<H2HRelation>(initialRelation);
-  // 매치업 섹션과 최근 맞대결 리스트의 "맞라인만" 토글은 서로 독립
-  const [matchupSameLane, setMatchupSameLane] = useState(false);
+  // 최근 맞대결 리스트의 "맞라인만" 토글 (매치업 섹션은 자체 상태로 관리)
   const [recentSameLane, setRecentSameLane] = useState(false);
 
   const counts = { with: data.together.games, against: data.against.games };
@@ -106,7 +105,7 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
         <div className="h2h-mid-grid">
           <H2HStatCompareBlock mine={data.against.mine} oppos={data.against.oppos} />
           <H2HLaneMatrix matrix={data.against.laneMatrix} />
-          <H2HInsightStack insights={data.against.insights} />
+          <H2HInsightStack against={data.against} />
         </div>
       )}
 
@@ -117,8 +116,6 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
         <H2HChampMatchups
           matchups={data.against.matchups}
           topLanePair={topLaneMatchup(data.against.laneMatrix)}
-          sameLaneOnly={matchupSameLane}
-          onToggleSameLane={setMatchupSameLane}
         />
       )}
 

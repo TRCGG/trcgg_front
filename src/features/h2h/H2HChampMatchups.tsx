@@ -1,94 +1,16 @@
 import { useEffect, useState } from "react";
-import { H2HMatchup } from "@/data/types/h2h";
+import { H2HMatchup, LanePosition } from "@/data/types/h2h";
+import colors from "@/styles/colors";
 import useChampionKoNames from "@/hooks/useChampionKoNames";
-import { TopLanePair, diffColor, v2WinRateColor } from "./h2hHelpers";
-import ChampIcon from "./ChampIcon";
-import LaneIcon from "./LaneIcon";
+import { LanePos, TopLanePair, v2WinRateColor } from "./h2hHelpers";
+import ChampPortrait from "./ChampPortrait";
+import LaneTabs, { LaneTabValue } from "./LaneTabs";
 import SectionCard from "./SectionCard";
 import H2HTopLanePairCard from "./H2HTopLanePairCard";
 import LoadMoreButton from "./LoadMoreButton";
 import { SameLaneChip, SortChip, SortOption } from "./chips";
 
 const PAGE_SIZE = 5;
-
-interface RowProps {
-  matchup: H2HMatchup;
-  koName: (en?: string | null) => string;
-}
-
-const H2HChampMatchupRow = ({ matchup, koName }: RowProps) => {
-  const wr = Math.round((matchup.wins / matchup.count) * 100);
-  const kdaDiffNum = parseFloat(matchup.kdaDiff);
-  return (
-    <div
-      title={`${koName(matchup.myChamp)} vs ${koName(matchup.oppoChamp)}`}
-      className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_auto_1fr_90px_90px_56px] sm:gap-3 sm:px-3.5"
-      style={{ borderLeft: `3px solid ${v2WinRateColor(wr)}` }}
-    >
-      <span className="hidden sm:block" />
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        {matchup.myLane && <LaneIcon position={matchup.myLane} size={16} />}
-        <ChampIcon en={matchup.myChamp} size={36} mine />
-        <div className="flex shrink-0 flex-col items-center gap-px">
-          <span
-            className="text-redText"
-            style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em" }}
-          >
-            VS
-          </span>
-          <span className="text-primary2" style={{ fontSize: 10, fontFeatureSettings: '"tnum"' }}>
-            {matchup.count}판
-          </span>
-        </div>
-        <ChampIcon en={matchup.oppoChamp} size={36} />
-        {matchup.oppoLane && <LaneIcon position={matchup.oppoLane} size={16} />}
-      </div>
-      <div
-        className="text-primary2 shrink-0 text-xs sm:text-[13px]"
-        style={{ fontFeatureSettings: '"tnum"' }}
-      >
-        <b className="text-blueText">{matchup.wins}</b>승{" "}
-        <b className="text-redText">{matchup.count - matchup.wins}</b>패
-      </div>
-      <div className="hidden text-center sm:block">
-        <div className="text-primary2" style={{ fontSize: 11 }}>
-          내 KDA
-        </div>
-        <div className="text-primary1" style={{ fontSize: 13, fontFeatureSettings: '"tnum"' }}>
-          {matchup.myKda}
-        </div>
-      </div>
-      <div className="hidden text-center sm:block">
-        <div className="text-primary2" style={{ fontSize: 11 }}>
-          KDA Diff
-        </div>
-        <div
-          style={{
-            fontSize: 13,
-            fontWeight: 600,
-            color: diffColor(kdaDiffNum),
-            fontFeatureSettings: '"tnum"',
-          }}
-        >
-          {matchup.kdaDiff}
-        </div>
-      </div>
-      <div
-        className="ml-auto shrink-0 text-right text-base sm:ml-0 sm:text-lg"
-        style={{ fontWeight: 700, color: v2WinRateColor(wr), fontFeatureSettings: '"tnum"' }}
-      >
-        {wr}%
-      </div>
-    </div>
-  );
-};
-
-interface Props {
-  matchups: H2HMatchup[];
-  topLanePair: TopLanePair | null;
-  sameLaneOnly: boolean;
-  onToggleSameLane: (next: boolean) => void;
-}
 
 type MatchupSort = "count" | "winRate" | "kda";
 
@@ -98,58 +20,306 @@ const SORT_OPTIONS: SortOption<MatchupSort>[] = [
   { key: "kda", label: "KDA순" },
 ];
 
-const H2HChampMatchups = ({ matchups, topLanePair, sameLaneOnly, onToggleSameLane }: Props) => {
+interface MatchupGroup {
+  champ: string;
+  lane: LanePosition;
+  games: number;
+  wins: number;
+  kdaSum: number;
+  children: H2HMatchup[];
+}
+
+interface ChildRowProps {
+  matchup: H2HMatchup;
+  koName: (en?: string | null) => string;
+}
+
+// 펼친 자식 행 — 상대 챔피언 매치업
+const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
+  const wr = Math.round((matchup.wins / matchup.count) * 100);
+  const winPct = (matchup.wins / matchup.count) * 100;
+  // 교차 신호: 맞라인 = 노란 테두리 / 다른 라인 = 회색 테두리
+  const cross = matchup.myLane !== matchup.oppoLane;
+  const laneColor = cross ? colors.primary2 : colors.yellow;
+  return (
+    <div
+      className="hover:bg-rankBg2 flex items-center gap-3 px-3 py-2"
+      style={{ borderTop: `1px solid ${colors.border2}` }}
+    >
+      <span
+        className="text-redText shrink-0"
+        style={{ width: 22, textAlign: "center", fontSize: 10, fontWeight: 700 }}
+      >
+        VS
+      </span>
+      <ChampPortrait
+        en={matchup.oppoChamp}
+        lane={matchup.oppoLane}
+        size={30}
+        ringColor={laneColor}
+      />
+      <div className="min-w-0" style={{ flex: 1 }}>
+        <div className="text-primary1 truncate" style={{ fontSize: 13 }}>
+          {koName(matchup.oppoChamp)}
+        </div>
+      </div>
+      <div style={{ width: 64, textAlign: "center", fontSize: 12, fontFeatureSettings: '"tnum"' }}>
+        <b className="text-blueText">{matchup.wins}</b>
+        <span className="text-primary2">승 </span>
+        <b className="text-redText">{matchup.count - matchup.wins}</b>
+        <span className="text-primary2">패</span>
+      </div>
+      <div
+        className="bg-rankBg3 shrink-0"
+        style={{ position: "relative", width: 84, height: 14, borderRadius: 3, overflow: "hidden" }}
+      >
+        <div
+          className="bg-blueText"
+          style={{ height: "100%", width: `${winPct}%`, opacity: 0.55 }}
+        />
+        <span
+          className="text-primary2"
+          style={{
+            position: "absolute",
+            right: 5,
+            top: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            fontSize: 9,
+            fontFeatureSettings: '"tnum"',
+          }}
+        >
+          {matchup.count}판
+        </span>
+      </div>
+      <div style={{ width: 54, textAlign: "center" }}>
+        <div className="text-primary1" style={{ fontSize: 12, fontFeatureSettings: '"tnum"' }}>
+          {matchup.myKda}
+        </div>
+        <div className="text-primary2" style={{ fontSize: 9 }}>
+          내 KDA
+        </div>
+      </div>
+      <div style={{ width: 44, textAlign: "right" }}>
+        <div
+          style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: v2WinRateColor(wr),
+            fontFeatureSettings: '"tnum"',
+          }}
+        >
+          {wr}%
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface GroupProps {
+  group: MatchupGroup;
+  koName: (en?: string | null) => string;
+  defaultOpen: boolean;
+}
+
+// 챔피언 + 라인 그룹 (펼침 헤더)
+const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
+  const [open, setOpen] = useState(defaultOpen);
+  const wr = Math.round((group.wins / group.games) * 100);
+  const winPct = (group.wins / group.games) * 100;
+  const kda = (group.kdaSum / group.games).toFixed(2);
+  const children = [...group.children].sort((a, b) => b.count - a.count);
+  return (
+    <div
+      className="bg-darkBg1 border border-border2 overflow-hidden rounded"
+      style={{ borderLeft: `3px solid ${v2WinRateColor(wr)}` }}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="hover:bg-rankBg2 flex w-full items-center gap-3 px-3 py-2.5 text-left"
+      >
+        <ChampPortrait en={group.champ} lane={group.lane} size={42} mine />
+        <div className="min-w-0" style={{ flex: 1 }}>
+          <div className="text-primary1 truncate" style={{ fontSize: 14, fontWeight: 700 }}>
+            {koName(group.champ)}
+          </div>
+        </div>
+        <div style={{ width: 80, textAlign: "center", flexShrink: 0 }}>
+          <div className="text-primary1" style={{ fontSize: 12, fontFeatureSettings: '"tnum"' }}>
+            {group.games}게임
+          </div>
+          <div style={{ fontSize: 11, fontFeatureSettings: '"tnum"' }}>
+            <b className="text-blueText">{group.wins}</b>
+            <span className="text-primary2">승 </span>
+            <b className="text-redText">{group.games - group.wins}</b>
+            <span className="text-primary2">패</span>
+          </div>
+        </div>
+        <div
+          className="bg-rankBg3 shrink-0"
+          style={{
+            position: "relative",
+            width: 84,
+            height: 16,
+            borderRadius: 3,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            className="bg-blueText"
+            style={{ height: "100%", width: `${winPct}%`, opacity: 0.6 }}
+          />
+          <span
+            className="text-white"
+            style={{
+              position: "absolute",
+              left: 6,
+              top: 0,
+              bottom: 0,
+              display: "flex",
+              alignItems: "center",
+              fontSize: 9,
+            }}
+          >
+            {children.length}개 매치업
+          </span>
+        </div>
+        <div style={{ width: 54, textAlign: "center", flexShrink: 0 }}>
+          <div className="text-primary1" style={{ fontSize: 13, fontFeatureSettings: '"tnum"' }}>
+            {kda}
+          </div>
+          <div className="text-primary2" style={{ fontSize: 9 }}>
+            내 KDA
+          </div>
+        </div>
+        <div style={{ width: 44, textAlign: "right", flexShrink: 0 }}>
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: v2WinRateColor(wr),
+              fontFeatureSettings: '"tnum"',
+            }}
+          >
+            {wr}%
+          </div>
+        </div>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={colors.primary2}
+          strokeWidth="2"
+          style={{
+            transform: open ? "rotate(180deg)" : "none",
+            transition: "transform 120ms",
+            flexShrink: 0,
+          }}
+        >
+          <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{ background: "rgba(0,0,0,0.25)" }}>
+          {children.map((m, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <MatchupChildRow key={i} matchup={m} koName={koName} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface Props {
+  matchups: H2HMatchup[];
+  topLanePair: TopLanePair | null;
+}
+
+const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
   const koName = useChampionKoNames();
+  const [lane, setLane] = useState<LaneTabValue>("ALL");
+  const [sameLaneOnly, setSameLaneOnly] = useState(false);
   const [sortBy, setSortBy] = useState<MatchupSort>("count");
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-  const filtered = sameLaneOnly
-    ? matchups.filter((m) => !m.oppoLane || m.oppoLane === m.myLane)
-    : matchups;
-
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === "winRate") {
-      return b.wins / b.count - a.wins / a.count;
-    }
-    if (sortBy === "kda") {
-      return (parseFloat(b.myKda) || 0) - (parseFloat(a.myKda) || 0);
-    }
-    return b.count - a.count;
-  });
-
-  // 정렬/필터 변경 시 다시 5개부터
+  // 라인 탭·맞라인만·정렬 변경 시 다시 처음부터
   useEffect(() => {
     setVisible(PAGE_SIZE);
-  }, [sortBy, sameLaneOnly]);
+  }, [lane, sameLaneOnly, sortBy]);
 
-  const shown = sorted.slice(0, visible);
-  const remaining = sorted.length - shown.length;
+  const totalGames = matchups.reduce((s, m) => s + m.count, 0) || 1;
+  const laneShare = (v: LanePos) =>
+    Math.round(
+      (matchups.filter((m) => m.myLane === v).reduce((s, m) => s + m.count, 0) / totalGames) * 100
+    );
+
+  const filtered = matchups
+    .filter((m) => lane === "ALL" || m.myLane === lane)
+    .filter((m) => !sameLaneOnly || m.myLane === m.oppoLane);
+
+  const groupsMap: Record<string, MatchupGroup> = {};
+  filtered.forEach((m) => {
+    const key = `${m.myChamp}|${m.myLane}`; // 내 챔피언 + 라인 복합 키
+    if (!groupsMap[key]) {
+      groupsMap[key] = {
+        champ: m.myChamp,
+        lane: m.myLane,
+        games: 0,
+        wins: 0,
+        kdaSum: 0,
+        children: [],
+      };
+    }
+    const grp = groupsMap[key];
+    grp.games += m.count;
+    grp.wins += m.wins;
+    grp.kdaSum += (parseFloat(m.myKda) || 0) * m.count;
+    grp.children.push(m);
+  });
+  // 그룹 정렬: 선택 기준 desc, 동률 시 판수 desc
+  const groups = Object.values(groupsMap).sort((a, b) => {
+    if (sortBy === "winRate") {
+      return b.wins / b.games - a.wins / a.games || b.games - a.games;
+    }
+    if (sortBy === "kda") {
+      return b.kdaSum / b.games - a.kdaSum / a.games || b.games - a.games;
+    }
+    return b.games - a.games || b.wins / b.games - a.wins / a.games;
+  });
+  const shown = groups.slice(0, visible);
+  const remaining = groups.length - shown.length;
 
   return (
     <SectionCard
       title="라인 · 챔피언 매치업"
-      subtitle={`${sorted.length}개 매치업${
-        sameLaneOnly ? " · 맞라인(동일 position)만" : " · 같은 게임 적팀 전체"
-      }`}
       rightSlot={
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <SameLaneChip active={sameLaneOnly} onChange={onToggleSameLane} />
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
+          <LaneTabs value={lane} onChange={setLane} share={laneShare} />
+          <SameLaneChip active={sameLaneOnly} onChange={setSameLaneOnly} />
           <SortChip value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
         </div>
       }
     >
-      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
         {topLanePair && (
           <H2HTopLanePairCard label="가장 많이 맞붙은 라인" {...topLanePair} separator="vs" />
         )}
-        {sorted.length > 0 ? (
-          shown.map((m, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <H2HChampMatchupRow key={i} matchup={m} koName={koName} />
+        {groups.length > 0 ? (
+          shown.map((g) => (
+            <ChampGroup
+              key={`${g.champ}|${g.lane}`}
+              group={g}
+              koName={koName}
+              defaultOpen={false}
+            />
           ))
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
-            매치업이 없어요
+            해당 라인 매치업이 없어요
           </div>
         )}
         {remaining > 0 && (

@@ -1,25 +1,22 @@
-import { H2HInsight } from "@/data/types/h2h";
+import { H2HAgainst } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import useChampionKoNames from "@/hooks/useChampionKoNames";
-import { v2InsightCopy } from "./h2hHelpers";
+import { BuiltInsight, InsightKind, buildInsights } from "./h2hHelpers";
 import SectionCard from "./SectionCard";
 
-interface CardProps {
-  insight: H2HInsight;
-  koName: (en?: string | null) => string;
-}
-
-const KIND_CFG: Record<string, { color: string; bg: string; icon: string }> = {
+const KIND_CFG: Record<InsightKind | "info", { color: string; bg: string; icon: string }> = {
   best: { color: colors.neonGreen, bg: "rgba(113,255,151,0.06)", icon: "▲" },
   worst: { color: colors.redText, bg: "rgba(255,107,139,0.06)", icon: "▼" },
   lane: { color: colors.blueText, bg: "rgba(107,184,255,0.06)", icon: "◆" },
-  synergy: { color: colors.blueText, bg: "rgba(107,184,255,0.06)", icon: "⚭" },
   counter: { color: colors.yellow, bg: "rgba(255,200,0,0.06)", icon: "✕" },
   info: { color: colors.primary1, bg: colors.darkBg1, icon: "·" },
 };
 
-const H2HInsightCard = ({ insight, koName }: CardProps) => {
-  const copy = v2InsightCopy(insight, koName);
+interface CardProps {
+  insight: BuiltInsight;
+}
+
+const H2HInsightCard = ({ insight }: CardProps) => {
   const cfg = KIND_CFG[insight.kind] || KIND_CFG.info;
   return (
     <div
@@ -60,10 +57,10 @@ const H2HInsightCard = ({ insight, koName }: CardProps) => {
             letterSpacing: "0.06em",
           }}
         >
-          {copy.title}
+          {insight.title}
         </div>
         <div className="text-primary1" style={{ fontSize: 14, marginTop: 2, fontWeight: 500 }}>
-          {copy.body}
+          {insight.body}
         </div>
         <div
           style={{
@@ -74,7 +71,7 @@ const H2HInsightCard = ({ insight, koName }: CardProps) => {
             fontFeatureSettings: '"tnum"',
           }}
         >
-          {copy.stat}
+          {insight.stat}
         </div>
       </div>
     </div>
@@ -82,18 +79,19 @@ const H2HInsightCard = ({ insight, koName }: CardProps) => {
 };
 
 interface Props {
-  insights: H2HInsight[];
+  against: H2HAgainst;
 }
 
-const H2HInsightStack = ({ insights }: Props) => {
+const H2HInsightStack = ({ against }: Props) => {
   const koName = useChampionKoNames();
+  const insights = buildInsights(against, koName);
   return (
-    <SectionCard title="인사이트" subtitle="맞붙을 때의 상성·카운터">
+    <SectionCard title="인사이트" subtitle="챔피언·라인·상대별 집계 요약">
       <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
         {insights.length > 0 ? (
-          insights.slice(0, 4).map((ins, i) => (
+          insights.map((ins, i) => (
             // eslint-disable-next-line react/no-array-index-key
-            <H2HInsightCard key={i} insight={ins} koName={koName} />
+            <H2HInsightCard key={i} insight={ins} />
           ))
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
