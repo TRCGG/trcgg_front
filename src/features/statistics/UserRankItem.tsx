@@ -55,7 +55,7 @@ const UserRankItem = ({
 
   return (
     <div
-      className={`bg-darkBg2 rounded-md border border-cardBorder px-3 sm:px-3.5 py-[11px] flex items-center gap-2.5 sm:gap-3.5 ${
+      className={`bg-darkBg2 rounded-md border border-cardBorder pl-3 pr-6 sm:pl-3.5 sm:pr-10 py-[11px] flex items-center gap-2.5 sm:gap-3.5 ${
         className || ""
       }`}
     >

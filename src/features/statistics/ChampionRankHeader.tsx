@@ -14,42 +14,72 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
     return sortOrder === "asc" ? " ▲" : " ▼";
   };
 
+  const mobileSortClass = (column: SortBy) =>
+    `px-2.5 py-1 rounded-md border text-[12px] transition-colors cursor-pointer ${
+      sortBy === column
+        ? "border-primary2 text-primary1 font-bold bg-darkBg2"
+        : "border-cardBorder text-primary2 hover:text-primary1"
+    }`;
+
   return (
-    <div className={`hidden md:flex items-center gap-3.5 px-3.5 py-2 ${className || ""}`}>
-      {/* 랭크 (자리) */}
-      <div className="w-5 shrink-0" />
+    <>
+      {/* 모바일 정렬 바 */}
+      <div className={`flex md:hidden items-center justify-end gap-2 px-1 pb-1 ${className || ""}`}>
+        <span className="text-[12px] text-primary2">정렬</span>
+        <button
+          type="button"
+          onClick={() => onSort("totalGames")}
+          className={mobileSortClass("totalGames")}
+        >
+          판수{getSortIndicator("totalGames")}
+        </button>
+        <button
+          type="button"
+          onClick={() => onSort("winRate")}
+          className={mobileSortClass("winRate")}
+        >
+          승률{getSortIndicator("winRate")}
+        </button>
+      </div>
 
-      {/* 챔피언 아이콘 (자리) */}
-      <div className="w-11 shrink-0" />
+      <div className={`hidden md:flex items-center gap-3.5 px-3.5 py-2 ${className || ""}`}>
+        {/* 랭크 (자리) */}
+        <div className="w-5 shrink-0" />
 
-      {/* 챔피언 */}
-      <div className="flex-1 min-w-0 text-[13px] text-primary2">챔피언</div>
+        {/* 챔피언 아이콘 (자리) */}
+        <div className="w-11 shrink-0" />
 
-      {/* 라인 (자리) */}
-      <div className="w-9 shrink-0" />
+        {/* 챔피언 */}
+        <div className="flex-1 min-w-0 text-[13px] text-primary2">챔피언</div>
 
-      {/* 판수 정렬 */}
-      <button
-        type="button"
-        onClick={() => onSort("totalGames")}
-        className={`w-14 sm:w-16 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
-          sortBy === "totalGames" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
-        }`}
-      >
-        판수{getSortIndicator("totalGames")}
-      </button>
+        {/* 라인 (자리) */}
+        <div className="w-9 shrink-0" />
 
-      {/* 승률 정렬 */}
-      <button
-        type="button"
-        onClick={() => onSort("winRate")}
-        className={`w-12 sm:w-14 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
-          sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
-        }`}
-      >
-        승률{getSortIndicator("winRate")}
-      </button>
-    </div>
+        {/* 판수 정렬 */}
+        <button
+          type="button"
+          onClick={() => onSort("totalGames")}
+          className={`w-14 sm:w-16 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
+            sortBy === "totalGames"
+              ? "text-primary1 font-bold"
+              : "text-primary2 hover:text-primary1"
+          }`}
+        >
+          판수{getSortIndicator("totalGames")}
+        </button>
+
+        {/* 승률 정렬 */}
+        <button
+          type="button"
+          onClick={() => onSort("winRate")}
+          className={`w-12 sm:w-14 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
+            sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
+          }`}
+        >
+          승률{getSortIndicator("winRate")}
+        </button>
+      </div>
+    </>
   );
 };
 
