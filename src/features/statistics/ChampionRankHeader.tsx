@@ -15,38 +15,40 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
   };
 
   return (
-    <div className={`hidden md:flex items-center gap-3 px-3 py-2 ${className || ""}`}>
-      {/* 랭크 */}
-      <div className="flex-shrink-0 w-8 text-center" />
+    <div className={`hidden md:flex items-center gap-3.5 px-3.5 py-2 ${className || ""}`}>
+      {/* 랭크 (자리) */}
+      <div className="w-5 shrink-0" />
 
-      {/* 챔피언 아이콘 (빈 공간) */}
-      <div className="flex-shrink-0 w-12" />
+      {/* 챔피언 아이콘 (자리) */}
+      <div className="w-11 shrink-0" />
 
-      {/* 챔피언 이름 */}
-      <div className="flex-1 min-w-0" />
+      {/* 챔피언 */}
+      <div className="flex-1 min-w-0 text-[13px] text-primary2">챔피언</div>
 
-      {/* 라인 */}
-      <div className="flex-shrink-0 w-12 text-center" />
+      {/* 라인 (자리) */}
+      <div className="w-9 shrink-0" />
 
-      {/* 승률 */}
-      <div className="flex-shrink-0 w-20 text-center">
+      {/* 승률 / 게임 수 정렬 */}
+      <div className="w-[88px] shrink-0 flex items-center justify-center gap-2 text-[13px]">
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className="text-sm font-medium text-primary2 hover:text-primary1 transition-colors cursor-pointer"
+          className={`transition-colors cursor-pointer ${
+            sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
+          }`}
         >
           승률{getSortIndicator("winRate")}
         </button>
-      </div>
-
-      {/* 게임 수 */}
-      <div className="flex-shrink-0 w-20 text-center">
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className="text-sm font-medium text-primary2 hover:text-primary1 transition-colors cursor-pointer"
+          className={`transition-colors cursor-pointer ${
+            sortBy === "totalGames"
+              ? "text-primary1 font-bold"
+              : "text-primary2 hover:text-primary1"
+          }`}
         >
-          게임 수{getSortIndicator("totalGames")}
+          게임{getSortIndicator("totalGames")}
         </button>
       </div>
     </div>

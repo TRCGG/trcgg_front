@@ -138,7 +138,7 @@ const Replay: NextPage = () => {
 
       {/* 파일 업로드 섹션 */}
       <section className="mt-4 bg-darkBg2 border border-border2 rounded p-4 space-y-4">
-        <h2 className="text-sm font-medium text-primary1">파일 업로드</h2>
+        <h2 className="text-sm font-bold text-primary1">파일 업로드</h2>
 
         {(() => {
           if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
@@ -248,10 +248,10 @@ const Replay: NextPage = () => {
                   type="button"
                   onClick={handleUpload}
                   disabled={files.length === 0 || isUploading}
-                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                  className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-150 ${
                     files.length === 0 || isUploading
                       ? "bg-rankBg1 text-primary2 cursor-not-allowed opacity-50"
-                      : "bg-blueButton hover:bg-blueText2 text-white"
+                      : "bg-bluePrimary hover:opacity-90 text-white"
                   }`}
                 >
                   {isUploading ? (
@@ -304,7 +304,7 @@ const Replay: NextPage = () => {
                 <div className="space-y-3">
                   {uploadResult.succeeded.length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-xs font-medium text-neonGreen">
+                      <p className="text-xs font-bold text-neonGreen">
                         성공 ({uploadResult.succeeded.length}건)
                       </p>
                       {uploadResult.succeeded.map((item: ReplayUploadSuccess) => (
@@ -337,7 +337,7 @@ const Replay: NextPage = () => {
                   )}
                   {uploadResult.failed.length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-xs font-medium text-redText">
+                      <p className="text-xs font-bold text-redText">
                         실패 ({uploadResult.failed.length}건)
                       </p>
                       {uploadResult.failed.map((item: ReplayUploadFailed) => (
@@ -380,7 +380,7 @@ const Replay: NextPage = () => {
       {/* 최근 업로드 섹션 */}
       <section className="mt-4 mb-10 bg-darkBg2 border border-border2 rounded p-4">
         <div className="flex items-center gap-2 mb-3">
-          <h2 className="text-sm font-medium text-primary1">최근 업로드</h2>
+          <h2 className="text-sm font-bold text-primary1">최근 업로드</h2>
           <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-rankBg1 border border-border1 text-xs text-primary2">
             {replayList.length}
           </span>

@@ -15,42 +15,39 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
   };
 
   return (
-    <div className={`hidden md:flex items-center gap-3 px-3 py-2 ${className || ""}`}>
-      {/* 순위 (빈 공간) */}
-      <div className="flex-shrink-0 w-8 text-center" />
+    <div
+      className={`hidden md:flex items-center gap-3.5 px-3.5 py-2 text-[13px] ${className || ""}`}
+    >
+      {/* 순위 (자리) */}
+      <div className="w-[18px] shrink-0" />
 
-      {/* 라인 (빈 공간) */}
-      <div className="flex-shrink-0 w-10 text-center" />
+      {/* 라인 (자리) */}
+      <div className="w-8 shrink-0" />
 
-      {/* 닉네임 (빈 공간) */}
+      {/* 닉네임 (자리) */}
       <div className="flex-1 min-w-0" />
 
-      {/* KDA */}
-      <div className="flex-shrink-0 w-20 text-center">
-        <span className="text-sm font-medium text-primary2">KDA</span>
-      </div>
-
       {/* 전적 */}
-      <div className="flex-shrink-0 w-32 text-center">
-        <button
-          type="button"
-          onClick={() => onSort("totalGames")}
-          className="text-sm font-medium text-primary2 hover:text-primary1 transition-colors cursor-pointer"
-        >
-          전적{getSortIndicator("totalGames")}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => onSort("totalGames")}
+        className={`shrink-0 transition-colors cursor-pointer ${
+          sortBy === "totalGames" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
+        }`}
+      >
+        전적{getSortIndicator("totalGames")}
+      </button>
 
       {/* 승률 */}
-      <div className="flex-shrink-0 w-20 text-center">
-        <button
-          type="button"
-          onClick={() => onSort("winRate")}
-          className="text-sm font-medium text-primary2 hover:text-primary1 transition-colors cursor-pointer"
-        >
-          승률{getSortIndicator("winRate")}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => onSort("winRate")}
+        className={`shrink-0 w-[52px] text-center transition-colors cursor-pointer ${
+          sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
+        }`}
+      >
+        승률{getSortIndicator("winRate")}
+      </button>
     </div>
   );
 };

@@ -251,7 +251,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
             {!(isLoadingMostPicks || isFetchingMostPicks) && sortedChampions.length > 0 && (
               <div className="flex flex-col gap-1">
                 {/* 열 제목 헤더 */}
-                <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
+                <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-bold text-primary2">
                   <div className="w-5 sm:w-7 shrink-0" />
                   <div className="w-10 sm:w-12 shrink-0" />
                   <div className="flex-1 min-w-0 sm:w-28 sm:flex-none" />

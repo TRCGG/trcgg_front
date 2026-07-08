@@ -12,12 +12,6 @@ interface RankItemProps {
   games: number;
 }
 
-const getRankBgColor = (rank: number): string => {
-  if (rank === 1) return "bg-rankBg1";
-  if (rank === 2 || rank === 3) return "bg-rankBg2";
-  return "bg-rankBg3";
-};
-
 const RankItem: React.FC<RankItemProps> = ({
   rank,
   championName,
@@ -27,48 +21,36 @@ const RankItem: React.FC<RankItemProps> = ({
   games,
 }) => {
   return (
-    <div className="flex h-[28px] sm:h-[52px] items-center justify-between md:justify-center">
+    <div className="flex items-center gap-[11px] px-1.5 py-[9px]">
       {/* 순위 */}
-      <div
-        className={`w-[21px] h-[28px] sm:h-[52px] ${getRankBgColor(rank)} text-primary2 text-center text-lg font-bold flex items-center justify-center`}
-      >
+      <div className="w-3.5 shrink-0 text-center text-[13px] font-bold text-primary2 tabular-nums">
         {rank}
       </div>
 
-      {/* 챔피언 아이콘 */}
-      <div className="flex items-center justify-center shrink-0 flex-none ml-1">
-        {/* 모바일 */}
-        <SpriteImage
-          spriteData={getChampionSprite(championNameEng)}
-          alt={championName}
-          width={28}
-          height={28}
-          fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
-          className="w-7 h-7 sm:hidden"
-        />
-        {/* 데스크탑 */}
-        <SpriteImage
-          spriteData={getChampionSprite(championNameEng)}
-          alt={championName}
-          width={52}
-          height={52}
-          fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
-          className="hidden sm:block w-[52px] h-[52px]"
-        />
-      </div>
+      {/* 챔피언 아이콘 40×40, radius 8, border */}
+      <SpriteImage
+        spriteData={getChampionSprite(championNameEng)}
+        alt={championName}
+        width={40}
+        height={40}
+        fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${championNameEng}.png`}
+        className="w-10 h-10 shrink-0 rounded-lg border border-border1"
+      />
 
-      {/* 챔피언 정보 */}
-      <div className="ml-1 w-20 text-left whitespace-nowrap text-xs sm:text-sm">{championName}</div>
+      {/* 이름 + 판수 */}
+      <div className="flex-1 min-w-0">
+        <div className="text-sm text-primary1 truncate">{championName}</div>
+        <div className="text-[11px] text-primary2 tabular-nums">{games}판</div>
+      </div>
 
       {/* KDA */}
-      <div className={`ml-2 w-[72px] text-xs sm:text-sm ${getKdaColor(kda)} whitespace-nowrap`}>
-        {kda} KDA
-      </div>
+      <div className={`shrink-0 text-xs tabular-nums ${getKdaColor(kda)}`}>{kda} KDA</div>
 
-      {/* 승률 및 게임 수 */}
-      <div className="flex flex-col ml-6 text-center whitespace-nowrap text-xs sm:text-sm">
-        <div className={`${getWinRateColor(winRate)}`}>{winRate}%</div>
-        <div className="text-gray font-xs">{games} 게임</div>
+      {/* 승률 */}
+      <div
+        className={`w-11 shrink-0 text-right text-[13px] font-bold tabular-nums ${getWinRateColor(winRate)}`}
+      >
+        {winRate}%
       </div>
     </div>
   );

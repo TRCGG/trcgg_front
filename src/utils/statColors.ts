@@ -5,10 +5,10 @@
  * @returns Tailwind CSS 색상 클래스
  *
  * 색상 기준:
- * - 3 이하: text-primary2 (회색)
- * - 3 초과 5 이하: text-neonGreen (초록)
- * - 5 초과 7 이하: text-blueText (파랑)
- * - 7 초과: text-yellow (주황)
+ * - 3 이하: text-primary2 (#9AA0A8, 회색)
+ * - 3 초과 5 이하: text-neonGreen (#71FF97, 초록)
+ * - 5 초과 7 이하: text-blueText (#6BB8FF, 파랑)
+ * - 7 초과: text-yellow (#FFC364, 주황)
  */
 export const getKdaColor = (kda: string | number): string => {
   const kdaValue = typeof kda === "string" ? parseFloat(kda) : kda;
@@ -36,8 +36,8 @@ export const getKdaColor = (kda: string | number): string => {
  * @returns Tailwind CSS 색상 클래스
  *
  * 색상 기준:
- * - 50% 이하: text-primary2 (회색)
- * - 50% 초과: text-yellow (주황)
+ * - 50% 이하: text-primary2 (#9AA0A8, 회색)
+ * - 50% 초과: text-yellow (#FFC364, 주황)
  */
 export const getWinRateColor = (winRate: string | number): string => {
   let winRateValue: number;

@@ -24,7 +24,7 @@ const SummonerTabBar = ({ activeTab, onTabChange }: Props) => (
         className={`px-7 py-3.5 text-base border-b-3 -mb-px transition-colors ${
           activeTab === key
             ? "text-primary1 font-bold border-blueText"
-            : "text-primary2 font-medium border-transparent hover:text-primary1"
+            : "text-primary2 font-normal border-transparent hover:text-primary1"
         }`}
       >
         {label}

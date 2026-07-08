@@ -147,10 +147,16 @@ const MatchDetailTableMobile = ({
                 />
                 <span className="tabular-nums">{player.damage.toLocaleString()}</span>
               </div>
-              <div className="h-1 w-full rounded-full overflow-hidden bg-black">
+              <div
+                className="h-1 w-full rounded-full overflow-hidden"
+                style={{ backgroundColor: "#1C1F24" }}
+              >
                 <div
-                  className="h-full rounded-full bg-blueText"
-                  style={{ width: `${(player.damage / maxDamage) * 100}%` }}
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${(player.damage / maxDamage) * 100}%`,
+                    background: "linear-gradient(90deg,#E8913C,#F5C877)",
+                  }}
                 />
               </div>
               <div className="flex items-center gap-x-1 mt-0.5">
@@ -163,10 +169,16 @@ const MatchDetailTableMobile = ({
                 />
                 <span className="tabular-nums">{player.damageTaken.toLocaleString()}</span>
               </div>
-              <div className="h-1 w-full rounded-full overflow-hidden bg-black">
+              <div
+                className="h-1 w-full rounded-full overflow-hidden"
+                style={{ backgroundColor: "#1C1F24" }}
+              >
                 <div
-                  className="h-full rounded-full bg-redText"
-                  style={{ width: `${(player.damageTaken / maxDamageTaken) * 100}%` }}
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${(player.damageTaken / maxDamageTaken) * 100}%`,
+                    backgroundColor: "#6B74A0",
+                  }}
                 />
               </div>
             </div>

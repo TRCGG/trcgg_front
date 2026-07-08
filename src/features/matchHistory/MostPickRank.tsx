@@ -25,7 +25,7 @@ const MostPickRank = ({ mostPickData }: Props) => {
   const hasMore = rankData.length > INITIAL_DISPLAY_COUNT;
 
   return (
-    <div className="flex flex-col gap-2 sm:gap-4">
+    <div className="flex flex-col">
       {displayedData.map((data) => (
         <RankItem key={data.rank} {...data} />
       ))}
@@ -34,7 +34,7 @@ const MostPickRank = ({ mostPickData }: Props) => {
         <button
           type="button"
           onClick={() => setShowAll(true)}
-          className="w-full py-2 rounded bg-darkBg1 border border-border2 text-primary2 hover:bg-grayHover transition-colors text-sm"
+          className="mt-2 w-full py-2 rounded bg-darkBg1 border border-border2 text-primary2 hover:bg-grayHover transition-colors text-sm"
         >
           더보기
         </button>

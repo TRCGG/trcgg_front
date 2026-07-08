@@ -214,10 +214,10 @@ const User: NextPage = () => {
                 key={mode}
                 type="button"
                 onClick={() => setDateMode(mode)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
                   dateMode === mode
-                    ? "bg-primary1 text-darkBg2 shadow"
-                    : "text-primary2 hover:text-primary1"
+                    ? "bg-blue text-blueText font-bold"
+                    : "text-primary2 font-normal hover:text-primary1"
                 }`}
               >
                 {labels[mode]}
@@ -297,7 +297,7 @@ const User: NextPage = () => {
             <button
               type="button"
               onClick={handleApplyRange}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blueButton hover:bg-blueText2 text-white transition-colors duration-150"
+              className="px-3 py-1.5 rounded-lg text-sm font-bold bg-bluePrimary hover:opacity-90 text-white transition-opacity duration-150"
             >
               적용
             </button>

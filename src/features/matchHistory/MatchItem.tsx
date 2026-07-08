@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { MdKeyboardArrowDown } from "react-icons/md";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
@@ -270,11 +269,20 @@ const MatchItem = ({ matchData }: Props) => {
           }`}
         >
           <span className="sr-only">펼치기</span>
-          <MdKeyboardArrowDown
-            className={`text-xl transition-transform duration-150 ${
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className={`w-5 h-5 transition-transform duration-150 ${
               isOpen ? "rotate-180" : "rotate-0"
             } ${isWin ? "text-blueButton" : "text-redButton"}`}
-          />
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </button>
       </div>
 
