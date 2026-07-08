@@ -98,12 +98,17 @@ const ChampionRankItem = ({
         />
       </div>
 
-      {/* 승률 + 게임 수 */}
-      <div className="shrink-0 w-[72px] sm:w-[88px] text-center">
+      {/* 판수 */}
+      <div className="shrink-0 w-14 sm:w-16 text-center">
+        <div className="text-[15px] font-bold text-primary1 tabular-nums">{gameCount}</div>
+        <div className="text-[11px] text-primary2">게임</div>
+      </div>
+
+      {/* 승률 */}
+      <div className="shrink-0 w-12 sm:w-14 text-center">
         <div className={`text-[15px] font-bold tabular-nums ${getWinRateColor(winRate)}`}>
           {winRate}%
         </div>
-        <div className="text-[11px] text-primary2 tabular-nums">{gameCount}게임</div>
       </div>
     </div>
   );

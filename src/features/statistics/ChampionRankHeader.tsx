@@ -28,29 +28,27 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
       {/* 라인 (자리) */}
       <div className="w-9 shrink-0" />
 
-      {/* 승률 / 게임 수 정렬 */}
-      <div className="w-[88px] shrink-0 flex items-center justify-center gap-2 text-[13px]">
-        <button
-          type="button"
-          onClick={() => onSort("winRate")}
-          className={`transition-colors cursor-pointer ${
-            sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
-          }`}
-        >
-          승률{getSortIndicator("winRate")}
-        </button>
-        <button
-          type="button"
-          onClick={() => onSort("totalGames")}
-          className={`transition-colors cursor-pointer ${
-            sortBy === "totalGames"
-              ? "text-primary1 font-bold"
-              : "text-primary2 hover:text-primary1"
-          }`}
-        >
-          게임{getSortIndicator("totalGames")}
-        </button>
-      </div>
+      {/* 판수 정렬 */}
+      <button
+        type="button"
+        onClick={() => onSort("totalGames")}
+        className={`w-14 sm:w-16 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
+          sortBy === "totalGames" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
+        }`}
+      >
+        판수{getSortIndicator("totalGames")}
+      </button>
+
+      {/* 승률 정렬 */}
+      <button
+        type="button"
+        onClick={() => onSort("winRate")}
+        className={`w-12 sm:w-14 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
+          sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
+        }`}
+      >
+        승률{getSortIndicator("winRate")}
+      </button>
     </div>
   );
 };
