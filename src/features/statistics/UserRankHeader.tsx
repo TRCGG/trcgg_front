@@ -15,17 +15,16 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
   };
 
   const mobileSortClass = (column: SortBy) =>
-    `px-2.5 py-1 rounded-md border text-[12px] transition-colors cursor-pointer ${
-      sortBy === column
-        ? "border-primary2 text-primary1 font-bold bg-darkBg2"
-        : "border-cardBorder text-primary2 hover:text-primary1"
+    `text-[13px] transition-colors cursor-pointer ${
+      sortBy === column ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
     }`;
 
   return (
     <>
-      {/* 모바일 정렬 바 */}
-      <div className={`flex md:hidden items-center justify-end gap-2 px-1 pb-1 ${className || ""}`}>
-        <span className="text-[12px] text-primary2">정렬</span>
+      {/* 모바일 정렬 (열제목 스타일) */}
+      <div
+        className={`flex md:hidden items-center justify-end gap-4 px-1 pb-1.5 ${className || ""}`}
+      >
         <button
           type="button"
           onClick={() => onSort("totalGames")}
