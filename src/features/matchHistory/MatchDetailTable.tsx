@@ -98,17 +98,17 @@ const MatchDetailTable = ({
 
       {/* 열 제목 */}
       <div
-        className="grid items-center gap-2 px-4 py-1.5 text-[11px] text-primary3"
+        className="grid items-center gap-2 px-4 py-1.5 text-[11px] text-primary3 text-center"
         style={{ gridTemplateColumns: GRID_COLUMNS }}
       >
         <div />
         <div>소환사</div>
         <div>빌드</div>
-        <div className="text-center">KDA</div>
-        <div className="text-center">관여</div>
+        <div>KDA</div>
+        <div>관여</div>
         <div>가한 피해</div>
         <div>받은 피해</div>
-        <div className="text-center">시야</div>
+        <div>시야</div>
       </div>
 
       {/* 플레이어 행 */}

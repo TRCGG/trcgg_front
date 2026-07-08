@@ -103,11 +103,7 @@ const PositionStats = ({ linesData }: Props) => {
               <span className={`text-xs tabular-nums ${getKdaColor(line.kda)}`}>
                 {line.kda} KDA
               </span>
-              <span
-                className={`font-bold tabular-nums ${getWinRateColor(line.winRate)} ${
-                  isPrimary ? "text-base" : "text-sm"
-                }`}
-              >
+              <span className={`text-sm font-bold tabular-nums ${getWinRateColor(line.winRate)}`}>
                 {line.winRate}%
               </span>
             </div>

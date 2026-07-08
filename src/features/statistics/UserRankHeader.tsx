@@ -31,7 +31,7 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
       <button
         type="button"
         onClick={() => onSort("totalGames")}
-        className={`shrink-0 transition-colors cursor-pointer ${
+        className={`w-40 shrink-0 text-center transition-colors cursor-pointer ${
           sortBy === "totalGames" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
         }`}
       >
