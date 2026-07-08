@@ -101,9 +101,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
 
             {/* 함께 승률 */}
             <div className="shrink-0 text-right">
-              <div
-                className={`text-base font-bold tabular-nums ${getWinRateColor(synergy.winRate)}`}
-              >
+              <div className={`text-sm font-bold tabular-nums ${getWinRateColor(synergy.winRate)}`}>
                 {synergy.winRate}%
               </div>
               <div className="text-[10px] text-primary3">함께 승률</div>

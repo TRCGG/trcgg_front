@@ -48,7 +48,7 @@ const RankItem: React.FC<RankItemProps> = ({
 
       {/* 승률 */}
       <div
-        className={`w-11 shrink-0 text-right text-[13px] font-bold tabular-nums ${getWinRateColor(winRate)}`}
+        className={`w-11 shrink-0 text-right text-sm font-bold tabular-nums ${getWinRateColor(winRate)}`}
       >
         {winRate}%
       </div>
