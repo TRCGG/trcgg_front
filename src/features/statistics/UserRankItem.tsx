@@ -64,9 +64,9 @@ const UserRankItem = ({
         {rank}
       </div>
 
-      {/* 라인 아이콘 32×32 */}
-      {position && (
-        <div className="shrink-0 w-8 h-8 flex items-center justify-center">
+      {/* 라인 아이콘 32×32 — 전체(라인 없음)에서도 자리를 유지해 행 높이를 일정하게 */}
+      <div className="shrink-0 w-8 h-8 flex items-center justify-center">
+        {position && (
           <Image
             src={laneImageMap[position] || LaneMidLogo}
             alt={position}
@@ -74,8 +74,8 @@ const UserRankItem = ({
             height={32}
             className="w-full h-full object-contain"
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* 닉네임 */}
       <div className="flex-1 min-w-0 relative group">
