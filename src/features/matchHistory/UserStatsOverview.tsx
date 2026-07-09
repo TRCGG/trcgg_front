@@ -60,7 +60,7 @@ const UserStatsOverview = ({
 
       {/* 유저 정보 */}
       <div className="flex flex-col p-4 gap-3 flex-1">
-        <div className="text-3xl md:text-4xl font-bold text-white">
+        <div className="text-3xl md:text-4xl font-bold text-white line-clamp-2 break-all">
           {riotName} <span className="font-normal text-gray">#{riotTag}</span>
         </div>
 

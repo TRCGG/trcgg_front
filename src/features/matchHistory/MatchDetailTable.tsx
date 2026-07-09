@@ -50,7 +50,8 @@ interface MatchDetailProps {
 }
 
 // 44 챔피언 · 소환사 · 빌드 · KDA · 관여 · 가한피해 · 받은피해 · 시야
-const GRID_COLUMNS = "44px minmax(80px,1fr) 128px 84px 44px 104px 104px 56px";
+// 소환사 열은 넓게(min 120px, 1fr로 확장), 빌드 열은 콘텐츠(≈95px)에 맞춰 좁게(100px)
+const GRID_COLUMNS = "44px minmax(120px,1fr) 100px 84px 44px 104px 104px 56px";
 
 const MatchDetailTable = ({
   players,
