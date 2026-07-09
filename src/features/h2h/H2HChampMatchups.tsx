@@ -63,14 +63,23 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
           {koName(matchup.oppoChamp)}
         </div>
       </div>
-      <div style={{ width: 64, textAlign: "center", fontSize: 12, fontFeatureSettings: '"tnum"' }}>
+      <div
+        className="shrink-0"
+        style={{
+          width: 64,
+          textAlign: "center",
+          fontSize: 12,
+          whiteSpace: "nowrap",
+          fontFeatureSettings: '"tnum"',
+        }}
+      >
         <b className="text-blueText">{matchup.wins}</b>
         <span className="text-primary2">승 </span>
         <b className="text-redText">{matchup.count - matchup.wins}</b>
         <span className="text-primary2">패</span>
       </div>
       <div
-        className="bg-rankBg3 shrink-0"
+        className="bg-rankBg3 hidden shrink-0 sm:block"
         style={{ position: "relative", width: 84, height: 14, borderRadius: 3, overflow: "hidden" }}
       >
         <div
@@ -111,7 +120,7 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
           {matchup.count}판
         </span>
       </div>
-      <div style={{ width: 54, textAlign: "center" }}>
+      <div className="shrink-0" style={{ width: 54, textAlign: "center", whiteSpace: "nowrap" }}>
         <div className="text-primary1" style={{ fontSize: 12, fontFeatureSettings: '"tnum"' }}>
           {matchup.myKda}
         </div>
@@ -119,7 +128,7 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
           내 KDA
         </div>
       </div>
-      <div style={{ width: 44, textAlign: "right" }}>
+      <div className="shrink-0" style={{ width: 44, textAlign: "right" }}>
         <div
           style={{
             fontSize: 14,
