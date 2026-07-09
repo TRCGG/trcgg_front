@@ -75,7 +75,25 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
       >
         <div
           className="bg-blueText"
-          style={{ height: "100%", width: `${winPct}%`, opacity: 0.55 }}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: `${winPct}%`,
+            opacity: 0.55,
+          }}
+        />
+        <div
+          className="bg-redText"
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: `${100 - winPct}%`,
+            opacity: 0.5,
+          }}
         />
         <span
           className="text-primary2"
@@ -169,7 +187,25 @@ const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
         >
           <div
             className="bg-blueText"
-            style={{ height: "100%", width: `${winPct}%`, opacity: 0.6 }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: `${winPct}%`,
+              opacity: 0.6,
+            }}
+          />
+          <div
+            className="bg-redText"
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: `${100 - winPct}%`,
+              opacity: 0.55,
+            }}
           />
           <span
             className="text-white"
@@ -296,6 +332,7 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
   return (
     <SectionCard
       title="라인 · 챔피언 매치업"
+      stackOnMobile
       rightSlot={
         <div className="flex flex-wrap items-center justify-end gap-1.5">
           <LaneTabs value={lane} onChange={setLane} share={laneShare} />
