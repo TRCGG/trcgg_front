@@ -95,12 +95,12 @@ const UserRankItem = ({
       </div>
 
       {/* 전적 (n전 n승 n패) */}
-      <div className="w-auto md:w-40 shrink-0 text-right md:text-center text-[13px] text-primary2 tabular-nums whitespace-nowrap">
+      <div className="w-28 md:w-40 shrink-0 text-center text-[13px] text-primary2 tabular-nums whitespace-nowrap">
         {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
       </div>
 
       {/* 승률 pill */}
-      <div className="shrink-0 flex justify-end md:w-[52px] md:justify-center">
+      <div className="w-14 md:w-[52px] shrink-0 flex justify-center">
         <span
           className={`inline-block rounded-md text-sm font-bold tabular-nums ${getWinRateColor(
             winRate

@@ -14,28 +14,34 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
     return sortOrder === "asc" ? " ▲" : " ▼";
   };
 
-  const mobileSortClass = (column: SortBy) =>
-    `text-[13px] transition-colors cursor-pointer ${
+  const mobileSortClass = (column: SortBy, width: string) =>
+    `${width} shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
       sortBy === column ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
     }`;
 
   return (
     <>
-      {/* 모바일 정렬 (열제목 스타일) */}
+      {/* 모바일 정렬 (열제목 스타일 — 각 열 중앙 정렬) */}
       <div
-        className={`flex md:hidden items-center justify-end gap-4 px-1 pb-1.5 ${className || ""}`}
+        className={`flex md:hidden items-center gap-2.5 sm:gap-3.5 px-3 sm:px-3.5 pb-1.5 ${
+          className || ""
+        }`}
       >
+        {/* 랭크 + 아이콘 + 챔피언 (자리) */}
+        <div className="flex-1 min-w-0" />
+        {/* 라인 (자리) */}
+        <div className="w-9 shrink-0" />
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className={mobileSortClass("totalGames")}
+          className={mobileSortClass("totalGames", "w-14 sm:w-16")}
         >
           판수{getSortIndicator("totalGames")}
         </button>
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={mobileSortClass("winRate")}
+          className={mobileSortClass("winRate", "w-12 sm:w-14")}
         >
           승률{getSortIndicator("winRate")}
         </button>
