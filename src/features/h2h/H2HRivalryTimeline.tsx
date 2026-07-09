@@ -17,9 +17,33 @@ interface Props {
 
 // 데스크톱은 넓고 낮게, 모바일은 좁고 높게 — viewBox 비율을 바꿔
 // 100% 폭으로 줄어도 높이가 충분히 확보되어 가독성을 유지한다.
+// minGap: 점 사이 최소 간격(px). 맞대결이 많아 이 간격을 확보하지 못하면
+// 차트 폭을 늘리고 가로 스크롤로 전환해 점/라벨이 겹치지 않게 한다.
 const DIMS = {
-  desktop: { w: 1040, h: 170, padL: 24, padR: 76, padT: 18, padB: 26, fz: 10, fzCur: 13, dotR: 4 },
-  mobile: { w: 360, h: 240, padL: 16, padR: 52, padT: 18, padB: 26, fz: 12, fzCur: 15, dotR: 4.5 },
+  desktop: {
+    w: 1040,
+    h: 170,
+    padL: 24,
+    padR: 76,
+    padT: 18,
+    padB: 26,
+    fz: 10,
+    fzCur: 13,
+    dotR: 4,
+    minGap: 18,
+  },
+  mobile: {
+    w: 360,
+    h: 240,
+    padL: 16,
+    padR: 52,
+    padT: 18,
+    padB: 26,
+    fz: 12,
+    fzCur: 15,
+    dotR: 4.5,
+    minGap: 24,
+  },
 };
 
 const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
@@ -33,10 +57,26 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const { w, h, padL, padR, padT, padB, fz, fzCur, dotR } = isMobile ? DIMS.mobile : DIMS.desktop;
+  const {
+    w: baseW,
+    h,
+    padL,
+    padR,
+    padT,
+    padB,
+    fz,
+    fzCur,
+    dotR,
+    minGap,
+  } = isMobile ? DIMS.mobile : DIMS.desktop;
 
   const pts = [0];
   streak.forEach((s) => pts.push(pts[pts.length - 1] + (s === "W" ? 1 : -1)));
+
+  // 점 사이 최소 간격을 확보할 만큼 폭을 넓힌다. 기본 폭을 넘으면 가로 스크롤.
+  const neededW = padL + padR + (pts.length - 1) * minGap;
+  const w = Math.max(baseW, neededW);
+  const scrolls = w > baseW;
 
   const maxAbs = Math.max(2, ...pts.map((v) => Math.abs(v)));
   const x = (i: number) => padL + (i / (pts.length - 1 || 1)) * (w - padL - padR);
@@ -50,7 +90,7 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
   return (
     <SectionCard
       title="라이벌 히스토리"
-      subtitle="맞대결 누적 우위 (내 승 − 내 패) · 좌→우 시간순"
+      subtitle={`맞대결 누적 우위 (내 승 − 내 패) · 좌→우 시간순${scrolls ? " · 좌우 스크롤 ↔" : ""}`}
       rightSlot={
         <span
           className="bg-rankBg2 border border-border2"
@@ -68,8 +108,21 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
         </span>
       }
     >
-      <div style={{ padding: "8px 16px 14px" }}>
-        <svg viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: "auto", display: "block" }}>
+      <div
+        style={{
+          padding: "8px 16px 14px",
+          overflowX: scrolls ? "auto" : "visible",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        <svg
+          viewBox={`0 0 ${w} ${h}`}
+          style={{
+            width: scrolls ? `${w}px` : "100%",
+            height: "auto",
+            display: "block",
+          }}
+        >
           {/* zero baseline */}
           <line
             className="stroke-border1"
