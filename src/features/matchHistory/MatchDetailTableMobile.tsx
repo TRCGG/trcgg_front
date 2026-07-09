@@ -49,8 +49,9 @@ interface MatchDetailProps {
   teamSummary: TeamSummary;
 }
 
-// 챔피언·빌드 / 소환사·아이템 / KDA·관여 / 피해량 / 시야
-const GRID_COLUMNS = "52px minmax(0,1fr) 56px 66px 30px";
+// 챔피언·빌드 / 소환사·아이템 / KDA / 피해량 / 시야
+// 소환사 열(1fr)이 아이템 6개를 한 줄로 담아야 해서 나머지는 좁게 잡는다.
+const GRID_COLUMNS = "48px minmax(0,1fr) 54px 58px 24px";
 
 const MatchDetailTableMobile = ({
   players,
@@ -119,16 +120,16 @@ const MatchDetailTableMobile = ({
           }}
         >
           {/* 1. 챔피언(+레벨) · 스펠 · 룬 */}
-          <div className="flex items-center gap-1">
-            <div className="relative w-[26px] h-[26px] shrink-0">
+          <div className="flex items-center gap-0.5">
+            <div className="relative w-[24px] h-[24px] shrink-0">
               <Tooltip content={player.champName} compact>
                 <SpriteImage
                   spriteData={getChampionSprite(player.champNameEng)}
-                  width={26}
-                  height={26}
+                  width={24}
+                  height={24}
                   alt="챔피언"
                   fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${player.champNameEng}.png`}
-                  className="w-[26px] h-[26px] rounded-md"
+                  className="w-[24px] h-[24px] rounded-md"
                 />
               </Tooltip>
               <span
@@ -143,33 +144,33 @@ const MatchDetailTableMobile = ({
                 <SpellWithTooltip
                   spellKey={player.spells[0]}
                   spellName={player.spellNames[0]}
-                  width={12}
-                  height={12}
+                  width={11}
+                  height={11}
                   alt="스펠 1"
-                  className="w-[12px] h-[12px] rounded-sm"
+                  className="w-[11px] h-[11px] rounded-sm"
                 />
                 <SpellWithTooltip
                   spellKey={player.spells[1]}
                   spellName={player.spellNames[1]}
-                  width={12}
-                  height={12}
+                  width={11}
+                  height={11}
                   alt="스펠 2"
-                  className="w-[12px] h-[12px] rounded-sm"
+                  className="w-[11px] h-[11px] rounded-sm"
                 />
               </div>
               <div className="flex flex-col gap-px">
                 <RuneWithTooltip
                   iconPath={player.keystone}
                   runeName={player.keystoneName}
-                  width={12}
-                  height={12}
+                  width={11}
+                  height={11}
                   alt="룬 1"
                 />
                 <RuneWithTooltip
                   iconPath={player.perk}
                   runeName={player.perkName}
-                  width={12}
-                  height={12}
+                  width={11}
+                  height={11}
                   alt="룬 2"
                 />
               </div>
@@ -184,21 +185,21 @@ const MatchDetailTableMobile = ({
               isCenter={false}
               className="text-[11px] text-primary1"
             />
-            <div className="mt-0.5 grid grid-cols-3 gap-px w-max">
+            <div className="mt-0.5 flex gap-px overflow-hidden">
               {[0, 1, 2, 3, 4, 5].map((slot) =>
                 player.items[slot] !== 0 ? (
                   <ItemWithTooltip
                     key={`slot-${slot}`}
                     itemId={player.items[slot]}
-                    width={14}
-                    height={14}
+                    width={11}
+                    height={11}
                     alt={`아이템 ${slot + 1}`}
-                    className="w-[14px] h-[14px] rounded-[3px]"
+                    className="w-[11px] h-[11px] rounded-[3px] shrink-0"
                   />
                 ) : (
                   <div
                     key={`empty-slot-${slot}`}
-                    className="w-[14px] h-[14px] rounded-[3px]"
+                    className="w-[11px] h-[11px] rounded-[3px] shrink-0"
                     style={{ backgroundColor: "#1C1F24" }}
                   />
                 )
@@ -206,14 +207,11 @@ const MatchDetailTableMobile = ({
             </div>
           </div>
 
-          {/* 3. KDA · 관여 */}
+          {/* 3. KDA */}
           <div className="flex flex-col items-center leading-tight">
-            <span className="text-[11px] tabular-nums text-primary1">{player.kda}</span>
+            <span className="text-[10px] tabular-nums text-primary1">{player.kda}</span>
             <span className={`text-[10px] font-bold tabular-nums ${getKdaColor(player.kdaRate)}`}>
               {player.kdaRate.toFixed(2)}
-            </span>
-            <span className="text-[9px] text-primary3 tabular-nums">
-              관여 {player.killParticipation}%
             </span>
           </div>
 
