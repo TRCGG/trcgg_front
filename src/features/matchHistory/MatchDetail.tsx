@@ -88,18 +88,22 @@ const MatchDetail = ({ participantData }: Props) => {
       </div>
 
       {/* 모바일 · 태블릿 */}
-      <div className="flex flex-col md:hidden min-w-0">
+      <div className="flex flex-col gap-2 md:hidden min-w-0">
         <MatchDetailTableMobile
           players={winParticipants}
           isWin
           maxDamage={maxDamage}
           maxDamageTaken={maxDamageTaken}
+          teamLabel={winLabel}
+          teamSummary={winSummary}
         />
         <MatchDetailTableMobile
           players={loseParticipants}
           isWin={false}
           maxDamage={maxDamage}
           maxDamageTaken={maxDamageTaken}
+          teamLabel={loseLabel}
+          teamSummary={loseSummary}
         />
       </div>
     </>
