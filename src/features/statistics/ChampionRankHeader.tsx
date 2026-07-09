@@ -1,4 +1,4 @@
-type SortBy = "totalGames" | "winRate";
+type SortBy = "totalGames" | "winRate" | "kda";
 type SortOrder = "asc" | "desc";
 
 interface Props {
@@ -14,7 +14,7 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
     return sortOrder === "asc" ? " ▲" : " ▼";
   };
 
-  const mobileSortClass = (column: SortBy, width: string) =>
+  const sortClass = (column: SortBy, width: string) =>
     `${width} shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
       sortBy === column ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
     }`;
@@ -23,25 +23,32 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
     <>
       {/* 모바일 정렬 (열제목 스타일 — 각 열 중앙 정렬) */}
       <div
-        className={`flex md:hidden items-center gap-2.5 sm:gap-3.5 px-3 sm:px-3.5 pb-1.5 ${
+        className={`flex md:hidden items-center gap-1.5 sm:gap-3.5 px-2.5 sm:px-3.5 pb-1.5 ${
           className || ""
         }`}
       >
         {/* 랭크 + 아이콘 + 챔피언 (자리) */}
         <div className="flex-1 min-w-0" />
         {/* 라인 (자리) */}
-        <div className="w-9 shrink-0" />
+        <div className="w-8 sm:w-9 shrink-0" />
+        <button
+          type="button"
+          onClick={() => onSort("kda")}
+          className={sortClass("kda", "w-11 sm:w-16")}
+        >
+          KDA{getSortIndicator("kda")}
+        </button>
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className={mobileSortClass("totalGames", "w-14 sm:w-16")}
+          className={sortClass("totalGames", "w-12 sm:w-16")}
         >
           판수{getSortIndicator("totalGames")}
         </button>
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={mobileSortClass("winRate", "w-12 sm:w-14")}
+          className={sortClass("winRate", "w-11 sm:w-14")}
         >
           승률{getSortIndicator("winRate")}
         </button>
@@ -60,15 +67,16 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
         {/* 라인 (자리) */}
         <div className="w-9 shrink-0" />
 
+        {/* KDA 정렬 */}
+        <button type="button" onClick={() => onSort("kda")} className={sortClass("kda", "w-16")}>
+          KDA{getSortIndicator("kda")}
+        </button>
+
         {/* 판수 정렬 */}
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className={`w-14 sm:w-16 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
-            sortBy === "totalGames"
-              ? "text-primary1 font-bold"
-              : "text-primary2 hover:text-primary1"
-          }`}
+          className={sortClass("totalGames", "w-16")}
         >
           판수{getSortIndicator("totalGames")}
         </button>
@@ -77,9 +85,7 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={`w-12 sm:w-14 shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
-            sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
-          }`}
+          className={sortClass("winRate", "w-14")}
         >
           승률{getSortIndicator("winRate")}
         </button>

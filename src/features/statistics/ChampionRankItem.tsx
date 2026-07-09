@@ -6,7 +6,7 @@ import LaneSupportLogo from "@/assets/images/laneSupport.png";
 import LaneBottomLogo from "@/assets/images/laneBottom.png";
 import SpriteImage from "@/components/ui/SpriteImage";
 import { getChampionSprite } from "@/utils/spriteLoader";
-import { getWinRateColor } from "@/utils/statColors";
+import { getKdaColor, getWinRateColor } from "@/utils/statColors";
 
 interface Props {
   rank: number;
@@ -14,6 +14,7 @@ interface Props {
   championNameEng: string;
   position: "TOP" | "JUG" | "MID" | "ADC" | "SUP";
   winRate: string;
+  kda: string;
   gameCount: number;
   tier?: 1 | 5;
   isPopular?: boolean;
@@ -28,18 +29,13 @@ const laneImageMap: Record<string, StaticImageData> = {
   SUP: LaneSupportLogo,
 };
 
-const getTierBgClass = (tierLevel?: number) => {
-  if (tierLevel === 1) return "bg-tierBlue";
-  if (tierLevel === 5) return "bg-tierBrown";
-  return "";
-};
-
 const ChampionRankItem = ({
   rank,
   championName,
   championNameEng,
   position,
   winRate,
+  kda,
   gameCount,
   tier,
   isPopular,
@@ -47,7 +43,7 @@ const ChampionRankItem = ({
 }: Props) => {
   return (
     <div
-      className={`bg-darkBg2 rounded-md border border-cardBorder px-3 sm:px-3.5 py-[11px] flex items-center gap-2.5 sm:gap-3.5 ${
+      className={`bg-darkBg2 rounded-md border border-cardBorder px-2.5 sm:px-3.5 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
         className || ""
       }`}
     >
@@ -56,7 +52,7 @@ const ChampionRankItem = ({
         {rank}
       </div>
 
-      {/* 챔피언 아이콘 + 티어 칩 */}
+      {/* 챔피언 아이콘 + 티어 배지(👍 / 💩) */}
       <div className="relative shrink-0 w-11 h-11">
         <SpriteImage
           spriteData={getChampionSprite(championNameEng)}
@@ -68,11 +64,11 @@ const ChampionRankItem = ({
         />
         {tier && (
           <span
-            className={`absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 ${getTierBgClass(
-              tier
-            )} text-white text-[10px] font-bold leading-none px-1 py-0.5 rounded border border-darkBg2`}
+            title={tier === 1 ? "1티어" : "5티어"}
+            aria-label={tier === 1 ? "1티어" : "5티어"}
+            className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 grid place-items-center w-[18px] h-[18px] rounded-full bg-darkBg2 border border-cardBorder text-[11px] leading-none"
           >
-            T{tier}
+            {tier === 1 ? "👍" : "💩"}
           </span>
         )}
       </div>
@@ -87,8 +83,8 @@ const ChampionRankItem = ({
         )}
       </div>
 
-      {/* 라인 아이콘 36×36 */}
-      <div className="shrink-0 w-9 h-9 flex items-center justify-center">
+      {/* 라인 아이콘 */}
+      <div className="shrink-0 w-8 sm:w-9 h-9 flex items-center justify-center">
         <Image
           src={laneImageMap[position] || LaneMidLogo}
           alt={position}
@@ -98,14 +94,20 @@ const ChampionRankItem = ({
         />
       </div>
 
+      {/* KDA */}
+      <div className="shrink-0 w-11 sm:w-16 text-center">
+        <div className={`text-[15px] font-bold tabular-nums ${getKdaColor(kda)}`}>{kda}</div>
+        <div className="text-[11px] text-primary2">KDA</div>
+      </div>
+
       {/* 판수 */}
-      <div className="shrink-0 w-14 sm:w-16 text-center">
+      <div className="shrink-0 w-12 sm:w-16 text-center">
         <div className="text-[15px] font-bold text-primary1 tabular-nums">{gameCount}</div>
         <div className="text-[11px] text-primary2">게임</div>
       </div>
 
       {/* 승률 */}
-      <div className="shrink-0 w-12 sm:w-14 text-center">
+      <div className="shrink-0 w-11 sm:w-14 text-center">
         <div className={`text-[15px] font-bold tabular-nums ${getWinRateColor(winRate)}`}>
           {winRate}%
         </div>
