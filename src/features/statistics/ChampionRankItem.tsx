@@ -77,7 +77,7 @@ const ChampionRankItem = ({
       <div className="flex-1 min-w-0 flex items-center gap-2">
         <p className="text-[15px] text-primary1 truncate">{championName}</p>
         {isPopular && (
-          <span className="shrink-0 bg-redPopular text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+          <span className="shrink-0 inline-flex items-center h-[18px] px-1.5 rounded bg-redPopular text-white text-[10px] font-bold leading-none">
             인기
           </span>
         )}
