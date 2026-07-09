@@ -205,8 +205,8 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           </div>
 
           {displayedRecords && displayedRecords.length > 0 && (
-            <CardWithTitle title="최근 전적" className="w-full">
-              <div className="flex flex-1 flex-col gap-4">
+            <CardWithTitle title="최근 전적" className="w-full min-w-0">
+              <div className="flex flex-1 flex-col gap-4 min-w-0">
                 {displayedRecords.map((datum: RecentGameRecord) => (
                   <MatchItem matchData={datum} key={datum.gameId} />
                 ))}

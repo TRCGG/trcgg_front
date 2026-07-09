@@ -68,7 +68,7 @@ const MatchDetail = ({ participantData }: Props) => {
   return (
     <>
       {/* PC (태블릿 이하는 유동형 모바일 표) */}
-      <div className="hidden md:flex md:flex-col gap-2">
+      <div className="hidden md:flex md:flex-col gap-2 min-w-0">
         <MatchDetailTable
           players={winParticipants}
           isWin
@@ -88,7 +88,7 @@ const MatchDetail = ({ participantData }: Props) => {
       </div>
 
       {/* 모바일 · 태블릿 */}
-      <div className="flex flex-col md:hidden">
+      <div className="flex flex-col md:hidden min-w-0">
         <MatchDetailTableMobile
           players={winParticipants}
           isWin

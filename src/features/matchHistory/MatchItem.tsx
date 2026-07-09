@@ -290,7 +290,7 @@ const MatchItem = ({ matchData }: Props) => {
         <>
           {isLoadingGameData && <LoadingSpinner />}
           {!isLoadingGameData && gameData?.data?.data && (
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full min-w-0">
               <MatchDetail participantData={gameData.data.data} />
             </div>
           )}

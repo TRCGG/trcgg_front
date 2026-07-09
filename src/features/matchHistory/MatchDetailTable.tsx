@@ -49,9 +49,10 @@ interface MatchDetailProps {
   teamSummary: TeamSummary;
 }
 
-// 44 챔피언 · 소환사 · 빌드 · KDA · 관여 · 가한피해 · 받은피해 · 시야
-// 소환사 열은 넓게(min 120px, 1fr로 확장), 빌드 열은 콘텐츠(≈95px)에 맞춰 좁게(100px)
-const GRID_COLUMNS = "44px minmax(120px,1fr) 100px 84px 44px 104px 104px 56px";
+// 챔피언 · 소환사 · 빌드 · KDA · 관여 · 가한피해 · 받은피해 · 시야
+// 소환사 열만 유동(1fr)으로 남는 공간을 흡수하고 나머지는 고정폭으로 좁게 잡아,
+// 최소 레이아웃 폭(min-w-[1080px])에서도 최근 전적 카드 안에 들어가도록 한다.
+const GRID_COLUMNS = "40px minmax(84px,1fr) 96px 78px 38px 88px 88px 50px";
 
 const MatchDetailTable = ({
   players,
@@ -68,7 +69,7 @@ const MatchDetailTable = ({
   const pillBg = `rgba(${accentRgb},0.14)`;
 
   return (
-    <div className="bg-darkBg2 border border-cardBorder rounded-[10px] overflow-hidden text-base">
+    <div className="w-full min-w-0 bg-darkBg2 border border-cardBorder rounded-[10px] overflow-hidden text-base">
       {/* 팀 요약 헤더 */}
       <div
         className="flex items-center justify-between py-2 pr-4"
@@ -99,7 +100,7 @@ const MatchDetailTable = ({
 
       {/* 열 제목 */}
       <div
-        className="grid items-center gap-2 px-4 py-1.5 text-[11px] text-primary3 text-center"
+        className="grid items-center gap-1.5 px-3 py-1.5 text-[11px] text-primary3 text-center"
         style={{ gridTemplateColumns: GRID_COLUMNS }}
       >
         <div />
@@ -116,7 +117,7 @@ const MatchDetailTable = ({
       {players.map((player) => (
         <div
           key={`${player.name}-${player.tag}`}
-          className="grid items-center gap-2 px-4 py-[7px]"
+          className="grid items-center gap-1.5 px-3 py-[7px]"
           style={{
             gridTemplateColumns: GRID_COLUMNS,
             backgroundColor: rowTint,
