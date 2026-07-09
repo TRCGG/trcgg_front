@@ -55,7 +55,7 @@ const UserRankItem = ({
 
   return (
     <div
-      className={`bg-darkBg2 rounded-md border border-cardBorder pl-3 pr-6 sm:pl-3.5 sm:pr-10 py-[11px] flex items-center gap-2.5 sm:gap-3.5 ${
+      className={`bg-darkBg2 rounded-md border border-cardBorder pl-3 pr-4 sm:pl-3.5 sm:pr-10 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
         className || ""
       }`}
     >
@@ -77,7 +77,7 @@ const UserRankItem = ({
         </div>
       )}
 
-      {/* 닉네임 + KDA */}
+      {/* 닉네임 */}
       <div className="flex-1 min-w-0 relative group">
         <button
           type="button"
@@ -86,7 +86,6 @@ const UserRankItem = ({
         >
           {riotName}
         </button>
-        <div className={`text-[11px] mt-0.5 tabular-nums ${getKdaColor(kda)}`}>KDA {kda}</div>
         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white z-10 whitespace-nowrap">
           <span>{riotName}</span>
           <span className="text-primary2"> #{riotNameTag}</span>
@@ -94,13 +93,20 @@ const UserRankItem = ({
         </div>
       </div>
 
+      {/* KDA */}
+      <div className="w-12 md:w-16 shrink-0 text-center">
+        <span className={`text-[13px] md:text-sm font-bold tabular-nums ${getKdaColor(kda)}`}>
+          {kda}
+        </span>
+      </div>
+
       {/* 전적 (n전 n승 n패) */}
-      <div className="w-28 md:w-40 shrink-0 text-center text-[13px] text-primary2 tabular-nums whitespace-nowrap">
+      <div className="w-24 md:w-40 shrink-0 text-center text-[13px] text-primary2 tabular-nums whitespace-nowrap">
         {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
       </div>
 
       {/* 승률 pill */}
-      <div className="w-14 md:w-[52px] shrink-0 flex justify-center">
+      <div className="w-12 md:w-[52px] shrink-0 flex justify-center">
         <span
           className={`inline-block rounded-md text-sm font-bold tabular-nums ${getWinRateColor(
             winRate

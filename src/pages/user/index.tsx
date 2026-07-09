@@ -14,7 +14,7 @@ import { UserStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
-type SortBy = "totalGames" | "winRate";
+type SortBy = "totalGames" | "winRate" | "kda";
 type SortOrder = "asc" | "desc";
 
 const now = new Date();
@@ -134,6 +134,9 @@ const User: NextPage = () => {
       if (sortBy === "totalGames") {
         aValue = a.totalCount || 0;
         bValue = b.totalCount || 0;
+      } else if (sortBy === "kda") {
+        aValue = parseFloat(a.kda) || 0;
+        bValue = parseFloat(b.kda) || 0;
       } else {
         aValue = parseFloat(a.winRate) || 0;
         bValue = parseFloat(b.winRate) || 0;

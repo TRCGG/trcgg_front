@@ -1,4 +1,4 @@
-type SortBy = "totalGames" | "winRate";
+type SortBy = "totalGames" | "winRate" | "kda";
 type SortOrder = "asc" | "desc";
 
 interface Props {
@@ -14,7 +14,7 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
     return sortOrder === "asc" ? " ▲" : " ▼";
   };
 
-  const mobileSortClass = (column: SortBy, width: string) =>
+  const sortClass = (column: SortBy, width: string) =>
     `${width} shrink-0 text-center text-[13px] transition-colors cursor-pointer ${
       sortBy === column ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
     }`;
@@ -23,23 +23,26 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
     <>
       {/* 모바일 정렬 (열제목 스타일 — 각 열 중앙 정렬) */}
       <div
-        className={`flex md:hidden items-center gap-2.5 sm:gap-3.5 pl-3 pr-6 sm:pl-3.5 sm:pr-10 pb-1.5 ${
+        className={`flex md:hidden items-center gap-1.5 sm:gap-3.5 pl-3 pr-4 sm:pl-3.5 sm:pr-10 pb-1.5 ${
           className || ""
         }`}
       >
         {/* 순위 + 라인 + 닉네임 (자리) */}
         <div className="flex-1 min-w-0" />
+        <button type="button" onClick={() => onSort("kda")} className={sortClass("kda", "w-12")}>
+          KDA{getSortIndicator("kda")}
+        </button>
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className={mobileSortClass("totalGames", "w-28")}
+          className={sortClass("totalGames", "w-24")}
         >
           전적{getSortIndicator("totalGames")}
         </button>
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={mobileSortClass("winRate", "w-14")}
+          className={sortClass("winRate", "w-12")}
         >
           승률{getSortIndicator("winRate")}
         </button>
@@ -57,15 +60,16 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
         {/* 닉네임 (자리) */}
         <div className="flex-1 min-w-0" />
 
+        {/* KDA */}
+        <button type="button" onClick={() => onSort("kda")} className={sortClass("kda", "w-16")}>
+          KDA{getSortIndicator("kda")}
+        </button>
+
         {/* 전적 */}
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className={`w-40 shrink-0 text-center transition-colors cursor-pointer ${
-            sortBy === "totalGames"
-              ? "text-primary1 font-bold"
-              : "text-primary2 hover:text-primary1"
-          }`}
+          className={sortClass("totalGames", "w-40")}
         >
           전적{getSortIndicator("totalGames")}
         </button>
@@ -74,9 +78,7 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={`shrink-0 w-[52px] text-center transition-colors cursor-pointer ${
-            sortBy === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
-          }`}
+          className={sortClass("winRate", "w-[52px]")}
         >
           승률{getSortIndicator("winRate")}
         </button>
