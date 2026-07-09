@@ -66,7 +66,7 @@ const ChampionRankItem = ({
           <span
             title={tier === 1 ? "1티어" : "5티어"}
             aria-label={tier === 1 ? "1티어" : "5티어"}
-            className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 grid place-items-center w-[18px] h-[18px] rounded-full bg-darkBg2 border border-cardBorder text-[11px] leading-none"
+            className="absolute -bottom-2 -right-2 grid place-items-center w-6 h-6 rounded-full bg-darkBg2 border border-cardBorder text-[15px] leading-none shadow-md"
           >
             {tier === 1 ? "👍" : "💩"}
           </span>
