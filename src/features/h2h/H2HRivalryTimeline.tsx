@@ -120,7 +120,8 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
         pointerEvents: "none",
         opacity: show ? 1 : 0,
         transition: "opacity 0.2s ease",
-        background: `linear-gradient(to ${side}, ${colors.darkBg2} 30%, ${colors.darkBg2}00 100%)`,
+        // 가장자리(바깥쪽)가 불투명하고 안쪽으로 갈수록 투명해지도록 중앙 방향으로 페이드.
+        background: `linear-gradient(to ${side === "left" ? "right" : "left"}, ${colors.darkBg2} 30%, ${colors.darkBg2}00 100%)`,
         display: "flex",
         alignItems: "center",
         justifyContent: side === "left" ? "flex-start" : "flex-end",
