@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { H2HResult, H2HSeasonBreak } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import { diffColor } from "./h2hHelpers";
@@ -48,6 +48,9 @@ const DIMS = {
 
 const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
   const [isMobile, setIsMobile] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
@@ -87,6 +90,55 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
   const cur = pts[pts.length - 1];
   const curColor = diffColor(cur, colors.blueText, colors.redText, colors.primary2);
 
+  // 스크롤 위치에 따라 양쪽 페이드(더 볼 내용 있음) 표시 여부를 갱신한다.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      setCanScrollLeft(el.scrollLeft > 1);
+      setCanScrollRight(el.scrollLeft < max - 1);
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [scrolls, w]);
+
+  const edgeFade = (side: "left" | "right", show: boolean) => (
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        [side]: 0,
+        width: 44,
+        pointerEvents: "none",
+        opacity: show ? 1 : 0,
+        transition: "opacity 0.2s ease",
+        background: `linear-gradient(to ${side}, ${colors.darkBg2} 30%, ${colors.darkBg2}00 100%)`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: side === "left" ? "flex-start" : "flex-end",
+      }}
+    >
+      <span
+        className="text-primary2"
+        style={{
+          fontSize: 16,
+          fontWeight: 700,
+          padding: side === "left" ? "0 0 0 6px" : "0 6px 0 0",
+        }}
+      >
+        {side === "left" ? "‹" : "›"}
+      </span>
+    </div>
+  );
+
   return (
     <SectionCard
       title="라이벌 히스토리"
@@ -108,86 +160,91 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
         </span>
       }
     >
-      <div
-        style={{
-          padding: "8px 16px 14px",
-          overflowX: scrolls ? "auto" : "visible",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        <svg
-          viewBox={`0 0 ${w} ${h}`}
+      <div style={{ position: "relative" }}>
+        <div
+          ref={scrollRef}
           style={{
-            width: scrolls ? `${w}px` : "100%",
-            height: "auto",
-            display: "block",
+            padding: "8px 16px 14px",
+            overflowX: scrolls ? "auto" : "visible",
+            WebkitOverflowScrolling: "touch",
           }}
         >
-          {/* zero baseline */}
-          <line
-            className="stroke-border1"
-            x1={padL}
-            y1={y(0)}
-            x2={w - padR}
-            y2={y(0)}
-            strokeDasharray="4 4"
-          />
-          {/* zone labels */}
-          <text className="fill-blueText" x={padL} y={padT + 4} fontSize={fz} opacity={0.75}>
-            내 우위 ↑
-          </text>
-          <text className="fill-redText" x={padL} y={h - padB + 2} fontSize={fz} opacity={0.75}>
-            상대 우위 ↓
-          </text>
-          {/* season breaks */}
-          {seasonBreaks.map((b) => (
-            <g key={b.index}>
-              <line
-                className="stroke-border1"
-                x1={x(b.index)}
-                y1={padT - 6}
-                x2={x(b.index)}
-                y2={h - padB + 6}
-                strokeDasharray="2 3"
-              />
-              <text className="fill-primary2" x={x(b.index) + 5} y={padT + 2} fontSize={fz}>
-                {b.label}
-              </text>
-            </g>
-          ))}
-          {/* cumulative step line */}
-          <path className="stroke-primary2" d={linePath} fill="none" strokeWidth={1.5} />
-          {/* per-game dots */}
-          {pts.map((v, i) =>
-            i === 0 ? null : (
-              <circle
-                // eslint-disable-next-line react/no-array-index-key
-                key={i}
-                className="stroke-darkBg2"
-                cx={x(i)}
-                cy={y(v)}
-                r={dotR}
-                fill={streak[i - 1] === "W" ? colors.blueText : colors.redText}
-                strokeWidth={1.5}
-              >
-                <title>{`${i}번째 맞대결 — ${streak[i - 1] === "W" ? "승" : "패"} (누적 ${
-                  v > 0 ? `+${v}` : v
-                })`}</title>
-              </circle>
-            )
-          )}
-          {/* current value */}
-          <text
-            x={x(pts.length - 1) + 10}
-            y={y(cur) + 4}
-            fill={curColor}
-            fontSize={fzCur}
-            fontWeight={700}
-            style={{ fontFeatureSettings: '"tnum"' }}
+          <svg
+            viewBox={`0 0 ${w} ${h}`}
+            style={{
+              width: scrolls ? `${w}px` : "100%",
+              height: "auto",
+              display: "block",
+            }}
           >
-            {cur > 0 ? `+${cur}` : cur}
-          </text>
-        </svg>
+            {/* zero baseline */}
+            <line
+              className="stroke-border1"
+              x1={padL}
+              y1={y(0)}
+              x2={w - padR}
+              y2={y(0)}
+              strokeDasharray="4 4"
+            />
+            {/* zone labels */}
+            <text className="fill-blueText" x={padL} y={padT + 4} fontSize={fz} opacity={0.75}>
+              내 우위 ↑
+            </text>
+            <text className="fill-redText" x={padL} y={h - padB + 2} fontSize={fz} opacity={0.75}>
+              상대 우위 ↓
+            </text>
+            {/* season breaks */}
+            {seasonBreaks.map((b) => (
+              <g key={b.index}>
+                <line
+                  className="stroke-border1"
+                  x1={x(b.index)}
+                  y1={padT - 6}
+                  x2={x(b.index)}
+                  y2={h - padB + 6}
+                  strokeDasharray="2 3"
+                />
+                <text className="fill-primary2" x={x(b.index) + 5} y={padT + 2} fontSize={fz}>
+                  {b.label}
+                </text>
+              </g>
+            ))}
+            {/* cumulative step line */}
+            <path className="stroke-primary2" d={linePath} fill="none" strokeWidth={1.5} />
+            {/* per-game dots */}
+            {pts.map((v, i) =>
+              i === 0 ? null : (
+                <circle
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={i}
+                  className="stroke-darkBg2"
+                  cx={x(i)}
+                  cy={y(v)}
+                  r={dotR}
+                  fill={streak[i - 1] === "W" ? colors.blueText : colors.redText}
+                  strokeWidth={1.5}
+                >
+                  <title>{`${i}번째 맞대결 — ${streak[i - 1] === "W" ? "승" : "패"} (누적 ${
+                    v > 0 ? `+${v}` : v
+                  })`}</title>
+                </circle>
+              )
+            )}
+            {/* current value */}
+            <text
+              x={x(pts.length - 1) + 10}
+              y={y(cur) + 4}
+              fill={curColor}
+              fontSize={fzCur}
+              fontWeight={700}
+              style={{ fontFeatureSettings: '"tnum"' }}
+            >
+              {cur > 0 ? `+${cur}` : cur}
+            </text>
+          </svg>
+        </div>
+        {scrolls && edgeFade("left", canScrollLeft)}
+        {scrolls && edgeFade("right", canScrollRight)}
       </div>
     </SectionCard>
   );
