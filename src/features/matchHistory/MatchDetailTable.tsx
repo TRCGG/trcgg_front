@@ -52,7 +52,7 @@ interface MatchDetailProps {
 // 챔피언 · 소환사 · 빌드 · KDA · 관여 · 가한피해 · 받은피해 · 시야
 // 소환사 열만 유동(1fr)으로 남는 공간을 흡수하고 나머지는 고정폭으로 좁게 잡아,
 // 최소 레이아웃 폭(min-w-[1080px])에서도 최근 전적 카드 안에 들어가도록 한다.
-const GRID_COLUMNS = "40px minmax(84px,1fr) 96px 78px 38px 88px 88px 50px";
+const GRID_COLUMNS = "40px minmax(76px,1fr) 112px 78px 54px 88px 88px 50px";
 
 const MatchDetailTable = ({
   players,
@@ -152,7 +152,6 @@ const MatchDetailTable = ({
               isCenter={false}
               className="text-[13px] text-primary1"
             />
-            <div className="text-[11px] text-primary3 truncate">{player.champName}</div>
           </div>
 
           {/* 3. 빌드 (스펠·룬·아이템) */}
@@ -162,33 +161,33 @@ const MatchDetailTable = ({
                 <SpellWithTooltip
                   spellKey={player.spells[0]}
                   spellName={player.spellNames[0]}
-                  width={17}
-                  height={17}
+                  width={20}
+                  height={20}
                   alt="스펠 1"
-                  className="w-[17px] h-[17px]"
+                  className="w-[20px] h-[20px]"
                 />
                 <SpellWithTooltip
                   spellKey={player.spells[1]}
                   spellName={player.spellNames[1]}
-                  width={17}
-                  height={17}
+                  width={20}
+                  height={20}
                   alt="스펠 2"
-                  className="w-[17px] h-[17px]"
+                  className="w-[20px] h-[20px]"
                 />
               </div>
               <div className="flex flex-col">
                 <RuneWithTooltip
                   iconPath={player.keystone}
                   runeName={player.keystoneName}
-                  width={17}
-                  height={17}
+                  width={20}
+                  height={20}
                   alt="룬 1"
                 />
                 <RuneWithTooltip
                   iconPath={player.perk}
                   runeName={player.perkName}
-                  width={17}
-                  height={17}
+                  width={20}
+                  height={20}
                   alt="룬 2"
                 />
               </div>
@@ -199,15 +198,15 @@ const MatchDetailTable = ({
                   <ItemWithTooltip
                     key={`slot-${slot}`}
                     itemId={player.items[slot]}
-                    width={17}
-                    height={17}
+                    width={20}
+                    height={20}
                     alt={`아이템 ${slot + 1}`}
-                    className="w-[17px] h-[17px] rounded-[3px]"
+                    className="w-[20px] h-[20px] rounded-[3px]"
                   />
                 ) : (
                   <div
                     key={`empty-slot-${slot}`}
-                    className="w-[17px] h-[17px] rounded-[3px]"
+                    className="w-[20px] h-[20px] rounded-[3px]"
                     style={{ backgroundColor: "#1C1F24" }}
                   />
                 )
