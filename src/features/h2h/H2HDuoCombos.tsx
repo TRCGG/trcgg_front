@@ -308,7 +308,7 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
             return (
               <div
                 key={`${g.champ}|${g.lane}`}
-                className={isNew ? "animate-fadeUp" : undefined}
+                className={isNew ? "motion-safe:animate-fadeUp" : undefined}
                 style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
               >
                 <DuoGroupCard group={g} koName={koName} defaultOpen={false} />

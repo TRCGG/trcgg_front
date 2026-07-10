@@ -32,7 +32,7 @@ const MostPickRank = ({ mostPickData }: Props) => {
         return (
           <div
             key={data.rank}
-            className={isNew ? "animate-fadeUp" : undefined}
+            className={isNew ? "motion-safe:animate-fadeUp" : undefined}
             style={isNew ? { animationDelay: `${(i - INITIAL_DISPLAY_COUNT) * 60}ms` } : undefined}
           >
             <RankItem {...data} />

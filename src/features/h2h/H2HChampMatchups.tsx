@@ -376,7 +376,7 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
             return (
               <div
                 key={`${g.champ}|${g.lane}`}
-                className={isNew ? "animate-fadeUp" : undefined}
+                className={isNew ? "motion-safe:animate-fadeUp" : undefined}
                 style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
               >
                 <ChampGroup group={g} koName={koName} defaultOpen={false} />

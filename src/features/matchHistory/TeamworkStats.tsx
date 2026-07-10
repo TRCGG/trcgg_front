@@ -92,7 +92,7 @@ const TeamworkStats = ({ synergyData }: Props) => {
               onClick={() => handleClick(synergy.riotName, synergy.riotNameTag)}
               style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
               className={`bg-darkBg1 rounded-lg border border-cardBorder px-3 py-2.5 flex items-center gap-3 hover:bg-grayHover transition-colors text-left w-full ${
-                isNew ? "animate-fadeUp" : ""
+                isNew ? "motion-safe:animate-fadeUp" : ""
               }`}
             >
               {/* 순위 */}

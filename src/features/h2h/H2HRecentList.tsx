@@ -351,7 +351,7 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
             return (
               <div
                 key={r.matchId}
-                className={isNew ? "animate-fadeUp" : undefined}
+                className={isNew ? "motion-safe:animate-fadeUp" : undefined}
                 style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
               >
                 <H2HRecentRow
