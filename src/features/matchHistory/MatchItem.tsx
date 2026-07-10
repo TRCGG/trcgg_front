@@ -53,7 +53,7 @@ const MatchItem = ({ matchData }: Props) => {
   const durationSec = String(matchData.timePlayed % 60).padStart(2, "0");
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col">
       <div
         role="button"
         tabIndex={0}
@@ -286,16 +286,26 @@ const MatchItem = ({ matchData }: Props) => {
         </button>
       </div>
 
-      {isOpen && (
-        <>
-          {isLoadingGameData && <LoadingSpinner />}
-          {!isLoadingGameData && gameData?.data?.data && (
-            <div className="flex flex-col w-full min-w-0">
-              <MatchDetail participantData={gameData.data.data} />
+      {/* grid-rows 0fr→1fr 트랜지션: 상세 콘텐츠의 실제 높이를 몰라도 부드럽게 펼침 */}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden min-h-0">
+          {/* pt-1.5로 기존 gap 대체 — 닫히면 clip에 잘려 여백이 사라짐 */}
+          {isOpen && (
+            <div className="pt-1.5">
+              {isLoadingGameData && <LoadingSpinner />}
+              {!isLoadingGameData && gameData?.data?.data && (
+                <div className="flex flex-col w-full min-w-0">
+                  <MatchDetail participantData={gameData.data.data} />
+                </div>
+              )}
             </div>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };
