@@ -11,7 +11,7 @@ type SortType = "winRate" | "gameCount";
 
 const TeamworkStats = ({ synergyData }: Props) => {
   const router = useRouter();
-  const [sortType, setSortType] = useState<SortType>("winRate");
+  const [sortType, setSortType] = useState<SortType>("gameCount");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [displayCount, setDisplayCount] = useState(5);
 
