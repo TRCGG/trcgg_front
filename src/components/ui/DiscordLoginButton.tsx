@@ -49,7 +49,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
 
       {username && isDropdownOpen && (
         <div
-          className="absolute top-full w-full bg-darkBg2 rounded-b shadow-lg z-10 overflow-hidden divide-y divide-border2"
+          className="absolute top-full right-0 min-w-[172px] bg-darkBg2 rounded-b shadow-lg z-10 overflow-hidden divide-y divide-border2"
           onMouseEnter={() => setIsDropdownOpen(true)}
           onMouseLeave={() => setIsDropdownOpen(false)}
         >
@@ -57,7 +57,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
             <button
               type="button"
               onClick={() => router.push("/clan")}
-              className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 text-sm cursor-pointer"
+              className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 text-sm whitespace-nowrap cursor-pointer"
             >
               <svg
                 className="w-4 h-4 shrink-0 text-blueText"
@@ -79,7 +79,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 rounded-b text-sm cursor-pointer"
+            className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 rounded-b text-sm whitespace-nowrap cursor-pointer"
           >
             <svg
               className="w-4 h-4 shrink-0 text-primary2"
