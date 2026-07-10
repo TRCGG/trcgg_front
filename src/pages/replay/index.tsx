@@ -3,7 +3,6 @@ import React, { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import TitleBox from "@/components/ui/TitleBox";
-import TextCard from "@/components/ui/TextCard";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { uploadReplays, getReplayList, deleteReplay } from "@/services/replay";
@@ -25,6 +24,25 @@ const FAIL_REASON_LABEL: Record<ReplayFailReason, string> = {
   duplicate: "이미 등록된 리플레이입니다",
   save_failed: "저장에 실패했습니다",
 };
+
+const UploadNotice = ({ text }: { text: string }) => (
+  <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#4A4F57"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-10 h-10"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8h.01M11 12h1v4h1" />
+    </svg>
+    <p className="text-sm text-primary2">{text}</p>
+  </div>
+);
 
 const Replay: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -194,8 +212,8 @@ const Replay: NextPage = () => {
 
           <div className="p-4 flex flex-col gap-3.5">
             {(() => {
-              if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
-              if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+              if (!isLoggedIn) return <UploadNotice text="로그인 후 이용해주세요" />;
+              if (guilds.length === 0) return <UploadNotice text="소속된 클랜이 없습니다" />;
               return (
                 <>
                   {/* 드래그 앤 드롭 존 */}
