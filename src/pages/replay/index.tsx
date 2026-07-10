@@ -273,7 +273,7 @@ const Replay: NextPage = () => {
                             key={file.name}
                             className="flex items-center gap-2.5 bg-rankBg2 border border-cardBorder rounded-lg px-3 py-2.5"
                           >
-                            <span className="shrink-0 text-[9px] font-extrabold tracking-wide leading-none text-yellow bg-yellow/10 border border-yellow/25 rounded-[5px] px-1.5 py-1">
+                            <span className="shrink-0 text-[9px] font-bold tracking-wide leading-none text-yellow bg-yellow/10 border border-yellow/25 rounded-[5px] px-1.5 py-1">
                               ROFL
                             </span>
                             <span className="flex-1 min-w-0 truncate text-[13px] text-primary1">

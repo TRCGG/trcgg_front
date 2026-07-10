@@ -23,7 +23,6 @@ body {
   font-style: normal;
   font-weight: 300;
   src:
-    local("KoPubWorldDotum"),
     url("https://cdn.jsdelivr.net/npm/font-kopubworld@1.0/fonts/KoPubWorld-Dotum-Light.woff2")
       format("woff2"),
     url("https://cdn.jsdelivr.net/npm/font-kopubworld@1.0/fonts/KoPubWorld-Dotum-Light.woff")
@@ -37,7 +36,6 @@ body {
   font-style: normal;
   font-weight: 400;
   src:
-    local("KoPubWorldDotum"),
     url("https://cdn.jsdelivr.net/npm/font-kopubworld@1.0/fonts/KoPubWorld-Dotum-Medium.woff2")
       format("woff2"),
     url("https://cdn.jsdelivr.net/npm/font-kopubworld@1.0/fonts/KoPubWorld-Dotum-Medium.woff")
@@ -51,7 +49,6 @@ body {
   font-style: normal;
   font-weight: 700;
   src:
-    local("KoPubWorldDotum"),
     url("https://cdn.jsdelivr.net/npm/font-kopubworld@1.0/fonts/KoPubWorld-Dotum-Bold.woff2")
       format("woff2"),
     url("https://cdn.jsdelivr.net/npm/font-kopubworld@1.0/fonts/KoPubWorld-Dotum-Bold.woff")

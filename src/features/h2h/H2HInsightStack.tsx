@@ -59,7 +59,7 @@ const H2HInsightCard = ({ insight }: CardProps) => {
         >
           {insight.title}
         </div>
-        <div className="text-primary1" style={{ fontSize: 14, marginTop: 2, fontWeight: 500 }}>
+        <div className="text-primary1" style={{ fontSize: 14, marginTop: 2, fontWeight: 400 }}>
           {insight.body}
         </div>
         <div
@@ -67,7 +67,7 @@ const H2HInsightCard = ({ insight }: CardProps) => {
             fontSize: 12,
             color: cfg.color,
             marginTop: 2,
-            fontWeight: 600,
+            fontWeight: 700,
             fontFeatureSettings: '"tnum"',
           }}
         >

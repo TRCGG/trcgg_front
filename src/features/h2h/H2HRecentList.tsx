@@ -166,7 +166,7 @@ const H2HRecentDetail = ({ row }: { row: H2HRecent }) => {
         style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-          <span className="text-primary1" style={{ fontSize: 12, fontWeight: 600 }}>
+          <span className="text-primary1" style={{ fontSize: 12, fontWeight: 700 }}>
             이 경기 1:1 비교
           </span>
           <span

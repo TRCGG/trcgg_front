@@ -29,7 +29,7 @@ const DiscordLoginModal = ({ isOpen, close, onSave }: Props) => {
   return (
     <Modal isOpen={isOpen} onClose={close}>
       <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">디스코드 로그인</h2>
+        <h2 className="text-xl font-bold">디스코드 로그인</h2>
         <p>디스코드의 길드 코드를 입력해주세요.</p>
         <input
           className="bg-darkBg2 p-2 rounded outline-none"

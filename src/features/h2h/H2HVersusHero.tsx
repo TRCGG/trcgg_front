@@ -59,7 +59,7 @@ const H2HVersusHero = ({ me, oppo, relation }: Props) => {
     <div className="bg-darkBg2 border border-border2 flex items-center gap-2 rounded px-3 py-4 sm:gap-6 sm:px-6 sm:py-5">
       <Side p={me} align="left" />
       <div
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-sm font-extrabold sm:h-20 sm:w-20 sm:text-lg"
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-sm font-bold sm:h-20 sm:w-20 sm:text-lg"
         style={{
           background: verbCfg.bg,
           border: `2px solid ${verbCfg.color}`,

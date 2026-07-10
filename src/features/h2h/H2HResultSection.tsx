@@ -47,7 +47,7 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-          <h2 className="text-primary1" style={{ margin: 0, fontSize: 22, fontWeight: 500 }}>
+          <h2 className="text-primary1" style={{ margin: 0, fontSize: 22, fontWeight: 400 }}>
             상대전적
           </h2>
           <span className="text-primary2" style={{ fontSize: 13 }}>

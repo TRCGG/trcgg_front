@@ -37,7 +37,7 @@ const ItemWithTooltip = ({ itemId, width, height, className = "", alt = "아이�
       )}
       <div className="mt-2">
         <span className="text-gray-300">가격: </span>
-        <span className="text-yellow font-semibold">{itemInfo.gold.total}G</span>
+        <span className="text-yellow font-bold">{itemInfo.gold.total}G</span>
       </div>
     </>
   ) : null;

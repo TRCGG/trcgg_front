@@ -76,7 +76,7 @@ const H2HEmptyState = ({
       }}
     >
       <div>
-        <h2 className="text-primary1" style={{ margin: 0, fontSize: 22, fontWeight: 500 }}>
+        <h2 className="text-primary1" style={{ margin: 0, fontSize: 22, fontWeight: 400 }}>
           상대전적
         </h2>
         <div className="text-primary2" style={{ fontSize: 13, marginTop: 4 }}>
@@ -124,7 +124,7 @@ const H2HEmptyState = ({
         ⚔
       </div>
       <div style={{ textAlign: "left", maxWidth: 520 }}>
-        <div className="text-primary1" style={{ fontSize: 18, fontWeight: 500 }}>
+        <div className="text-primary1" style={{ fontSize: 18, fontWeight: 400 }}>
           맞상대를 선택해서 상대전적을 분석해 보세요
         </div>
         <div className="text-primary2" style={{ fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>
@@ -145,7 +145,7 @@ const H2HEmptyState = ({
           padding: "0 4px 12px",
         }}
       >
-        <div className="text-primary1" style={{ fontSize: 14, fontWeight: 600 }}>
+        <div className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
           자주 만난 상대
         </div>
         <div className="text-primary2" style={{ fontSize: 11 }}>
