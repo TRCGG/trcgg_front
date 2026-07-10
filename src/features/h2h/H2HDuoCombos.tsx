@@ -208,7 +208,6 @@ const DuoGroupCard = ({ group, koName, defaultOpen }: GroupProps) => {
           <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {/* grid-rows 0fr→1fr 트랜지션으로 부드럽게 펼침 */}
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
           open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
@@ -278,7 +277,6 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
   const shown = groups.slice(0, visible);
   const remaining = groups.length - shown.length;
 
-  // 더보기로 새로 붙은 그룹만 순차 등장 (라인 탭 변경 시엔 개수가 줄어 애니메이션 없음)
   const prevCountRef = useRef(shown.length);
   const prevCount = prevCountRef.current;
   useEffect(() => {

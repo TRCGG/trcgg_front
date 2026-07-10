@@ -289,7 +289,6 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           {formatPlayedDate(row.playedDate)}
         </span>
       </div>
-      {/* grid-rows 0fr→1fr 트랜지션으로 부드럽게 펼침 (기존 gap:4는 pt-1로 대체) */}
       {!noDetail && (
         <div
           className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
@@ -327,7 +326,6 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
   const shown = filtered.slice(0, visible);
   const remaining = filtered.length - shown.length;
 
-  // 더보기로 새로 붙은 항목만 순차 등장 (필터/모드 변경 시엔 개수가 줄어 애니메이션 없음)
   const prevCountRef = useRef(shown.length);
   const prevCount = prevCountRef.current;
   useEffect(() => {

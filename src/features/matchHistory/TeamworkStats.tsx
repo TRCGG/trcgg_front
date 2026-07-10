@@ -48,7 +48,6 @@ const TeamworkStats = ({ synergyData }: Props) => {
   const displayedData = sortedData.slice(0, displayCount);
   const hasMore = sortedData.length > displayCount && displayCount < 10;
 
-  // 이전 렌더의 개수를 기억해 "더보기로 새로 붙은 항목"만 순차 등장시킴
   const prevCountRef = useRef(displayedData.length);
   const prevCount = prevCountRef.current;
   useEffect(() => {

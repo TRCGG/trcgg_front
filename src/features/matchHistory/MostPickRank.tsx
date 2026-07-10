@@ -27,7 +27,6 @@ const MostPickRank = ({ mostPickData }: Props) => {
   return (
     <div className="flex flex-col">
       {displayedData.map((data, i) => {
-        // 더보기로 새로 나타난 항목(초기 5개 이후)만 순차 등장
         const isNew = i >= INITIAL_DISPLAY_COUNT;
         return (
           <div
