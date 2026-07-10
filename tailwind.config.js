@@ -12,7 +12,7 @@ module.exports = {
     extend: {
       colors,
       fontFamily: {
-        sans: ["KoPubWorld Dotum", "sans-serif"],
+        sans: ["Pretendard Variable", "Pretendard", "sans-serif"],
       },
       fontWeight: {
         light: "300",
