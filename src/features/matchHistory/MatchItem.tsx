@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
@@ -26,27 +26,14 @@ const MatchItem = ({ matchData }: Props) => {
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const queryClient = useQueryClient();
-  const gameQueryKey = ["gameData", matchData.gameId, guildId];
-  const gameStaleTime = 3 * 60 * 1000;
-
   const { data: gameData, isLoading: isLoadingGameData } = useQuery<
     ApiResponse<GameRecordResponse>
   >({
-    queryKey: gameQueryKey,
+    queryKey: ["gameData", matchData.gameId, guildId],
     queryFn: () => getGameRecords(matchData.gameId, guildId),
-    staleTime: gameStaleTime,
+    staleTime: 3 * 60 * 1000,
     enabled: isOpen && !!guildId,
   });
-
-  const prefetchGameData = () => {
-    if (!guildId) return;
-    queryClient.prefetchQuery({
-      queryKey: gameQueryKey,
-      queryFn: () => getGameRecords(matchData.gameId, guildId),
-      staleTime: gameStaleTime,
-    });
-  };
 
   const detailData = gameData?.data?.data;
   const showDetail = isOpen && !isLoadingGameData && !!detailData;
@@ -74,8 +61,6 @@ const MatchItem = ({ matchData }: Props) => {
         role="button"
         tabIndex={0}
         onClick={toggleOpen}
-        onMouseEnter={prefetchGameData}
-        onFocus={prefetchGameData}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") toggleOpen();
         }}
