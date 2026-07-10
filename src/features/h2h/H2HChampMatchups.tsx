@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { H2HMatchup, LanePosition } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import useChampionKoNames from "@/hooks/useChampionKoNames";
@@ -63,19 +63,46 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
           {koName(matchup.oppoChamp)}
         </div>
       </div>
-      <div style={{ width: 64, textAlign: "center", fontSize: 12, fontFeatureSettings: '"tnum"' }}>
+      <div
+        className="shrink-0"
+        style={{
+          width: 64,
+          textAlign: "center",
+          fontSize: 12,
+          whiteSpace: "nowrap",
+          fontFeatureSettings: '"tnum"',
+        }}
+      >
         <b className="text-blueText">{matchup.wins}</b>
         <span className="text-primary2">승 </span>
         <b className="text-redText">{matchup.count - matchup.wins}</b>
         <span className="text-primary2">패</span>
       </div>
       <div
-        className="bg-rankBg3 shrink-0"
+        className="bg-rankBg3 hidden shrink-0 sm:block"
         style={{ position: "relative", width: 84, height: 14, borderRadius: 3, overflow: "hidden" }}
       >
         <div
           className="bg-blueText"
-          style={{ height: "100%", width: `${winPct}%`, opacity: 0.55 }}
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: `${winPct}%`,
+            opacity: 0.55,
+          }}
+        />
+        <div
+          className="bg-redText"
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: `${100 - winPct}%`,
+            opacity: 0.5,
+          }}
         />
         <span
           className="text-primary2"
@@ -93,7 +120,7 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
           {matchup.count}판
         </span>
       </div>
-      <div style={{ width: 54, textAlign: "center" }}>
+      <div className="shrink-0" style={{ width: 54, textAlign: "center", whiteSpace: "nowrap" }}>
         <div className="text-primary1" style={{ fontSize: 12, fontFeatureSettings: '"tnum"' }}>
           {matchup.myKda}
         </div>
@@ -101,7 +128,7 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
           내 KDA
         </div>
       </div>
-      <div style={{ width: 44, textAlign: "right" }}>
+      <div className="shrink-0" style={{ width: 44, textAlign: "right" }}>
         <div
           style={{
             fontSize: 14,
@@ -169,7 +196,25 @@ const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
         >
           <div
             className="bg-blueText"
-            style={{ height: "100%", width: `${winPct}%`, opacity: 0.6 }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: `${winPct}%`,
+              opacity: 0.6,
+            }}
+          />
+          <div
+            className="bg-redText"
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: `${100 - winPct}%`,
+              opacity: 0.55,
+            }}
           />
           <span
             className="text-white"
@@ -222,14 +267,22 @@ const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
           <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {open && (
-        <div style={{ background: "rgba(0,0,0,0.25)" }}>
-          {children.map((m, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <MatchupChildRow key={i} matchup={m} koName={koName} />
-          ))}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          {open && (
+            <div style={{ background: "rgba(0,0,0,0.25)" }}>
+              {children.map((m, i) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <MatchupChildRow key={i} matchup={m} koName={koName} />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -293,9 +346,16 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
   const shown = groups.slice(0, visible);
   const remaining = groups.length - shown.length;
 
+  const prevCountRef = useRef(shown.length);
+  const prevCount = prevCountRef.current;
+  useEffect(() => {
+    prevCountRef.current = shown.length;
+  }, [shown.length]);
+
   return (
     <SectionCard
       title="라인 · 챔피언 매치업"
+      stackOnMobile
       rightSlot={
         <div className="flex flex-wrap items-center justify-end gap-1.5">
           <LaneTabs value={lane} onChange={setLane} share={laneShare} />
@@ -309,14 +369,18 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
           <H2HTopLanePairCard label="가장 많이 맞붙은 라인" {...topLanePair} separator="vs" />
         )}
         {groups.length > 0 ? (
-          shown.map((g) => (
-            <ChampGroup
-              key={`${g.champ}|${g.lane}`}
-              group={g}
-              koName={koName}
-              defaultOpen={false}
-            />
-          ))
+          shown.map((g, i) => {
+            const isNew = i >= prevCount;
+            return (
+              <div
+                key={`${g.champ}|${g.lane}`}
+                className={isNew ? "motion-safe:animate-fadeUp" : undefined}
+                style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+              >
+                <ChampGroup group={g} koName={koName} defaultOpen={false} />
+              </div>
+            );
+          })
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             해당 라인 매치업이 없어요

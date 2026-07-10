@@ -9,7 +9,7 @@ import {
   UserRecentRecordsResponse,
 } from "@/data/types/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getMostPicks, getRecentRecords } from "@/services/record";
@@ -35,7 +35,7 @@ type ChampionSortType = "gameCount" | "winRate" | "kda";
 const SHARE_LANES = ["TOP", "JUG", "MID", "ADC", "SUP"] as const;
 
 const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) => {
-  const RECORD_DISPLAY_COUNT = 5;
+  const RECORD_DISPLAY_COUNT = 10;
   const MOST_PICK_DISTPLAY_COUNT = 10;
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
@@ -49,11 +49,9 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   });
   const [championPosition, setChampionPosition] = useState<Position>("ALL");
 
-  const {
-    data: recentRecordsData,
-    isFetching,
-    refetch: refetchRecentRecords,
-  } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
+  const { data: recentRecordsData, refetch: refetchRecentRecords } = useQuery<
+    ApiResponse<UserRecentRecordsResponse>
+  >({
     queryKey: ["userRecentRecords", riotName, riotTag, guildId],
     queryFn: () => getRecentRecords(riotName, riotTag, guildId),
     staleTime: 3 * 60 * 1000,
@@ -101,6 +99,25 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   const allRecords = recentRecordsData?.data?.data || [];
   const displayedRecords = allRecords.slice(0, displayCount);
   const hasMoreData = allRecords.length > displayCount;
+
+  // 무한 스크롤: 하단 센티넬이 뷰포트에 들어오면 표시 개수를 늘린다.
+  // displayCount 변경 시 옵저버를 재생성해, 센티넬이 여전히 보이면 연속으로 더 채운다.
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!hasMoreData) return undefined;
+    const target = loadMoreRef.current;
+    if (!target) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setDisplayCount((prev) => prev + RECORD_DISPLAY_COUNT);
+        }
+      },
+      { rootMargin: "300px" }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMoreData, displayCount]);
 
   const mostLane = data.lines.reduce((prev, curr) =>
     curr.totalCount > prev.totalCount ? curr : prev
@@ -205,21 +222,30 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           </div>
 
           {displayedRecords && displayedRecords.length > 0 && (
-            <CardWithTitle title="최근 전적" className="w-full">
-              <div className="flex flex-1 flex-col gap-4">
+            <CardWithTitle title="최근 전적" className="w-full min-w-0">
+              <div className="flex flex-1 flex-col gap-4 min-w-0">
                 {displayedRecords.map((datum: RecentGameRecord) => (
                   <MatchItem matchData={datum} key={datum.gameId} />
                 ))}
 
                 {hasMoreData && (
-                  <button
-                    type="button"
-                    onClick={() => setDisplayCount((prev) => prev + RECORD_DISPLAY_COUNT)}
-                    disabled={isFetching}
-                    className="w-full py-3 rounded bg-darkBg2 border border-border2 text-primary1 hover:bg-grayHover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  <div
+                    ref={loadMoreRef}
+                    className="flex items-center justify-center gap-2 py-4 text-sm text-primary2"
                   >
-                    {isFetching ? "불러오는 중..." : "더보기"}
-                  </button>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    불러오는 중...
+                  </div>
                 )}
               </div>
             </CardWithTitle>
@@ -251,7 +277,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
             {!(isLoadingMostPicks || isFetchingMostPicks) && sortedChampions.length > 0 && (
               <div className="flex flex-col gap-1">
                 {/* 열 제목 헤더 */}
-                <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
+                <div className="flex items-center gap-1 sm:gap-3 px-2 sm:px-3 py-1 text-xs font-bold text-primary2">
                   <div className="w-5 sm:w-7 shrink-0" />
                   <div className="w-10 sm:w-12 shrink-0" />
                   <div className="flex-1 min-w-0 sm:w-28 sm:flex-none" />

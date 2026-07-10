@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
-import PositionFilter from "@/features/statistics/PositionFilter";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +13,7 @@ import { ChampionStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
-type SortBy = "totalGames" | "winRate";
+type SortBy = "totalGames" | "winRate" | "kda";
 type SortOrder = "asc" | "desc";
 
 const now = new Date();
@@ -45,7 +44,8 @@ const SELECT_CLASS =
 
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
+  // 라인 필터 제거 — 항상 전체(ALL) 기준으로 조회한다.
+  const selectedPosition: Position = "ALL";
   const [displayCount, setDisplayCount] = useState(10);
   const [sortBy, setSortBy] = useState<SortBy>("winRate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -134,11 +134,12 @@ const Champion: NextPage = () => {
 
   const sortedChampions = useMemo(() => {
     const champions = [...(championStatisticsData?.data?.data || [])];
-    champions.sort((a, b) => {
-      const aValue = sortBy === "totalGames" ? a.totalCount : parseFloat(a.winRate) || 0;
-      const bValue = sortBy === "totalGames" ? b.totalCount : parseFloat(b.winRate) || 0;
-      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-    });
+    const metric = (c: (typeof champions)[number]) => {
+      if (sortBy === "totalGames") return c.totalCount;
+      if (sortBy === "kda") return parseFloat(c.kda) || 0;
+      return parseFloat(c.winRate) || 0;
+    };
+    champions.sort((a, b) => (sortOrder === "asc" ? metric(a) - metric(b) : metric(b) - metric(a)));
     return champions;
   }, [championStatisticsData?.data?.data, sortBy, sortOrder]);
 
@@ -207,10 +208,10 @@ const Champion: NextPage = () => {
                 key={mode}
                 type="button"
                 onClick={() => setDateMode(mode)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
                   dateMode === mode
-                    ? "bg-primary1 text-darkBg2 shadow"
-                    : "text-primary2 hover:text-primary1"
+                    ? "bg-blue text-blueText font-bold"
+                    : "text-primary2 font-normal hover:text-primary1"
                 }`}
               >
                 {labels[mode]}
@@ -290,7 +291,7 @@ const Champion: NextPage = () => {
             <button
               type="button"
               onClick={handleApplyRange}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blueButton hover:bg-blueText2 text-white transition-colors duration-150"
+              className="px-3 py-1.5 rounded-lg text-sm font-bold bg-bluePrimary hover:opacity-90 text-white transition-opacity duration-150"
             >
               적용
             </button>
@@ -298,13 +299,7 @@ const Champion: NextPage = () => {
         )}
       </div>
 
-      <PositionFilter
-        selectedPosition={selectedPosition}
-        onSelectPosition={setSelectedPosition}
-        className="mt-4"
-      />
-
-      <div className="mt-1">
+      <div className="mt-4">
         <ChampionRankHeader sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
         <div key={selectedPosition} className="space-y-3 mt-2">
           {(() => {
@@ -352,6 +347,7 @@ const Champion: NextPage = () => {
                             championNameEng={champion.champNameEng}
                             position={champion.position}
                             winRate={champion.winRate}
+                            kda={champion.kda}
                             gameCount={champion.totalCount}
                             tier={tier}
                             isPopular={isPopular}

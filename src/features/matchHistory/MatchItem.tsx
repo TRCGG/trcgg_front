@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { MdKeyboardArrowDown } from "react-icons/md";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
@@ -36,6 +35,9 @@ const MatchItem = ({ matchData }: Props) => {
     enabled: isOpen && !!guildId,
   });
 
+  const detailData = gameData?.data?.data;
+  const showDetail = isOpen && !isLoadingGameData && !!detailData;
+
   const itemArr = [
     { slot: 0, itemId: matchData.item0 },
     { slot: 1, itemId: matchData.item1 },
@@ -54,7 +56,7 @@ const MatchItem = ({ matchData }: Props) => {
   const durationSec = String(matchData.timePlayed % 60).padStart(2, "0");
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col">
       <div
         role="button"
         tabIndex={0}
@@ -270,24 +272,44 @@ const MatchItem = ({ matchData }: Props) => {
           }`}
         >
           <span className="sr-only">펼치기</span>
-          <MdKeyboardArrowDown
-            className={`text-xl transition-transform duration-150 ${
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className={`w-5 h-5 transition-transform duration-150 ${
               isOpen ? "rotate-180" : "rotate-0"
             } ${isWin ? "text-blueButton" : "text-redButton"}`}
-          />
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </button>
       </div>
 
-      {isOpen && (
-        <>
-          {isLoadingGameData && <LoadingSpinner />}
-          {!isLoadingGameData && gameData?.data?.data && (
-            <div className="flex flex-col w-full">
-              <MatchDetail participantData={gameData.data.data} />
-            </div>
-          )}
-        </>
+      {isOpen && isLoadingGameData && (
+        <div className="pt-1.5 flex justify-center">
+          <LoadingSpinner />
+        </div>
       )}
+
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+          showDetail ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden min-h-0">
+          <div className="pt-1.5">
+            {detailData && (
+              <div className="flex flex-col w-full min-w-0">
+                <MatchDetail participantData={detailData} />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { H2HDuoChamp, H2HLaneCombo, LanePosition } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import useChampionKoNames from "@/hooks/useChampionKoNames";
@@ -208,14 +208,22 @@ const DuoGroupCard = ({ group, koName, defaultOpen }: GroupProps) => {
           <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {open && (
-        <div style={{ background: "rgba(0,0,0,0.25)" }}>
-          {children.map((c, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <DuoChildRow key={i} combo={c} koName={koName} />
-          ))}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          {open && (
+            <div style={{ background: "rgba(0,0,0,0.25)" }}>
+              {children.map((c, i) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <DuoChildRow key={i} combo={c} koName={koName} />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -269,6 +277,12 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
   const shown = groups.slice(0, visible);
   const remaining = groups.length - shown.length;
 
+  const prevCountRef = useRef(shown.length);
+  const prevCount = prevCountRef.current;
+  useEffect(() => {
+    prevCountRef.current = shown.length;
+  }, [shown.length]);
+
   return (
     <SectionCard
       title="자주 가는 듀오 픽"
@@ -287,14 +301,18 @@ const H2HDuoCombos = ({ combos, topLaneCombo }: Props) => {
           />
         )}
         {groups.length > 0 ? (
-          shown.map((g) => (
-            <DuoGroupCard
-              key={`${g.champ}|${g.lane}`}
-              group={g}
-              koName={koName}
-              defaultOpen={false}
-            />
-          ))
+          shown.map((g, i) => {
+            const isNew = i >= prevCount;
+            return (
+              <div
+                key={`${g.champ}|${g.lane}`}
+                className={isNew ? "motion-safe:animate-fadeUp" : undefined}
+                style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+              >
+                <DuoGroupCard group={g} koName={koName} defaultOpen={false} />
+              </div>
+            );
+          })
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             해당 라인 듀오가 없어요

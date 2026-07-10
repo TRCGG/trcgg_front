@@ -16,12 +16,12 @@ const NavBar = () => {
       {navList.map(({ href, label, href2 }) => (
         <Link key={href2 || href} href={href2 || href}>
           <span
-            className={`cursor-pointer text-sm font-medium pb-1 whitespace-nowrap px-3 ${
+            className={`cursor-pointer text-sm pb-1 whitespace-nowrap px-3 ${
               router.pathname === href ||
               router.pathname === href2 ||
               (href === "/summoners" && router.pathname.startsWith("/summoners"))
-                ? "text-primary1 border-b-3 border-primary1"
-                : "text-primary2 border-b-3 border-transparent"
+                ? "text-primary1 font-bold border-b-3 border-blueText"
+                : "text-primary2 font-normal border-b-3 border-transparent"
             }`}
           >
             {label}

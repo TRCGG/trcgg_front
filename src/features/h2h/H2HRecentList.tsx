@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { H2HRecent, H2HRecentDetailMetrics, H2HRelation } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import { POSITION_LABELS, formatAgo, formatGameLen, formatPlayedDate } from "./h2hHelpers";
@@ -218,7 +218,7 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
   const isWin = row.myResult === "W";
   const accentText = isWin ? colors.blueText : colors.redText;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <div
         className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_80px_50px_auto_1fr_auto_auto] sm:gap-3 sm:px-3.5"
         style={{ borderLeft: `3px solid ${accentText}` }}
@@ -289,7 +289,17 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           {formatPlayedDate(row.playedDate)}
         </span>
       </div>
-      {open && !noDetail && <H2HRecentDetail row={row} />}
+      {!noDetail && (
+        <div
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+            open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="pt-1">{open && <H2HRecentDetail row={row} />}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -316,6 +326,12 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
   const shown = filtered.slice(0, visible);
   const remaining = filtered.length - shown.length;
 
+  const prevCountRef = useRef(shown.length);
+  const prevCount = prevCountRef.current;
+  useEffect(() => {
+    prevCountRef.current = shown.length;
+  }, [shown.length]);
+
   return (
     <SectionCard
       title={mode === "with" ? "최근 함께한 게임" : "최근 맞대결"}
@@ -328,15 +344,23 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
     >
       <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
         {filtered.length > 0 ? (
-          shown.map((r, i) => (
-            <H2HRecentRow
-              key={r.matchId}
-              row={r}
-              mode={mode}
-              open={openIdx === i}
-              onToggle={() => setOpenIdx(openIdx === i ? null : i)}
-            />
-          ))
+          shown.map((r, i) => {
+            const isNew = i >= prevCount;
+            return (
+              <div
+                key={r.matchId}
+                className={isNew ? "motion-safe:animate-fadeUp" : undefined}
+                style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+              >
+                <H2HRecentRow
+                  row={r}
+                  mode={mode}
+                  open={openIdx === i}
+                  onToggle={() => setOpenIdx(openIdx === i ? null : i)}
+                />
+              </div>
+            );
+          })
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             최근 기록이 없어요

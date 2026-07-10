@@ -34,10 +34,10 @@ const PositionFilter = ({ selectedPosition, onSelectPosition, className, share }
             key={position.value}
             type="button"
             onClick={() => onSelectPosition(position.value)}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded border transition-colors border-border2 ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded border transition-colors ${
               isSelected
-                ? "bg-primary1 text-blueDarken"
-                : "bg-darkBg2 text-primary2 hover:bg-grayHover"
+                ? "bg-blue border-blueButton text-blueText font-bold"
+                : "bg-darkBg2 border-border2 text-primary2 hover:bg-grayHover font-normal"
             }`}
           >
             {position.icon && (
@@ -49,11 +49,11 @@ const PositionFilter = ({ selectedPosition, onSelectPosition, className, share }
                 className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
               />
             )}
-            <span className="text-xs sm:text-sm font-medium">{position.label}</span>
+            <span className="text-xs sm:text-sm">{position.label}</span>
             {pct != null && (
               <span
                 className={`text-[10px] font-bold tabular-nums ${
-                  isSelected ? "text-blueDarken" : "text-blueText"
+                  isSelected ? "text-blueText" : "text-primary2"
                 }`}
               >
                 {pct}%
