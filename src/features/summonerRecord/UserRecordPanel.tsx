@@ -113,7 +113,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           setDisplayCount((prev) => prev + RECORD_DISPLAY_COUNT);
         }
       },
-      { rootMargin: "300px" }
+      { rootMargin: "100px" }
     );
     observer.observe(target);
     return () => observer.disconnect();
