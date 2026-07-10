@@ -23,7 +23,7 @@ import {
   getRoleMeta,
 } from "@/data/types/guildMember";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 10;
 
 const roleErrorMessage = (status: number): string => {
   if (status === 403) return "이 멤버의 권한은 변경할 수 없습니다 (매니저 이상).";

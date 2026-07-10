@@ -57,16 +57,43 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
             <button
               type="button"
               onClick={() => router.push("/clan")}
-              className="w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 text-sm cursor-pointer"
+              className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 text-sm cursor-pointer"
             >
+              <svg
+                className="w-4 h-4 shrink-0 text-blueText"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                <path d="M16 3.13a4 4 0 010 7.75" />
+              </svg>
               클랜 관리
             </button>
           )}
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 rounded-b text-sm cursor-pointer"
+            className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 rounded-b text-sm cursor-pointer"
           >
+            <svg
+              className="w-4 h-4 shrink-0 text-primary2"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <path d="M16 17l5-5-5-5" />
+              <path d="M21 12H9" />
+            </svg>
             로그아웃
           </button>
         </div>
