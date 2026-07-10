@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import TitleBox from "@/components/ui/TitleBox";
+import PositionFilter from "@/features/statistics/PositionFilter";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
 import { useQuery } from "@tanstack/react-query";
@@ -44,8 +45,7 @@ const SELECT_CLASS =
 
 const Champion: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  // 라인 필터 제거 — 항상 전체(ALL) 기준으로 조회한다.
-  const selectedPosition: Position = "ALL";
+  const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
   const [sortBy, setSortBy] = useState<SortBy>("winRate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -299,7 +299,13 @@ const Champion: NextPage = () => {
         )}
       </div>
 
-      <div className="mt-4">
+      <PositionFilter
+        selectedPosition={selectedPosition}
+        onSelectPosition={setSelectedPosition}
+        className="mt-4"
+      />
+
+      <div className="mt-1">
         <ChampionRankHeader sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
         <div key={selectedPosition} className="space-y-3 mt-2">
           {(() => {
