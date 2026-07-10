@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
@@ -26,14 +26,30 @@ const MatchItem = ({ matchData }: Props) => {
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
+  const queryClient = useQueryClient();
+  const gameQueryKey = ["gameData", matchData.gameId, guildId];
+  const gameStaleTime = 3 * 60 * 1000;
+
   const { data: gameData, isLoading: isLoadingGameData } = useQuery<
     ApiResponse<GameRecordResponse>
   >({
-    queryKey: ["gameData", matchData.gameId, guildId],
+    queryKey: gameQueryKey,
     queryFn: () => getGameRecords(matchData.gameId, guildId),
-    staleTime: 3 * 60 * 1000,
+    staleTime: gameStaleTime,
     enabled: isOpen && !!guildId,
   });
+
+  const prefetchGameData = () => {
+    if (!guildId) return;
+    queryClient.prefetchQuery({
+      queryKey: gameQueryKey,
+      queryFn: () => getGameRecords(matchData.gameId, guildId),
+      staleTime: gameStaleTime,
+    });
+  };
+
+  const detailData = gameData?.data?.data;
+  const showDetail = isOpen && !isLoadingGameData && !!detailData;
 
   const itemArr = [
     { slot: 0, itemId: matchData.item0 },
@@ -58,6 +74,8 @@ const MatchItem = ({ matchData }: Props) => {
         role="button"
         tabIndex={0}
         onClick={toggleOpen}
+        onMouseEnter={prefetchGameData}
+        onFocus={prefetchGameData}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") toggleOpen();
         }}
@@ -286,22 +304,25 @@ const MatchItem = ({ matchData }: Props) => {
         </button>
       </div>
 
+      {isOpen && isLoadingGameData && (
+        <div className="pt-1.5 flex justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+
       <div
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-          isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          showDetail ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
       >
         <div className="overflow-hidden min-h-0">
-          {isOpen && (
-            <div className="pt-1.5">
-              {isLoadingGameData && <LoadingSpinner />}
-              {!isLoadingGameData && gameData?.data?.data && (
-                <div className="flex flex-col w-full min-w-0">
-                  <MatchDetail participantData={gameData.data.data} />
-                </div>
-              )}
-            </div>
-          )}
+          <div className="pt-1.5">
+            {detailData && (
+              <div className="flex flex-col w-full min-w-0">
+                <MatchDetail participantData={detailData} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
