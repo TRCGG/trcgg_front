@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { SynergyStats } from "@/data/types/record";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { getWinRateColor } from "@/utils/statColors";
 
 interface Props {
@@ -48,6 +48,13 @@ const TeamworkStats = ({ synergyData }: Props) => {
   const displayedData = sortedData.slice(0, displayCount);
   const hasMore = sortedData.length > displayCount && displayCount < 10;
 
+  // 이전 렌더의 개수를 기억해 "더보기로 새로 붙은 항목"만 순차 등장시킴
+  const prevCountRef = useRef(displayedData.length);
+  const prevCount = prevCountRef.current;
+  useEffect(() => {
+    prevCountRef.current = displayedData.length;
+  }, [displayedData.length]);
+
   return (
     <div className="flex flex-col gap-2 w-full min-w-0">
       {/* 정렬 토글 */}
@@ -76,38 +83,46 @@ const TeamworkStats = ({ synergyData }: Props) => {
 
       {/* 시너지 목록 */}
       <div className="flex flex-col gap-1.5 w-full min-w-0">
-        {displayedData.map((synergy, i) => (
-          <button
-            key={`${synergy.riotName}-${synergy.riotNameTag}`}
-            type="button"
-            onClick={() => handleClick(synergy.riotName, synergy.riotNameTag)}
-            className="bg-darkBg1 rounded-lg border border-cardBorder px-3 py-2.5 flex items-center gap-3 hover:bg-grayHover transition-colors text-left w-full"
-          >
-            {/* 순위 */}
-            <div className="w-5 shrink-0 text-center text-sm font-bold text-primary2 tabular-nums">
-              {i + 1}
-            </div>
+        {displayedData.map((synergy, i) => {
+          const isNew = i >= prevCount;
+          return (
+            <button
+              key={`${synergy.riotName}-${synergy.riotNameTag}`}
+              type="button"
+              onClick={() => handleClick(synergy.riotName, synergy.riotNameTag)}
+              style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+              className={`bg-darkBg1 rounded-lg border border-cardBorder px-3 py-2.5 flex items-center gap-3 hover:bg-grayHover transition-colors text-left w-full ${
+                isNew ? "animate-fadeUp" : ""
+              }`}
+            >
+              {/* 순위 */}
+              <div className="w-5 shrink-0 text-center text-sm font-bold text-primary2 tabular-nums">
+                {i + 1}
+              </div>
 
-            {/* 닉네임 + 전적 */}
-            <div className="flex-1 min-w-0">
-              <div className="text-sm truncate">
-                <span className="text-primary1">{synergy.riotName}</span>
-                <span className="text-[11px] text-primary3"> #{synergy.riotNameTag}</span>
+              {/* 닉네임 + 전적 */}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm truncate">
+                  <span className="text-primary1">{synergy.riotName}</span>
+                  <span className="text-[11px] text-primary3"> #{synergy.riotNameTag}</span>
+                </div>
+                <div className="text-[11px] text-primary2 mt-0.5 tabular-nums">
+                  {synergy.win}승 {synergy.lose}패 · {synergy.totalCount}판
+                </div>
               </div>
-              <div className="text-[11px] text-primary2 mt-0.5 tabular-nums">
-                {synergy.win}승 {synergy.lose}패 · {synergy.totalCount}판
-              </div>
-            </div>
 
-            {/* 함께 승률 */}
-            <div className="shrink-0 text-right">
-              <div className={`text-sm font-bold tabular-nums ${getWinRateColor(synergy.winRate)}`}>
-                {synergy.winRate}%
+              {/* 함께 승률 */}
+              <div className="shrink-0 text-right">
+                <div
+                  className={`text-sm font-bold tabular-nums ${getWinRateColor(synergy.winRate)}`}
+                >
+                  {synergy.winRate}%
+                </div>
+                <div className="text-[10px] text-primary3">함께 승률</div>
               </div>
-              <div className="text-[10px] text-primary3">함께 승률</div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
 
       {/* 더보기 버튼 */}

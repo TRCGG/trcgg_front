@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { H2HRecent, H2HRecentDetailMetrics, H2HRelation } from "@/data/types/h2h";
 import colors from "@/styles/colors";
 import { POSITION_LABELS, formatAgo, formatGameLen, formatPlayedDate } from "./h2hHelpers";
@@ -327,6 +327,13 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
   const shown = filtered.slice(0, visible);
   const remaining = filtered.length - shown.length;
 
+  // 더보기로 새로 붙은 항목만 순차 등장 (필터/모드 변경 시엔 개수가 줄어 애니메이션 없음)
+  const prevCountRef = useRef(shown.length);
+  const prevCount = prevCountRef.current;
+  useEffect(() => {
+    prevCountRef.current = shown.length;
+  }, [shown.length]);
+
   return (
     <SectionCard
       title={mode === "with" ? "최근 함께한 게임" : "최근 맞대결"}
@@ -339,15 +346,23 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
     >
       <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
         {filtered.length > 0 ? (
-          shown.map((r, i) => (
-            <H2HRecentRow
-              key={r.matchId}
-              row={r}
-              mode={mode}
-              open={openIdx === i}
-              onToggle={() => setOpenIdx(openIdx === i ? null : i)}
-            />
-          ))
+          shown.map((r, i) => {
+            const isNew = i >= prevCount;
+            return (
+              <div
+                key={r.matchId}
+                className={isNew ? "animate-fadeUp" : undefined}
+                style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+              >
+                <H2HRecentRow
+                  row={r}
+                  mode={mode}
+                  open={openIdx === i}
+                  onToggle={() => setOpenIdx(openIdx === i ? null : i)}
+                />
+              </div>
+            );
+          })
         ) : (
           <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
             최근 기록이 없어요

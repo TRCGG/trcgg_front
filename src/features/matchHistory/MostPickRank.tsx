@@ -26,9 +26,19 @@ const MostPickRank = ({ mostPickData }: Props) => {
 
   return (
     <div className="flex flex-col">
-      {displayedData.map((data) => (
-        <RankItem key={data.rank} {...data} />
-      ))}
+      {displayedData.map((data, i) => {
+        // 더보기로 새로 나타난 항목(초기 5개 이후)만 순차 등장
+        const isNew = i >= INITIAL_DISPLAY_COUNT;
+        return (
+          <div
+            key={data.rank}
+            className={isNew ? "animate-fadeUp" : undefined}
+            style={isNew ? { animationDelay: `${(i - INITIAL_DISPLAY_COUNT) * 60}ms` } : undefined}
+          >
+            <RankItem {...data} />
+          </div>
+        );
+      })}
 
       {hasMore && !showAll && (
         <button
