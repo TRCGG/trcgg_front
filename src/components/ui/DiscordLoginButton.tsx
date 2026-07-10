@@ -1,6 +1,9 @@
 import React, { useState, useRef } from "react";
+import { useRouter } from "next/router";
 import { FaDiscord } from "react-icons/fa";
 import useClickOutside from "@/hooks/common/useClickOutside";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import { canManageGuild } from "@/data/types/guildMember";
 import { logout } from "@/services/auth";
 
 interface DiscordLoginButtonProps {
@@ -11,6 +14,9 @@ interface DiscordLoginButtonProps {
 const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const { currentRole } = useGuildManagement();
+  const canManage = canManageGuild(currentRole);
 
   useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
 
@@ -47,6 +53,15 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
           onMouseEnter={() => setIsDropdownOpen(true)}
           onMouseLeave={() => setIsDropdownOpen(false)}
         >
+          {canManage && (
+            <button
+              type="button"
+              onClick={() => router.push("/clan")}
+              className="w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 text-sm cursor-pointer"
+            >
+              클랜 관리
+            </button>
+          )}
           <button
             type="button"
             onClick={handleLogout}

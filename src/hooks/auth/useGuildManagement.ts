@@ -35,6 +35,11 @@ const useGuildManagement = () => {
 
   const username = meData?.data?.data?.user?.global_name || meData?.data?.data?.user?.username;
 
+  const currentRole = useMemo(
+    () => guilds.find((guild) => guild.id === guildId)?.role,
+    [guilds, guildId]
+  );
+
   useEffect(() => {
     if (typeof window !== "undefined" && guilds.length > 0) {
       const savedEncodedId = localStorage.getItem("guildId");
@@ -57,6 +62,7 @@ const useGuildManagement = () => {
     guilds,
     isLoggedIn,
     username,
+    currentRole,
     handleGuildChange,
     isLoadingGuilds,
   };
