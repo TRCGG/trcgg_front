@@ -23,7 +23,7 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
     <>
       {/* 모바일 정렬 (열제목 스타일 — 각 열 중앙 정렬) */}
       <div
-        className={`flex md:hidden items-center gap-1.5 sm:gap-3.5 px-2.5 sm:px-3.5 pb-1.5 ${
+        className={`flex md:hidden items-center gap-1.5 sm:gap-3.5 px-3 sm:px-3.5 pb-1.5 ${
           className || ""
         }`}
       >
@@ -34,7 +34,7 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
         <button
           type="button"
           onClick={() => onSort("kda")}
-          className={sortClass("kda", "w-11 sm:w-16")}
+          className={sortClass("kda", "w-12 sm:w-16")}
         >
           KDA{getSortIndicator("kda")}
         </button>
@@ -48,7 +48,7 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={sortClass("winRate", "w-11 sm:w-14")}
+          className={sortClass("winRate", "w-14 sm:w-16")}
         >
           승률{getSortIndicator("winRate")}
         </button>
@@ -85,7 +85,7 @@ const ChampionRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => 
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={sortClass("winRate", "w-14")}
+          className={sortClass("winRate", "w-16")}
         >
           승률{getSortIndicator("winRate")}
         </button>

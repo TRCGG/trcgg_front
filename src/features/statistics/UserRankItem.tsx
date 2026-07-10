@@ -46,32 +46,29 @@ const UserRankItem = ({
 }: Props) => {
   const router = useRouter();
 
-  const winRateValue = parseFloat(winRate.replace("%", ""));
-  const pillBg = winRateValue > 50 ? "rgba(255,195,100,0.14)" : "rgba(154,160,168,0.12)";
-
   const goToSummoner = () => {
     router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotNameTag)}`);
   };
 
   return (
     <div
-      className={`bg-darkBg2 rounded-md border border-cardBorder pl-3 pr-4 sm:pl-3.5 sm:pr-10 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
+      className={`bg-darkBg2 rounded-md border border-cardBorder px-3 sm:px-3.5 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
         className || ""
       }`}
     >
       {/* 순위 (균일 — 1위 강조 없음) */}
-      <div className="w-[18px] shrink-0 text-center text-[15px] font-bold text-primary2 tabular-nums">
+      <div className="w-5 shrink-0 text-center text-[15px] font-bold text-primary2 tabular-nums">
         {rank}
       </div>
 
-      {/* 라인 아이콘 32×32 — 전체(라인 없음)에서도 자리를 유지해 행 높이를 일정하게 */}
-      <div className="shrink-0 w-8 h-8 flex items-center justify-center">
+      {/* 라인 아이콘 36×36 — 전체(라인 없음)에서도 자리를 유지해 행 높이를 일정하게 */}
+      <div className="shrink-0 w-8 sm:w-9 h-9 flex items-center justify-center">
         {position && (
           <Image
             src={laneImageMap[position] || LaneMidLogo}
             alt={position}
-            width={32}
-            height={32}
+            width={36}
+            height={36}
             className="w-full h-full object-contain"
           />
         )}
@@ -94,24 +91,21 @@ const UserRankItem = ({
       </div>
 
       {/* KDA */}
-      <div className="w-12 md:w-16 shrink-0 text-center">
-        <span className={`text-[13px] md:text-sm font-bold tabular-nums ${getKdaColor(kda)}`}>
-          {kda}
-        </span>
+      <div className="shrink-0 w-12 sm:w-16 text-center">
+        <div className={`text-[15px] font-bold tabular-nums ${getKdaColor(kda)}`}>{kda}</div>
       </div>
 
       {/* 전적 (n전 n승 n패) */}
-      <div className="w-24 md:w-40 shrink-0 text-center text-[13px] text-primary2 tabular-nums whitespace-nowrap">
+      <div className="shrink-0 w-[92px] sm:w-40 text-center text-[11px] sm:text-[13px] text-primary2 tabular-nums whitespace-nowrap overflow-hidden">
         {formatNumber(totalGames)}전 {formatNumber(wins)}승 {formatNumber(losses)}패
       </div>
 
       {/* 승률 pill */}
-      <div className="w-12 md:w-[52px] shrink-0 flex justify-center">
+      <div className="shrink-0 w-14 sm:w-16 flex justify-center">
         <span
-          className={`inline-block rounded-md text-sm font-bold tabular-nums ${getWinRateColor(
+          className={`inline-flex items-center rounded-md px-2 py-[3px] text-sm font-bold tabular-nums ${getWinRateColor(
             winRate
-          )}`}
-          style={{ padding: "3px 10px", backgroundColor: pillBg }}
+          )} ${parseFloat(winRate) > 50 ? "bg-yellow/10" : "bg-primary2/10"}`}
         >
           {winRate}%
         </span>

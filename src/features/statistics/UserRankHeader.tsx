@@ -23,39 +23,43 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
     <>
       {/* 모바일 정렬 (열제목 스타일 — 각 열 중앙 정렬) */}
       <div
-        className={`flex md:hidden items-center gap-1.5 sm:gap-3.5 pl-3 pr-4 sm:pl-3.5 sm:pr-10 pb-1.5 ${
+        className={`flex md:hidden items-center gap-1.5 sm:gap-3.5 px-3 sm:px-3.5 pb-1.5 ${
           className || ""
         }`}
       >
         {/* 순위 + 라인 + 닉네임 (자리) */}
         <div className="flex-1 min-w-0" />
-        <button type="button" onClick={() => onSort("kda")} className={sortClass("kda", "w-12")}>
+        <button
+          type="button"
+          onClick={() => onSort("kda")}
+          className={sortClass("kda", "w-12 sm:w-16")}
+        >
           KDA{getSortIndicator("kda")}
         </button>
         <button
           type="button"
           onClick={() => onSort("totalGames")}
-          className={sortClass("totalGames", "w-24")}
+          className={sortClass("totalGames", "w-[92px] sm:w-40")}
         >
           전적{getSortIndicator("totalGames")}
         </button>
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={sortClass("winRate", "w-12")}
+          className={sortClass("winRate", "w-14 sm:w-16")}
         >
           승률{getSortIndicator("winRate")}
         </button>
       </div>
 
       <div
-        className={`hidden md:flex items-center gap-3.5 pl-3.5 pr-10 py-2 text-[13px] ${className || ""}`}
+        className={`hidden md:flex items-center gap-3.5 px-3.5 py-2 text-[13px] ${className || ""}`}
       >
         {/* 순위 (자리) */}
-        <div className="w-[18px] shrink-0" />
+        <div className="w-5 shrink-0" />
 
         {/* 라인 (자리) */}
-        <div className="w-8 shrink-0" />
+        <div className="w-9 shrink-0" />
 
         {/* 닉네임 (자리) */}
         <div className="flex-1 min-w-0" />
@@ -78,7 +82,7 @@ const UserRankHeader = ({ className, sortBy, sortOrder, onSort }: Props) => {
         <button
           type="button"
           onClick={() => onSort("winRate")}
-          className={sortClass("winRate", "w-[52px]")}
+          className={sortClass("winRate", "w-16")}
         >
           승률{getSortIndicator("winRate")}
         </button>

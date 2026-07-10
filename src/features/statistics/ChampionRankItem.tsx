@@ -43,7 +43,7 @@ const ChampionRankItem = ({
 }: Props) => {
   return (
     <div
-      className={`bg-darkBg2 rounded-md border border-cardBorder px-2.5 sm:px-3.5 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
+      className={`bg-darkBg2 rounded-md border border-cardBorder px-3 sm:px-3.5 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
         className || ""
       }`}
     >
@@ -95,22 +95,24 @@ const ChampionRankItem = ({
       </div>
 
       {/* KDA */}
-      <div className="shrink-0 w-11 sm:w-16 text-center">
+      <div className="shrink-0 w-12 sm:w-16 text-center">
         <div className={`text-[15px] font-bold tabular-nums ${getKdaColor(kda)}`}>{kda}</div>
-        <div className="text-[11px] text-primary2">KDA</div>
       </div>
 
       {/* 판수 */}
       <div className="shrink-0 w-12 sm:w-16 text-center">
         <div className="text-[15px] font-bold text-primary1 tabular-nums">{gameCount}</div>
-        <div className="text-[11px] text-primary2">게임</div>
       </div>
 
       {/* 승률 */}
-      <div className="shrink-0 w-11 sm:w-14 text-center">
-        <div className={`text-[15px] font-bold tabular-nums ${getWinRateColor(winRate)}`}>
+      <div className="shrink-0 w-14 sm:w-16 flex justify-center">
+        <span
+          className={`inline-flex items-center rounded-md px-2 py-[3px] text-sm font-bold tabular-nums ${getWinRateColor(
+            winRate
+          )} ${parseFloat(winRate) > 50 ? "bg-yellow/10" : "bg-primary2/10"}`}
+        >
           {winRate}%
-        </div>
+        </span>
       </div>
     </div>
   );
