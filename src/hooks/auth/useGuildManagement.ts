@@ -12,7 +12,8 @@ const useGuildManagement = () => {
   const { data: guildsData, isLoading: isLoadingGuilds } = useQuery<ApiResponse<GuildsResponse>>({
     queryKey: ["guilds"],
     queryFn: () => getGuilds(),
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: meData } = useQuery<ApiResponse<MeResponse>>({
