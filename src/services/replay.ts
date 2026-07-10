@@ -49,3 +49,16 @@ export const getReplayList = async (guildId: string): Promise<ApiResponse<Replay
     };
   }
 };
+
+// 리플레이 삭제 — 목록의 replayCode가 삭제 API의 gameId에 매치됨. guildId는 이미 Base64
+export const deleteReplay = async (guildId: string, gameId: string): Promise<ApiResponse<null>> => {
+  try {
+    return await api.delete(`/api/matches/${guildId}/games/${gameId}`);
+  } catch (error) {
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Unknown error",
+      status: 500,
+    };
+  }
+};
