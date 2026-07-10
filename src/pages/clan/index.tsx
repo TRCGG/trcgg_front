@@ -76,7 +76,7 @@ const Sidebar = () => (
     <div className="text-[11px] font-bold tracking-wider text-primary2 px-2.5 pt-2 pb-1.5">
       권한
     </div>
-    <ClanMenuItem label="멤버 권한 관리" active />
+    <ClanMenuItem label="멤버 업로드 권한 관리" active />
 
     <div className="text-[11px] font-bold tracking-wider text-primary2 px-2.5 pt-3.5 pb-1.5">
       운영
@@ -249,7 +249,7 @@ const Clan: NextPage = () => {
 
         <div className="flex-1 min-w-0 flex flex-col gap-3">
           <div>
-            <h1 className="text-[22px] font-light text-primary1">멤버 권한 관리</h1>
+            <h1 className="text-[22px] font-light text-primary1">멤버 업로드 권한 관리</h1>
             <p className="text-xs text-primary2 mt-1">
               Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다.
             </p>
