@@ -208,14 +208,23 @@ const DuoGroupCard = ({ group, koName, defaultOpen }: GroupProps) => {
           <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {open && (
-        <div style={{ background: "rgba(0,0,0,0.25)" }}>
-          {children.map((c, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <DuoChildRow key={i} combo={c} koName={koName} />
-          ))}
+      {/* grid-rows 0fr→1fr 트랜지션으로 부드럽게 펼침 */}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          {open && (
+            <div style={{ background: "rgba(0,0,0,0.25)" }}>
+              {children.map((c, i) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <DuoChildRow key={i} combo={c} koName={koName} />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

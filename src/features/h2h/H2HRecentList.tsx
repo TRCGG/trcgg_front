@@ -218,7 +218,7 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
   const isWin = row.myResult === "W";
   const accentText = isWin ? colors.blueText : colors.redText;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <div
         className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_80px_50px_auto_1fr_auto_auto] sm:gap-3 sm:px-3.5"
         style={{ borderLeft: `3px solid ${accentText}` }}
@@ -289,7 +289,18 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           {formatPlayedDate(row.playedDate)}
         </span>
       </div>
-      {open && !noDetail && <H2HRecentDetail row={row} />}
+      {/* grid-rows 0fr→1fr 트랜지션으로 부드럽게 펼침 (기존 gap:4는 pt-1로 대체) */}
+      {!noDetail && (
+        <div
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+            open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="pt-1">{open && <H2HRecentDetail row={row} />}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
