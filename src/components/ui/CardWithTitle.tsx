@@ -10,7 +10,7 @@ interface Props {
 const CardWithTitle = ({ title, children, className }: Props) => {
   return (
     <Card className={className}>
-      <div className="text-primary1 p-2 pl-3 text-lg sm:text-xl md:text-2xl font-medium items-center">
+      <div className="text-primary1 p-2 pl-3 text-lg sm:text-xl md:text-2xl font-bold items-center">
         {title}
       </div>
       <hr className="border-t-2 border-border2" />

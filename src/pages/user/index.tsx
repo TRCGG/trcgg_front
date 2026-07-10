@@ -14,7 +14,7 @@ import { UserStatisticsResponse } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
-type SortBy = "totalGames" | "winRate";
+type SortBy = "totalGames" | "winRate" | "kda";
 type SortOrder = "asc" | "desc";
 
 const now = new Date();
@@ -134,6 +134,9 @@ const User: NextPage = () => {
       if (sortBy === "totalGames") {
         aValue = a.totalCount || 0;
         bValue = b.totalCount || 0;
+      } else if (sortBy === "kda") {
+        aValue = parseFloat(a.kda) || 0;
+        bValue = parseFloat(b.kda) || 0;
       } else {
         aValue = parseFloat(a.winRate) || 0;
         bValue = parseFloat(b.winRate) || 0;
@@ -214,10 +217,10 @@ const User: NextPage = () => {
                 key={mode}
                 type="button"
                 onClick={() => setDateMode(mode)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
                   dateMode === mode
-                    ? "bg-primary1 text-darkBg2 shadow"
-                    : "text-primary2 hover:text-primary1"
+                    ? "bg-blue text-blueText font-bold"
+                    : "text-primary2 font-normal hover:text-primary1"
                 }`}
               >
                 {labels[mode]}
@@ -297,7 +300,7 @@ const User: NextPage = () => {
             <button
               type="button"
               onClick={handleApplyRange}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-blueButton hover:bg-blueText2 text-white transition-colors duration-150"
+              className="px-3 py-1.5 rounded-lg text-sm font-bold bg-bluePrimary hover:opacity-90 text-white transition-opacity duration-150"
             >
               적용
             </button>
@@ -342,7 +345,7 @@ const User: NextPage = () => {
                         <UserRankItem
                           key={user.playerCode}
                           rank={index + 1}
-                          position={selectedPosition === "ALL" ? undefined : user.position}
+                          position={user.position}
                           riotName={user.riotName}
                           riotNameTag={user.riotNameTag}
                           totalGames={user.totalCount}

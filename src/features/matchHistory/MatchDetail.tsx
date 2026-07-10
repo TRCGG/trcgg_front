@@ -13,6 +13,7 @@ const MatchDetail = ({ participantData }: Props) => {
       tag: participant.riotNameTag,
       champName: participant.champName,
       champNameEng: participant.champNameEng,
+      level: participant.level,
       kda: `${participant.kill} / ${participant.death} / ${participant.assist}`,
       kdaRate: (participant.kill + participant.assist) / participant.death,
       damage: participant.totalDamageChampions,
@@ -40,49 +41,69 @@ const MatchDetail = ({ participantData }: Props) => {
     }));
   };
 
-  const winParticipants = mapParticipantData(
-    participantData.filter((participant) => participant.gameResult === "승")
-  );
+  const rawWin = participantData.filter((participant) => participant.gameResult === "승");
+  const rawLose = participantData.filter((participant) => participant.gameResult === "패");
 
-  const loseParticipants = mapParticipantData(
-    participantData.filter((participant) => participant.gameResult === "패")
-  );
+  const winParticipants = mapParticipantData(rawWin);
+  const loseParticipants = mapParticipantData(rawLose);
 
   const allMapped = [...winParticipants, ...loseParticipants];
   const maxDamage = Math.max(...allMapped.map((p) => p.damage), 1);
   const maxDamageTaken = Math.max(...allMapped.map((p) => p.damageTaken), 1);
 
+  // 팀 합계(합계 KDA + 딜 total) 및 팀 라벨
+  const teamSummary = (participants: GameParticipant[]) => ({
+    kills: participants.reduce((sum, p) => sum + p.kill, 0),
+    deaths: participants.reduce((sum, p) => sum + p.death, 0),
+    assists: participants.reduce((sum, p) => sum + p.assist, 0),
+    damage: participants.reduce((sum, p) => sum + p.totalDamageChampions, 0),
+  });
+  const teamLabel = (color?: "red" | "blue") => (color === "red" ? "레드 팀" : "블루 팀");
+
+  const winSummary = teamSummary(rawWin);
+  const loseSummary = teamSummary(rawLose);
+  const winLabel = teamLabel(rawWin[0]?.gameTeam);
+  const loseLabel = teamLabel(rawLose[0]?.gameTeam);
+
   return (
     <>
-      {/* PC */}
-      <div className="hidden sm:flex sm:flex-col">
+      {/* PC (태블릿 이하는 유동형 모바일 표) */}
+      <div className="hidden md:flex md:flex-col gap-2 min-w-0">
         <MatchDetailTable
           players={winParticipants}
           isWin
           maxDamage={maxDamage}
           maxDamageTaken={maxDamageTaken}
+          teamLabel={winLabel}
+          teamSummary={winSummary}
         />
         <MatchDetailTable
           players={loseParticipants}
           isWin={false}
           maxDamage={maxDamage}
           maxDamageTaken={maxDamageTaken}
+          teamLabel={loseLabel}
+          teamSummary={loseSummary}
         />
       </div>
 
-      {/* 모바일 */}
-      <div className="flex flex-col sm:hidden">
+      {/* 모바일 · 태블릿 */}
+      <div className="flex flex-col gap-2 md:hidden min-w-0">
         <MatchDetailTableMobile
           players={winParticipants}
           isWin
           maxDamage={maxDamage}
           maxDamageTaken={maxDamageTaken}
+          teamLabel={winLabel}
+          teamSummary={winSummary}
         />
         <MatchDetailTableMobile
           players={loseParticipants}
           isWin={false}
           maxDamage={maxDamage}
           maxDamageTaken={maxDamageTaken}
+          teamLabel={loseLabel}
+          teamSummary={loseSummary}
         />
       </div>
     </>

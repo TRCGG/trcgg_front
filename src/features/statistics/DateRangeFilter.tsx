@@ -69,10 +69,10 @@ const DateRangeFilter = ({ onChange, className }: Props) => {
             key={mode}
             type="button"
             onClick={() => handleModeChange(mode)}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+            className={`px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
               dateMode === mode
-                ? "bg-primary1 text-darkBg2 shadow"
-                : "text-primary2 hover:text-primary1"
+                ? "bg-blue text-blueText font-bold"
+                : "text-primary2 font-normal hover:text-primary1"
             }`}
           >
             {DATE_LABELS[mode]}

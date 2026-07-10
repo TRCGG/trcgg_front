@@ -1,6 +1,5 @@
 import Image, { StaticImageData } from "next/image";
 import { useState } from "react";
-import { MdRefresh } from "react-icons/md";
 import LaneTopLogo from "@/assets/images/laneTop.png";
 import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
@@ -61,8 +60,8 @@ const UserStatsOverview = ({
 
       {/* 유저 정보 */}
       <div className="flex flex-col p-4 gap-3 flex-1">
-        <div className="text-3xl md:text-4xl font-bold text-white">
-          {riotName} <span className="font-medium text-gray">#{riotTag}</span>
+        <div className="text-3xl md:text-4xl font-bold text-white line-clamp-2 break-all">
+          {riotName} <span className="font-normal text-gray">#{riotTag}</span>
         </div>
 
         {totalData && (
@@ -97,12 +96,23 @@ const UserStatsOverview = ({
             type="button"
             onClick={handleRefreshClick}
             disabled={isRefreshing}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              isRefreshing ? "bg-white text-darkBg2" : "bg-primary1 text-darkBg2 hover:bg-primary2"
-            } disabled:cursor-not-allowed`}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border2 bg-transparent text-primary1 hover:bg-grayHover transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <MdRefresh className={`text-xl ${isRefreshing ? "animate-spin" : ""}`} />
-            <span className="font-medium">{isRefreshing ? "갱신중" : "새로고침"}</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+              aria-hidden="true"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            <span className="font-normal">{isRefreshing ? "갱신중" : "새로고침"}</span>
           </button>
         </div>
       )}

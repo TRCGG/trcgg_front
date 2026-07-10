@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { SynergyStats } from "@/data/types/record";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { getWinRateColor } from "@/utils/statColors";
 
 interface Props {
   synergyData: SynergyStats[];
@@ -10,7 +11,7 @@ type SortType = "winRate" | "gameCount";
 
 const TeamworkStats = ({ synergyData }: Props) => {
   const router = useRouter();
-  const [sortType, setSortType] = useState<SortType>("winRate");
+  const [sortType, setSortType] = useState<SortType>("gameCount");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [displayCount, setDisplayCount] = useState(5);
 
@@ -47,16 +48,23 @@ const TeamworkStats = ({ synergyData }: Props) => {
   const displayedData = sortedData.slice(0, displayCount);
   const hasMore = sortedData.length > displayCount && displayCount < 10;
 
+  const prevCountRef = useRef(displayedData.length);
+  const prevCount = prevCountRef.current;
+  useEffect(() => {
+    prevCountRef.current = displayedData.length;
+  }, [displayedData.length]);
+
   return (
     <div className="flex flex-col gap-2 w-full min-w-0">
-      {/* 열 제목 헤더 */}
-      <div className="flex items-center gap-2 sm:gap-4 px-2 sm:px-3 py-1 text-xs font-medium text-primary2">
-        <div className="flex-1 min-w-0" />
+      {/* 정렬 토글 */}
+      <div className="flex items-center justify-end gap-3 px-1 text-xs">
         <button
           type="button"
           onClick={() => handleSort("gameCount")}
-          className={`w-24 sm:w-28 text-center shrink-0 transition-colors ${
-            sortType === "gameCount" ? "text-primary1" : "hover:text-primary1"
+          className={`transition-colors ${
+            sortType === "gameCount"
+              ? "text-primary1 font-bold"
+              : "text-primary2 hover:text-primary1"
           }`}
         >
           판수{getSortIndicator("gameCount")}
@@ -64,43 +72,56 @@ const TeamworkStats = ({ synergyData }: Props) => {
         <button
           type="button"
           onClick={() => handleSort("winRate")}
-          className={`w-14 sm:w-20 text-center shrink-0 transition-colors ${
-            sortType === "winRate" ? "text-primary1" : "hover:text-primary1"
+          className={`transition-colors ${
+            sortType === "winRate" ? "text-primary1 font-bold" : "text-primary2 hover:text-primary1"
           }`}
         >
           승률{getSortIndicator("winRate")}
         </button>
       </div>
 
-      {/* 데이터 목록 */}
-      <div className="flex flex-col gap-1 sm:gap-2 w-full min-w-0">
-        {displayedData.map((synergy) => (
-          <button
-            key={`${synergy.riotName}-${synergy.riotNameTag}`}
-            type="button"
-            onClick={() => handleClick(synergy.riotName, synergy.riotNameTag)}
-            className="bg-darkBg1 rounded border border-border2 p-2 sm:p-3 flex items-center gap-2 sm:gap-4 hover:bg-grayHover transition-colors text-left w-full"
-          >
-            {/* 닉네임 */}
-            <div className="flex-1 min-w-0">
-              <div className="text-xs sm:text-sm text-primary1 truncate">{synergy.riotName}</div>
-              <div className="text-xs text-primary2">#{synergy.riotNameTag}</div>
-            </div>
-
-            {/* 판수 */}
-            <div className="w-24 sm:w-28 text-center shrink-0">
-              <div className="text-xs sm:text-sm text-primary1">{synergy.totalCount}전</div>
-              <div className="text-xs text-primary2 mt-0.5">
-                {synergy.win}승 {synergy.lose}패
+      {/* 시너지 목록 */}
+      <div className="flex flex-col gap-1.5 w-full min-w-0">
+        {displayedData.map((synergy, i) => {
+          const isNew = i >= prevCount;
+          return (
+            <button
+              key={`${synergy.riotName}-${synergy.riotNameTag}`}
+              type="button"
+              onClick={() => handleClick(synergy.riotName, synergy.riotNameTag)}
+              style={isNew ? { animationDelay: `${(i - prevCount) * 60}ms` } : undefined}
+              className={`bg-darkBg1 rounded-lg border border-cardBorder px-3 py-2.5 flex items-center gap-3 hover:bg-grayHover transition-colors text-left w-full ${
+                isNew ? "motion-safe:animate-fadeUp" : ""
+              }`}
+            >
+              {/* 순위 */}
+              <div className="w-5 shrink-0 text-center text-sm font-bold text-primary2 tabular-nums">
+                {i + 1}
               </div>
-            </div>
 
-            {/* 승률 */}
-            <div className="w-14 sm:w-20 text-center shrink-0">
-              <div className="text-xs sm:text-sm text-primary1">{synergy.winRate}%</div>
-            </div>
-          </button>
-        ))}
+              {/* 닉네임 + 전적 */}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm truncate">
+                  <span className="text-primary1">{synergy.riotName}</span>
+                  <span className="text-[11px] text-primary3"> #{synergy.riotNameTag}</span>
+                </div>
+                <div className="text-[11px] text-primary2 mt-0.5 tabular-nums">
+                  {synergy.win}승 {synergy.lose}패 · {synergy.totalCount}판
+                </div>
+              </div>
+
+              {/* 함께 승률 */}
+              <div className="shrink-0 text-right">
+                <div
+                  className={`text-sm font-bold tabular-nums ${getWinRateColor(synergy.winRate)}`}
+                >
+                  {synergy.winRate}%
+                </div>
+                <div className="text-[10px] text-primary3">함께 승률</div>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* 더보기 버튼 */}
