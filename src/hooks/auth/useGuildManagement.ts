@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { GuildsResponse, MeResponse } from "@/data/types/auth";
 import { getGuilds, getMe } from "@/services/auth";
+import { getGuildById } from "@/services/guildMember";
+import { GuildResponse, hasMinRole } from "@/data/types/guildMember";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
@@ -41,6 +43,17 @@ const useGuildManagement = () => {
     [guilds, guildId]
   );
 
+  const { data: guildData } = useQuery<ApiResponse<GuildResponse>>({
+    queryKey: ["guild", guildId],
+    queryFn: () => getGuildById(guildId),
+    enabled: !!guildId && isLoggedIn,
+    staleTime: 30 * 1000,
+  });
+
+  // 업로드 권한: 업로더 이상이거나, 길드가 전체 업로드 허용(allowAllUploads)인 경우
+  const canUploadReplay =
+    hasMinRole(currentRole, "userUploader") || guildData?.data?.data?.allowAllUploads === true;
+
   useEffect(() => {
     if (typeof window !== "undefined" && guilds.length > 0) {
       const savedEncodedId = localStorage.getItem("guildId");
@@ -64,6 +77,7 @@ const useGuildManagement = () => {
     isLoggedIn,
     username,
     currentRole,
+    canUploadReplay,
     handleGuildChange,
     isLoadingGuilds,
   };

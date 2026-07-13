@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 
 const NavBar = () => {
   const router = useRouter();
+  const { canUploadReplay } = useGuildManagement();
 
   const navList = [
     { href: "/summoners", label: "내전 전적", href2: "/" },
     { href: "/champion", label: "챔피언 분석" },
     { href: "/user", label: "유저 분석" },
-    { href: "/replay", label: "리플레이 업로드" },
+    ...(canUploadReplay ? [{ href: "/replay", label: "리플레이 업로드" }] : []),
   ];
 
   return (
