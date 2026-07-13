@@ -28,7 +28,30 @@ const FAIL_REASON_LABEL: Record<ReplayFailReason, string> = {
 
 const MAX_FILE_SIZE_MB = 50;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
-const UPLOAD_CHUNK_SIZE = 3;
+// Cloudflare 무료 플랜의 요청 바디 한계(100MB)에 걸리지 않도록, 한 요청의 총 용량을
+// 90MB 이하 & 파일 10개 이하(백엔드 multer 제한)로 묶어서 나눠 전송한다.
+const MAX_REQUEST_BYTES = 90 * 1024 * 1024;
+const MAX_FILES_PER_REQUEST = 10;
+
+// 파일들을 요청당 용량·개수 한계 안에서 배치로 묶는다.
+const buildUploadBatches = (list: File[]): File[][] => {
+  const batches: File[][] = [];
+  let current: File[] = [];
+  let currentBytes = 0;
+  list.forEach((f) => {
+    const exceedsSize = currentBytes + f.size > MAX_REQUEST_BYTES;
+    const exceedsCount = current.length >= MAX_FILES_PER_REQUEST;
+    if (current.length > 0 && (exceedsSize || exceedsCount)) {
+      batches.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(f);
+    currentBytes += f.size;
+  });
+  if (current.length > 0) batches.push(current);
+  return batches;
+};
 
 type ExcludeReason = "extension" | "oversize";
 const EXCLUDE_LABEL: Record<ExcludeReason, string> = {
@@ -191,6 +214,8 @@ const Replay: NextPage = () => {
     if (status === 401) return "인증에 실패했습니다. 다시 로그인해주세요.";
     if (status === 403) return "리플레이 업로드 권한이 없습니다.";
     if (status === 400) return "요청이 올바르지 않습니다. 길드 정보를 확인해주세요.";
+    if (status === 408)
+      return "업로드 시간이 초과되었습니다. 파일 수를 줄이거나 잠시 후 다시 시도해주세요.";
     return "업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
   };
 
@@ -202,25 +227,26 @@ const Replay: NextPage = () => {
     const total = files.length;
     setUploadProgress({ done: 0, total });
 
-    // 요청 바디 한계·서버 블로킹을 피하려고 소량씩 순차 전송한다.
-    // 청크가 끝날 때마다 성공/실패 결과와 처리된 파일을 즉시 반영한다.
+    // 요청 바디 한계(Cloudflare 100MB)를 넘지 않도록 용량·개수 기준으로 배치를 나눠 순차 전송한다.
+    // 배치가 끝날 때마다 성공/실패 결과와 처리된 파일을 즉시 반영한다.
+    const batches = buildUploadBatches(files);
     const succeeded: ReplayUploadSuccess[] = [];
     const failed: ReplayUploadFailed[] = [];
     let done = 0;
     let errorMsg: string | null = null;
 
-    for (let i = 0; i < total; i += UPLOAD_CHUNK_SIZE) {
-      const chunk = files.slice(i, i + UPLOAD_CHUNK_SIZE);
+    for (let b = 0; b < batches.length; b += 1) {
+      const batch = batches[b];
       try {
         // eslint-disable-next-line no-await-in-loop
-        const result = await uploadReplays(guildId, chunk, username ?? "");
+        const result = await uploadReplays(guildId, batch, username ?? "");
         succeeded.push(...(result.data?.succeeded ?? []));
         failed.push(...(result.data?.failed ?? []));
-        done += chunk.length;
+        done += batch.length;
         setUploadProgress({ done, total });
         setUploadResult({ succeeded: [...succeeded], failed: [...failed] });
-        // 처리된 청크는 목록에서 즉시 제거(미처리분은 남겨 재시도 가능)
-        setFiles((prev) => prev.filter((f) => !chunk.includes(f)));
+        // 처리된 배치는 목록에서 즉시 제거(미처리분은 남겨 재시도 가능)
+        setFiles((prev) => prev.filter((f) => !batch.includes(f)));
       } catch (err: unknown) {
         errorMsg = uploadErrorMessage(err);
         break;
