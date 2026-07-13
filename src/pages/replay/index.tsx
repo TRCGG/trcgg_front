@@ -199,32 +199,34 @@ const Replay: NextPage = () => {
     setIsUploading(true);
     setUploadResult(null);
     setUploadError(null);
-    setUploadProgress({ done: 0, total: files.length });
+    const total = files.length;
+    setUploadProgress({ done: 0, total });
 
-    // 요청 바디 한계·서버 블로킹을 피하려고 소량씩 순차 전송하고 결과를 합친다.
+    // 요청 바디 한계·서버 블로킹을 피하려고 소량씩 순차 전송한다.
+    // 청크가 끝날 때마다 성공/실패 결과와 처리된 파일을 즉시 반영한다.
     const succeeded: ReplayUploadSuccess[] = [];
     const failed: ReplayUploadFailed[] = [];
-    let processed = 0;
+    let done = 0;
     let errorMsg: string | null = null;
 
-    for (let i = 0; i < files.length; i += UPLOAD_CHUNK_SIZE) {
+    for (let i = 0; i < total; i += UPLOAD_CHUNK_SIZE) {
       const chunk = files.slice(i, i + UPLOAD_CHUNK_SIZE);
       try {
         // eslint-disable-next-line no-await-in-loop
         const result = await uploadReplays(guildId, chunk, username ?? "");
         succeeded.push(...(result.data?.succeeded ?? []));
         failed.push(...(result.data?.failed ?? []));
-        processed = i + chunk.length;
-        setUploadProgress({ done: processed, total: files.length });
+        done += chunk.length;
+        setUploadProgress({ done, total });
+        setUploadResult({ succeeded: [...succeeded], failed: [...failed] });
+        // 처리된 청크는 목록에서 즉시 제거(미처리분은 남겨 재시도 가능)
+        setFiles((prev) => prev.filter((f) => !chunk.includes(f)));
       } catch (err: unknown) {
         errorMsg = uploadErrorMessage(err);
         break;
       }
     }
 
-    // 처리된 파일은 목록에서 제거하고, 미처리분은 남겨 재시도할 수 있게 한다.
-    setFiles((prev) => prev.slice(processed));
-    if (succeeded.length > 0 || failed.length > 0) setUploadResult({ succeeded, failed });
     if (errorMsg) setUploadError(errorMsg);
     else setExcluded([]);
 
