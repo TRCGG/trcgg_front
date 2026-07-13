@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import Image from "next/image";
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
@@ -233,9 +234,19 @@ const Clan: NextPage = () => {
           className="grid grid-cols-[1fr_90px_132px] gap-2 items-center px-4 py-2.5 border-b border-cardBorder last:border-0"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-rankBg2 border border-border1 flex items-center justify-center text-sm text-primary1 shrink-0">
-              {member.displayName.charAt(0)}
-            </div>
+            {member.avatarUrl ? (
+              <Image
+                src={member.avatarUrl}
+                alt={member.displayName}
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full object-cover border border-border1 shrink-0"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-rankBg2 border border-border1 flex items-center justify-center text-sm text-primary1 shrink-0">
+                {member.displayName.charAt(0)}
+              </div>
+            )}
             <span className="text-sm text-primary1 truncate">{member.displayName}</span>
           </div>
           <div className="text-center">

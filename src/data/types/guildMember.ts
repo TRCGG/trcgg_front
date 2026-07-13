@@ -31,6 +31,7 @@ export type AssignableRole = "userNormal" | "userUploader";
 export interface DiscordMemberRoleItem {
   memberId: string;
   displayName: string;
+  avatarUrl: string;
   role: string;
 }
 
