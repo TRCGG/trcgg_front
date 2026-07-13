@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
-import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useEffect, useMemo } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import TextCard from "@/components/ui/TextCard";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
@@ -18,12 +18,15 @@ import {
   GuildResponse,
   DiscordMemberRoleItem,
   AssignableRole,
+  Role,
+  ROLE_HIERARCHY,
   canManageGuild,
   hasMinRole,
   getRoleMeta,
 } from "@/data/types/guildMember";
 
 const PAGE_SIZE = 10;
+const FETCH_LIMIT = 1000;
 
 const roleErrorMessage = (status: number): string => {
   if (status === 403) return "이 멤버의 권한은 변경할 수 없습니다 (매니저 이상).";
@@ -97,7 +100,6 @@ const Clan: NextPage = () => {
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
 
-  const queryClient = useQueryClient();
   const canManage = canManageGuild(currentRole);
 
   // 멤버 검색(디바운스) + 페이지네이션
@@ -115,12 +117,12 @@ const Clan: NextPage = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [allowAll, setAllowAll] = useState<boolean | null>(null);
 
+  // 전체 멤버를 한 번에 불러오고(정렬·페이지네이션은 프론트에서 처리), role 변경 시 재조회하지 않는다.
   const membersQuery = useQuery<ApiResponse<GuildMembersResponse>>({
-    queryKey: ["guildMembers", guildId, search, page],
-    queryFn: () => getGuildDiscordMembers(guildId, { search, page, limit: PAGE_SIZE }),
+    queryKey: ["guildMembers", guildId],
+    queryFn: () => getGuildDiscordMembers(guildId, { limit: FETCH_LIMIT }),
     enabled: !!guildId && isLoggedIn && canManage,
     staleTime: 30 * 1000,
-    placeholderData: (prev) => prev,
   });
 
   const guildQuery = useQuery<ApiResponse<GuildResponse>>({
@@ -135,9 +137,42 @@ const Clan: NextPage = () => {
     if (typeof value === "boolean") setAllowAll(value);
   }, [guildQuery.data]);
 
-  const members = membersQuery.data?.data?.data ?? [];
-  const totalCount = Number(membersQuery.data?.headers?.get("X-Total-Count") ?? 0);
-  const totalPages = Math.max(1, Number(membersQuery.data?.headers?.get("X-Total-Pages") ?? 1));
+  const rawMembers = useMemo(() => membersQuery.data?.data?.data ?? [], [membersQuery.data]);
+
+  // 멤버 구성(추가·삭제·길드 변경)이 바뀔 때만 매니저 > 업로더 > 일반 순으로 정렬한다.
+  // role만 바뀐 경우엔 재정렬하지 않아 화면상 순서가 유지된다(새로고침 시 다시 정렬).
+  const [orderedMembers, setOrderedMembers] = useState<DiscordMemberRoleItem[]>([]);
+  const memberSetKey = useMemo(
+    () =>
+      rawMembers
+        .map((m) => m.memberId)
+        .sort()
+        .join(","),
+    [rawMembers]
+  );
+  useEffect(() => {
+    const rank = (r: string) => ROLE_HIERARCHY[r as Role] ?? -1;
+    setOrderedMembers(
+      [...rawMembers].sort(
+        (a, b) => rank(b.role) - rank(a.role) || a.displayName.localeCompare(b.displayName)
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memberSetKey]);
+
+  const filteredMembers = useMemo(
+    () =>
+      search
+        ? orderedMembers.filter((m) => m.displayName.toLowerCase().includes(search.toLowerCase()))
+        : orderedMembers,
+    [orderedMembers, search]
+  );
+  const totalCount = orderedMembers.length;
+  const totalPages = Math.max(1, Math.ceil(filteredMembers.length / PAGE_SIZE));
+  const pagedMembers = useMemo(
+    () => filteredMembers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredMembers, page]
+  );
 
   const roleMutation = useMutation({
     mutationFn: ({ memberId, role }: { memberId: string; role: AssignableRole }) =>
@@ -148,7 +183,9 @@ const Clan: NextPage = () => {
         return;
       }
       setErrorMsg(null);
-      queryClient.invalidateQueries({ queryKey: ["guildMembers", guildId] });
+      // 재조회 없이 해당 멤버의 role만 제자리 갱신 → 화면상 순서 유지
+      const { memberId, role } = res.data.data;
+      setOrderedMembers((prev) => prev.map((m) => (m.memberId === memberId ? { ...m, role } : m)));
     },
     onError: () => setErrorMsg(roleErrorMessage(0)),
   });
@@ -181,10 +218,10 @@ const Clan: NextPage = () => {
     if (membersQuery.isLoading) {
       return <div className="py-10 text-center text-sm text-primary2">불러오는 중...</div>;
     }
-    if (members.length === 0) {
+    if (filteredMembers.length === 0) {
       return <div className="py-10 text-center text-sm text-primary2">표시할 멤버가 없습니다</div>;
     }
-    return members.map((member) => {
+    return pagedMembers.map((member) => {
       const meta = getRoleMeta(member.role);
       const locked = hasMinRole(member.role, "guildManager");
       const isUploader = member.role === "userUploader";
