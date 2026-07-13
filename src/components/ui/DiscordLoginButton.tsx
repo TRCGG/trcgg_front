@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import { FaDiscord } from "react-icons/fa";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
@@ -15,7 +16,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { currentRole } = useGuildManagement();
+  const { currentRole, avatar } = useGuildManagement();
   const canManage = canManageGuild(currentRole);
 
   useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
@@ -41,9 +42,21 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
         type="button"
         onClick={handleClick}
         onMouseEnter={() => username && setIsDropdownOpen(true)}
-        className="flex h-[40px] min-w-[96px] items-center justify-center gap-1 rounded p-2 text-white bg-[#5865F2] hover:bg-[#4752C4] transition whitespace-nowrap text-sm"
+        className="flex h-[40px] min-w-[96px] items-center justify-center gap-1.5 rounded p-2 text-white bg-[#5865F2] hover:bg-[#4752C4] transition whitespace-nowrap text-sm"
       >
-        {!username && <FaDiscord className="w-[24px] h-[24px]" />}
+        {username ? (
+          avatar && (
+            <Image
+              src={avatar}
+              alt="프로필"
+              width={24}
+              height={24}
+              className="w-6 h-6 rounded-full object-cover shrink-0"
+            />
+          )
+        ) : (
+          <FaDiscord className="w-[24px] h-[24px]" />
+        )}
         {username || "로그인"}
       </button>
 

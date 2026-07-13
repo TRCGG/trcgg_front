@@ -37,6 +37,7 @@ const useGuildManagement = () => {
   }, [meData]);
 
   const username = meData?.data?.data?.user?.global_name || meData?.data?.data?.user?.username;
+  const avatar = meData?.data?.data?.user?.avatar;
 
   const currentRole = useMemo(
     () => guilds.find((guild) => guild.id === guildId)?.role,
@@ -76,6 +77,7 @@ const useGuildManagement = () => {
     guilds,
     isLoggedIn,
     username,
+    avatar,
     currentRole,
     canUploadReplay,
     handleGuildChange,
