@@ -375,7 +375,7 @@ const Clan: NextPage = () => {
         <div className="flex-1 min-w-0 flex flex-col gap-3">
           <MobileClanMenu />
           <div>
-            <h1 className="text-[22px] font-light text-primary1">멤버 업로드 권한 관리</h1>
+            <h1 className="text-[22px] font-light text-primary1 mt-1">멤버 업로드 권한 관리</h1>
             <p className="text-xs text-primary2 mt-1">
               Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다.
             </p>
@@ -541,7 +541,7 @@ const Clan: NextPage = () => {
         isLoggedIn={isLoggedIn}
       />
 
-      <div className="mt-10 mb-10 px-4 md:px-0">{renderContent()}</div>
+      <div className="mt-5 mb-10 px-4 md:px-0">{renderContent()}</div>
     </div>
   );
 };
