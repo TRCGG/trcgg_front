@@ -90,6 +90,35 @@ const Sidebar = () => (
   </aside>
 );
 
+const CLAN_MENUS = [
+  { label: "멤버 업로드 권한 관리", active: true },
+  { label: "클랜원 상태 관리" },
+  { label: "클랜 설정" },
+];
+
+// 모바일: 사이드바 대신 상단 가로 스크롤 메뉴로 표시
+const MobileClanMenu = () => (
+  <nav className="md:hidden overflow-x-auto">
+    <div className="flex gap-2 w-max pb-0.5">
+      {CLAN_MENUS.map((item) => (
+        <span
+          key={item.label}
+          className={`inline-flex items-center gap-1.5 rounded border px-3 py-2 text-sm whitespace-nowrap ${
+            item.active ? "bg-blue border-blueText text-primary1" : "border-border2 text-primary3"
+          }`}
+        >
+          {item.label}
+          {!item.active && (
+            <span className="text-[10px] text-primary2 bg-rankBg2 border border-border2 rounded px-1.5 py-px">
+              준비중
+            </span>
+          )}
+        </span>
+      ))}
+    </div>
+  </nav>
+);
+
 const Clan: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
@@ -296,6 +325,7 @@ const Clan: NextPage = () => {
         <Sidebar />
 
         <div className="flex-1 min-w-0 flex flex-col gap-3">
+          <MobileClanMenu />
           <div>
             <h1 className="text-[22px] font-light text-primary1">멤버 업로드 권한 관리</h1>
             <p className="text-xs text-primary2 mt-1">

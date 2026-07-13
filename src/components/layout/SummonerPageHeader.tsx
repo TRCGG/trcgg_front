@@ -58,25 +58,28 @@ const SummonerPageHeader = ({
   return (
     <header className="flex flex-col md:flex-row justify-start md:justify-between pt-4 md:pt-6 px-4 md:px-0 md:items-center md:min-w-[1080px]">
       <div className="flex flex-col md:flex-row items-center gap-4 md:min-w-[450px]">
-        <div className="md:hidden self-end flex gap-3 items-center relative z-20">
-          {isLoggedIn && (
-            <GuildDropdown
-              guilds={guilds}
-              selectedGuildId={selectedGuildId}
-              onGuildChange={onGuildChange}
+        {/* 모바일: 로고와 클랜/디스코드 버튼을 한 행에 배치 (PC에서는 contents로 그룹 해제) */}
+        <div className="flex w-full items-center justify-between md:contents">
+          <div className="w-[115px] h-[64px] justify-start">
+            <Image
+              src={TextLogo}
+              alt="logo"
+              width={115}
+              height={64}
+              className="cursor-pointer"
+              onClick={() => router.push("/")}
             />
-          )}
-          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
-        </div>
-        <div className="w-[115px] h-[64px] justify-start">
-          <Image
-            src={TextLogo}
-            alt="logo"
-            width={115}
-            height={64}
-            className="cursor-pointer"
-            onClick={() => router.push("/")}
-          />
+          </div>
+          <div className="md:hidden flex gap-3 items-center relative z-20">
+            {isLoggedIn && (
+              <GuildDropdown
+                guilds={guilds}
+                selectedGuildId={selectedGuildId}
+                onGuildChange={onGuildChange}
+              />
+            )}
+            <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
+          </div>
         </div>
         <div ref={searchContainerRef} className="w-full md:w-[300px] z-10">
           <SearchBarSmall
