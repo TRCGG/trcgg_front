@@ -85,3 +85,35 @@ export const ROLE_META: Record<string, RoleMeta> = {
 };
 
 export const getRoleMeta = (role: string): RoleMeta => ROLE_META[role] ?? ROLE_META.userNormal;
+
+// 클랜원 상태 (1: 활성, 2: 비활성/탈퇴)
+export type MemberStatus = "1" | "2";
+
+export interface GuildMemberRow {
+  playerCode: string;
+  riotName: string;
+  riotNameTag: string;
+  status: MemberStatus;
+  createDate: string;
+  updateDate: string;
+}
+
+export interface MemberListResponse {
+  status: string;
+  message: string;
+  data: GuildMemberRow[];
+}
+
+export interface SubAccountLink {
+  guildId: string;
+  subRiotName: string;
+  subRiotNameTag: string;
+  mainRiotName: string | null;
+  mainRiotNameTag: string | null;
+}
+
+export interface SubAccountListResponse {
+  status: string;
+  message: string;
+  data: SubAccountLink[];
+}

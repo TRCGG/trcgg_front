@@ -1,12 +1,8 @@
 import type { NextPage } from "next";
 import Image from "next/image";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import TextCard from "@/components/ui/TextCard";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { ApiResponse } from "@/services/apiService";
 import {
   getGuildDiscordMembers,
@@ -21,10 +17,10 @@ import {
   AssignableRole,
   Role,
   ROLE_HIERARCHY,
-  canManageGuild,
   hasMinRole,
   getRoleMeta,
 } from "@/data/types/guildMember";
+import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
 
 const PAGE_SIZE = 10;
 const FETCH_LIMIT = 1000;
@@ -36,151 +32,7 @@ const roleErrorMessage = (status: number): string => {
   return "권한 변경에 실패했습니다. 잠시 후 다시 시도해주세요.";
 };
 
-const ClanMenuItem = ({ label, active }: { label: string; active?: boolean }) => (
-  <div
-    className={`flex items-center gap-2.5 px-2.5 py-2.5 rounded text-sm border-l-2 ${
-      active
-        ? "bg-blue border-blueText text-primary1"
-        : "border-transparent text-primary3 cursor-not-allowed"
-    }`}
-  >
-    <span>{label}</span>
-    {!active && (
-      <span className="ml-auto text-[10px] text-primary2 bg-rankBg2 border border-border2 rounded px-1.5 py-px whitespace-nowrap">
-        준비중
-      </span>
-    )}
-  </div>
-);
-
-const Sidebar = () => (
-  <aside className="hidden md:block w-[220px] shrink-0 bg-darkBg2 border border-border2 rounded p-4">
-    <div className="flex items-center gap-2 px-2 pb-2.5">
-      <svg
-        className="w-[18px] h-[18px] text-blueText"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={1.75}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 00-3-3.87" />
-        <path d="M16 3.13a4 4 0 010 7.75" />
-      </svg>
-      <span className="text-[15px] font-bold text-primary1">클랜 관리</span>
-      <span className="text-xs font-bold text-blueText bg-blueText/10 px-2 py-0.5 rounded">
-        매니저
-      </span>
-    </div>
-    <div className="h-px bg-border2 mx-0.5 mb-1.5" />
-
-    <div className="text-[11px] font-bold tracking-wider text-primary2 px-2.5 pt-2 pb-1.5">
-      권한
-    </div>
-    <ClanMenuItem label="멤버 업로드 권한 관리" active />
-
-    <div className="text-[11px] font-bold tracking-wider text-primary2 px-2.5 pt-3.5 pb-1.5">
-      운영
-    </div>
-    <ClanMenuItem label="클랜원 상태 관리" />
-    <ClanMenuItem label="클랜 설정" />
-  </aside>
-);
-
-const CLAN_MENUS = [
-  { label: "멤버 업로드 권한 관리", active: true },
-  { label: "클랜원 상태 관리" },
-  { label: "클랜 설정" },
-];
-
-// 모바일: 사이드바 대신 상단 가로 스크롤 메뉴로 표시.
-// 스크롤 여지가 있으면 좌/우 페이드와 화살표로 스크롤 가능함을 표시한다.
-const MobileClanMenu = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return undefined;
-    const update = () => {
-      setCanScrollLeft(el.scrollLeft > 1);
-      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-    };
-    update();
-    el.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      el.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
-
-  return (
-    <nav className="md:hidden border-b border-border2 pb-3">
-      <div className="relative">
-        <div ref={scrollRef} className="overflow-x-auto">
-          <div className="flex gap-2 w-max">
-            {CLAN_MENUS.map((item) => (
-              <span
-                key={item.label}
-                className={`inline-flex items-center gap-1.5 rounded border px-3 py-2 text-sm whitespace-nowrap ${
-                  item.active
-                    ? "bg-blue border-blueText text-primary1"
-                    : "border-border2 text-primary3"
-                }`}
-              >
-                {item.label}
-                {!item.active && (
-                  <span className="text-[10px] text-primary2 bg-rankBg2 border border-border2 rounded px-1.5 py-px">
-                    준비중
-                  </span>
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {canScrollLeft && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-darkBg1 to-transparent" />
-        )}
-        {canScrollRight && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-end bg-gradient-to-l from-darkBg1 to-transparent">
-            <svg
-              className="w-4 h-4 text-primary2"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </div>
-        )}
-      </div>
-    </nav>
-  );
-};
-
-const Clan: NextPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
-
-  const canManage = canManageGuild(currentRole);
-
-  // 멤버 검색(디바운스) + 페이지네이션
+const UploadPermissionContent = ({ guildId }: { guildId: string }) => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -199,14 +51,14 @@ const Clan: NextPage = () => {
   const membersQuery = useQuery<ApiResponse<GuildMembersResponse>>({
     queryKey: ["guildMembers", guildId],
     queryFn: () => getGuildDiscordMembers(guildId, { limit: FETCH_LIMIT }),
-    enabled: !!guildId && isLoggedIn && canManage,
+    enabled: !!guildId,
     staleTime: 30 * 1000,
   });
 
   const guildQuery = useQuery<ApiResponse<GuildResponse>>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
-    enabled: !!guildId && isLoggedIn && canManage,
+    enabled: !!guildId,
     staleTime: 30 * 1000,
   });
 
@@ -362,188 +214,158 @@ const Clan: NextPage = () => {
     });
   };
 
-  const renderContent = () => {
-    if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
-    if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
-    if (!canManage) return <TextCard text="매니저 전용 화면입니다. 접근 권한이 없습니다." />;
-
-    return (
-      <div className="flex gap-4 items-start">
-        <Sidebar />
-
-        <div className="flex-1 min-w-0 flex flex-col gap-3">
-          <MobileClanMenu />
-          <div>
-            <h1 className="text-[22px] font-light text-primary1 mt-1">멤버 업로드 권한 관리</h1>
-            <p className="text-xs text-primary2 mt-1">
-              Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다.
-            </p>
-          </div>
-
-          {errorMsg && (
-            <div className="flex items-center gap-2 bg-redDarken border border-redLighten rounded px-4 py-3 text-sm text-redText">
-              <svg
-                className="w-4 h-4 shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
-                />
-              </svg>
-              {errorMsg}
-            </div>
-          )}
-
-          {/* 전체 업로드 허용 배너 */}
-          <div className="bg-darkBg2 border border-border2 rounded p-4 flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-blueText/10 flex items-center justify-center shrink-0">
-              <svg
-                className="w-5 h-5 text-blueText"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.75}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 15v3a2 2 0 002 2h14a2 2 0 002-2v-3" />
-                <path d="M7 9l5-5 5 5" />
-                <path d="M12 4v12" />
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[15px] font-bold text-primary1">전체 업로드 허용</div>
-              <div className="text-xs text-primary2 mt-0.5">
-                {allowAll ? (
-                  <>
-                    끄면 <span className="text-neonGreen">업로더 권한</span>이 있는 멤버만
-                    리플레이를 업로드할 수 있습니다.
-                  </>
-                ) : (
-                  <>
-                    켜면 역할과 관계없이 <span className="text-primary1">모든 멤버</span>가
-                    리플레이를 업로드할 수 있습니다.
-                  </>
-                )}
-              </div>
-            </div>
-            <ToggleSwitch
-              checked={!!allowAll}
-              onChange={handleToggleAll}
-              disabled={allowAll === null || allowAllMutation.isPending}
-              ariaLabel="전체 업로드 허용"
+  return (
+    <>
+      {errorMsg && (
+        <div className="flex items-center gap-2 bg-redDarken border border-redLighten rounded px-4 py-3 text-sm text-redText">
+          <svg
+            className="w-4 h-4 shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
             />
-          </div>
+          </svg>
+          {errorMsg}
+        </div>
+      )}
 
-          {/* 검색 + 총원 */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center bg-darkBg2 border border-border2 rounded px-3 h-10 flex-1">
+      {/* 전체 업로드 허용 배너 */}
+      <div className="bg-darkBg2 border border-border2 rounded p-4 flex items-center gap-3.5">
+        <div className="w-10 h-10 rounded-lg bg-blueText/10 flex items-center justify-center shrink-0">
+          <svg
+            className="w-5 h-5 text-blueText"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 15v3a2 2 0 002 2h14a2 2 0 002-2v-3" />
+            <path d="M7 9l5-5 5 5" />
+            <path d="M12 4v12" />
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] font-bold text-primary1">전체 업로드 허용</div>
+          <div className="text-xs text-primary2 mt-0.5">
+            {allowAll ? (
+              <>
+                끄면 <span className="text-neonGreen">업로더 권한</span>이 있는 멤버만 리플레이를
+                업로드할 수 있습니다.
+              </>
+            ) : (
+              <>
+                켜면 역할과 관계없이 <span className="text-primary1">모든 멤버</span>가 리플레이를
+                업로드할 수 있습니다.
+              </>
+            )}
+          </div>
+        </div>
+        <ToggleSwitch
+          checked={!!allowAll}
+          onChange={handleToggleAll}
+          disabled={allowAll === null || allowAllMutation.isPending}
+          ariaLabel="전체 업로드 허용"
+        />
+      </div>
+
+      {/* 검색 + 총원 */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center bg-darkBg2 border border-border2 rounded px-3 h-10 flex-1">
+          <svg
+            className="w-4 h-4 text-primary3 mr-2 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="멤버 이름 검색"
+            className="bg-transparent border-none outline-none text-sm text-primary1 flex-1"
+          />
+        </div>
+        <span className="text-[13px] text-primary2 whitespace-nowrap">
+          총 <span className="text-primary1 tabular-nums">{totalCount}</span>명
+        </span>
+      </div>
+
+      {/* 멤버 테이블 */}
+      <div className="bg-darkBg2 border border-border2 rounded overflow-hidden">
+        <div className="grid grid-cols-[1fr_90px_132px] gap-2 px-4 py-2.5 text-xs text-primary2 border-b border-border2">
+          <span>멤버</span>
+          <span className="text-center">역할</span>
+          <span className="text-center">업로더 권한</span>
+        </div>
+
+        {renderTableBody()}
+
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="text-xs text-primary2">웹 로그인 이력이 있는 멤버만 표시됩니다</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="이전 페이지"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="w-7 h-7 rounded bg-darkBg1 border border-border2 text-primary2 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:text-primary1"
+            >
               <svg
-                className="w-4 h-4 text-primary3 mr-2 shrink-0"
+                className="w-3.5 h-3.5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
+                strokeWidth={2.5}
               >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                <path d="M15 18l-6-6 6-6" />
               </svg>
-              <input
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="멤버 이름 검색"
-                className="bg-transparent border-none outline-none text-sm text-primary1 flex-1"
-              />
-            </div>
-            <span className="text-[13px] text-primary2 whitespace-nowrap">
-              총 <span className="text-primary1 tabular-nums">{totalCount}</span>명
+            </button>
+            <span className="text-[13px] text-primary1 tabular-nums">
+              {page} / {totalPages}
             </span>
-          </div>
-
-          {/* 멤버 테이블 */}
-          <div className="bg-darkBg2 border border-border2 rounded overflow-hidden">
-            <div className="grid grid-cols-[1fr_90px_132px] gap-2 px-4 py-2.5 text-xs text-primary2 border-b border-border2">
-              <span>멤버</span>
-              <span className="text-center">역할</span>
-              <span className="text-center">업로더 권한</span>
-            </div>
-
-            {renderTableBody()}
-
-            <div className="flex items-center justify-between px-4 py-2.5">
-              <span className="text-xs text-primary2">웹 로그인 이력이 있는 멤버만 표시됩니다</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  aria-label="이전 페이지"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="w-7 h-7 rounded bg-darkBg1 border border-border2 text-primary2 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:text-primary1"
-                >
-                  <svg
-                    className="w-3.5 h-3.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-                <span className="text-[13px] text-primary1 tabular-nums">
-                  {page} / {totalPages}
-                </span>
-                <button
-                  type="button"
-                  aria-label="다음 페이지"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="w-7 h-7 rounded bg-darkBg1 border border-border2 text-primary1 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <svg
-                    className="w-3.5 h-3.5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2.5}
-                  >
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              aria-label="다음 페이지"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              className="w-7 h-7 rounded bg-darkBg1 border border-border2 text-primary1 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
-    );
-  };
-
-  return (
-    <div className="w-full md:max-w-[1080px] mx-auto">
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData?.data}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
-
-      <div className="mt-5 mb-10 px-4 md:px-0">{renderContent()}</div>
-    </div>
+    </>
   );
 };
+
+const Clan: NextPage = () => (
+  <ClanManageLayout
+    title="멤버 업로드 권한 관리"
+    description="Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다."
+  >
+    {(guildId) => <UploadPermissionContent guildId={guildId} />}
+  </ClanManageLayout>
+);
 
 export default Clan;
