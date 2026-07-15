@@ -69,7 +69,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
           {canManage && (
             <button
               type="button"
-              onClick={() => router.push("/clan")}
+              onClick={() => router.push("/clan/upload")}
               className="flex items-center gap-2 w-full text-left px-4 py-2 text-white hover:bg-grayHover transition-colors bg-darkBg2 text-sm whitespace-nowrap cursor-pointer"
             >
               <svg

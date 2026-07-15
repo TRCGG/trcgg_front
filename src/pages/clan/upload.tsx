@@ -359,13 +359,13 @@ const UploadPermissionContent = ({ guildId }: { guildId: string }) => {
   );
 };
 
-const Clan: NextPage = () => (
+const ClanUpload: NextPage = () => (
   <ClanManageLayout
-    title="멤버 업로드 권한 관리"
+    title="업로드 권한 관리"
     description="Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다."
   >
     {(guildId) => <UploadPermissionContent guildId={guildId} />}
   </ClanManageLayout>
 );
 
-export default Clan;
+export default ClanUpload;
