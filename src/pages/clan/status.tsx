@@ -1,11 +1,12 @@
-import type { NextPage } from "next";
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getGuildMembers, updateMemberStatus } from "@/services/guildMember";
 import { GuildMemberRow, MemberListResponse, MemberStatus } from "@/data/types/guildMember";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
+import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
 import { withHash } from "@/features/clanManage/riot";
+import { NextPageWithLayout } from "@/data/types/next";
 import { formatTimeAgo } from "@/utils/parseTime";
 
 const PAGE_SIZE = 10;
@@ -38,7 +39,8 @@ const CheckBox = ({ checked }: { checked: boolean }) => (
   </span>
 );
 
-const MemberStatusContent = ({ guildId }: { guildId: string }) => {
+const MemberStatusContent = () => {
+  const guildId = useClanGuild();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"active" | "left">("active");
   const [searchInput, setSearchInput] = useState("");
@@ -344,13 +346,15 @@ const MemberStatusContent = ({ guildId }: { guildId: string }) => {
   );
 };
 
-const ClanMemberStatus: NextPage = () => (
+const ClanMemberStatusPage: NextPageWithLayout = () => <MemberStatusContent />;
+
+ClanMemberStatusPage.getLayout = (page) => (
   <ClanManageLayout
     title="클랜원 상태 관리"
     description="비활성화하면 해당 클랜원은 전적 검색·유저 분석에서 노출되지 않습니다. 언제든 다시 활성화할 수 있습니다."
   >
-    {(guildId) => <MemberStatusContent guildId={guildId} />}
+    {page}
   </ClanManageLayout>
 );
 
-export default ClanMemberStatus;
+export default ClanMemberStatusPage;

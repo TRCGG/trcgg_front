@@ -7,12 +7,12 @@ import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { canManageGuild } from "@/data/types/guildMember";
 import ClanSidebar from "./ClanSidebar";
 import ClanMobileMenu from "./ClanMobileMenu";
+import ClanGuildContext from "./ClanGuildContext";
 
 interface Props {
   title: string;
   description: string;
-  // 접근 조건(로그인·매니저·길드)을 통과했을 때만 호출되며, 선택된 길드 ID를 전달한다.
-  children: (guildId: string) => ReactNode;
+  children: ReactNode;
 }
 
 const ClanManageLayout = ({ title, description, children }: Props) => {
@@ -43,7 +43,7 @@ const ClanManageLayout = ({ title, description, children }: Props) => {
             <h1 className="text-[22px] font-light text-primary1 mt-1">{title}</h1>
             <p className="text-xs text-primary2 mt-1">{description}</p>
           </div>
-          {children(guildId)}
+          <ClanGuildContext.Provider value={guildId}>{children}</ClanGuildContext.Provider>
         </div>
       </div>
     );

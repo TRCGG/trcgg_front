@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import Image from "next/image";
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -21,6 +20,8 @@ import {
   getRoleMeta,
 } from "@/data/types/guildMember";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
+import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
+import { NextPageWithLayout } from "@/data/types/next";
 
 const PAGE_SIZE = 10;
 const FETCH_LIMIT = 1000;
@@ -32,7 +33,8 @@ const roleErrorMessage = (status: number): string => {
   return "권한 변경에 실패했습니다. 잠시 후 다시 시도해주세요.";
 };
 
-const UploadPermissionContent = ({ guildId }: { guildId: string }) => {
+const UploadPermissionContent = () => {
+  const guildId = useClanGuild();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -359,13 +361,15 @@ const UploadPermissionContent = ({ guildId }: { guildId: string }) => {
   );
 };
 
-const ClanUpload: NextPage = () => (
+const ClanUploadPage: NextPageWithLayout = () => <UploadPermissionContent />;
+
+ClanUploadPage.getLayout = (page) => (
   <ClanManageLayout
     title="업로드 권한 관리"
     description="Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다."
   >
-    {(guildId) => <UploadPermissionContent guildId={guildId} />}
+    {page}
   </ClanManageLayout>
 );
 
-export default ClanUpload;
+export default ClanUploadPage;

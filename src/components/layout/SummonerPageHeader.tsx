@@ -66,6 +66,7 @@ const SummonerPageHeader = ({
               alt="logo"
               width={115}
               height={64}
+              priority
               className="cursor-pointer"
               onClick={() => router.push("/")}
             />

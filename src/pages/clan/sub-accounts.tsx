@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
@@ -17,11 +16,14 @@ import useClickOutside from "@/hooks/common/useClickOutside";
 import useDebouncedRiotNameTag from "@/hooks/searchUserList/useDebouncedRiotNameTag";
 import useUserSearchQuery from "@/hooks/searchUserList/useUserSearchQuery";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
+import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
 import { withHash, parseRiotId } from "@/features/clanManage/riot";
+import { NextPageWithLayout } from "@/data/types/next";
 
 const mainKey = (riotName: string, riotNameTag: string) => `${riotName}#${riotNameTag}`;
 
-const SubAccountContent = ({ guildId }: { guildId: string }) => {
+const SubAccountContent = () => {
+  const guildId = useClanGuild();
   const queryClient = useQueryClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [mainSearch, setMainSearch] = useState("");
@@ -343,13 +345,15 @@ const SubAccountContent = ({ guildId }: { guildId: string }) => {
   );
 };
 
-const ClanSubAccounts: NextPage = () => (
+const ClanSubAccountsPage: NextPageWithLayout = () => <SubAccountContent />;
+
+ClanSubAccountsPage.getLayout = (page) => (
   <ClanManageLayout
     title="부계정 연결 관리"
     description="클랜원의 본계정에 부계정을 연결합니다. 연결된 부계정의 전적은 본계정 전적에 함께 반영됩니다."
   >
-    {(guildId) => <SubAccountContent guildId={guildId} />}
+    {page}
   </ClanManageLayout>
 );
 
-export default ClanSubAccounts;
+export default ClanSubAccountsPage;
