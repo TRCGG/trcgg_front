@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { H2HDetail, H2HRelation } from "@/data/types/h2h";
 import { topLaneMatchup } from "./h2hHelpers";
 import OpponentSearchInput from "./OpponentSearchInput";
@@ -24,10 +25,19 @@ interface Props {
 }
 
 const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: Props) => {
+  const router = useRouter();
   // 맞붙은 기록이 없고 함께한 기록만 있으면 "함께한"으로 시작
   const initialRelation: H2HRelation =
     data.against.games === 0 && data.together.games > 0 ? "with" : "against";
-  const [relation, setRelation] = useState<H2HRelation>(initialRelation);
+  const relParam = router.query.rel;
+  const relation: H2HRelation =
+    relParam === "with" || relParam === "against" ? relParam : initialRelation;
+  const handleRelationChange = (next: H2HRelation) => {
+    router.push({ pathname: router.pathname, query: { ...router.query, rel: next } }, undefined, {
+      shallow: true,
+      scroll: false,
+    });
+  };
   // 최근 맞대결 리스트의 "맞라인만" 토글 (매치업 섹션은 자체 상태로 관리)
   const [recentSameLane, setRecentSameLane] = useState(false);
 
@@ -78,7 +88,7 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
           flexWrap: "wrap",
         }}
       >
-        <H2HRelationToggle value={relation} onChange={setRelation} counts={counts} />
+        <H2HRelationToggle value={relation} onChange={handleRelationChange} counts={counts} />
       </div>
 
       {/* Hero */}
