@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import {
@@ -13,6 +13,9 @@ import {
   SubAccountLink,
   SubAccountListResponse,
 } from "@/data/types/guildMember";
+import useClickOutside from "@/hooks/common/useClickOutside";
+import useDebouncedRiotNameTag from "@/hooks/searchUserList/useDebouncedRiotNameTag";
+import useUserSearchQuery from "@/hooks/searchUserList/useUserSearchQuery";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
 import { withHash, parseRiotId } from "@/features/clanManage/riot";
 
@@ -25,6 +28,17 @@ const SubAccountContent = ({ guildId }: { guildId: string }) => {
   const [draft, setDraft] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // 부계정 입력창 검색 미리보기 (헤더 검색과 동일한 길드 멤버 검색 재사용)
+  const draftRef = useRef<HTMLDivElement>(null);
+  const [draftFocused, setDraftFocused] = useState(false);
+  useClickOutside(draftRef, () => setDraftFocused(false));
+  const { debouncedTerm, isTyping } = useDebouncedRiotNameTag(draft);
+  const { data: previewData } = useUserSearchQuery(
+    isTyping ? { riotName: "", riotNameTag: "" } : debouncedTerm,
+    guildId
+  );
+  const previewResults = previewData?.data?.data ?? [];
 
   const membersQuery = useQuery<ApiResponse<MemberListResponse>>({
     queryKey: ["clanMembers", guildId, "active"],
@@ -207,25 +221,55 @@ const SubAccountContent = ({ guildId }: { guildId: string }) => {
               {/* 부계정 추가 */}
               <div className="text-sm font-bold text-primary1 mb-2">부계정 추가</div>
               <div className="flex gap-2 mb-1.5">
-                <div className="flex-1 flex items-center bg-darkBg1 border border-border2 rounded px-3 h-[42px]">
-                  <svg
-                    className="w-4 h-4 text-primary3 mr-2 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                  >
-                    <circle cx="11" cy="11" r="7" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  <input
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                    placeholder="부계정 라이엇 ID 입력 (예: 부계정닉#KR2)"
-                    className="bg-transparent border-none outline-none text-sm text-primary1 flex-1"
-                  />
+                <div ref={draftRef} className="relative flex-1">
+                  <div className="flex items-center bg-darkBg1 border border-border2 rounded px-3 h-[42px]">
+                    <svg
+                      className="w-4 h-4 text-primary3 mr-2 shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                    >
+                      <circle cx="11" cy="11" r="7" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input
+                      value={draft}
+                      onChange={(e) => {
+                        setDraft(e.target.value);
+                        setDraftFocused(true);
+                      }}
+                      onFocusCapture={() => setDraftFocused(true)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+                      placeholder="부계정 라이엇 ID 입력 (예: 부계정닉#KR2)"
+                      className="bg-transparent border-none outline-none text-sm text-primary1 flex-1"
+                    />
+                  </div>
+
+                  {draftFocused && draft.trim().length >= 2 && previewResults.length > 0 && (
+                    <div className="absolute z-20 mt-1 w-full bg-darkBg2 border border-border2 rounded shadow-xl max-h-[240px] overflow-y-auto">
+                      {previewResults.map((p) => (
+                        <button
+                          type="button"
+                          key={p.playerCode}
+                          onClick={() => {
+                            setDraft(`${p.riotName}#${p.riotNameTag}`);
+                            setDraftFocused(false);
+                          }}
+                          className="flex items-center gap-2 w-full text-left px-3 py-2 border-b border-cardBorder last:border-0 hover:bg-grayHover"
+                        >
+                          <span className="text-sm text-primary1 truncate">{p.riotName}</span>
+                          <span className="text-xs text-primary3">{withHash(p.riotNameTag)}</span>
+                          {p.isMain && (
+                            <span className="ml-auto shrink-0 text-[10px] text-blueText bg-blueText/10 rounded px-1.5 py-0.5">
+                              본계정
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"
