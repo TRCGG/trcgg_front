@@ -21,7 +21,7 @@ const RankItem: React.FC<RankItemProps> = ({
   games,
 }) => {
   return (
-    <div className="flex items-center gap-[11px] px-1.5 py-[9px]">
+    <div className="flex items-center gap-2 px-1.5 py-[9px]">
       {/* 순위 */}
       <div className="w-3.5 shrink-0 text-center text-[13px] font-bold text-primary2 tabular-nums">
         {rank}
@@ -48,7 +48,7 @@ const RankItem: React.FC<RankItemProps> = ({
 
       {/* 승률 */}
       <div
-        className={`w-11 shrink-0 text-right text-sm font-bold tabular-nums ${getWinRateColor(winRate)}`}
+        className={`min-w-[44px] shrink-0 text-right text-sm font-bold tabular-nums ${getWinRateColor(winRate)}`}
       >
         {winRate}%
       </div>
