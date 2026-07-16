@@ -22,11 +22,18 @@ import { NextPageWithLayout } from "@/data/types/next";
 
 const mainKey = (riotName: string, riotNameTag: string) => `${riotName}#${riotNameTag}`;
 
+type MainSegment = "all" | "withAlts";
+const SEGMENTS: { key: MainSegment; label: string }[] = [
+  { key: "all", label: "전체" },
+  { key: "withAlts", label: "부계정 보유" },
+];
+
 const SubAccountContent = () => {
   const guildId = useClanGuild();
   const queryClient = useQueryClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [mainSearch, setMainSearch] = useState("");
+  const [segment, setSegment] = useState<MainSegment>("all");
   const [draft, setDraft] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -69,13 +76,31 @@ const SubAccountContent = () => {
     return map;
   }, [links]);
 
-  const filteredMains = useMemo(
+  const withAltsCount = useMemo(
     () =>
-      mainSearch
-        ? mains.filter((m) => m.riotName.toLowerCase().includes(mainSearch.toLowerCase()))
-        : mains,
-    [mains, mainSearch]
+      mains.filter((m) => (altsByMain[mainKey(m.riotName, m.riotNameTag)] ?? []).length > 0).length,
+    [mains, altsByMain]
   );
+
+  const filteredMains = useMemo(() => {
+    const term = mainSearch.trim().toLowerCase();
+    if (term) {
+      return mains.filter((m) => {
+        if (m.riotName.toLowerCase().includes(term)) return true;
+        const alts = altsByMain[mainKey(m.riotName, m.riotNameTag)] ?? [];
+        return alts.some((a) => a.subRiotName.toLowerCase().includes(term));
+      });
+    }
+    if (segment === "withAlts") {
+      return mains.filter((m) => (altsByMain[mainKey(m.riotName, m.riotNameTag)] ?? []).length > 0);
+    }
+    return mains;
+  }, [mains, mainSearch, segment, altsByMain]);
+
+  const changeSegment = (next: MainSegment) => {
+    setSegment(next);
+    setMainSearch("");
+  };
 
   const selKey =
     selectedKey ?? (mains[0] ? mainKey(mains[0].riotName, mains[0].riotNameTag) : null);
@@ -179,6 +204,25 @@ const SubAccountContent = () => {
           <div className="flex items-center justify-between px-3.5 pt-3 pb-2">
             <span className="text-[13px] font-bold text-primary1">본계정</span>
             <span className="text-xs text-primary2">{mains.length}명</span>
+          </div>
+          <div className="mx-3 mb-2 flex gap-1 rounded bg-darkBg1 border border-border2 p-1">
+            {SEGMENTS.map((seg) => {
+              const active = segment === seg.key;
+              const count = seg.key === "all" ? mains.length : withAltsCount;
+              return (
+                <button
+                  key={seg.key}
+                  type="button"
+                  onClick={() => changeSegment(seg.key)}
+                  className={`flex-1 rounded px-2 py-1.5 text-xs whitespace-nowrap transition-colors ${
+                    active ? "bg-blue text-primary1 font-bold" : "text-primary3 hover:text-primary1"
+                  }`}
+                >
+                  {seg.label}{" "}
+                  <span className={active ? "text-blueText" : "text-primary3"}>{count}</span>
+                </button>
+              );
+            })}
           </div>
           <div className="flex items-center bg-darkBg1 border-y border-border2 px-3 py-2">
             <svg
