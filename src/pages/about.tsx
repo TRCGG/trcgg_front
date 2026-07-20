@@ -367,9 +367,9 @@ const About: NextPage = () => {
       <section id="features" className="w-full px-6 py-20 md:py-28">
         <div className="mx-auto max-w-[1160px]">
           <div data-reveal className="mb-12 text-center md:mb-16">
-            <div className="mb-3 text-sm font-bold tracking-[1.5px] text-[#C8AA6E]">KEY POINTS</div>
+            <div className="mb-5 text-sm font-bold tracking-[1.5px] text-[#C8AA6E]">KEY POINTS</div>
             <h2
-              className="m-0 mb-3.5 font-bold text-[#F1F5FA]"
+              className="m-0 mb-6 font-bold text-[#F1F5FA]"
               style={{ fontSize: "clamp(28px,4.2vw,46px)", letterSpacing: "-1px" }}
             >
               우리 전적 사이트가 보여주는 것들
@@ -430,11 +430,11 @@ const About: NextPage = () => {
       >
         <div className="mx-auto max-w-[1200px]">
           <div data-reveal className="mb-12 text-center md:mb-16">
-            <div className="mb-3 text-sm font-bold tracking-[1.5px] text-[#C8AA6E]">
+            <div className="mb-5 text-sm font-bold tracking-[1.5px] text-[#C8AA6E]">
               HOW IT WORKS
             </div>
             <h2
-              className="m-0 mb-3.5 font-bold text-[#F1F5FA]"
+              className="m-0 mb-6 font-bold text-[#F1F5FA]"
               style={{ fontSize: "clamp(28px,4.2vw,46px)", letterSpacing: "-1px" }}
             >
               디스코드에서 클라이언트, 그리고 웹까지
