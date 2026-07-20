@@ -26,7 +26,7 @@ class MyDocument extends Document {
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:image" content={OG_IMAGE} />
         </Head>
-        <body className="mb-16 min-w-[360px] px-2 md:px-0">
+        <body className="min-w-[360px] px-2 md:px-0">
           <Main />
           <NextScript />
         </body>
