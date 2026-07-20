@@ -67,7 +67,7 @@ const FrequentOpponentCardLarge = ({ opponent, onSelect }: Props) => {
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            fontWeight: 500,
+            fontWeight: 400,
           }}
         >
           {opponent.riotName}

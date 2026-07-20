@@ -18,6 +18,8 @@ export interface GuildInfo {
   name: string;
   icon: string;
   banner: string | null;
+  role?: string;
+  nick?: string;
 }
 
 export interface GuildsResponse {

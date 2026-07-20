@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import {
@@ -31,8 +32,32 @@ const isCandidateList = (
 const isH2HDetail = (data: H2HDetail | H2HCandidate[] | null | undefined): data is H2HDetail =>
   !!data && !Array.isArray(data) && "me" in data;
 
+const buildVs = (o: SelectedOpponent) =>
+  o.riotNameTag ? `${o.riotName}#${o.riotNameTag}` : o.riotName;
+
+const parseVs = (vs: string): SelectedOpponent => {
+  const i = vs.indexOf("#");
+  return i === -1 ? { riotName: vs } : { riotName: vs.slice(0, i), riotNameTag: vs.slice(i + 1) };
+};
+
 const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
-  const [opponent, setOpponent] = useState<SelectedOpponent | null>(null);
+  const router = useRouter();
+  const vsParam = typeof router.query.vs === "string" ? router.query.vs : null;
+  const opponent = useMemo<SelectedOpponent | null>(
+    () => (vsParam ? parseVs(vsParam) : null),
+    [vsParam]
+  );
+
+  const pushVs = (vs: string | null) => {
+    const query = { ...router.query };
+    delete query.rel;
+    if (vs) query.vs = vs;
+    else delete query.vs;
+    router.push({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+      scroll: false,
+    });
+  };
 
   const { data: frequentData, isLoading: isLoadingFrequent } = useQuery<
     ApiResponse<FrequentOpponentsResponse>
@@ -64,9 +89,9 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     [frequentData]
   );
 
-  const handleSelect = (o: SelectedOpponent) => setOpponent(o);
+  const handleSelect = (o: SelectedOpponent) => pushVs(buildVs(o));
 
-  const handleClear = () => setOpponent(null);
+  const handleClear = () => pushVs(null);
 
   // 상대 미선택 → 빈 상태
   if (!opponent) {
@@ -121,7 +146,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
               <button
                 key={c.playerCode}
                 type="button"
-                onClick={() => setOpponent({ riotName: c.riotName, riotNameTag: c.riotNameTag })}
+                onClick={() => handleSelect({ riotName: c.riotName, riotNameTag: c.riotNameTag })}
                 className="bg-darkBg1 border border-border2 text-primary1"
                 style={{
                   display: "flex",

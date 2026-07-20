@@ -10,6 +10,7 @@ import {
 } from "@/data/types/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getMostPicks, getRecentRecords } from "@/services/record";
@@ -40,7 +41,11 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const [activeTab, setActiveTab] = useState<SummonerTab>("overview");
+  // 탭 상태를 URL 쿼리(?tab=)로 승격 — 딥링크/새로고침/뒤로가기 대응. 잘못된 값은 overview로 폴백.
+  const router = useRouter();
+  const tabParam = router.query.tab;
+  const activeTab: SummonerTab =
+    tabParam === "champion" || tabParam === "h2h" ? tabParam : "overview";
   const [displayCount, setDisplayCount] = useState(RECORD_DISPLAY_COUNT);
   const [championSortType, setChampionSortType] = useState<ChampionSortType>("gameCount");
   const [championSortOrder, setChampionSortOrder] = useState<"asc" | "desc">("desc");
@@ -113,7 +118,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
           setDisplayCount((prev) => prev + RECORD_DISPLAY_COUNT);
         }
       },
-      { rootMargin: "300px" }
+      { rootMargin: "100px" }
     );
     observer.observe(target);
     return () => observer.disconnect();
@@ -181,8 +186,12 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   };
 
   const handleTabChange = (tab: SummonerTab) => {
-    setActiveTab(tab);
     setDisplayCount(RECORD_DISPLAY_COUNT);
+    // URL만 갱신(데이터 refetch·스크롤 리셋 없이). activeTab은 router.query.tab에서 파생됨.
+    router.push({ pathname: router.pathname, query: { ...router.query, tab } }, undefined, {
+      shallow: true,
+      scroll: false,
+    });
   };
 
   return (
@@ -194,7 +203,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         totalData={totalStatData}
         monthData={data.summary}
         mostLane={mostLane}
-        onRefresh={handleRefresh}
+        onRefresh={activeTab === "overview" ? handleRefresh : undefined}
       />
 
       {/* 탭 바 */}

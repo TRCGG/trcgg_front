@@ -37,7 +37,7 @@ const H2HTopLanePairCard = ({ label, myLane, oppoLane, count, wins, separator = 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <LaneIcon position={myLane} size={22} />
-            <span className="text-primary1" style={{ fontSize: 14, fontWeight: 600 }}>
+            <span className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
               {POSITION_LABELS[myLane]}
             </span>
           </div>
@@ -46,7 +46,7 @@ const H2HTopLanePairCard = ({ label, myLane, oppoLane, count, wins, separator = 
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <LaneIcon position={oppoLane} size={22} />
-            <span className="text-primary1" style={{ fontSize: 14, fontWeight: 600 }}>
+            <span className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
               {POSITION_LABELS[oppoLane]}
             </span>
           </div>

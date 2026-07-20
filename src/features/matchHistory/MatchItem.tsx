@@ -212,7 +212,7 @@ const MatchItem = ({ matchData }: Props) => {
               <span className="text-primary2 mx-0.5 font-normal">/</span>
               <span className="text-primary1">{matchData.assist}</span>
             </div>
-            <span className={`text-xs font-semibold ${getKdaColor(kdaRate)}`}>
+            <span className={`text-xs font-bold ${getKdaColor(kdaRate)}`}>
               {kdaRate.toFixed(2)} KDA
             </span>
           </div>

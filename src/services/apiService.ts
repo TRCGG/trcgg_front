@@ -2,6 +2,9 @@
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
+// 기본 요청 타임아웃(ms). 이 시간 안에 응답이 없으면 요청을 취소해 무한 대기(펜딩)를 막는다.
+const DEFAULT_TIMEOUT_MS = 30000;
+
 interface RequestOptions {
   method: HttpMethod;
   headers?: Record<string, string>;
@@ -199,6 +202,9 @@ class ApiService {
       body: body ? JSON.stringify(body) : undefined,
     };
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+
     try {
       // 요청 인터셉터 적용
       const interceptedRequest = await this.applyRequestInterceptors(url, requestOptions);
@@ -209,6 +215,7 @@ class ApiService {
       const response = await fetch(interceptedRequest.url, {
         ...interceptedRequest.options,
         credentials: "include", // 쿠키 전송을 위한 설정
+        signal: controller.signal,
       });
 
       // 응답 데이터 파싱
@@ -256,17 +263,22 @@ class ApiService {
 
       return error;
     } catch (error: unknown) {
-      // 네트워크 오류 등 예외 처리
+      // 네트워크 오류·타임아웃 등 예외 처리
+      const isTimeout = error instanceof Error && error.name === "AbortError";
       const errorResponse = {
         data: null,
-        error: error instanceof Error ? error.message : "An unknown error occurred",
-        status: 0,
+        error: isTimeout
+          ? "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요."
+          : (error instanceof Error && error.message) || "An unknown error occurred",
+        status: isTimeout ? 408 : 0,
       };
 
       // 에러 인터셉터 적용
       await this.applyErrorInterceptors(errorResponse, { url, options: requestOptions });
 
       return errorResponse;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

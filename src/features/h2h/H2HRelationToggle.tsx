@@ -36,7 +36,7 @@ const H2HRelationToggle = ({ value, onChange, counts }: Props) => (
             gap: 8,
             padding: "8px 16px",
             fontSize: 14,
-            fontWeight: 500,
+            fontWeight: 400,
             borderRadius: 4,
             border: "none",
             background: active ? accent : "transparent",

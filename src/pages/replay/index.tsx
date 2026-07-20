@@ -3,11 +3,12 @@ import React, { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import TitleBox from "@/components/ui/TitleBox";
-import TextCard from "@/components/ui/TextCard";
+import Modal from "@/components/modal/Modal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
-import { uploadReplays, getReplayList } from "@/services/replay";
+import { uploadReplays, getReplayList, deleteReplay } from "@/services/replay";
 import { ApiResponse } from "@/services/apiService";
+import { hasMinRole } from "@/data/types/guildMember";
 import {
   ReplayUploadData,
   ReplayUploadFailed,
@@ -25,6 +26,64 @@ const FAIL_REASON_LABEL: Record<ReplayFailReason, string> = {
   save_failed: "저장에 실패했습니다",
 };
 
+const MAX_FILE_SIZE_MB = 50;
+const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+// Cloudflare 무료 플랜의 요청 바디 한계(100MB)에 걸리지 않도록, 한 요청의 총 용량을
+// 90MB 이하 & 파일 10개 이하(백엔드 multer 제한)로 묶어서 나눠 전송한다.
+const MAX_REQUEST_BYTES = 90 * 1024 * 1024;
+const MAX_FILES_PER_REQUEST = 10;
+
+// 파일들을 요청당 용량·개수 한계 안에서 배치로 묶는다.
+const buildUploadBatches = (list: File[]): File[][] => {
+  const batches: File[][] = [];
+  let current: File[] = [];
+  let currentBytes = 0;
+  list.forEach((f) => {
+    const exceedsSize = currentBytes + f.size > MAX_REQUEST_BYTES;
+    const exceedsCount = current.length >= MAX_FILES_PER_REQUEST;
+    if (current.length > 0 && (exceedsSize || exceedsCount)) {
+      batches.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(f);
+    currentBytes += f.size;
+  });
+  if (current.length > 0) batches.push(current);
+  return batches;
+};
+
+type ExcludeReason = "extension" | "oversize";
+const EXCLUDE_LABEL: Record<ExcludeReason, string> = {
+  extension: ".rofl 아님",
+  oversize: `${MAX_FILE_SIZE_MB}MB 초과`,
+};
+
+interface ExcludedFile {
+  name: string;
+  sizeMB: string;
+  reason: ExcludeReason;
+}
+
+const UploadNotice = ({ text }: { text: string }) => (
+  <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#4A4F57"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-10 h-10"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8h.01M11 12h1v4h1" />
+    </svg>
+    <p className="text-sm text-primary2">{text}</p>
+  </div>
+);
+
 const Replay: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -32,10 +91,19 @@ const Replay: NextPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<ReplayUploadData | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [excluded, setExcluded] = useState<ExcludedFile[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(
+    null
+  );
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
+  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange } =
+    useGuildManagement();
+  const canDeleteReplay = hasMinRole(currentRole, "userUploader");
+  const [confirmingCode, setConfirmingCode] = useState<string | null>(null);
+  const [deletingCode, setDeletingCode] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const {
     data: userSearchData,
     isLoading,
@@ -61,20 +129,42 @@ const Replay: NextPage = () => {
 
   const totalSizeMB = (files.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(1);
 
-  const addFiles = useCallback((incoming: FileList | null) => {
-    if (!incoming) return;
-    const roflFiles = Array.from(incoming).filter((f) => f.name.toLowerCase().endsWith(".rofl"));
-    if (roflFiles.length === 0) return;
-    setFiles((prev) => {
-      const existingNames = new Set(prev.map((f) => f.name));
-      return [...prev, ...roflFiles.filter((f) => !existingNames.has(f.name))];
-    });
-    setUploadResult(null);
-    setUploadError(null);
-  }, []);
+  const addFiles = useCallback(
+    (incoming: FileList | null) => {
+      if (!incoming) return;
+      const existingNames = new Set([...files.map((f) => f.name), ...excluded.map((e) => e.name)]);
+      const validToAdd: File[] = [];
+      const excludedToAdd: ExcludedFile[] = [];
+
+      Array.from(incoming).forEach((f) => {
+        if (existingNames.has(f.name)) return;
+        existingNames.add(f.name);
+        const sizeMB = (f.size / 1024 / 1024).toFixed(1);
+        if (!f.name.toLowerCase().endsWith(".rofl")) {
+          excludedToAdd.push({ name: f.name, sizeMB, reason: "extension" });
+        } else if (f.size > MAX_FILE_SIZE) {
+          excludedToAdd.push({ name: f.name, sizeMB, reason: "oversize" });
+        } else {
+          validToAdd.push(f);
+        }
+      });
+
+      if (validToAdd.length > 0) {
+        setFiles((prev) => [...prev, ...validToAdd]);
+        setUploadResult(null);
+        setUploadError(null);
+      }
+      if (excludedToAdd.length > 0) setExcluded((prev) => [...prev, ...excludedToAdd]);
+    },
+    [files, excluded]
+  );
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExcluded = (index: number) => {
+    setExcluded((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -103,27 +193,72 @@ const Replay: NextPage = () => {
     }
   };
 
+  const handleDeleteReplay = async (replayCode: string) => {
+    if (deletingCode) return;
+    setDeletingCode(replayCode);
+    setDeleteError(null);
+    const res = await deleteReplay(guildId, replayCode);
+    if (res.error) {
+      setDeleteError("리플레이 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      setDeletingCode(null);
+      return;
+    }
+    await refetchList();
+    setDeletingCode(null);
+    setConfirmingCode(null);
+  };
+
+  const uploadErrorMessage = (err: unknown): string => {
+    const status =
+      err && typeof err === "object" && "status" in err ? (err as { status: number }).status : 0;
+    if (status === 401) return "인증에 실패했습니다. 다시 로그인해주세요.";
+    if (status === 403) return "리플레이 업로드 권한이 없습니다.";
+    if (status === 400) return "요청이 올바르지 않습니다. 길드 정보를 확인해주세요.";
+    if (status === 408)
+      return "업로드 시간이 초과되었습니다. 파일 수를 줄이거나 잠시 후 다시 시도해주세요.";
+    return "업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+  };
+
   const handleUpload = async () => {
-    if (!guildId || files.length === 0) return;
+    if (!guildId || files.length === 0 || isUploading) return;
     setIsUploading(true);
     setUploadResult(null);
     setUploadError(null);
-    try {
-      const result = await uploadReplays(guildId, files, username ?? "");
-      setUploadResult(result.data);
-      setFiles([]);
-      await refetchList();
-    } catch (err: unknown) {
-      const status =
-        err && typeof err === "object" && "status" in err ? (err as { status: number }).status : 0;
-      if (status === 401) setUploadError("인증에 실패했습니다. 다시 로그인해주세요.");
-      else if (status === 403) setUploadError("리플레이 업로드 권한이 없습니다.");
-      else if (status === 400)
-        setUploadError("요청이 올바르지 않습니다. 길드 정보를 확인해주세요.");
-      else setUploadError("업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-    } finally {
-      setIsUploading(false);
+    const total = files.length;
+    setUploadProgress({ done: 0, total });
+
+    // 요청 바디 한계(Cloudflare 100MB)를 넘지 않도록 용량·개수 기준으로 배치를 나눠 순차 전송한다.
+    // 배치가 끝날 때마다 성공/실패 결과와 처리된 파일을 즉시 반영한다.
+    const batches = buildUploadBatches(files);
+    const succeeded: ReplayUploadSuccess[] = [];
+    const failed: ReplayUploadFailed[] = [];
+    let done = 0;
+    let errorMsg: string | null = null;
+
+    for (let b = 0; b < batches.length; b += 1) {
+      const batch = batches[b];
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await uploadReplays(guildId, batch, username ?? "");
+        succeeded.push(...(result.data?.succeeded ?? []));
+        failed.push(...(result.data?.failed ?? []));
+        done += batch.length;
+        setUploadProgress({ done, total });
+        setUploadResult({ succeeded: [...succeeded], failed: [...failed] });
+        // 처리된 배치는 목록에서 즉시 제거(미처리분은 남겨 재시도 가능)
+        setFiles((prev) => prev.filter((f) => !batch.includes(f)));
+      } catch (err: unknown) {
+        errorMsg = uploadErrorMessage(err);
+        break;
+      }
     }
+
+    if (errorMsg) setUploadError(errorMsg);
+    else setExcluded([]);
+
+    await refetchList();
+    setUploadProgress(null);
+    setIsUploading(false);
   };
 
   return (
@@ -174,8 +309,8 @@ const Replay: NextPage = () => {
 
           <div className="p-4 flex flex-col gap-3.5">
             {(() => {
-              if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
-              if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+              if (!isLoggedIn) return <UploadNotice text="로그인 후 이용해주세요" />;
+              if (guilds.length === 0) return <UploadNotice text="소속된 클랜이 없습니다" />;
               return (
                 <>
                   {/* 드래그 앤 드롭 존 */}
@@ -220,7 +355,8 @@ const Replay: NextPage = () => {
                       하세요
                     </p>
                     <span className="inline-flex items-center gap-1.5 text-[11px] text-primary3 border border-border1 rounded-full px-2.5 py-[3px]">
-                      <b className="text-blueText2 font-bold">.rofl</b> 파일만 업로드 가능
+                      <b className="text-blueText2 font-bold">.rofl</b> · 파일당 {MAX_FILE_SIZE_MB}
+                      MB
                     </span>
                   </div>
 
@@ -234,13 +370,16 @@ const Replay: NextPage = () => {
                   />
 
                   {/* 선택된 파일 목록 */}
-                  {files.length > 0 && (
+                  {(files.length > 0 || excluded.length > 0) && (
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-primary2">선택된 파일</span>
                         <button
                           type="button"
-                          onClick={() => setFiles([])}
+                          onClick={() => {
+                            setFiles([]);
+                            setExcluded([]);
+                          }}
                           className="text-xs text-primary3 hover:text-redText transition-colors"
                         >
                           모두 지우기
@@ -253,7 +392,7 @@ const Replay: NextPage = () => {
                             key={file.name}
                             className="flex items-center gap-2.5 bg-rankBg2 border border-cardBorder rounded-lg px-3 py-2.5"
                           >
-                            <span className="shrink-0 text-[9px] font-extrabold tracking-wide leading-none text-yellow bg-yellow/10 border border-yellow/25 rounded-[5px] px-1.5 py-1">
+                            <span className="shrink-0 text-[9px] font-bold tracking-wide leading-none text-yellow bg-yellow/10 border border-yellow/25 rounded-[5px] px-1.5 py-1">
                               ROFL
                             </span>
                             <span className="flex-1 min-w-0 truncate text-[13px] text-primary1">
@@ -284,47 +423,28 @@ const Replay: NextPage = () => {
                             </button>
                           </li>
                         ))}
-                      </ul>
-
-                      {/* 요약 + 업로드 버튼 */}
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs text-primary3 tabular-nums">
-                          총 <b className="text-primary2 font-bold">{files.length}개</b> ·{" "}
-                          {totalSizeMB} MB
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleUpload}
-                          disabled={files.length === 0 || isUploading}
-                          className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-150 ${
-                            files.length === 0 || isUploading
-                              ? "bg-rankBg1 text-primary2 cursor-not-allowed opacity-50"
-                              : "bg-bluePrimary hover:opacity-90 text-white"
-                          }`}
-                        >
-                          {isUploading ? (
-                            <>
-                              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                />
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8v8H4z"
-                                />
-                              </svg>
-                              업로드 중...
-                            </>
-                          ) : (
-                            <>
+                        {excluded.map((item, index) => (
+                          <li
+                            key={`excluded-${item.name}`}
+                            className="flex items-center gap-2.5 bg-rankBg2/50 border border-cardBorder rounded-lg px-3 py-2.5"
+                          >
+                            <span className="shrink-0 text-[9px] font-bold tracking-wide leading-none text-redText bg-redText/10 border border-redText/25 rounded-[5px] px-1.5 py-1">
+                              제외됨
+                            </span>
+                            <span className="flex-1 min-w-0 truncate text-[13px] text-primary3 line-through">
+                              {item.name}
+                            </span>
+                            <span className="shrink-0 text-[11px] text-redText">
+                              {EXCLUDE_LABEL[item.reason]}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label={`${item.name} 제거`}
+                              onClick={() => removeExcluded(index)}
+                              className="shrink-0 w-6 h-6 rounded-md grid place-items-center text-primary3 hover:text-redText hover:bg-redText/10 transition-colors"
+                            >
                               <svg
-                                className="w-4 h-4"
+                                className="w-[15px] h-[15px]"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -333,14 +453,78 @@ const Replay: NextPage = () => {
                                 <path
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
-                                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                                  d="M6 18L18 6M6 6l12 12"
                                 />
                               </svg>
-                              업로드 ({files.length})
-                            </>
-                          )}
-                        </button>
-                      </div>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* 요약 + 업로드 버튼 */}
+                      {files.length > 0 && (
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-xs text-primary3 tabular-nums">
+                            총 <b className="text-primary2 font-bold">{files.length}개</b> ·{" "}
+                            {totalSizeMB} MB
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleUpload}
+                            disabled={files.length === 0 || isUploading}
+                            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all duration-150 ${
+                              files.length === 0 || isUploading
+                                ? "bg-rankBg1 text-primary2 cursor-not-allowed opacity-50"
+                                : "bg-bluePrimary hover:opacity-90 text-white"
+                            }`}
+                          >
+                            {isUploading ? (
+                              <>
+                                <svg
+                                  className="w-4 h-4 animate-spin"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v8H4z"
+                                  />
+                                </svg>
+                                업로드 중
+                                {uploadProgress
+                                  ? ` (${uploadProgress.done}/${uploadProgress.total})`
+                                  : "..."}
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                  strokeWidth={2}
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                                  />
+                                </svg>
+                                업로드 ({files.length})
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -468,6 +652,11 @@ const Replay: NextPage = () => {
           </div>
 
           <div className="px-3 py-1.5">
+            {deleteError && (
+              <div className="mx-1.5 my-2 rounded-md bg-redDarken border border-redLighten px-3 py-2 text-xs text-redText">
+                {deleteError}
+              </div>
+            )}
             {isLoadingList && (
               <div className="text-center py-10 text-sm text-primary2">데이터를 불러오는 중...</div>
             )}
@@ -528,6 +717,30 @@ const Replay: NextPage = () => {
                           </svg>
                         )}
                       </button>
+
+                      {canDeleteReplay && (
+                        <button
+                          type="button"
+                          aria-label="리플레이 삭제"
+                          onClick={() => setConfirmingCode(log.replayCode)}
+                          className="w-[26px] h-[26px] rounded-md grid place-items-center border border-border1 text-primary3 hover:text-redText hover:border-redLighten transition-colors"
+                        >
+                          <svg
+                            className="w-[14px] h-[14px]"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -536,6 +749,88 @@ const Replay: NextPage = () => {
           </div>
         </section>
       </div>
+
+      <Modal
+        isOpen={confirmingCode !== null}
+        onClose={() => {
+          if (!deletingCode) setConfirmingCode(null);
+        }}
+      >
+        <div className="flex flex-col gap-4 max-w-[360px]">
+          <div className="flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-full grid place-items-center bg-redText/10 text-redText shrink-0">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+            </span>
+            <h3 className="text-base font-bold text-primary1">리플레이 삭제</h3>
+          </div>
+
+          <p className="text-sm text-primary2 leading-relaxed">
+            이 리플레이를 삭제하면 해당 리플레이로 등록된{" "}
+            <span className="text-redText font-bold">전적 데이터도 함께 삭제</span>됩니다. 삭제된
+            데이터는 복구할 수 없습니다.
+          </p>
+
+          {confirmingCode && (
+            <div className="rounded-md bg-rankBg2 border border-border1 px-3 py-2 text-xs text-blueText2 font-mono break-all">
+              {confirmingCode}
+            </div>
+          )}
+
+          {deleteError && (
+            <div className="rounded-md bg-redDarken border border-redLighten px-3 py-2 text-xs text-redText">
+              {deleteError}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              disabled={!!deletingCode}
+              onClick={() => setConfirmingCode(null)}
+              className="px-4 py-2 rounded-lg text-sm text-primary2 border border-border1 hover:text-primary1 transition-colors disabled:opacity-50"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              disabled={!!deletingCode}
+              onClick={() => confirmingCode && handleDeleteReplay(confirmingCode)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold bg-redText text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {deletingCode ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  삭제 중...
+                </>
+              ) : (
+                "삭제"
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -26,7 +26,7 @@ const SectionCard = ({ title, subtitle, rightSlot, stackOnMobile, children }: Pr
       }`}
     >
       <div>
-        <div className="text-primary1" style={{ fontSize: 14, fontWeight: 600 }}>
+        <div className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
           {title}
         </div>
         {subtitle && (
