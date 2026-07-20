@@ -366,7 +366,7 @@ const ClanUploadPage: NextPageWithLayout = () => <UploadPermissionContent />;
 ClanUploadPage.getLayout = (page) => (
   <ClanManageLayout
     title="업로드 권한 관리"
-    description="Discord 멤버에게 리플레이 업로더 권한을 부여·회수합니다."
+    description="Discord 멤버에게 업로더 권한을 부여·회수합니다. 업로더 권한이 있으면 리플레이 업로드와 삭제가 가능합니다."
   >
     {page}
   </ClanManageLayout>
