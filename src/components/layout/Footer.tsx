@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import TextLogo from "@/assets/images/textLogo.png";
 
-const DISCORD_INVITE = "https://discord.gg/R8SyV4ZFRC";
+const DISCORD_INVITE = "https://discord.gg/kahrPQc89p";
 
 const Footer = () => (
   <footer className="w-full border-t border-white/[0.06] bg-[#08090B] px-6 pt-14 pb-11">

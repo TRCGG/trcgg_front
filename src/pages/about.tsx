@@ -15,7 +15,7 @@ import flowStartScrim from "@/assets/aboutImages/flow-start-scrim.png";
 import flowClientJoin from "@/assets/aboutImages/flow-client-join.png";
 import flowNextCode from "@/assets/aboutImages/flow-next-code.png";
 
-const DISCORD_INVITE = "https://discord.gg/R8SyV4ZFRC";
+const DISCORD_INVITE = "https://discord.gg/kahrPQc89p";
 
 const DiscordIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">

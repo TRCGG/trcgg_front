@@ -9,7 +9,7 @@ interface NoGuildModalProps {
 
 const NoGuildModal = ({ isOpen, onClose }: NoGuildModalProps) => {
   const handleDiscordInquiry = () => {
-    window.open("https://discord.gg/R8SyV4ZFRC", "_blank");
+    window.open("https://discord.gg/kahrPQc89p", "_blank");
   };
 
   const handleClose = async () => {
