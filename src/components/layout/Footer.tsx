@@ -4,7 +4,7 @@ import TextLogo from "@/assets/images/textLogo.png";
 const DISCORD_INVITE = "https://discord.gg/kahrPQc89p";
 
 const Footer = () => (
-  <footer className="w-full border-t border-white/[0.06] bg-[#08090B] px-6 pb-11 pt-20 md:pt-24">
+  <footer className="mt-16 w-full border-t border-white/[0.06] bg-[#08090B] px-6 pb-11 pt-14 md:mt-24">
     <div className="mx-auto flex max-w-[1160px] flex-wrap justify-between gap-10">
       <div className="max-w-[440px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
