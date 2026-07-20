@@ -26,8 +26,10 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {getLayout(<Component {...pageProps} />)}
-      {showFooter && <Footer />}
+      <div className="flex min-h-screen flex-col">
+        <div className="flex-1">{getLayout(<Component {...pageProps} />)}</div>
+        {showFooter && <Footer />}
+      </div>
     </QueryClientProvider>
   );
 };
