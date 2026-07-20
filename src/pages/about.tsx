@@ -171,7 +171,7 @@ const About: NextPage = () => {
         <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-5 px-7 py-3.5">
           <Link href="/">
             <span className="flex cursor-pointer items-center gap-2.5">
-              <Image src={TextLogo} alt="gmok" height={34} className="h-[34px] w-auto" />
+              <Image src={TextLogo} alt="gmok" width={61} height={34} />
             </span>
           </Link>
           <div className="flex items-center gap-5 sm:gap-7">
