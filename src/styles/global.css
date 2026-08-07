@@ -26,3 +26,88 @@ body {
     @apply text-sm sm:text-base;
   }
 }
+
+/* 법적 고지 문서(개인정보처리방침·이용약관) 렌더링. public/*.md 를 marked 로 변환한 HTML 대상. */
+.legal-doc {
+  color: #9aa0a8;
+  font-size: 15px;
+  line-height: 1.85;
+  word-break: keep-all;
+}
+.legal-doc h1,
+.legal-doc h2,
+.legal-doc h3 {
+  color: #d1dbe8;
+  font-weight: 700;
+  line-height: 1.4;
+  scroll-margin-top: 24px;
+}
+.legal-doc h1 {
+  font-size: 26px;
+  margin: 0 0 12px;
+}
+.legal-doc h2 {
+  font-size: 19px;
+  margin: 40px 0 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.legal-doc h3 {
+  font-size: 16px;
+  margin: 26px 0 10px;
+  color: #c8d0da;
+}
+.legal-doc p {
+  margin: 12px 0;
+}
+.legal-doc ul,
+.legal-doc ol {
+  margin: 12px 0;
+  padding-left: 22px;
+}
+.legal-doc li {
+  margin: 6px 0;
+}
+.legal-doc ul {
+  list-style: disc;
+}
+.legal-doc ol {
+  list-style: decimal;
+}
+.legal-doc a {
+  color: #6bb8ff;
+  text-decoration: none;
+}
+.legal-doc a:hover {
+  text-decoration: underline;
+}
+.legal-doc strong {
+  color: #d1dbe8;
+  font-weight: 700;
+}
+.legal-doc code {
+  background: #22252b;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.9em;
+}
+.legal-doc hr {
+  margin: 40px 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.legal-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.legal-doc th,
+.legal-doc td {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 10px;
+  text-align: left;
+}
+.legal-doc th {
+  color: #d1dbe8;
+  background: #22252b;
+}
