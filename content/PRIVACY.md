@@ -40,12 +40,12 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 - 토너먼트 코드 발급 시 디스코드 채널 ID와 발급자의 사용자 ID가 코드 메타데이터로
   Riot Games API에 전송된다.
 
-전적 서비스 특성상, **라이엇 ID와 경기 통계는 gmok.kr에서 로그인 없이 누구나
-조회할 수 있으며, 검색엔진에 색인될 수 있다.** 여기에는 GMOK을 이용한 적 없는 같은
-경기 참가자의 정보도 포함된다(개인정보 보호법 제15조 제1항 제6호에 근거한 처리 —
-게임 내에서 이미 참가자 간 공개된 정보에 한정되며 실명·연락처는 수집하지 않는다).
-누구든 본인 전적의 비공개 처리(조회 미노출) 또는 삭제를 위 창구로 요청할 수 있고,
-수집 출처·처리 목적·처리정지 요구권은 요청 시 개별 안내한다.
+**라이엇 ID와 경기 통계는 디스코드 계정으로 로그인한 뒤, 해당 경기가 기록된 서버(길드)에 소속된
+이용자에게만 표시된다.** 로그인하지 않은 방문자에게는 경기 데이터를 제공하지 않으며, 검색엔진에도
+경기 내용은 색인되지 않는다. 여기에는 GMOK을 이용한 적 없는 같은 경기 참가자의 정보도 포함된다
+(개인정보 보호법 제15조 제1항 제6호에 근거한 처리 — 게임 내에서 이미 참가자 간 공개된 정보에
+한정되며 실명·연락처는 수집하지 않는다). 누구든 본인 전적의 비공개 처리(조회 미노출) 또는 삭제를
+위 창구로 요청할 수 있고, 수집 출처·처리 목적·처리정지 요구권은 요청 시 개별 안내한다.
 
 ### 1.3 쿠키 및 브라우저 저장소
 
@@ -53,7 +53,9 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
   거부할 수 있으나 차단 시 로그인 기능을 쓸 수 없다.
 - localStorage의 최근 검색어·즐겨찾기는 브라우저에만 저장된다. 선택한 서버 ID 등
   일부 값은 API 요청에 포함될 수 있다.
-- 광고·분석 트래킹 도구는 사용하지 않는다.
+- 서비스에는 Google의 광고가 게재되며, Google이 광고 게재를 위해 브라우저에 쿠키를 저장하거나
+  IP 주소 등을 수집할 수 있다. 맞춤형 광고는 https://myadcenter.google.com 에서 해제할 수 있다.
+- 그 밖의 분석·트래킹 도구는 사용하지 않는다.
 
 ### 1.4 특권 게이트웨이 인텐트 (Privileged Intents)
 
@@ -64,13 +66,6 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
   매핑하는 데 필요하다. 서버 관리자는 봇 명령으로 해당 서버의 멤버 목록(사용자명·
   표시명·가입일) CSV를 받을 수 있으며, 이 파일은 명령을 실행한 채널로 전송될 뿐
   운영팀 서버에 저장되지 않는다.
-
-## 2. 수집 방법
-
-- 사용자가 디스코드에서 봇 명령어를 사용하거나 리플레이 파일을 업로드할 때
-- 사용자가 웹(gmok.kr)에서 리플레이 파일을 업로드할 때
-- 사용자가 웹에서 Discord 계정으로 로그인할 때
-- Riot Games API 조회를 통해
 
 ## 3. 이용 목적
 
@@ -88,7 +83,7 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 
 ### 4.2 제3자 제공
 
-- 개인정보를 판매하거나 광고·마케팅 목적으로 제3자에게 제공하지 않는다.
+- 개인정보를 판매하지 않으며, 운영팀이 보관하는 개인정보를 광고·마케팅 목적으로 제3자에게 제공하지 않는다.
 - 법령에 근거한 수사기관 등의 적법한 요청이 있는 경우에만 예외적으로 제공할 수 있다.
 
 ### 4.3 국외 이전
@@ -99,6 +94,7 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 |---|---|---|---|---|---|
 | Discord Inc. | 미국 | 디스코드 계정 ID, OAuth 토큰 | 계정 인증, 첨부파일 다운로드 | 서비스 이용 시 API 통신(HTTPS) | Discord 정책에 따름 |
 | Riot Games, Inc. | 미국 | PUUID, 라이엇 ID, (토너먼트 이용 시) 디스코드 채널·사용자 ID | 경기 데이터 조회, 토너먼트 코드 발급 | 해당 기능 이용 시 API 통신(HTTPS) | Riot 정책에 따름 |
+| Google LLC | 미국 | 쿠키, IP 주소 | 광고 게재 | 웹 페이지 열람 시 브라우저가 직접 통신(HTTPS) | Google 정책에 따름 |
 
 - 웹 이용 시 챔피언·아이템 이미지는 브라우저가 Riot의 공개 CDN(Data Dragon)에서
   직접 불러오며, 이 과정에서 이용자의 IP 주소가 해당 CDN에 전달된다.
@@ -148,7 +144,6 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 - Discord OAuth 토큰은 접근이 제한된 데이터베이스에 보관하며, 서비스 기능 수행
   외의 목적으로 사용하지 않는다. 로그아웃 시 Discord에 토큰 폐기(revoke)를 요청한다.
 - 개인정보에 접근할 수 있는 인원은 운영에 필요한 최소 인원으로 제한한다.
-- 운영팀은 소규모 팀으로, 별도의 전담 보안 조직이나 물리적 전산 설비는 두지 않는다.
 - 침해사고를 인지한 경우 관련 법령이 정한 기한 내에 이용자와 관계 기관에 통지한다.
 
 ## 8. 아동의 개인정보
@@ -170,12 +165,6 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 
 본 방침이 변경되는 경우 이 문서를 갱신하고 시행일을 명시한다. 중요한 변경은
 지원 서버를 통해 공지한다.
-
-## 11. 라이엇 게임즈 관련 고지
-
-GMOK은 Riot Games의 승인·후원을 받지 않았으며, Riot Games 또는 리그 오브 레전드의
-제작·관리에 공식적으로 관여하는 누군가의 견해나 의견을 대변하지 않는다. 리그 오브
-레전드와 Riot Games는 Riot Games, Inc.의 상표 또는 등록상표이다.
 
 ---
 
@@ -226,10 +215,11 @@ anyone, including non-users whose data appears in an uploaded replay.
 - When the tournament feature is used, the Discord channel ID and the issuing
   user's Discord ID are sent to the Riot Games API as tournament-code metadata.
 
-As a match-history service, **Riot IDs and match statistics are published on
-gmok.kr where anyone can view them without signing in, and may be indexed by
-search engines.** This includes data about participants in the same match who
-have never used GMOK (processed on the basis of legitimate interest under
+**Riot IDs and match statistics are shown only to users who have signed in with
+their Discord account and belong to the server (guild) where the match was
+recorded.** Match data is not served to signed-out visitors, and match content is
+not indexed by search engines. This includes data about participants in the same
+match who have never used GMOK (processed on the basis of legitimate interest under
 Article 15(1)6 of the Korean Personal Information Protection Act — limited to
 information already visible to the other participants in the game; we collect no
 real names or contact details). Anyone may request that their records be hidden
@@ -243,7 +233,10 @@ right to demand suspension of processing.
   refuse cookies in your browser settings; blocking it disables web sign-in.
 - localStorage data such as recent searches and favorites stays in your browser.
   Some values, such as the selected server ID, may be included in API requests.
-- We do not use advertising or analytics trackers.
+- The Service displays ads from Google, which may store cookies in your browser
+  or collect data such as your IP address to serve them. You can turn off
+  personalized ads at https://myadcenter.google.com.
+- We use no other analytics or tracking tools.
 
 ### 1.4 Privileged Gateway Intents
 
@@ -256,13 +249,6 @@ right to demand suspension of processing.
   server's member list (username, display name, join date) as a CSV via a bot
   command; the file is sent to the channel where the command was run and is not
   retained on our servers.
-
-## 2. How We Collect Data
-
-- When you use bot commands or upload replay files on Discord
-- When you upload replay files on the web (gmok.kr)
-- When you sign in on the web with your Discord account
-- Through requests to the Riot Games API
 
 ## 3. How We Use Data
 
@@ -280,8 +266,8 @@ right to demand suspension of processing.
 
 ### 4.2 Sharing with third parties
 
-- We do not sell personal data or share it with third parties for advertising or
-  marketing.
+- We do not sell personal data, and we do not share the personal data we hold
+  with third parties for advertising or marketing.
 - We may disclose data only in response to lawful requests by authorities under
   applicable law.
 
@@ -293,6 +279,7 @@ To provide the Service, personal data is transferred abroad as follows:
 |---|---|---|---|---|---|
 | Discord Inc. | USA | Discord account IDs, OAuth tokens | Account authentication, attachment downloads | API traffic over HTTPS during use | Per Discord's policies |
 | Riot Games, Inc. | USA | PUUIDs, Riot IDs, and (for tournaments) Discord channel/user IDs | Match data retrieval, tournament code issuance | API traffic over HTTPS when the feature is used | Per Riot's policies |
+| Google LLC | USA | Cookies, IP address | Serving ads | Direct browser-to-Google traffic over HTTPS when you view a page | Per Google's policies |
 
 - On the web, champion and item images are loaded by your browser directly from
   Riot's public CDN (Data Dragon), which receives your IP address in the process.
@@ -347,8 +334,6 @@ inform you of the reason and the expected timing in advance.
   solely to operate the Service. When you sign out, we ask Discord to revoke the
   token.
 - Access to personal data is limited to the minimum number of operators required.
-- We are a small team and do not maintain a dedicated security organization or
-  physical computing facilities of our own.
 - If we become aware of a data breach, we will notify affected users and the
   relevant authorities within the period required by applicable law.
 
@@ -372,11 +357,3 @@ For reports or counseling regarding privacy infringements (Republic of Korea):
 
 If this policy changes, we will update this document and its effective date.
 Significant changes will be announced on the support server.
-
-## 11. Riot Games Notice
-
-GMOK isn't endorsed by Riot Games and doesn't reflect the views or opinions of
-Riot Games or anyone officially involved in producing or managing Riot Games
-properties. Riot Games, and all associated properties are trademarks or
-registered trademarks of Riot Games, Inc. League of Legends is a trademark or
-registered trademark of Riot Games, Inc.
