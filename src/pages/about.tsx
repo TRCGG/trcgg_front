@@ -139,7 +139,7 @@ const About: NextPage = () => {
   return (
     <div className="about-root w-full bg-[#0a0b0d] text-[#C4CBD4]">
       <Head>
-        <title>GMOK 서비스 소개</title>
+        <title>서비스 소개 | GMOK</title>
         <meta
           name="description"
           content="게임의 모든 순간을 클랜과 함께. 리플레이 업로드로 전적·통계·랭킹이 쌓이는 우리 클랜만의 전적 사이트."
@@ -571,8 +571,7 @@ const About: NextPage = () => {
               지금 바로 내전을 시작하세요
             </h2>
             <p className="mx-auto mb-8 max-w-[480px] text-[17px] text-[#9BA3AD]">
-              디스코드에 봇을 초대하고 <b style={{ color: "#E8EDF3" }}>!내전시작</b> 을 입력하면 끝.
-              오늘 밤 내전부터 전적이 쌓입니다.
+              디스코드에 봇을 초대하고 결과를 <b style={{ color: "#E8EDF3" }}>업로드</b>하면 끝.
             </p>
             <div className="flex flex-wrap justify-center gap-3.5">
               <a
