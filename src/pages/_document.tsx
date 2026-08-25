@@ -12,6 +12,10 @@ class MyDocument extends Document {
           <link rel="icon" type="image/png" href="/og-mini.png" />
           <link rel="shortcut icon" type="image/png" href="/og-mini.png" />
           <link rel="apple-touch-icon" href="/og-mini.png" />
+          <meta
+            name="description"
+            content="리그 오브 레전드 길드 내 전적 검색 서비스를 제공하는 GMOK입니다."
+          />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content="GMOK" />
           <meta property="og:title" content="롤 길드 전적 검색 - 지목 | GMOK.KR" />

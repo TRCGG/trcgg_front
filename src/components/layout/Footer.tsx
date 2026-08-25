@@ -1,7 +1,8 @@
 import Link from "next/link";
 import TextLogo from "@/assets/images/textLogo.png";
+import { DISCORD_INVITE_URL } from "@/constants/links";
 
-const DISCORD_INVITE = "https://discord.gg/kahrPQc89p";
+const linkClass = "cursor-pointer text-sm text-[#8A929C] hover:text-primary1";
 
 const Footer = () => (
   <footer className="mt-16 w-full border-t border-white/[0.06] bg-[#08090B] px-6 pb-11 pt-14 md:mt-24">
@@ -9,42 +10,45 @@ const Footer = () => (
       <div className="max-w-[440px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={TextLogo.src} alt="GMOK" className="mb-3.5 h-[30px] w-auto" />
+        <p className="mb-3.5 text-sm leading-relaxed text-[#8A929C]">
+          리그 오브 레전드 길드 내 전적 검색 서비스를 제공하는 GMOK입니다.
+        </p>
         <div className="mb-1.5 text-sm font-bold text-[#C8D0DA]">Game Metrics Of Korea</div>
         <p className="m-0 text-[13px] leading-relaxed text-[#5E656E]">
           League of Legends Tournament &amp; Match Management Platform
         </p>
       </div>
-      <div>
-        <div className="mb-3.5 text-[13px] font-bold tracking-wide text-[#8A929C]">Links</div>
-        <div className="flex flex-col gap-2.5">
-          <Link href="/">
-            <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">홈</span>
-          </Link>
-          {/* TRC-227(소개 페이지) 머지 전까지 /about 이 없어 임시로 숨김. 머지 시 아래 주석 해제.
-          <Link href="/about">
-            <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">
-              서비스 소개
-            </span>
-          </Link>
-          */}
-          <Link href="/privacy">
-            <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">
-              개인정보처리방침
-            </span>
-          </Link>
-          <Link href="/terms">
-            <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">
-              이용약관
-            </span>
-          </Link>
-          <a
-            href={DISCORD_INVITE}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-[#8A929C] hover:text-primary1"
-          >
-            Discord
-          </a>
+      <div className="flex gap-x-16 gap-y-10">
+        <div>
+          <div className="mb-3.5 text-[13px] font-bold tracking-wide text-[#8A929C]">서비스</div>
+          <div className="flex flex-col gap-2.5">
+            <Link href="/">
+              <span className={linkClass}>홈</span>
+            </Link>
+            <Link href="/about">
+              <span className={linkClass}>서비스 소개</span>
+            </Link>
+            <Link href="/guide">
+              <span className={linkClass}>이용방법</span>
+            </Link>
+            <Link href="/faq">
+              <span className={linkClass}>자주 묻는 질문</span>
+            </Link>
+          </div>
+        </div>
+        <div>
+          <div className="mb-3.5 text-[13px] font-bold tracking-wide text-[#8A929C]">지원</div>
+          <div className="flex flex-col gap-2.5">
+            <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className={linkClass}>
+              Discord
+            </a>
+            <Link href="/privacy">
+              <span className={linkClass}>개인정보처리방침</span>
+            </Link>
+            <Link href="/terms">
+              <span className={linkClass}>이용약관</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
