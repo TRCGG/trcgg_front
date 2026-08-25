@@ -1,17 +1,11 @@
 import type { ReactNode } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
-import TextLogo from "@/assets/images/textLogo.png";
+import InfoPageNav from "@/components/layout/InfoPageNav";
+import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
-
-const DiscordIcon = ({ size = 20 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.74 19.74 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 00.031.056 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.1 13.1 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.3 12.3 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.028zM8.02 15.33c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.332-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.332-.946 2.418-2.157 2.418z" />
-  </svg>
-);
 
 const Code = ({ children }: { children: ReactNode }) => (
   <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-[#C8D0DA]">
@@ -212,39 +206,7 @@ const Faq: NextPage = () => (
       />
     </Head>
 
-    <nav className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-[#0a0b0d]/70 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-5 px-7 py-3.5">
-        <Link href="/">
-          <span className="flex cursor-pointer items-center gap-2.5">
-            <Image src={TextLogo} alt="gmok" width={61} height={34} />
-          </span>
-        </Link>
-        <div className="flex items-center gap-5 sm:gap-7">
-          <Link href="/about#features">
-            <span className="cursor-pointer text-[15px] text-[#8A929C] hover:text-primary1">
-              키포인트
-            </span>
-          </Link>
-          <Link href="/guide">
-            <span className="cursor-pointer text-[15px] text-[#8A929C] hover:text-primary1">
-              이용방법
-            </span>
-          </Link>
-          <a href="#top" className="text-[15px] font-bold text-[#E8D6A8]">
-            FAQ
-          </a>
-          <a
-            href={DISCORD_INVITE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 rounded-[9px] bg-[#5865F2] px-[18px] py-2.5 text-sm font-bold text-white shadow-[0_6px_18px_rgba(88,101,242,0.35)] hover:bg-[#4954da]"
-          >
-            <DiscordIcon size={18} />
-            디스코드
-          </a>
-        </div>
-      </div>
-    </nav>
+    <InfoPageNav active="faq" />
 
     <div className="overflow-x-hidden">
       {/* HERO */}
