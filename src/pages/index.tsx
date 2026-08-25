@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import NavBar from "@/components/layout/NavBar";
 import SearchBar from "@/components/form/SearchBar";
@@ -118,6 +119,25 @@ const Home: NextPage = () => {
         {nameLengthAlert && (
           <div className="text-blueText text-md">최소 2글자 이상 작성해주세요.</div>
         )}
+
+        {/* 서비스 소개 배너 */}
+        <Link href="/about">
+          <span className="group mt-6 inline-flex cursor-pointer items-center gap-2 self-center rounded-full border border-border2 bg-darkBg2 px-4 py-2 text-sm text-primary2 transition-colors hover:border-blueText2 hover:text-primary1">
+            <span>GMOK이 처음이신가요?</span>
+            <span className="font-bold text-blueText">서비스 소개 보기</span>
+            <svg
+              className="w-3.5 h-3.5 text-blueText transition-transform group-hover:translate-x-0.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </Link>
       </main>
       <NoGuildModal isOpen={isNoGuildModalOpen} onClose={closeNoGuildModal} />
     </div>

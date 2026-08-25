@@ -11,8 +11,8 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 
 **문의·요청 창구**
 
-- 이메일: gtrix0904@gmail.com
-- GMOK 디스코드 지원 서버: https://discord.gg/R8SyV4ZFRC
+- 이메일: {{CONTACT_EMAIL}}
+- GMOK 디스코드 지원 서버: {{DISCORD_INVITE}}
 
 디스코드 계정이 없는 사람도 이메일로 열람·정정·삭제·처리정지를 요청할 수 있다.
 
@@ -183,8 +183,8 @@ Developer Policy.
 
 **Contact / requests**
 
-- Email: gtrix0904@gmail.com
-- GMOK Discord support server: https://discord.gg/R8SyV4ZFRC
+- Email: {{CONTACT_EMAIL}}
+- GMOK Discord support server: {{DISCORD_INVITE}}
 
 You do not need a Discord account to contact us; email requests are accepted from
 anyone, including non-users whose data appears in an uploaded replay.

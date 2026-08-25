@@ -11,8 +11,8 @@
 
 **문의 창구**
 
-- 이메일: gtrix0904@gmail.com
-- GMOK 디스코드 지원 서버: https://discord.gg/R8SyV4ZFRC
+- 이메일: {{CONTACT_EMAIL}}
+- GMOK 디스코드 지원 서버: {{DISCORD_INVITE}}
 
 ## 1. 서비스 내용
 
@@ -111,8 +111,8 @@ Service, you agree to these Terms.
 
 **Contact**
 
-- Email: gtrix0904@gmail.com
-- GMOK Discord support server: https://discord.gg/R8SyV4ZFRC
+- Email: {{CONTACT_EMAIL}}
+- GMOK Discord support server: {{DISCORD_INVITE}}
 
 ## 1. The Service
 
