@@ -220,13 +220,11 @@ const Faq: NextPage = () => (
           </span>
         </Link>
         <div className="flex items-center gap-5 sm:gap-7">
-          {/* TRC-227(소개 페이지) 머지 전까지 /about 이 없어 임시로 숨김. 머지 시 아래 주석 해제.
           <Link href="/about#features">
             <span className="cursor-pointer text-[15px] text-[#8A929C] hover:text-primary1">
               키포인트
             </span>
           </Link>
-          */}
           <Link href="/guide">
             <span className="cursor-pointer text-[15px] text-[#8A929C] hover:text-primary1">
               이용방법
