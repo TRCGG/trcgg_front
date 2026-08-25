@@ -1,5 +1,6 @@
 import React from "react";
 import Modal from "@/components/modal/Modal";
+import { DISCORD_INVITE_URL } from "@/constants/links";
 import { logout } from "@/services/auth";
 
 interface NoGuildModalProps {
@@ -9,7 +10,7 @@ interface NoGuildModalProps {
 
 const NoGuildModal = ({ isOpen, onClose }: NoGuildModalProps) => {
   const handleDiscordInquiry = () => {
-    window.open("https://discord.gg/R8SyV4ZFRC", "_blank");
+    window.open(DISCORD_INVITE_URL, "_blank");
   };
 
   const handleClose = async () => {

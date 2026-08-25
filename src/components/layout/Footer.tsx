@@ -1,7 +1,6 @@
 import Link from "next/link";
 import TextLogo from "@/assets/images/textLogo.png";
-
-const DISCORD_INVITE = "https://discord.gg/kahrPQc89p";
+import { DISCORD_INVITE_URL } from "@/constants/links";
 
 const Footer = () => (
   <footer className="mt-16 w-full border-t border-white/[0.06] bg-[#08090B] px-6 pb-11 pt-14 md:mt-24">
@@ -38,7 +37,7 @@ const Footer = () => (
             </span>
           </Link>
           <a
-            href={DISCORD_INVITE}
+            href={DISCORD_INVITE_URL}
             target="_blank"
             rel="noreferrer"
             className="text-sm text-[#8A929C] hover:text-primary1"
