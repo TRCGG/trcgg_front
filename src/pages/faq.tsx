@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import InfoPageNav from "@/components/layout/InfoPageNav";
+import AnchorNav from "@/components/layout/AnchorNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
@@ -206,7 +206,7 @@ const Faq: NextPage = () => (
       />
     </Head>
 
-    <InfoPageNav active="faq" />
+    <AnchorNav items={CATEGORIES} />
 
     <div className="overflow-x-hidden">
       {/* HERO */}
@@ -229,23 +229,8 @@ const Faq: NextPage = () => (
         </div>
       </header>
 
-      {/* 카테고리 앵커 */}
-      <div className="w-full px-6 pb-11 md:pb-16">
-        <div className="mx-auto flex max-w-[860px] flex-wrap justify-center gap-2.5">
-          {CATEGORIES.map((cat) => (
-            <a
-              key={cat.id}
-              href={`#${cat.id}`}
-              className="rounded-full border border-white/[0.08] bg-[#14161B] px-[18px] py-2.5 text-[13.5px] font-bold text-[#C4CBD4] hover:border-[#C8AA6E]/50 hover:text-[#E8D6A8]"
-            >
-              {cat.label}
-            </a>
-          ))}
-        </div>
-      </div>
-
       {/* FAQ 본문 */}
-      <main className="w-full px-6 pb-16 md:pb-28">
+      <main className="w-full px-6 pb-16 pt-11 md:pb-28 md:pt-16">
         <div className="mx-auto flex max-w-[860px] flex-col gap-12 md:gap-[72px]">
           {CATEGORIES.map((cat) => (
             <section key={cat.id} id={cat.id} className="scroll-mt-[90px]">

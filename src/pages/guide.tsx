@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import InfoPageNav from "@/components/layout/InfoPageNav";
+import AnchorNav from "@/components/layout/AnchorNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
@@ -154,7 +154,7 @@ const Guide: NextPage = () => (
       />
     </Head>
 
-    <InfoPageNav active="guide" />
+    <AnchorNav items={TOC} />
 
     <div className="overflow-x-hidden">
       {/* HERO */}
@@ -178,23 +178,8 @@ const Guide: NextPage = () => (
         </div>
       </header>
 
-      {/* 목차 */}
-      <div className="w-full px-6 pb-11 md:pb-16">
-        <div className="mx-auto flex max-w-[860px] flex-wrap justify-center gap-2.5">
-          {TOC.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className="rounded-full border border-white/[0.08] bg-[#14161B] px-[18px] py-2.5 text-[13.5px] font-bold text-[#C4CBD4] hover:border-[#C8AA6E]/50 hover:text-[#E8D6A8]"
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-      </div>
-
       {/* 본문 */}
-      <main className="w-full px-6 pb-16 md:pb-28">
+      <main className="w-full px-6 pb-16 pt-11 md:pb-28 md:pt-16">
         <div className="mx-auto flex max-w-[860px] flex-col gap-[52px] md:gap-20">
           <Section id="s1" step={1} title="GMOK이란">
             <Card className="flex flex-col gap-4 px-[30px] py-7">
