@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image, { StaticImageData } from "next/image";
-import InfoPageNav from "@/components/layout/InfoPageNav";
+import AnchorNav from "@/components/layout/AnchorNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Footer from "@/components/layout/Footer";
@@ -38,6 +38,11 @@ const Shot = ({ src, alt, onOpen, browserBar }: ShotProps) => (
     <Image src={src} alt={alt} sizes="(max-width: 900px) 100vw, 560px" className="h-auto w-full" />
   </button>
 );
+
+const SECTIONS = [
+  { id: "features", label: "키포인트" },
+  { id: "flow", label: "사용법" },
+];
 
 const FEATURES = [
   {
@@ -141,7 +146,7 @@ const About: NextPage = () => {
         />
       </Head>
 
-      <InfoPageNav active="about" />
+      <AnchorNav items={SECTIONS} />
 
       <div className="overflow-x-hidden">
         {/* HERO */}
