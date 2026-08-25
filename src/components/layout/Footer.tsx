@@ -26,6 +26,16 @@ const Footer = () => (
             </span>
           </Link>
           */}
+          <Link href="/guide">
+            <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">
+              이용방법
+            </span>
+          </Link>
+          <Link href="/faq">
+            <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">
+              자주 묻는 질문
+            </span>
+          </Link>
           <Link href="/privacy">
             <span className="cursor-pointer text-sm text-[#8A929C] hover:text-primary1">
               개인정보처리방침

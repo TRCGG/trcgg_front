@@ -21,8 +21,8 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
   // 페이지가 getLayout을 제공하면 그 레이아웃으로 감싸 렌더(라우트 전환 사이 레이아웃 유지)
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  // /about은 자체 푸터를 포함하므로 공용 푸터 제외
-  const showFooter = router.pathname !== "/about";
+  // 아래 페이지들은 어두운 자체 배경 위에 푸터를 직접 렌더링하므로(사이 여백에 body 배경이 드러나는 것 방지) 공용 푸터 제외
+  const showFooter = !["/about", "/faq", "/guide"].includes(router.pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
