@@ -30,7 +30,9 @@ class MyDocument extends Document {
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:image" content={OG_IMAGE} />
         </Head>
-        <body className="min-w-[360px] px-2 md:px-0">
+        {/* 좌우 여백은 body가 아니라 _app의 콘텐츠 영역에만 준다.
+            body에 주면 푸터·전체폭 배경이 화면을 꽉 채우지 못하고 양옆에 body 배경이 드러난다. */}
+        <body className="min-w-[360px]">
           <Main />
           <NextScript />
         </body>
