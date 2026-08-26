@@ -17,6 +17,7 @@ import {
   ReplayListResponse,
 } from "@/data/types/replay";
 import { formatTimeAgo } from "@/utils/parseTime";
+import { sliceRoflForUpload } from "@/utils/rofl";
 
 const FAIL_REASON_LABEL: Record<ReplayFailReason, string> = {
   invalid_extension: ".rofl 파일이 아닙니다",
@@ -33,21 +34,29 @@ const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 const MAX_REQUEST_BYTES = 90 * 1024 * 1024;
 const MAX_FILES_PER_REQUEST = 10;
 
-// 파일들을 요청당 용량·개수 한계 안에서 배치로 묶는다.
-const buildUploadBatches = (list: File[]): File[][] => {
-  const batches: File[][] = [];
-  let current: File[] = [];
+interface UploadUnit {
+  /** 화면 목록에 담긴 원본. 배치 처리 후 목록에서 제거할 때 식별자로 쓴다. */
+  original: File;
+  /** 실제로 전송할 파일. 슬라이싱이 불가능한 파일은 원본과 같다. */
+  upload: File;
+}
+
+// 파일들을 요청당 용량·개수 한계 안에서 배치로 묶는다. 기준은 원본이 아니라 전송할 크기라,
+// 슬라이싱된 파일은 개수 상한(10개)까지 한 요청에 담긴다.
+const buildUploadBatches = (list: UploadUnit[]): UploadUnit[][] => {
+  const batches: UploadUnit[][] = [];
+  let current: UploadUnit[] = [];
   let currentBytes = 0;
-  list.forEach((f) => {
-    const exceedsSize = currentBytes + f.size > MAX_REQUEST_BYTES;
+  list.forEach((unit) => {
+    const exceedsSize = currentBytes + unit.upload.size > MAX_REQUEST_BYTES;
     const exceedsCount = current.length >= MAX_FILES_PER_REQUEST;
     if (current.length > 0 && (exceedsSize || exceedsCount)) {
       batches.push(current);
       current = [];
       currentBytes = 0;
     }
-    current.push(f);
-    currentBytes += f.size;
+    current.push(unit);
+    currentBytes += unit.upload.size;
   });
   if (current.length > 0) batches.push(current);
   return batches;
@@ -227,9 +236,15 @@ const Replay: NextPage = () => {
     const total = files.length;
     setUploadProgress({ done: 0, total });
 
+    // 전송 전에 .rofl에서 백엔드가 쓰는 구간만 잘라낸다(파일당 12~18MB → 약 119KB).
+    // 마지막 4바이트만 읽으므로 파일 수가 많아도 순식간에 끝난다.
+    const units: UploadUnit[] = await Promise.all(
+      files.map(async (file) => ({ original: file, upload: await sliceRoflForUpload(file) }))
+    );
+
     // 요청 바디 한계(Cloudflare 100MB)를 넘지 않도록 용량·개수 기준으로 배치를 나눠 순차 전송한다.
     // 배치가 끝날 때마다 성공/실패 결과와 처리된 파일을 즉시 반영한다.
-    const batches = buildUploadBatches(files);
+    const batches = buildUploadBatches(units);
     const succeeded: ReplayUploadSuccess[] = [];
     const failed: ReplayUploadFailed[] = [];
     let done = 0;
@@ -239,14 +254,18 @@ const Replay: NextPage = () => {
       const batch = batches[b];
       try {
         // eslint-disable-next-line no-await-in-loop
-        const result = await uploadReplays(guildId, batch, username ?? "");
+        const result = await uploadReplays(
+          guildId,
+          batch.map((unit) => unit.upload),
+          username ?? ""
+        );
         succeeded.push(...(result.data?.succeeded ?? []));
         failed.push(...(result.data?.failed ?? []));
         done += batch.length;
         setUploadProgress({ done, total });
         setUploadResult({ succeeded: [...succeeded], failed: [...failed] });
         // 처리된 배치는 목록에서 즉시 제거(미처리분은 남겨 재시도 가능)
-        setFiles((prev) => prev.filter((f) => !batch.includes(f)));
+        setFiles((prev) => prev.filter((f) => !batch.some((unit) => unit.original === f)));
       } catch (err: unknown) {
         errorMsg = uploadErrorMessage(err);
         break;
