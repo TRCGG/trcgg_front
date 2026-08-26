@@ -11,6 +11,10 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
+// 자체 배경으로 화면을 꽉 채우고 푸터까지 직접 렌더링하는 페이지들.
+// 공용 좌우 여백과 공용 푸터를 모두 적용하지 않는다.
+const FULL_BLEED_PAGES = ["/about", "/faq", "/guide"];
+
 const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
   const [queryClient] = useState(() => new QueryClient());
   const router = useRouter();
@@ -21,14 +25,16 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
   // 페이지가 getLayout을 제공하면 그 레이아웃으로 감싸 렌더(라우트 전환 사이 레이아웃 유지)
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  // 아래 페이지들은 어두운 자체 배경 위에 푸터를 직접 렌더링하므로(사이 여백에 body 배경이 드러나는 것 방지) 공용 푸터 제외
-  const showFooter = !["/about", "/faq", "/guide"].includes(router.pathname);
+  const isFullBleed = FULL_BLEED_PAGES.includes(router.pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col">
-        <div className="flex-1">{getLayout(<Component {...pageProps} />)}</div>
-        {showFooter && <Footer />}
+        {/* 좌우 여백은 여기서만 준다. 푸터는 이 바깥에 있어야 화면을 꽉 채운다. */}
+        <div className={`flex-1 ${isFullBleed ? "" : "px-2 md:px-0"}`}>
+          {getLayout(<Component {...pageProps} />)}
+        </div>
+        {!isFullBleed && <Footer />}
       </div>
     </QueryClientProvider>
   );
