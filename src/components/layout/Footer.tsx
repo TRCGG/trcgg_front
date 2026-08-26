@@ -7,11 +7,11 @@ const linkClass = "cursor-pointer text-sm text-[#8A929C] hover:text-primary1";
 const Footer = () => (
   <footer className="mt-16 w-full border-t border-white/[0.06] bg-[#08090B] px-6 pb-11 pt-14 md:mt-24">
     <div className="mx-auto flex max-w-[1160px] flex-wrap justify-between gap-10">
-      <div className="max-w-[440px]">
+      <div className="max-w-[620px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={TextLogo.src} alt="GMOK" className="mb-3.5 h-[30px] w-auto" />
         <p className="mb-3.5 text-sm leading-relaxed text-[#8A929C]">
-          리그 오브 레전드 길드 내 전적 검색 서비스를 제공하는 GMOK입니다.
+          리그 오브 레전드 길드 내전 전적 검색 · 디스코드 내전 봇 서비스를 제공하는 GMOK입니다.
         </p>
         <div className="mb-1.5 text-sm font-bold text-[#C8D0DA]">Game Metrics Of Korea</div>
         <p className="m-0 text-[13px] leading-relaxed text-[#5E656E]">
