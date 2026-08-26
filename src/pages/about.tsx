@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image, { StaticImageData } from "next/image";
+import Link from "next/link";
 import AnchorNav from "@/components/layout/AnchorNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import MainLogo from "@/assets/images/mainLogo.png";
@@ -574,6 +575,11 @@ const About: NextPage = () => {
               디스코드에 봇을 초대하고 결과를 <b style={{ color: "#E8EDF3" }}>업로드</b>하면 끝.
             </p>
             <div className="flex flex-wrap justify-center gap-3.5">
+              <Link href="/guide">
+                <span className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#C8AA6E]/40 bg-white/[0.05] px-7 py-3.5 text-base font-bold text-[#E8EDF3] transition hover:-translate-y-0.5 hover:bg-[#C8AA6E]/10">
+                  자세한 이용 방법 보기
+                </span>
+              </Link>
               <a
                 href={DISCORD_INVITE_URL}
                 target="_blank"
