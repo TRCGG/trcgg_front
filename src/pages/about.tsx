@@ -284,12 +284,12 @@ const About: NextPage = () => {
             style={{ gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))" }}
           >
             {[
-              {
-                big: "무료",
-                bigColor: "#C8AA6E",
-                t: "기본 전적 검색",
-                d: "고급 기능은 추후 유료화 예정",
-              },
+              // {
+              //   big: "무료",
+              //   bigColor: "#C8AA6E",
+              //   t: "기본 전적 검색",
+              //   d: "고급 기능은 추후 유료화 예정",
+              // },
               {
                 big: "디스코드",
                 bigColor: "#6BB8FF",
