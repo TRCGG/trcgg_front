@@ -2,9 +2,9 @@ name: Code Review
 
 on:
   pull_request:
-    # synchronize(브랜치 푸시)를 뺐다. PR당 리뷰를 1회로 제한해 구독 한도 소모를
-    # 줄이기 위함이다. 재리뷰가 필요하면 PR을 닫았다 다시 열면 reopened로 다시 돈다.
-    types: [opened, reopened, ready_for_review]
+    # PR 생성(opened)과 이후 푸시(synchronize)마다 리뷰한다.
+    # 푸시가 잦으면 그만큼 구독 한도를 쓰므로 아래 concurrency로 중복 실행을 막는다.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -12,7 +12,8 @@ permissions:
   # 액션이 OIDC로 GitHub 토큰을 발급받는다. 없으면 인증 단계에서 바로 실패한다.
   id-token: write
 
-# 같은 PR에 실행이 겹치면 이전 것을 취소한다.
+# 연속 푸시 시 이전 리뷰 실행을 취소한다. 커밋을 잇달아 올릴 때
+# 폐기될 리뷰에 한도를 쓰는 것과 코멘트가 중첩되는 것을 함께 막는다.
 concurrency:
   group: code-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
