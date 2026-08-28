@@ -128,10 +128,16 @@ export interface MostPickStats {
   kda: string;
 }
 
+export interface MostPicksData {
+  mostPicks: MostPickStats[];
+  /** 라인 비중 계산용. position 필터와 무관하게 전체 라인이 내려온다. */
+  lines: LineStats[];
+}
+
 export interface MostPicksResponse {
   status: string;
   message: string;
-  data: MostPickStats[];
+  data: MostPicksData;
 }
 
 /**
