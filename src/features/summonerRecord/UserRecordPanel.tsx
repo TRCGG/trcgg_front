@@ -2,6 +2,7 @@ import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
 import CardWithTitle from "@/components/ui/CardWithTitle";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
 import {
+  LineStats,
   MatchDashboardData,
   MostPicksResponse,
   MostPickStats,
@@ -61,6 +62,18 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     enabled: !!guildId && !!riotName && !!riotTag,
   });
 
+  // 라인 비중은 most-picks 응답의 lines에서 온다. 아래에서 기록 없는 라인의 조회를
+  // 막는데, 막힌 동안 응답이 없다고 비중 표시까지 사라지면 안 되므로 마지막 값을 남긴다.
+  const [shareLines, setShareLines] = useState<LineStats[]>([]);
+  const dateRangeKey = JSON.stringify(championDateRange);
+
+  // 기록이 없는 라인은 조회해도 빈 목록이라 요청하지 않는다.
+  // lines를 아직 못 받았으면 막지 않는다 — 첫 진입은 ALL이라 그대로 통과한다.
+  const hasRecordInPosition =
+    championPosition === "ALL" ||
+    shareLines.length === 0 ||
+    shareLines.some((line) => line.position === championPosition && line.totalCount > 0);
+
   const {
     data: mostPicksData,
     isLoading: isLoadingMostPicks,
@@ -76,8 +89,19 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         position: championPosition,
       }),
     staleTime: 3 * 60 * 1000,
-    enabled: activeTab === "champion" && !!guildId && !!riotName,
+    enabled: activeTab === "champion" && !!guildId && !!riotName && hasRecordInPosition,
   });
+
+  // 기간이 바뀌면 이전 기간의 lines로 판단하지 않도록 비운다. 비면 게이트가 열려
+  // 새 기간의 lines를 다시 받아온다.
+  useEffect(() => {
+    setShareLines([]);
+  }, [dateRangeKey]);
+
+  useEffect(() => {
+    const lines = mostPicksData?.data?.data?.lines;
+    if (lines) setShareLines(lines);
+  }, [mostPicksData]);
 
   const allRecords = recentRecordsData?.data?.data || [];
   const displayedRecords = allRecords.slice(0, displayCount);
@@ -107,7 +131,6 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   ).position;
 
   const totalGames = data.lines.reduce((sum, line) => sum + line.totalCount, 0);
-  const shareLines = mostPicksData?.data?.data?.lines ?? [];
   const laneShareTotal = shareLines.reduce((sum, line) => sum + line.totalCount, 0);
   const championLaneShare = (position: Position) => {
     if (laneShareTotal === 0) return 0;
