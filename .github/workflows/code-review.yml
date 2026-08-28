@@ -7,6 +7,8 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  # 액션이 OIDC로 GitHub 토큰을 발급받는다. 없으면 인증 단계에서 바로 실패한다.
+  id-token: write
 
 # 연속 푸시 시 이전 리뷰 실행을 취소한다. 같은 PR에 리뷰가 중첩되는 것과
 # 폐기될 실행에 토큰을 쓰는 것을 함께 막는다.
