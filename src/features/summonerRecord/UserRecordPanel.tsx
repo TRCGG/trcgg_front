@@ -67,12 +67,12 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   const [shareLines, setShareLines] = useState<LineStats[]>([]);
   const dateRangeKey = JSON.stringify(championDateRange);
 
-  // 기록이 없는 라인은 조회해도 빈 목록이라 요청하지 않는다.
+  // 라인별 기록 유무. 쿼리를 막을지와 버튼을 비활성화할지 둘 다 이 판별을 쓴다.
   // lines를 아직 못 받았으면 막지 않는다 — 첫 진입은 ALL이라 그대로 통과한다.
-  const hasRecordInPosition =
-    championPosition === "ALL" ||
+  const hasRecordInPosition = (position: Position) =>
+    position === "ALL" ||
     shareLines.length === 0 ||
-    shareLines.some((line) => line.position === championPosition && line.totalCount > 0);
+    shareLines.some((line) => line.position === position && line.totalCount > 0);
 
   const {
     data: mostPicksData,
@@ -89,7 +89,8 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         position: championPosition,
       }),
     staleTime: 3 * 60 * 1000,
-    enabled: activeTab === "champion" && !!guildId && !!riotName && hasRecordInPosition,
+    enabled:
+      activeTab === "champion" && !!guildId && !!riotName && hasRecordInPosition(championPosition),
   });
 
   // 기간이 바뀌면 이전 기간의 lines로 판단하지 않도록 비운다. 비면 게이트가 열려
@@ -272,6 +273,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
                 selectedPosition={championPosition}
                 onSelectPosition={setChampionPosition}
                 share={laneShareTotal > 0 ? championLaneShare : undefined}
+                isDisabled={(position) => !hasRecordInPosition(position)}
               />
             </div>
 
