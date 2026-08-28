@@ -42,9 +42,6 @@ jobs:
           # anthropic_api_key를 함께 두면 안 된다. 키 쪽으로 인증을 시도한다.
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: false
-          # 진단용. 첫 성공 실행을 확인한 뒤 제거한다.
-          # 켜두면 Claude의 전체 출력이 Actions 로그에 남는다.
-          show_full_output: true
 
           prompt: |
             REPO: ${{ github.repository }}
