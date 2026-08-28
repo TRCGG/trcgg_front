@@ -11,7 +11,7 @@ import {
 import MatchItem from "@/features/matchHistory/MatchItem";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getMostPicks, getRecentRecords } from "@/services/record";
 import PositionStats from "@/features/matchHistory/PositionStats";
@@ -32,8 +32,6 @@ interface Props {
 }
 
 type ChampionSortType = "gameCount" | "winRate" | "kda";
-
-const SHARE_LANES = ["TOP", "JUG", "MID", "ADC", "SUP"] as const;
 
 const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) => {
   const RECORD_DISPLAY_COUNT = 10;
@@ -81,26 +79,6 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     enabled: activeTab === "champion" && !!guildId && !!riotName,
   });
 
-  // 라인 비중(%) 계산 — most-picks 응답엔 포지션 정보가 없으므로, 선택한
-  // 기간(championDateRange)에 맞춰 라인별로 most-picks를 조회해 각 라인의 플레이
-  // 수를 합산한다. queryKey가 메인 쿼리와 동일한 규칙이라 특정 라인 선택 시엔
-  // 캐시를 공유한다. 기간(시즌)을 바꾸면 queryKey가 바뀌어 자동 재계산된다.
-  const laneShareQueries = useQueries({
-    queries: SHARE_LANES.map((lane) => ({
-      queryKey: ["mostPicks", riotName, guildId, championDateRange, lane],
-      queryFn: () =>
-        getMostPicks(riotName, guildId!, {
-          datePreset: championDateRange.datePreset,
-          season: championDateRange.season,
-          fromMonth: championDateRange.fromMonth,
-          toMonth: championDateRange.toMonth,
-          position: lane,
-        }),
-      staleTime: 3 * 60 * 1000,
-      enabled: activeTab === "champion" && !!guildId && !!riotName,
-    })),
-  });
-
   const allRecords = recentRecordsData?.data?.data || [];
   const displayedRecords = allRecords.slice(0, displayCount);
   const hasMoreData = allRecords.length > displayCount;
@@ -129,15 +107,12 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   ).position;
 
   const totalGames = data.lines.reduce((sum, line) => sum + line.totalCount, 0);
-  // 라인별 플레이 수 = 각 라인 most-picks 응답의 totalCount 합
-  const laneShareCounts = SHARE_LANES.map((lane, i) =>
-    (laneShareQueries[i].data?.data?.data ?? []).reduce((sum, champ) => sum + champ.totalCount, 0)
-  );
-  const laneShareTotal = laneShareCounts.reduce((sum, count) => sum + count, 0);
+  const shareLines = mostPicksData?.data?.data?.lines ?? [];
+  const laneShareTotal = shareLines.reduce((sum, line) => sum + line.totalCount, 0);
   const championLaneShare = (position: Position) => {
-    const index = SHARE_LANES.indexOf(position as (typeof SHARE_LANES)[number]);
-    if (index < 0 || laneShareTotal === 0) return 0;
-    return Math.round((laneShareCounts[index] / laneShareTotal) * 100);
+    if (laneShareTotal === 0) return 0;
+    const count = shareLines.find((line) => line.position === position)?.totalCount ?? 0;
+    return Math.round((count / laneShareTotal) * 100);
   };
   const totalWins = data.lines.reduce((sum, line) => sum + line.win, 0);
   const totalLoses = data.lines.reduce((sum, line) => sum + line.lose, 0);
@@ -165,7 +140,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   };
 
   const sortedChampions = useMemo((): MostPickStats[] => {
-    const source = mostPicksData?.data?.data ?? [];
+    const source = mostPicksData?.data?.data?.mostPicks ?? [];
     const sorted = [...source];
     const multiplier = championSortOrder === "asc" ? -1 : 1;
     if (championSortType === "winRate") {
