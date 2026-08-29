@@ -2,6 +2,7 @@ import UserStatsOverview from "@/features/matchHistory/UserStatsOverview";
 import CardWithTitle from "@/components/ui/CardWithTitle";
 import MostPickRank from "@/features/matchHistory/MostPickRank";
 import {
+  LineStats,
   MatchDashboardData,
   MostPicksResponse,
   MostPickStats,
@@ -11,7 +12,7 @@ import {
 import MatchItem from "@/features/matchHistory/MatchItem";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "@/services/apiService";
 import { getMostPicks, getRecentRecords } from "@/services/record";
 import PositionStats from "@/features/matchHistory/PositionStats";
@@ -32,8 +33,6 @@ interface Props {
 }
 
 type ChampionSortType = "gameCount" | "winRate" | "kda";
-
-const SHARE_LANES = ["TOP", "JUG", "MID", "ADC", "SUP"] as const;
 
 const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) => {
   const RECORD_DISPLAY_COUNT = 10;
@@ -63,6 +62,18 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     enabled: !!guildId && !!riotName && !!riotTag,
   });
 
+  // 라인 비중은 most-picks 응답의 lines에서 온다. 아래에서 기록 없는 라인의 조회를
+  // 막는데, 막힌 동안 응답이 없다고 비중 표시까지 사라지면 안 되므로 마지막 값을 남긴다.
+  const [shareLines, setShareLines] = useState<LineStats[]>([]);
+  const dateRangeKey = JSON.stringify(championDateRange);
+
+  // 라인별 기록 유무. 쿼리를 막을지와 버튼을 비활성화할지 둘 다 이 판별을 쓴다.
+  // lines를 아직 못 받았으면 막지 않는다 — 첫 진입은 ALL이라 그대로 통과한다.
+  const hasRecordInPosition = (position: Position) =>
+    position === "ALL" ||
+    shareLines.length === 0 ||
+    shareLines.some((line) => line.position === position && line.totalCount > 0);
+
   const {
     data: mostPicksData,
     isLoading: isLoadingMostPicks,
@@ -78,28 +89,20 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
         position: championPosition,
       }),
     staleTime: 3 * 60 * 1000,
-    enabled: activeTab === "champion" && !!guildId && !!riotName,
+    enabled:
+      activeTab === "champion" && !!guildId && !!riotName && hasRecordInPosition(championPosition),
   });
 
-  // 라인 비중(%) 계산 — most-picks 응답엔 포지션 정보가 없으므로, 선택한
-  // 기간(championDateRange)에 맞춰 라인별로 most-picks를 조회해 각 라인의 플레이
-  // 수를 합산한다. queryKey가 메인 쿼리와 동일한 규칙이라 특정 라인 선택 시엔
-  // 캐시를 공유한다. 기간(시즌)을 바꾸면 queryKey가 바뀌어 자동 재계산된다.
-  const laneShareQueries = useQueries({
-    queries: SHARE_LANES.map((lane) => ({
-      queryKey: ["mostPicks", riotName, guildId, championDateRange, lane],
-      queryFn: () =>
-        getMostPicks(riotName, guildId!, {
-          datePreset: championDateRange.datePreset,
-          season: championDateRange.season,
-          fromMonth: championDateRange.fromMonth,
-          toMonth: championDateRange.toMonth,
-          position: lane,
-        }),
-      staleTime: 3 * 60 * 1000,
-      enabled: activeTab === "champion" && !!guildId && !!riotName,
-    })),
-  });
+  // 기간이 바뀌면 이전 기간의 lines로 판단하지 않도록 비운다. 비면 게이트가 열려
+  // 새 기간의 lines를 다시 받아온다.
+  useEffect(() => {
+    setShareLines([]);
+  }, [dateRangeKey]);
+
+  useEffect(() => {
+    const lines = mostPicksData?.data?.data?.lines;
+    if (lines) setShareLines(lines);
+  }, [mostPicksData]);
 
   const allRecords = recentRecordsData?.data?.data || [];
   const displayedRecords = allRecords.slice(0, displayCount);
@@ -129,15 +132,11 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   ).position;
 
   const totalGames = data.lines.reduce((sum, line) => sum + line.totalCount, 0);
-  // 라인별 플레이 수 = 각 라인 most-picks 응답의 totalCount 합
-  const laneShareCounts = SHARE_LANES.map((lane, i) =>
-    (laneShareQueries[i].data?.data?.data ?? []).reduce((sum, champ) => sum + champ.totalCount, 0)
-  );
-  const laneShareTotal = laneShareCounts.reduce((sum, count) => sum + count, 0);
+  const laneShareTotal = shareLines.reduce((sum, line) => sum + line.totalCount, 0);
   const championLaneShare = (position: Position) => {
-    const index = SHARE_LANES.indexOf(position as (typeof SHARE_LANES)[number]);
-    if (index < 0 || laneShareTotal === 0) return 0;
-    return Math.round((laneShareCounts[index] / laneShareTotal) * 100);
+    if (laneShareTotal === 0) return 0;
+    const count = shareLines.find((line) => line.position === position)?.totalCount ?? 0;
+    return Math.round((count / laneShareTotal) * 100);
   };
   const totalWins = data.lines.reduce((sum, line) => sum + line.win, 0);
   const totalLoses = data.lines.reduce((sum, line) => sum + line.lose, 0);
@@ -165,7 +164,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   };
 
   const sortedChampions = useMemo((): MostPickStats[] => {
-    const source = mostPicksData?.data?.data ?? [];
+    const source = mostPicksData?.data?.data?.mostPicks ?? [];
     const sorted = [...source];
     const multiplier = championSortOrder === "asc" ? -1 : 1;
     if (championSortType === "winRate") {
@@ -274,6 +273,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
                 selectedPosition={championPosition}
                 onSelectPosition={setChampionPosition}
                 share={laneShareTotal > 0 ? championLaneShare : undefined}
+                isDisabled={(position) => !hasRecordInPosition(position)}
               />
             </div>
 
