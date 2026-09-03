@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import React, { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
+import NoIndex from "@/components/layout/NoIndex";
 import TitleBox from "@/components/ui/TitleBox";
 import Modal from "@/components/modal/Modal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
@@ -282,6 +283,7 @@ const Replay: NextPage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
+      <NoIndex />
       <SummonerPageHeader
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
