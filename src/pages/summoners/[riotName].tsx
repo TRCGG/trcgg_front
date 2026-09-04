@@ -6,6 +6,7 @@ import { ApiResponse } from "@/services/apiService";
 import { UserRecordResponse, MultiplePlayerInfo, MatchDashboardData } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
+import NoIndex from "@/components/layout/NoIndex";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -84,6 +85,7 @@ const RiotProfilePage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
+      <NoIndex />
       <SummonerPageHeader
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}

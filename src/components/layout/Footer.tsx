@@ -2,6 +2,8 @@ import Link from "next/link";
 import TextLogo from "@/assets/images/textLogo.png";
 import { DISCORD_INVITE_URL } from "@/constants/links";
 
+// 자식은 반드시 <a>여야 한다. Next 12의 next/link는 자식이 <span>이면 href를 렌더하지
+// 않아, 푸터가 유일한 전역 내부 링크인데도 크롤러가 콘텐츠 페이지로 이동할 수 없게 된다.
 const linkClass = "cursor-pointer text-sm text-[#8A929C] hover:text-primary1";
 
 const Footer = () => (
@@ -23,16 +25,16 @@ const Footer = () => (
           <div className="mb-3.5 text-[13px] font-bold tracking-wide text-[#8A929C]">서비스</div>
           <div className="flex flex-col gap-2.5">
             <Link href="/">
-              <span className={linkClass}>홈</span>
+              <a className={linkClass}>홈</a>
             </Link>
             <Link href="/about">
-              <span className={linkClass}>서비스 소개</span>
+              <a className={linkClass}>서비스 소개</a>
             </Link>
             <Link href="/guide">
-              <span className={linkClass}>이용방법</span>
+              <a className={linkClass}>이용방법</a>
             </Link>
             <Link href="/faq">
-              <span className={linkClass}>자주 묻는 질문</span>
+              <a className={linkClass}>자주 묻는 질문</a>
             </Link>
           </div>
         </div>
@@ -43,10 +45,10 @@ const Footer = () => (
               Discord
             </a>
             <Link href="/privacy">
-              <span className={linkClass}>개인정보처리방침</span>
+              <a className={linkClass}>개인정보처리방침</a>
             </Link>
             <Link href="/terms">
-              <span className={linkClass}>이용약관</span>
+              <a className={linkClass}>이용약관</a>
             </Link>
           </div>
         </div>
