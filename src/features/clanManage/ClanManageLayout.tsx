@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import { useRouter } from "next/router";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
+import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
@@ -51,6 +52,7 @@ const ClanManageLayout = ({ title, description, children }: Props) => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
+      <NoIndex />
       <SummonerPageHeader
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
