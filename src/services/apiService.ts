@@ -15,6 +15,11 @@ interface RequestOptions {
 interface ApiResponse<T> {
   data: T | null;
   error: string | null;
+  /**
+   * 백엔드 에러의 RFC 7807 Problem Details type (예: "competition-in-progress-exists").
+   * 같은 상태 코드에 사유가 여럿인 경우를 구분하는 데 쓴다.
+   */
+  errorType?: string | null;
   status: number;
   headers?: Headers;
 }
@@ -243,14 +248,22 @@ class ApiService {
           headers: response.headers,
         };
       }
+      // 백엔드 에러는 Problem Details({ type, title, status, detail })로 오고 message가 없다.
+      // message만 보던 탓에 모든 비즈니스 에러가 "Error: 4xx"로 뭉개졌어서 detail·type도 읽는다.
+      const errorBody =
+        typeof interceptedResponse.data === "object" && interceptedResponse.data !== null
+          ? (interceptedResponse.data as Record<string, unknown>)
+          : null;
+      const errorMessage = (() => {
+        if (errorBody && typeof errorBody.message === "string") return errorBody.message;
+        if (errorBody && typeof errorBody.detail === "string") return errorBody.detail;
+        return `Error: ${response.status}`;
+      })();
+
       const error = {
         data: null,
-        error:
-          typeof interceptedResponse.data === "object" &&
-          interceptedResponse.data !== null &&
-          "message" in interceptedResponse.data
-            ? String(interceptedResponse.data.message)
-            : `Error: ${response.status}`,
+        error: errorMessage,
+        errorType: errorBody && typeof errorBody.type === "string" ? errorBody.type : null,
         status: response.status,
         headers: response.headers,
       };
