@@ -185,6 +185,13 @@ export interface RecentGameRecord {
   gameId: string;
   season: string;
   createDate: string; // ISO format e.g. "2025-12-05T12:00:00.000Z"
+  /** 1=일반내전/2=스크림/3=본경기 */
+  gameType?: string;
+  competitionId?: number | null;
+  competitionName?: string | null;
+  /** 대회 범위(competitionId 지정) 조회에서만 값이 찬다 — 그 밖에서는 null. */
+  teamName?: string | null;
+  opponentTeamName?: string | null;
   gameResult: "승" | "패";
   gameTeam: "red" | "blue";
   timePlayed: number;
