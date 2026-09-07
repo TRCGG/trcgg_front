@@ -99,7 +99,8 @@ const CompetitionApplyPage: NextPage = () => {
   const [account, setAccount] = useState<PlayerInfo | null>(null);
   const [mainPosition, setMainPosition] = useState<CompetitionPosition | null>(null);
   const [subPositions, setSubPositions] = useState<CompetitionSubPosition[]>([]);
-  const [championIds, setChampionIds] = useState<string[]>([]);
+  // 신청 API는 champNameEng(영문명)을 받는다. 내부 id를 보내면 400 champion-not-found.
+  const [championNames, setChampionNames] = useState<string[]>([]);
   const [availableTime, setAvailableTime] = useState("");
   const [captainAvailable, setCaptainAvailable] = useState<boolean | null>(null);
   const [practiceLevel, setPracticeLevel] = useState<PracticeLevel | null>(null);
@@ -137,7 +138,7 @@ const CompetitionApplyPage: NextPage = () => {
     if (!mine) return;
     setMainPosition(mine.mainPosition);
     setSubPositions(mine.subPositions);
-    setChampionIds(mine.champions.map((champion) => champion.id));
+    setChampionNames(mine.champions.map((champion) => champion.champNameEng));
     setAvailableTime(mine.availableTime ?? "");
     setCaptainAvailable(mine.captainAvailable);
     setPracticeLevel(mine.practiceLevel);
@@ -183,7 +184,7 @@ const CompetitionApplyPage: NextPage = () => {
         playerCode: (account as PlayerInfo).playerCode,
         mainPosition: mainPosition as CompetitionPosition,
         subPositions,
-        champions: championIds,
+        champions: championNames,
         availableTime: availableTime.trim() || null,
         captainAvailable: captainAvailable as boolean,
         practiceLevel: practiceLevel as PracticeLevel,
@@ -270,11 +271,11 @@ const CompetitionApplyPage: NextPage = () => {
           </Field>
         </div>
 
-        <Field label={`주 챔피언 ${championIds.length}/3`} hint="선택">
+        <Field label={`주 챔피언 ${championNames.length}/3`} hint="선택">
           <ChampionPicker
             champions={champions}
-            value={championIds}
-            onChange={setChampionIds}
+            value={championNames}
+            onChange={setChampionNames}
             disabled={busy}
           />
         </Field>

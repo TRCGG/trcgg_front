@@ -17,7 +17,9 @@ const CompetitionCard = ({ competition, isManager }: Props) => {
   const router = useRouter();
   const status = getCompetitionStatusMeta(competition.status);
   const isClosed = competition.status === "CLOSED";
-  const showApply = !isManager && competition.status === "RECRUITING";
+  // 운영진도 대회에 뛴다. 신청 라우트에 manager 미들웨어가 없어 백엔드도 허용한다.
+  // (프로토타입의 isAdmin은 운영진/참가자 화면을 번갈아 보기 위한 장치였을 뿐이다.)
+  const showApply = competition.status === "RECRUITING";
   const showApproval = isManager && competition.pendingCount > 0;
 
   const go = (path: string) => () => router.push(`/competitions/${competition.id}${path}`);

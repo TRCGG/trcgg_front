@@ -4,6 +4,7 @@ import buildQuery from "@/utils/buildQuery";
 import {
   ApplicationDecideInput,
   ApplicationListResponse,
+  ApplicationMutationResponse,
   ApplicationResponse,
   CompetitionApplicationStatus,
   CompetitionApplicationUpdateInput,
@@ -167,7 +168,7 @@ export const applyToCompetition = async (
   guildId: string,
   competitionId: number,
   body: CompetitionApplyInput
-): Promise<ApiResponse<ApplicationResponse>> => {
+): Promise<ApiResponse<ApplicationMutationResponse>> => {
   try {
     return await api.post(`${BASE(guildId)}/${competitionId}/applications`, body);
   } catch (error) {
@@ -191,7 +192,7 @@ export const updateMyApplication = async (
   guildId: string,
   competitionId: number,
   body: CompetitionApplicationUpdateInput
-): Promise<ApiResponse<ApplicationResponse>> => {
+): Promise<ApiResponse<ApplicationMutationResponse>> => {
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}/applications/me`, body);
   } catch (error) {

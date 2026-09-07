@@ -117,8 +117,9 @@ export interface CompetitionApplicationItem {
 export interface CompetitionApplyInput {
   playerCode: string;
   mainPosition: CompetitionPosition;
+  /** ALL은 단독으로만 유효하고 주포지션과 겹칠 수 없다(400 sub-position-invalid). */
   subPositions?: CompetitionSubPosition[];
-  /** champion.id 최대 3개 */
+  /** 챔피언 영문명(champNameEng) 최대 3개. 내부 id를 보내면 400 champion-not-found. */
   champions?: string[];
   availableTime?: string | null;
   captainAvailable: boolean;
@@ -314,6 +315,23 @@ export interface ApplicationResponse {
   status: string;
   message: string;
   data: CompetitionApplicationItem | null;
+}
+
+/**
+ * 신청·수정(POST·PATCH /applications/me) 응답. 목록·본인조회와 달리 champions가
+ * 객체 배열이 아니라 영문명 문자열 배열이다(백엔드 toChampionNames).
+ */
+export interface ApplicationMutationResponse {
+  status: string;
+  message: string;
+  data:
+    | (Omit<
+        CompetitionApplicationItem,
+        "champions" | "riotName" | "riotNameTag" | "appliedByDisplayName"
+      > & {
+        champions: string[];
+      })
+    | null;
 }
 
 export interface TeamListResponse {

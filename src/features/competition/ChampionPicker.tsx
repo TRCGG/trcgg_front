@@ -5,7 +5,10 @@ import { MAX_APPLICATION_CHAMPIONS } from "@/data/types/competition";
 
 interface Props {
   champions: ChampionItem[];
-  /** 선택된 champion.id 목록 (최대 3개) */
+  /**
+   * 선택된 챔피언의 champNameEng 목록 (최대 3개).
+   * 신청 API가 내부 id가 아니라 영문명을 받는다(inArray(champion.champNameEng, ...)).
+   */
   value: string[];
   onChange: (ids: string[]) => void;
   disabled?: boolean;
@@ -20,16 +23,16 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
   const containerRef = useRef<HTMLDivElement>(null);
   useClickOutside(containerRef, () => setOpenSlot(null));
 
-  const byId = useMemo(() => {
+  const byNameEng = useMemo(() => {
     const map = new Map<string, ChampionItem>();
-    champions.forEach((champion) => map.set(champion.id, champion));
+    champions.forEach((champion) => map.set(champion.champNameEng, champion));
     return map;
   }, [champions]);
 
   const candidates = useMemo(() => {
     const keyword = query.trim().toLowerCase();
     return champions
-      .filter((champion) => !value.includes(champion.id))
+      .filter((champion) => !value.includes(champion.champNameEng))
       .filter(
         (champion) =>
           !keyword ||
@@ -39,11 +42,11 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
       .slice(0, 50);
   }, [champions, value, query]);
 
-  const setSlot = (slot: number, id: string | null) => {
+  const setSlot = (slot: number, nameEng: string | null) => {
     const next = [...value];
-    if (id === null) next.splice(slot, 1);
-    else if (slot < next.length) next[slot] = id;
-    else next.push(id);
+    if (nameEng === null) next.splice(slot, 1);
+    else if (slot < next.length) next[slot] = nameEng;
+    else next.push(nameEng);
     onChange(next);
     setOpenSlot(null);
     setQuery("");
@@ -53,8 +56,8 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
     <div ref={containerRef} className="relative">
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         {SLOTS.map((slot) => {
-          const id = value[slot];
-          const champion = id ? byId.get(id) : undefined;
+          const nameEng = value[slot];
+          const champion = nameEng ? byNameEng.get(nameEng) : undefined;
           const isOpen = openSlot === slot;
           return (
             <div key={slot} className="flex items-center gap-1">
@@ -123,7 +126,7 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
                 <button
                   type="button"
                   key={champion.id}
-                  onClick={() => setSlot(openSlot, champion.id)}
+                  onClick={() => setSlot(openSlot, champion.champNameEng)}
                   className="flex w-full items-center gap-2 border-b border-cardBorder px-3 py-2 text-left last:border-0 hover:bg-grayHover"
                 >
                   <span className="truncate text-[13px] text-primary1">{champion.champName}</span>
