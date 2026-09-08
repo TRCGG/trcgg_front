@@ -18,7 +18,6 @@ import {
   assignMatchTeams,
   changeCompetitionStatus,
   changeMatchGameType,
-  closeCompetitionApplications,
   getCompetitionChampionStatistics,
   getCompetitionMatches,
   getCompetitionUserStatistics,
@@ -152,15 +151,11 @@ const CompetitionBoardPage: NextPage = () => {
   // 대회 관련 쿼리를 통째로 무효화해 어느 화면으로 나가도 숫자가 맞게 둔다.
   const refreshAll = () => invalidateCompetitions();
 
+  // 상태 전이는 PATCH /status 하나로 통일한다. /close는 봇 !대회종료용 별칭이라
+  // 웹에서 부를 이유가 없고, 이름 때문에 "모집 마감"으로 오해해 RECRUITING에서
+  // CLOSED로 보내다 409 competition-invalid-transition이 났었다.
   const lifecycleMutation = useMutation({
-    mutationFn: (action: "close" | "end" | "reopen") => {
-      if (action === "close") return closeCompetitionApplications(guildId, validId as number);
-      return changeCompetitionStatus(
-        guildId,
-        validId as number,
-        action === "end" ? "CLOSED" : "IN_PROGRESS"
-      );
-    },
+    mutationFn: (to: CompetitionStatus) => changeCompetitionStatus(guildId, validId as number, to),
     onSuccess: async (res) => {
       if (res.error) {
         setErrorMsg(competitionErrorMessage(res));
@@ -347,9 +342,9 @@ const CompetitionBoardPage: NextPage = () => {
           isManager={isManager}
           busy={busy}
           onUpload={() => router.push("/replay")}
-          onCloseApplications={() => lifecycleMutation.mutate("close")}
+          onCloseApplications={() => lifecycleMutation.mutate("IN_PROGRESS")}
           onEnd={() => setEndModalOpen(true)}
-          onReopen={() => lifecycleMutation.mutate("reopen")}
+          onReopen={() => lifecycleMutation.mutate("IN_PROGRESS")}
           onRoster={() => router.push(`/competitions/${validId}/roster`)}
           onEdit={() => {
             setEditName(competition.name);
@@ -595,7 +590,7 @@ const CompetitionBoardPage: NextPage = () => {
             </button>
             <button
               type="button"
-              onClick={() => lifecycleMutation.mutate("end")}
+              onClick={() => lifecycleMutation.mutate("CLOSED")}
               disabled={busy}
               className="h-9 flex-1 rounded bg-bluePrimary text-[13px] text-white disabled:opacity-50"
             >

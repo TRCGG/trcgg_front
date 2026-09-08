@@ -102,18 +102,6 @@ export const updateCompetition = async (
   }
 };
 
-/** 모집 마감 — 신청을 닫고 IN_PROGRESS로 넘긴다. */
-export const closeCompetitionApplications = async (
-  guildId: string,
-  competitionId: number
-): Promise<ApiResponse<CompetitionResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}/close`, {});
-  } catch (error) {
-    return errResponse(error);
-  }
-};
-
 export const changeCompetitionStatus = async (
   guildId: string,
   competitionId: number,
