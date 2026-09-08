@@ -20,7 +20,13 @@ const CompetitionCard = ({ competition, isManager }: Props) => {
   // 운영진도 대회에 뛴다. 신청 라우트에 manager 미들웨어가 없어 백엔드도 허용한다.
   // (프로토타입의 isAdmin은 운영진/참가자 화면을 번갈아 보기 위한 장치였을 뿐이다.)
   const showApply = competition.status === "RECRUITING";
-  const showApproval = isManager && competition.pendingCount > 0;
+  // 거절한 신청도 되살릴 수 있어야 하므로 대기 건수와 무관하게 모집중이면 항상 열어 둔다.
+  // (마지막 신청자를 거절하면 pendingCount가 0이 되어 승인 화면에 갈 길이 끊겼다.)
+  // 마감 뒤에도 대기 건이 남아 있으면 처리할 수 있게 둔다.
+  const showApproval =
+    isManager && (competition.status === "RECRUITING" || competition.pendingCount > 0);
+  const approvalLabel =
+    competition.pendingCount > 0 ? `신청 ${competition.pendingCount}건 승인` : "참가 신청 관리";
 
   const go = (path: string) => () => router.push(`/competitions/${competition.id}${path}`);
 
@@ -66,9 +72,13 @@ const CompetitionCard = ({ competition, isManager }: Props) => {
           <button
             type="button"
             onClick={go("/applications")}
-            className="h-9 whitespace-nowrap rounded border border-blueText bg-darkBg1 px-3.5 text-[13px] text-blueText"
+            className={`h-9 whitespace-nowrap rounded border bg-darkBg1 px-3.5 text-[13px] ${
+              competition.pendingCount > 0
+                ? "border-blueText text-blueText"
+                : "border-border2 text-primary1"
+            }`}
           >
-            신청 {competition.pendingCount}건 승인
+            {approvalLabel}
           </button>
         )}
         <button
