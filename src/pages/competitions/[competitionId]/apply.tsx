@@ -220,7 +220,14 @@ const CompetitionApplyPage: NextPage = () => {
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
   });
 
+  // 백엔드 updateMyApplication·deleteMyApplication에 assertRecruiting이 걸려 있어
+  // 모집중이 아닌 대회에서는 수정·취소가 409다. 폼을 읽기 전용으로 둔다.
+  const readOnly = !!competition && competition.status !== "RECRUITING";
+  // 승인은 특정 계정에 대한 판단이다. 계정을 바꾸면 신청서와 로스터의 playerCode가
+  // 어긋나므로(로스터는 옛 계정을 들고 있다) 승인 후에는 계정을 잠그고 재신청으로 돌린다.
+  const accountLocked = readOnly || mine?.status === "APPROVED";
   const busy = submitMutation.isPending || cancelMutation.isPending;
+  const inputsLocked = busy || readOnly;
   const submitLabel = (() => {
     if (submitMutation.isPending) return "저장 중...";
     return isEditing ? "신청서 수정 저장" : "참가 신청";
@@ -234,8 +241,15 @@ const CompetitionApplyPage: NextPage = () => {
             guildId={guildId}
             selected={account}
             onSelect={setAccount}
-            disabled={busy}
+            disabled={accountLocked}
           />
+          {accountLocked && (
+            <p className="text-[11px] leading-relaxed text-primary3">
+              {readOnly
+                ? "신청이 마감되어 계정을 바꿀 수 없습니다."
+                : "승인된 신청서는 계정을 바꿀 수 없습니다. 다른 계정으로 참가하려면 신청을 취소한 뒤 다시 신청해주세요."}
+            </p>
+          )}
         </Field>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
@@ -246,7 +260,7 @@ const CompetitionApplyPage: NextPage = () => {
                   key={position}
                   active={mainPosition === position}
                   onClick={() => pickMain(position)}
-                  disabled={busy}
+                  disabled={inputsLocked}
                   className="flex-1 py-2 text-center text-xs"
                 >
                   {positionLabel(position)}
@@ -261,7 +275,7 @@ const CompetitionApplyPage: NextPage = () => {
                   key={position}
                   active={subPositions.includes(position)}
                   onClick={() => toggleSub(position)}
-                  disabled={busy || position === mainPosition}
+                  disabled={inputsLocked || position === mainPosition}
                   className="flex-1 py-2 text-center text-xs"
                 >
                   {position === "ALL" ? "전체" : positionLabel(position as CompetitionPosition)}
@@ -276,7 +290,7 @@ const CompetitionApplyPage: NextPage = () => {
             champions={champions}
             value={championNames}
             onChange={setChampionNames}
-            disabled={busy}
+            disabled={inputsLocked}
           />
         </Field>
 
@@ -285,7 +299,7 @@ const CompetitionApplyPage: NextPage = () => {
             value={availableTime}
             onChange={(e) => setAvailableTime(e.target.value.slice(0, TIME_MAX))}
             placeholder="예: 평일 8~12시, 주말 프리 / 화요일만 불가"
-            disabled={busy}
+            disabled={inputsLocked}
             className="h-[38px] rounded border border-border2 bg-darkBg1 px-3 text-[13px] text-primary1 outline-none focus:border-blueText2"
           />
         </Field>
@@ -300,7 +314,7 @@ const CompetitionApplyPage: NextPage = () => {
                 key={option.label}
                 active={captainAvailable === option.value}
                 onClick={() => setCaptainAvailable(option.value)}
-                disabled={busy}
+                disabled={inputsLocked}
                 className="px-6 py-2"
               >
                 {option.label}
@@ -316,7 +330,7 @@ const CompetitionApplyPage: NextPage = () => {
                 key={option.value}
                 active={practiceLevel === option.value}
                 onClick={() => setPracticeLevel(option.value)}
-                disabled={busy}
+                disabled={inputsLocked}
                 className="whitespace-nowrap px-4 py-2"
               >
                 {option.label}
@@ -341,7 +355,7 @@ const CompetitionApplyPage: NextPage = () => {
             value={comment}
             onChange={(e) => setComment(e.target.value.slice(0, COMMENT_MAX))}
             placeholder="현황판과 팀 편성 화면에 함께 표시됩니다 (최대 100자)"
-            disabled={busy}
+            disabled={inputsLocked}
             className="resize-none rounded border border-border2 bg-darkBg1 px-3 py-2.5 text-[13px] text-primary1 outline-none focus:border-blueText2"
           />
         </div>
@@ -349,6 +363,13 @@ const CompetitionApplyPage: NextPage = () => {
         {errorMsg && (
           <div className="rounded border border-redLighten bg-redDarken px-3.5 py-3 text-sm text-redText">
             {errorMsg}
+          </div>
+        )}
+
+        {readOnly && (
+          <div className="rounded border border-border2 bg-darkBg1 px-3.5 py-3 text-xs leading-relaxed text-primary2">
+            참가 신청이 마감되어 신청서를 수정하거나 취소할 수 없습니다. 내용 변경이 필요하면
+            운영진에게 문의해주세요.
           </div>
         )}
 
@@ -360,26 +381,28 @@ const CompetitionApplyPage: NextPage = () => {
           >
             돌아가기
           </button>
-          {isEditing && (
+          {isEditing && !readOnly && (
             <button
               type="button"
               onClick={() => cancelMutation.mutate()}
-              disabled={busy}
+              disabled={inputsLocked}
               className="ml-auto h-10 rounded border border-redLighten bg-darkBg1 px-4 text-sm text-redText disabled:opacity-40"
             >
               {cancelMutation.isPending ? "취소 중..." : "신청 취소"}
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => submitMutation.mutate()}
-            disabled={!canSubmit || busy}
-            className={`h-10 rounded bg-bluePrimary px-5 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 ${
-              isEditing ? "" : "ml-auto"
-            }`}
-          >
-            {submitLabel}
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => submitMutation.mutate()}
+              disabled={!canSubmit || inputsLocked}
+              className={`h-10 rounded bg-bluePrimary px-5 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50 ${
+                isEditing ? "" : "ml-auto"
+              }`}
+            >
+              {submitLabel}
+            </button>
+          )}
         </div>
       </div>
 
