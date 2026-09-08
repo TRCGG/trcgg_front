@@ -34,6 +34,7 @@ import BoardMatchesTab from "@/features/competition/BoardMatchesTab";
 import BoardStandingsTab from "@/features/competition/BoardStandingsTab";
 import BoardStatsTab from "@/features/competition/BoardStatsTab";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
+import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
 import {
   COMPETITION_STATUS_VALUES,
   CompetitionMatchTeamItem,
@@ -80,6 +81,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [assignBlue, setAssignBlue] = useState<number | null>(null);
   const [assignRed, setAssignRed] = useState<number | null>(null);
 
+  const invalidateCompetitions = useInvalidateCompetitions();
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
   const isManager = canManageGuild(currentRole);
@@ -91,11 +93,7 @@ const CompetitionBoardPage: NextPage = () => {
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
 
-  const {
-    competition,
-    isLoading: isLoadingDetail,
-    refetch: refetchDetail,
-  } = useCompetitionDetail(guildId, validId);
+  const { competition, isLoading: isLoadingDetail } = useCompetitionDetail(guildId, validId);
 
   const enabled = !!guildId && validId !== null;
   // 탭을 옮길 때마다 다시 받지 않도록 네 소스를 함께 캐싱한다.
@@ -150,14 +148,9 @@ const CompetitionBoardPage: NextPage = () => {
     });
   };
 
-  const refreshAll = async () => {
-    await Promise.all([
-      refetchDetail(),
-      teamsQuery.refetch(),
-      matchesQuery.refetch(),
-      standingsQuery.refetch(),
-    ]);
-  };
+  // 지역 refetch만 하면 대회 목록의 신청 수·팀 수·경기 수가 staleTime 동안 어긋난다.
+  // 대회 관련 쿼리를 통째로 무효화해 어느 화면으로 나가도 숫자가 맞게 둔다.
+  const refreshAll = () => invalidateCompetitions();
 
   const lifecycleMutation = useMutation({
     mutationFn: (action: "close" | "end" | "reopen") => {
@@ -208,19 +201,21 @@ const CompetitionBoardPage: NextPage = () => {
       }
       setErrorMsg(null);
       setEditModalOpen(false);
-      await refetchDetail();
+      await refreshAll();
     },
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => removeCompetition(guildId, validId as number, confirmName.trim()),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.error) {
         setErrorMsg(competitionErrorMessage(res));
         return;
       }
       setDeleteModalOpen(false);
+      // 지운 대회가 목록 캐시에 남지 않게 무효화한 뒤 이동한다.
+      await refreshAll();
       router.push("/competitions");
     },
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),

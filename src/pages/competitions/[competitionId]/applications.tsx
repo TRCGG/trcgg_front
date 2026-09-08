@@ -18,6 +18,7 @@ import { decideApplications } from "@/services/competition";
 import ApplicationTable from "@/features/competition/ApplicationTable";
 import { APPLICATION_TABS } from "@/features/competition/competitionMeta";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
+import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
 
 /** 백엔드 decideApplicationsSchema가 한 요청에 200건까지만 받는다. */
 const DECIDE_CHUNK = 200;
@@ -57,6 +58,7 @@ const ApplicationApprovalPage: NextPage = () => {
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const invalidateCompetitions = useInvalidateCompetitions();
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
   const isManager = canManageGuild(currentRole);
@@ -73,7 +75,6 @@ const ApplicationApprovalPage: NextPage = () => {
     applications,
     error: listError,
     isLoading: isLoadingApplications,
-    refetch,
   } = useCompetitionApplications(guildId, validId);
 
   const counts = useMemo(() => {
@@ -135,7 +136,7 @@ const ApplicationApprovalPage: NextPage = () => {
       }
       setErrorMsg(null);
       setCheckedIds(new Set());
-      await refetch();
+      await invalidateCompetitions();
     },
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
   });

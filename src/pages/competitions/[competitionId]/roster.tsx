@@ -27,6 +27,7 @@ import { getTeams, saveRoster } from "@/services/competition";
 import RosterPool from "@/features/competition/RosterPool";
 import RosterTeamCard from "@/features/competition/RosterTeamCard";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
+import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
 
 const toSlotMember = (applicant: CompetitionApplicationItem): RosterSlotMember => ({
   playerCode: applicant.playerCode,
@@ -47,6 +48,7 @@ const RosterPage: NextPage = () => {
   // 드래그 중인 대상. HTML5 dataTransfer에 객체를 담을 수 없어 ref로 들고 간다.
   const draggingRef = useRef<RosterSlotMember | null>(null);
 
+  const invalidateCompetitions = useInvalidateCompetitions();
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
   const isManager = canManageGuild(currentRole);
@@ -65,11 +67,7 @@ const RosterPage: NextPage = () => {
   );
 
   const enabled = !!guildId && validId !== null;
-  const {
-    data: teamsRes,
-    isLoading: isLoadingTeams,
-    refetch: refetchTeams,
-  } = useQuery<ApiResponse<TeamListResponse>>({
+  const { data: teamsRes, isLoading: isLoadingTeams } = useQuery<ApiResponse<TeamListResponse>>({
     queryKey: ["competitionTeams", guildId, validId],
     queryFn: () => getTeams(guildId, validId as number),
     enabled,
@@ -91,7 +89,7 @@ const RosterPage: NextPage = () => {
       }
       setErrorMsg(null);
       setSavedAt(new Date().toLocaleTimeString("ko-KR"));
-      await refetchTeams();
+      await invalidateCompetitions();
     },
     onError: () => setErrorMsg("저장에 실패했습니다. 잠시 후 다시 시도해주세요."),
   });

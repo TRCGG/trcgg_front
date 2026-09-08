@@ -36,6 +36,7 @@ import {
   positionLabel,
 } from "@/features/competition/competitionMeta";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
+import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
 
 const COMMENT_MAX = 100;
 const TIME_MAX = 128;
@@ -107,6 +108,7 @@ const CompetitionApplyPage: NextPage = () => {
   const [comment, setComment] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const invalidateCompetitions = useInvalidateCompetitions();
   const { guildId, guilds, isLoggedIn, username, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
 
@@ -120,11 +122,9 @@ const CompetitionApplyPage: NextPage = () => {
   const { competition } = useCompetitionDetail(guildId, validId);
   const { champions } = useChampions(!!guildId);
 
-  const {
-    data: myApplicationRes,
-    isLoading: isLoadingMine,
-    refetch: refetchMine,
-  } = useQuery<ApiResponse<ApplicationResponse>>({
+  const { data: myApplicationRes, isLoading: isLoadingMine } = useQuery<
+    ApiResponse<ApplicationResponse>
+  >({
     queryKey: ["myCompetitionApplication", guildId, validId],
     queryFn: () => getMyApplication(guildId, validId as number),
     enabled: !!guildId && validId !== null,
@@ -200,7 +200,7 @@ const CompetitionApplyPage: NextPage = () => {
         return;
       }
       setErrorMsg(null);
-      await refetchMine();
+      await invalidateCompetitions();
       router.push("/competitions");
     },
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
@@ -214,7 +214,7 @@ const CompetitionApplyPage: NextPage = () => {
         return;
       }
       setErrorMsg(null);
-      await refetchMine();
+      await invalidateCompetitions();
       router.push("/competitions");
     },
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),

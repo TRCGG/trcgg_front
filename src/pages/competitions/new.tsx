@@ -14,6 +14,7 @@ import { canManageGuild } from "@/data/types/guildMember";
 import { CompetitionInitialStatus } from "@/data/types/competition";
 import { createCompetition } from "@/services/competition";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
+import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
 
 const NAME_MAX = 64;
 
@@ -57,6 +58,7 @@ const CompetitionCreatePage: NextPage = () => {
   const [status, setStatus] = useState<CompetitionInitialStatus>("RECRUITING");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const invalidateCompetitions = useInvalidateCompetitions();
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
   const isManager = canManageGuild(currentRole);
@@ -70,12 +72,13 @@ const CompetitionCreatePage: NextPage = () => {
 
   const createMutation = useMutation({
     mutationFn: () => createCompetition(guildId, { name: name.trim(), status, approvalRequired }),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.error || !res.data?.data) {
         setErrorMsg(competitionErrorMessage(res));
         return;
       }
       setErrorMsg(null);
+      await invalidateCompetitions();
       router.push(`/competitions/${res.data.data.id}`);
     },
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
