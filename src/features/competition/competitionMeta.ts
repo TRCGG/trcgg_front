@@ -113,3 +113,34 @@ export const applicationStatusHint = (status: CompetitionApplicationStatus): str
       return "운영진 승인을 기다리는 중입니다. 마감 전까지 수정·취소할 수 있습니다.";
   }
 };
+
+/**
+ * 백엔드 competitionLifecycle.ALLOWED_TRANSITIONS와 같은 표.
+ * 여기서 먼저 막아 409 competition-invalid-transition을 줄인다.
+ */
+const ALLOWED_TRANSITIONS: Record<CompetitionStatus, readonly CompetitionStatus[]> = {
+  RECRUITING: ["IN_PROGRESS"],
+  IN_PROGRESS: ["RECRUITING", "CLOSED"],
+  CLOSED: ["IN_PROGRESS"],
+};
+
+export const canTransition = (from: CompetitionStatus, to: CompetitionStatus): boolean =>
+  from === to || ALLOWED_TRANSITIONS[from].includes(to);
+
+/** 상태를 바꿀 때 알려야 하는 부작용. 되돌리는 전이에만 문구가 있다. */
+export const transitionWarning = (
+  from: CompetitionStatus,
+  to: CompetitionStatus
+): string | null => {
+  if (from === to) return null;
+  if (to === "RECRUITING") {
+    return "모집중으로 되돌리면 참가 신청이 다시 열립니다. 이미 업로드된 대회 경기는 그대로 남습니다.";
+  }
+  if (to === "CLOSED") {
+    return "종료하면 최종 순위가 확정되고 로스터·경기 편집이 잠깁니다.";
+  }
+  if (from === "CLOSED") {
+    return "진행중으로 되돌리면 확정된 순위가 해제되고 편집이 다시 열립니다.";
+  }
+  return "신청이 마감되고 경기 업로드·집계가 열립니다. 한 클랜에서 진행중인 대회는 하나뿐입니다.";
+};

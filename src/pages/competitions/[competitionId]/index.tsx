@@ -34,7 +34,16 @@ import BoardMatchesTab from "@/features/competition/BoardMatchesTab";
 import BoardStandingsTab from "@/features/competition/BoardStandingsTab";
 import BoardStatsTab from "@/features/competition/BoardStatsTab";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
-import { CompetitionMatchTeamItem } from "@/data/types/competition";
+import {
+  COMPETITION_STATUS_VALUES,
+  CompetitionMatchTeamItem,
+  CompetitionStatus,
+} from "@/data/types/competition";
+import {
+  canTransition,
+  getCompetitionStatusMeta,
+  transitionWarning,
+} from "@/features/competition/competitionMeta";
 
 const BOARD_TABS = [
   { key: "roster", label: "팀 로스터" },
@@ -64,6 +73,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editApproval, setEditApproval] = useState(true);
+  const [editStatus, setEditStatus] = useState<CompetitionStatus>("RECRUITING");
   const [confirmName, setConfirmName] = useState("");
   const [deletingMatchId, setDeletingMatchId] = useState<string | null>(null);
   const [assignTarget, setAssignTarget] = useState<CompetitionMatchTeamItem | null>(null);
@@ -171,12 +181,26 @@ const CompetitionBoardPage: NextPage = () => {
   });
 
   const editMutation = useMutation({
-    // zod refine이 name·approvalRequired 중 하나를 요구하는데 둘 다 보내면 항상 만족한다.
-    mutationFn: () =>
-      updateCompetition(guildId, validId as number, {
-        name: editName.trim(),
-        approvalRequired: editApproval,
-      }),
+    // 이름·승인 여부는 PATCH /:id, 상태는 PATCH /:id/status로 엔드포인트가 나뉘어 있다.
+    // 이름 변경이 상태 변경 실패에 묻히지 않도록 먼저 보낸다.
+    mutationFn: async () => {
+      const current = competition;
+      const detailChanged =
+        !!current &&
+        (editName.trim() !== current.name || editApproval !== current.approvalRequired);
+      if (detailChanged) {
+        const res = await updateCompetition(guildId, validId as number, {
+          name: editName.trim(),
+          approvalRequired: editApproval,
+        });
+        if (res.error) return res;
+      }
+      if (current && editStatus !== current.status) {
+        return changeCompetitionStatus(guildId, validId as number, editStatus);
+      }
+      // 바뀐 것이 없으면 update가 400 competition-update-empty를 주므로 호출하지 않는다.
+      return { data: null, error: null, status: 200 };
+    },
     onSuccess: async (res) => {
       if (res.error) {
         setErrorMsg(competitionErrorMessage(res));
@@ -272,6 +296,13 @@ const CompetitionBoardPage: NextPage = () => {
     onError: () => setErrorMsg("팀 배정에 실패했습니다. 잠시 후 다시 시도해주세요."),
   });
 
+  // 바꾼 것이 없으면 저장을 막는다. 백엔드도 빈 PATCH를 400으로 거절한다.
+  const editDirty =
+    !!competition &&
+    (editName.trim() !== competition.name ||
+      editApproval !== competition.approvalRequired ||
+      editStatus !== competition.status);
+
   const busy = lifecycleMutation.isPending || deleteMutation.isPending || editMutation.isPending;
 
   const renderTab = () => {
@@ -328,6 +359,7 @@ const CompetitionBoardPage: NextPage = () => {
           onEdit={() => {
             setEditName(competition.name);
             setEditApproval(competition.approvalRequired);
+            setEditStatus(competition.status);
             setEditModalOpen(true);
           }}
           onDelete={() => {
@@ -501,9 +533,36 @@ const CompetitionBoardPage: NextPage = () => {
               ? "신청은 대기 상태로 접수되고, 운영진이 승인한 신청자만 로스터에 편성됩니다."
               : "신청이 즉시 확정됩니다. 이미 대기 중인 신청은 그대로 남습니다."}
           </p>
-          <p className="text-xs leading-relaxed text-primary3">
-            대회 상태(모집중·진행중·종료)는 현황판 상단의 버튼으로 바꿉니다.
-          </p>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-primary2">대회 상태</span>
+            <div className="flex flex-col gap-1.5 sm:flex-row">
+              {COMPETITION_STATUS_VALUES.map((status) => {
+                const meta = getCompetitionStatusMeta(status);
+                const allowed = competition ? canTransition(competition.status, status) : false;
+                const active = editStatus === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setEditStatus(status)}
+                    disabled={!allowed}
+                    className={`flex-1 rounded border px-3 py-2 text-[13px] font-bold disabled:cursor-not-allowed disabled:opacity-35 ${
+                      active
+                        ? "border-blueText bg-blue text-primary1"
+                        : "border-border2 bg-darkBg2 text-primary2"
+                    }`}
+                  >
+                    {meta.label}
+                  </button>
+                );
+              })}
+            </div>
+            {competition && transitionWarning(competition.status, editStatus) && (
+              <p className="rounded border border-yellow/30 bg-yellow/[0.08] px-3 py-2 text-xs leading-relaxed text-yellow">
+                {transitionWarning(competition.status, editStatus)}
+              </p>
+            )}
+          </div>
           <div className="mt-1 flex items-center gap-2">
             <button
               type="button"
@@ -515,7 +574,7 @@ const CompetitionBoardPage: NextPage = () => {
             <button
               type="button"
               onClick={() => editMutation.mutate()}
-              disabled={busy || editName.trim().length === 0}
+              disabled={busy || editName.trim().length === 0 || !editDirty}
               className="h-9 flex-1 rounded bg-bluePrimary text-[13px] text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
               {editMutation.isPending ? "저장 중..." : "저장"}
