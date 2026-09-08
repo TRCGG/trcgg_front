@@ -15,7 +15,9 @@ import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import { canManageGuild } from "@/data/types/guildMember";
 import {
+  assignMatchTeams,
   changeCompetitionStatus,
+  changeMatchGameType,
   closeCompetitionApplications,
   getCompetitionChampionStatistics,
   getCompetitionMatches,
@@ -32,6 +34,7 @@ import BoardMatchesTab from "@/features/competition/BoardMatchesTab";
 import BoardStandingsTab from "@/features/competition/BoardStandingsTab";
 import BoardStatsTab from "@/features/competition/BoardStatsTab";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
+import { CompetitionMatchTeamItem } from "@/data/types/competition";
 
 const BOARD_TABS = [
   { key: "roster", label: "팀 로스터" },
@@ -63,6 +66,9 @@ const CompetitionBoardPage: NextPage = () => {
   const [editApproval, setEditApproval] = useState(true);
   const [confirmName, setConfirmName] = useState("");
   const [deletingMatchId, setDeletingMatchId] = useState<string | null>(null);
+  const [assignTarget, setAssignTarget] = useState<CompetitionMatchTeamItem | null>(null);
+  const [assignBlue, setAssignBlue] = useState<number | null>(null);
+  const [assignRed, setAssignRed] = useState<number | null>(null);
 
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
@@ -213,6 +219,59 @@ const CompetitionBoardPage: NextPage = () => {
     },
   });
 
+  /** 백엔드 zod가 한 요청에 100건까지만 받는다. */
+  const GAME_TYPE_CHUNK = 100;
+
+  const gameTypeMutation = useMutation({
+    mutationFn: async ({ ids, gameType }: { ids: string[]; gameType: "2" | "3" }) => {
+      let skipped = 0;
+      for (let i = 0; i < ids.length; i += GAME_TYPE_CHUNK) {
+        const chunk = ids.slice(i, i + GAME_TYPE_CHUNK);
+        // eslint-disable-next-line no-await-in-loop
+        const res = await changeMatchGameType(guildId, validId as number, {
+          customMatchIds: chunk,
+          gameType,
+        });
+        if (res.error) return { failed: res, skipped };
+        skipped += res.data?.data?.skipped?.length ?? 0;
+      }
+      return { failed: null, skipped };
+    },
+    onSuccess: async ({ failed, skipped }) => {
+      if (failed) {
+        setErrorMsg(competitionErrorMessage(failed));
+        return;
+      }
+      // 이미 그 유형이던 경기는 서버가 skipped로 빼고 성공으로 응답한다.
+      setErrorMsg(skipped > 0 ? `${skipped}경기는 이미 해당 유형이라 건너뛰었습니다.` : null);
+      await refreshAll();
+    },
+    onError: () => setErrorMsg("경기 유형 변경에 실패했습니다. 잠시 후 다시 시도해주세요."),
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: () =>
+      assignMatchTeams(
+        guildId,
+        validId as number,
+        (assignTarget as CompetitionMatchTeamItem).customMatchId,
+        {
+          blue: assignBlue,
+          red: assignRed,
+        }
+      ),
+    onSuccess: async (res) => {
+      if (res.error) {
+        setErrorMsg(competitionErrorMessage(res));
+        return;
+      }
+      setErrorMsg(null);
+      setAssignTarget(null);
+      await refreshAll();
+    },
+    onError: () => setErrorMsg("팀 배정에 실패했습니다. 잠시 후 다시 시도해주세요."),
+  });
+
   const busy = lifecycleMutation.isPending || deleteMutation.isPending || editMutation.isPending;
 
   const renderTab = () => {
@@ -222,10 +281,18 @@ const CompetitionBoardPage: NextPage = () => {
           <BoardMatchesTab
             matches={matches}
             isManager={isManager}
+            locked={competition?.status === "CLOSED"}
             deletingId={deletingMatchId}
+            changingGameType={gameTypeMutation.isPending}
             onDelete={(customMatchId) => {
               setDeletingMatchId(customMatchId);
               deleteMatchMutation.mutate(customMatchId);
+            }}
+            onChangeGameType={(ids, gameType) => gameTypeMutation.mutate({ ids, gameType })}
+            onAssign={(match) => {
+              setAssignBlue(match.blueTeamId);
+              setAssignRed(match.redTeamId);
+              setAssignTarget(match);
             }}
           />
         );
@@ -332,6 +399,82 @@ const CompetitionBoardPage: NextPage = () => {
           {renderBody()}
         </main>
       </div>
+
+      <Modal isOpen={assignTarget !== null} onClose={() => setAssignTarget(null)}>
+        <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[400px]">
+          <h2 className="text-base font-bold text-primary1">경기 팀 배정</h2>
+          <p className="text-xs leading-relaxed text-primary2">
+            진영별로 대회 팀을 지정합니다. 한쪽만 팀인 경기(용병전)는 저장되지만 순위표에는 집계되지
+            않습니다. 양쪽을 모두 비울 수는 없습니다.
+          </p>
+
+          {[
+            { side: "blue" as const, label: "블루", value: assignBlue, set: setAssignBlue },
+            { side: "red" as const, label: "레드", value: assignRed, set: setAssignRed },
+          ].map((item) => (
+            <label
+              key={item.side}
+              className="flex flex-col gap-1.5"
+              htmlFor={`assign-${item.side}`}
+            >
+              <span className="text-xs text-primary2">
+                {item.label} 진영
+                {item.side === "blue" && assignTarget?.blue.length ? (
+                  <span className="text-primary3">
+                    {" "}
+                    · {assignTarget.blue.map((player) => player.riotName).join(", ")}
+                  </span>
+                ) : null}
+                {item.side === "red" && assignTarget?.red.length ? (
+                  <span className="text-primary3">
+                    {" "}
+                    · {assignTarget.red.map((player) => player.riotName).join(", ")}
+                  </span>
+                ) : null}
+              </span>
+              <select
+                id={`assign-${item.side}`}
+                value={item.value ?? ""}
+                onChange={(e) => item.set(e.target.value === "" ? null : Number(e.target.value))}
+                className="h-10 rounded border border-border2 bg-darkBg2 px-3 text-sm text-primary1 outline-none focus:border-blueText2"
+              >
+                <option value="">배정 없음 (용병전)</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+
+          {assignBlue !== null && assignBlue === assignRed && (
+            <p className="text-xs text-redText">같은 팀을 양쪽 진영에 둘 수 없습니다.</p>
+          )}
+
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setAssignTarget(null)}
+              className="h-9 flex-1 rounded border border-border2 bg-darkBg2 text-[13px] text-primary2"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={() => assignMutation.mutate()}
+              disabled={
+                assignMutation.isPending ||
+                (assignBlue === null && assignRed === null) ||
+                (assignBlue !== null && assignBlue === assignRed)
+              }
+              className="h-9 flex-1 rounded bg-bluePrimary text-[13px] text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {assignMutation.isPending ? "저장 중..." : "저장"}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)}>
         <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[380px]">

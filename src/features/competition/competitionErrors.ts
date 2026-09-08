@@ -13,6 +13,24 @@ export const competitionErrorMessage = (res: ApiResponse<unknown>): string => {
       return "같은 이름의 대회가 이미 있습니다. 다른 이름을 사용해주세요.";
     case "competition-closed":
       return "종료된 대회입니다.";
+    case "competition-not-recruiting":
+      return "모집 중인 대회만 신청을 받습니다.";
+    case "application-duplicate":
+      return "이미 이 대회에 신청한 계정입니다.";
+    case "champion-not-found":
+      return "등록되지 않은 챔피언이 있습니다. 목록에서 다시 골라주세요.";
+    case "champion-duplicate":
+      return "같은 챔피언을 두 번 고를 수 없습니다.";
+    case "sub-position-invalid":
+      return "부 포지션이 올바르지 않습니다. 주 포지션과 겹칠 수 없고 '전체'는 단독으로만 고를 수 있습니다.";
+    case "match-team-required":
+      return "한쪽 진영에는 팀이 있어야 합니다. 양쪽을 모두 비울 수는 없습니다.";
+    case "match-team-duplicate":
+      return "같은 팀을 양쪽 진영에 둘 수 없습니다.";
+    case "team-not-in-competition":
+      return "이 대회에 속한 팀이 아닙니다.";
+    case "match-not-found":
+      return "이 대회에서 해당 경기를 찾을 수 없습니다.";
     default:
       break;
   }
