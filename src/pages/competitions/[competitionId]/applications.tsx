@@ -25,20 +25,19 @@ const DECIDE_CHUNK = 200;
 
 interface BulkAction {
   label: string;
-  /** null이면 상태 변경이 아니라 로스터 편성으로 이동한다. */
-  to: CompetitionApplicationStatus | null;
+  to: CompetitionApplicationStatus;
 }
 
+// 승인 탭에는 주 액션이 없다. 로스터 편성으로 가는 버튼이 상단에 항상 있어 중복이었다.
 const BULK_ACTIONS: Record<
   CompetitionApplicationStatus,
-  { primary: BulkAction; secondary: BulkAction }
+  { primary?: BulkAction; secondary: BulkAction }
 > = {
   PENDING: {
     primary: { label: "선택 승인", to: "APPROVED" },
     secondary: { label: "선택 거절", to: "REJECTED" },
   },
   APPROVED: {
-    primary: { label: "로스터 편성으로", to: null },
     secondary: { label: "승인 취소", to: "PENDING" },
   },
   REJECTED: {
@@ -142,17 +141,12 @@ const ApplicationApprovalPage: NextPage = () => {
   });
 
   const runBulk = (action: BulkAction) => {
-    if (action.to === null) {
-      router.push(`/competitions/${validId}/roster`);
-      return;
-    }
     if (checkedIds.size === 0 || decideMutation.isPending) return;
     decideMutation.mutate(action.to);
   };
 
   const actions = BULK_ACTIONS[tab];
   const anyChecked = checkedIds.size > 0;
-  const isMoveAction = actions.primary.to === null;
 
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
@@ -224,18 +218,16 @@ const ApplicationApprovalPage: NextPage = () => {
             >
               {actions.secondary.label}
             </button>
-            <button
-              type="button"
-              onClick={() => runBulk(actions.primary)}
-              disabled={!isMoveAction && (!anyChecked || decideMutation.isPending)}
-              className={`h-[34px] rounded px-4 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${
-                isMoveAction
-                  ? "border border-border2 bg-darkBg1 text-primary1"
-                  : "bg-bluePrimary text-white"
-              }`}
-            >
-              {decideMutation.isPending ? "처리 중..." : actions.primary.label}
-            </button>
+            {actions.primary && (
+              <button
+                type="button"
+                onClick={() => runBulk(actions.primary as BulkAction)}
+                disabled={!anyChecked || decideMutation.isPending}
+                className="h-[34px] rounded bg-bluePrimary px-4 text-[13px] text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {decideMutation.isPending ? "처리 중..." : actions.primary.label}
+              </button>
+            )}
           </div>
         </div>
 
