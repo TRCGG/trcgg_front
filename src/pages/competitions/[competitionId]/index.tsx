@@ -9,6 +9,7 @@ import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Modal from "@/components/modal/Modal";
+import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
@@ -22,6 +23,7 @@ import {
   getStandings,
   getTeams,
   removeCompetition,
+  updateCompetition,
 } from "@/services/competition";
 import { deleteReplay } from "@/services/replay";
 import BoardHeader from "@/features/competition/BoardHeader";
@@ -56,6 +58,9 @@ const CompetitionBoardPage: NextPage = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [endModalOpen, setEndModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editApproval, setEditApproval] = useState(true);
   const [confirmName, setConfirmName] = useState("");
   const [deletingMatchId, setDeletingMatchId] = useState<string | null>(null);
 
@@ -159,6 +164,25 @@ const CompetitionBoardPage: NextPage = () => {
     onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
   });
 
+  const editMutation = useMutation({
+    // zod refine이 name·approvalRequired 중 하나를 요구하는데 둘 다 보내면 항상 만족한다.
+    mutationFn: () =>
+      updateCompetition(guildId, validId as number, {
+        name: editName.trim(),
+        approvalRequired: editApproval,
+      }),
+    onSuccess: async (res) => {
+      if (res.error) {
+        setErrorMsg(competitionErrorMessage(res));
+        return;
+      }
+      setErrorMsg(null);
+      setEditModalOpen(false);
+      await refetchDetail();
+    },
+    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: () => removeCompetition(guildId, validId as number, confirmName.trim()),
     onSuccess: (res) => {
@@ -189,7 +213,7 @@ const CompetitionBoardPage: NextPage = () => {
     },
   });
 
-  const busy = lifecycleMutation.isPending || deleteMutation.isPending;
+  const busy = lifecycleMutation.isPending || deleteMutation.isPending || editMutation.isPending;
 
   const renderTab = () => {
     switch (activeTab) {
@@ -234,6 +258,11 @@ const CompetitionBoardPage: NextPage = () => {
           onEnd={() => setEndModalOpen(true)}
           onReopen={() => lifecycleMutation.mutate("reopen")}
           onRoster={() => router.push(`/competitions/${validId}/roster`)}
+          onEdit={() => {
+            setEditName(competition.name);
+            setEditApproval(competition.approvalRequired);
+            setEditModalOpen(true);
+          }}
           onDelete={() => {
             setConfirmName("");
             setDeleteModalOpen(true);
@@ -303,6 +332,54 @@ const CompetitionBoardPage: NextPage = () => {
           {renderBody()}
         </main>
       </div>
+
+      <Modal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)}>
+        <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[380px]">
+          <h2 className="text-base font-bold text-primary1">대회 수정</h2>
+          <label className="flex flex-col gap-1.5" htmlFor="edit-competition-name">
+            <span className="text-xs text-primary2">대회 제목</span>
+            <input
+              id="edit-competition-name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value.slice(0, 64))}
+              className="h-10 rounded border border-border2 bg-darkBg2 px-3 text-sm text-primary1 outline-none focus:border-blueText2"
+            />
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <ToggleSwitch
+              checked={editApproval}
+              onChange={() => setEditApproval((prev) => !prev)}
+              ariaLabel="참가 신청 승인 필요"
+            />
+            <span className="text-sm text-primary1">참가 신청 승인 필요</span>
+          </div>
+          <p className="text-xs leading-relaxed text-primary2">
+            {editApproval
+              ? "신청은 대기 상태로 접수되고, 운영진이 승인한 신청자만 로스터에 편성됩니다."
+              : "신청이 즉시 확정됩니다. 이미 대기 중인 신청은 그대로 남습니다."}
+          </p>
+          <p className="text-xs leading-relaxed text-primary3">
+            대회 상태(모집중·진행중·종료)는 현황판 상단의 버튼으로 바꿉니다.
+          </p>
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setEditModalOpen(false)}
+              className="h-9 flex-1 rounded border border-border2 bg-darkBg2 text-[13px] text-primary2"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={() => editMutation.mutate()}
+              disabled={busy || editName.trim().length === 0}
+              className="h-9 flex-1 rounded bg-bluePrimary text-[13px] text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {editMutation.isPending ? "저장 중..." : "저장"}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal isOpen={endModalOpen} onClose={() => setEndModalOpen(false)}>
         <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[380px]">

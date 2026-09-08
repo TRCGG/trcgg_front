@@ -7,6 +7,7 @@ interface Props {
   onCloseApplications: () => void;
   onEnd: () => void;
   onReopen: () => void;
+  onEdit: () => void;
   onDelete: () => void;
   onRoster: () => void;
   onUpload: () => void;
@@ -27,6 +28,7 @@ const BoardHeader = ({
   onCloseApplications,
   onEnd,
   onReopen,
+  onEdit,
   onDelete,
   onRoster,
   onUpload,
@@ -151,6 +153,14 @@ const BoardHeader = ({
             className="h-[38px] rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1"
           >
             로스터 편성
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            disabled={busy}
+            className="h-[38px] rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1 disabled:opacity-40"
+          >
+            대회 수정
           </button>
           <button
             type="button"
