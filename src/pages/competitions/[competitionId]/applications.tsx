@@ -42,7 +42,7 @@ const BULK_ACTIONS: Record<
     secondary: { label: "승인 취소", to: "PENDING" },
   },
   REJECTED: {
-    primary: { label: "다시 승인", to: "APPROVED" },
+    primary: { label: "선택 승인", to: "APPROVED" },
     secondary: { label: "대기로 되돌리기", to: "PENDING" },
   },
 };
