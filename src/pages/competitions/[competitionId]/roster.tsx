@@ -178,7 +178,9 @@ const RosterPage: NextPage = () => {
           <button
             type="button"
             onClick={draft.addTeam}
-            className="flex min-h-[112px] items-center justify-center gap-2 rounded border border-dashed border-border2 bg-rankBg3 text-[13px] text-primary3 hover:text-primary1"
+            disabled={!draft.canAddTeam}
+            title={draft.canAddTeam ? undefined : "한 대회에 팀은 20개까지입니다"}
+            className="flex min-h-[112px] items-center justify-center gap-2 rounded border border-dashed border-border2 bg-rankBg3 text-[13px] text-primary3 hover:text-primary1 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <svg
               className="h-[15px] w-[15px]"

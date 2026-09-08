@@ -22,6 +22,9 @@ export interface DraftTeam {
   members: Partial<Record<CompetitionPosition, RosterSlotMember>>;
 }
 
+/** 백엔드 MAX_TEAMS_PER_COMPETITION과 같은 값. 넘기면 409 team-limit-exceeded. */
+export const MAX_TEAMS = 20;
+
 const emptyTeam = (index: number): DraftTeam => ({
   name: `${index + 1}팀`,
   captainPlayerCode: null,
@@ -101,7 +104,10 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
     );
   }, []);
 
-  const addTeam = useCallback(() => setTeams((prev) => [...prev, emptyTeam(prev.length)]), []);
+  const addTeam = useCallback(
+    () => setTeams((prev) => (prev.length >= MAX_TEAMS ? prev : [...prev, emptyTeam(prev.length)])),
+    []
+  );
 
   const removeTeam = useCallback(
     (teamIndex: number) => setTeams((prev) => prev.filter((_, index) => index !== teamIndex)),
@@ -154,6 +160,7 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
   /** 저장 전 검증 — 백엔드 유니크 제약(팀명)과 필수값을 미리 걸러 400·409를 줄인다. */
   const validate = (): string | null => {
     if (teams.length === 0) return "팀을 하나 이상 추가해주세요.";
+    if (teams.length > MAX_TEAMS) return `한 대회에 팀은 ${MAX_TEAMS}개까지 만들 수 있습니다.`;
     const names = teams.map((team) => team.name.trim());
     if (names.some((name) => name.length === 0)) return "팀명을 모두 입력해주세요.";
     if (new Set(names).size !== names.length) return "팀명이 중복되었습니다.";
@@ -165,6 +172,7 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
     placedCodes,
     placedCount: placedCodes.size,
     slotTotal,
+    canAddTeam: teams.length < MAX_TEAMS,
     place,
     removeAt,
     addTeam,

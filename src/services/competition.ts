@@ -26,6 +26,7 @@ import {
   RosterSaveInput,
   StandingsResponse,
   TeamListResponse,
+  HeadToHeadResponse,
   TeamRecordListResponse,
   TeamResponse,
   CompetitionUserStatResponse,
@@ -316,7 +317,7 @@ export const removeTeamMember = async (
   }
 };
 
-/** 팀 하나의 전체 전적(스크림·본경기 분리). 상대를 가리지 않는다. */
+/** 이 팀의 상대 팀별 전적(스크림·본경기 분리). 항목마다 상대 팀 하나다. */
 export const getTeamRecords = async (
   guildId: string,
   competitionId: number,
@@ -389,13 +390,13 @@ export const getStandings = async (
   }
 };
 
-/** 두 팀의 맞대결 전적. */
+/** 두 팀의 맞대결 전적 + 경기 목록. 응답이 배열이 아니라 단일 객체다. */
 export const getTeamHeadToHead = async (
   guildId: string,
   competitionId: number,
   teamA: number,
   teamB: number
-): Promise<ApiResponse<TeamRecordListResponse>> => {
+): Promise<ApiResponse<HeadToHeadResponse>> => {
   try {
     const query = buildQuery({ teamA, teamB });
     return await api.get(`${BASE(guildId)}/${competitionId}/records${query}`);

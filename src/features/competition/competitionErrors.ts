@@ -31,6 +31,18 @@ export const competitionErrorMessage = (res: ApiResponse<unknown>): string => {
       return "이 대회에 속한 팀이 아닙니다.";
     case "match-not-found":
       return "이 대회에서 해당 경기를 찾을 수 없습니다.";
+    case "team-limit-exceeded":
+      return "한 대회에 팀은 20개까지 만들 수 있습니다.";
+    case "roster-limit-exceeded":
+      return "한 팀에 5명까지 편성할 수 있습니다.";
+    case "team-name-exists":
+      return "같은 이름의 팀이 있습니다. 팀명을 다르게 지어주세요.";
+    case "team-duplicate":
+      return "같은 팀이 두 번 들어갔습니다. 새로고침 후 다시 시도해주세요.";
+    case "team-not-found":
+      return "삭제된 팀이 포함돼 있습니다. 새로고침 후 다시 시도해주세요.";
+    case "team-has-matches":
+      return "경기가 귀속된 팀은 삭제할 수 없습니다. 경기 결과 탭에서 해당 경기의 팀 배정을 먼저 해제해주세요.";
     default:
       break;
   }

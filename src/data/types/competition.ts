@@ -358,10 +358,18 @@ export interface StandingsResponse {
   data: CompetitionStandings;
 }
 
+/** GET /teams/:teamId/records — 상대 팀별 전적 (항목마다 상대 팀 하나) */
 export interface TeamRecordListResponse {
   status: string;
   message: string;
   data: CompetitionTeamRecordItem[];
+}
+
+/** GET /records?teamA&teamB — 두 팀 맞대결. 배열이 아니라 단일 객체다. */
+export interface HeadToHeadResponse {
+  status: string;
+  message: string;
+  data: CompetitionHeadToHeadResult;
 }
 
 export interface PlayerCompetitionListResponse {
