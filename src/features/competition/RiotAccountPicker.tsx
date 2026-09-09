@@ -11,6 +11,12 @@ interface Props {
   onSelect: (player: PlayerInfo | null) => void;
   placeholder?: string;
   disabled?: boolean;
+  /**
+   * 부계정을 골랐을 때 아래에 띄울 안내. 미지정이면 표시하지 않는다.
+   * 대회 신청은 저장 시 백엔드가 연결된 본계정으로 정규화하므로(toMainAccount)
+   * 고른 계정과 기록될 계정이 달라진다 — 그 사실을 고른 자리에서 알리기 위한 것.
+   */
+  subAccountNotice?: string;
 }
 
 /**
@@ -24,6 +30,7 @@ const RiotAccountPicker = ({
   onSelect,
   placeholder = "내 라이엇 ID 검색 (예: 닉네임#KR1)",
   disabled = false,
+  subAccountNotice,
 }: Props) => {
   const [draft, setDraft] = useState("");
   const [focused, setFocused] = useState(false);
@@ -39,27 +46,34 @@ const RiotAccountPicker = ({
 
   if (selected) {
     return (
-      <div className="flex h-[38px] items-center gap-2 rounded border border-border2 bg-darkBg1 px-3">
-        <span className="truncate text-sm text-primary1">
-          {selected.riotName}
-          <span className="text-primary3">#{selected.riotNameTag}</span>
-        </span>
-        {selected.isMain && (
-          <span className="shrink-0 rounded bg-neonGreen/10 px-[7px] py-0.5 text-[11px] text-neonGreen">
-            본계정
+      <div className="flex flex-col gap-1.5">
+        <div className="flex h-[38px] items-center gap-2 rounded border border-border2 bg-darkBg1 px-3">
+          <span className="truncate text-sm text-primary1">
+            {selected.riotName}
+            <span className="text-primary3">#{selected.riotNameTag}</span>
           </span>
-        )}
-        {!disabled && (
-          <button
-            type="button"
-            onClick={() => {
-              onSelect(null);
-              setDraft("");
-            }}
-            className="ml-auto shrink-0 text-xs text-blueText hover:text-primary1"
+          <span
+            className={`shrink-0 rounded px-[7px] py-0.5 text-[11px] ${
+              selected.isMain ? "bg-neonGreen/10 text-neonGreen" : "bg-yellow/10 text-yellow"
+            }`}
           >
-            계정 변경
-          </button>
+            {selected.isMain ? "본계정" : "부계정"}
+          </span>
+          {!disabled && (
+            <button
+              type="button"
+              onClick={() => {
+                onSelect(null);
+                setDraft("");
+              }}
+              className="ml-auto shrink-0 text-xs text-blueText hover:text-primary1"
+            >
+              계정 변경
+            </button>
+          )}
+        </div>
+        {!selected.isMain && subAccountNotice && (
+          <p className="text-[11px] leading-relaxed text-yellow">{subAccountNotice}</p>
         )}
       </div>
     );
@@ -107,11 +121,13 @@ const RiotAccountPicker = ({
             >
               <span className="truncate text-sm text-primary1">{player.riotName}</span>
               <span className="text-xs text-primary3">#{player.riotNameTag}</span>
-              {player.isMain && (
-                <span className="ml-auto shrink-0 rounded bg-blueText/10 px-1.5 py-0.5 text-[10px] text-blueText">
-                  본계정
-                </span>
-              )}
+              <span
+                className={`ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] ${
+                  player.isMain ? "bg-blueText/10 text-blueText" : "bg-yellow/10 text-yellow"
+                }`}
+              >
+                {player.isMain ? "본계정" : "부계정"}
+              </span>
             </button>
           ))}
         </div>

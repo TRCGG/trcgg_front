@@ -242,6 +242,7 @@ const CompetitionApplyPage: NextPage = () => {
             selected={account}
             onSelect={setAccount}
             disabled={accountLocked}
+            subAccountNotice="부계정입니다. 신청은 연결된 본계정으로 기록됩니다."
           />
           {accountLocked && (
             <p className="text-[11px] leading-relaxed text-primary3">
