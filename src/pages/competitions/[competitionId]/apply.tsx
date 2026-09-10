@@ -172,8 +172,11 @@ const CompetitionApplyPage: NextPage = () => {
     setSubPositions((prev) => prev.filter((item) => item !== position));
   };
 
+  // 백엔드 assertMainAccount가 부계정 신청을 400 sub-account-not-allowed로 막는다.
+  // 화면에서 먼저 걸러 헛된 요청을 보내지 않는다.
   const canSubmit =
     account !== null &&
+    account.isMain &&
     mainPosition !== null &&
     captainAvailable !== null &&
     practiceLevel !== null;
@@ -242,7 +245,7 @@ const CompetitionApplyPage: NextPage = () => {
             selected={account}
             onSelect={setAccount}
             disabled={accountLocked}
-            subAccountNotice="부계정입니다. 신청은 연결된 본계정으로 기록됩니다."
+            subAccountNotice="부계정으로는 신청할 수 없습니다. 본계정을 골라주세요."
           />
           {accountLocked && (
             <p className="text-[11px] leading-relaxed text-primary3">

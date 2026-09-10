@@ -5,8 +5,23 @@ import { ApiResponse } from "@/services/apiService";
  * 생성·수정은 409가 두 종류(진행중 중복 / 이름 중복)라 상태 코드만으로 구분되지 않아
  * Problem Details의 type을 먼저 본다.
  */
+/** "... (main: 닉네임#태그)" 꼴에서 본계정 표기만 뽑는다. */
+const parseMainAccount = (detail: string | null): string | null => {
+  const matched = detail?.match(/main:\s*([^)]+)\)/);
+  return matched ? matched[1].trim() : null;
+};
+
 export const competitionErrorMessage = (res: ApiResponse<unknown>): string => {
   switch (res.errorType) {
+    case "sub-account-not-allowed": {
+      // 백엔드가 연결된 본계정을 메시지에 담아 준다 — 어느 계정으로 다시 신청할지 알려준다.
+      const main = parseMainAccount(res.error);
+      return main
+        ? `부계정으로는 신청할 수 없습니다. 본계정(${main})으로 신청해주세요.`
+        : "부계정으로는 신청할 수 없습니다. 본계정으로 신청해주세요.";
+    }
+    case "main-account-not-found":
+      return "연결된 본계정이 더 이상 존재하지 않습니다. 운영진에게 문의해주세요.";
     case "competition-in-progress-exists":
       return "이미 진행중인 대회가 있습니다. 그 대회를 종료한 뒤 다시 시도해주세요.";
     case "competition-name-exists":
