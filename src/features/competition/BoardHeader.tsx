@@ -96,27 +96,30 @@ const BoardHeader = ({
 
       {isManager && (
         <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-          <button
-            type="button"
-            onClick={onUpload}
-            className="flex h-[38px] items-center gap-1.5 rounded bg-bluePrimary px-4 text-sm text-white"
-          >
-            <svg
-              className="h-4 w-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+          {/* 종료된 대회에는 경기를 붙일 수 없다(백엔드 competition-not-open) */}
+          {!isClosed && (
+            <button
+              type="button"
+              onClick={onUpload}
+              className="flex h-[38px] items-center gap-1.5 rounded bg-bluePrimary px-4 text-sm text-white"
             >
-              <path d="M3 15v3a2 2 0 002 2h14a2 2 0 002-2v-3" />
-              <path d="M7 9l5-5 5 5" />
-              <path d="M12 4v12" />
-            </svg>
-            리플레이 업로드
-          </button>
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 15v3a2 2 0 002 2h14a2 2 0 002-2v-3" />
+                <path d="M7 9l5-5 5 5" />
+                <path d="M12 4v12" />
+              </svg>
+              리플레이 업로드
+            </button>
+          )}
           {isRecruiting && (
             <button
               type="button"

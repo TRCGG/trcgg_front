@@ -27,6 +27,7 @@ import {
   updateCompetition,
 } from "@/services/competition";
 import { deleteReplay } from "@/services/replay";
+import ReplayUploadModal from "@/features/competition/ReplayUploadModal";
 import BoardHeader from "@/features/competition/BoardHeader";
 import BoardRosterTab from "@/features/competition/BoardRosterTab";
 import BoardMatchesTab from "@/features/competition/BoardMatchesTab";
@@ -69,6 +70,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [endModalOpen, setEndModalOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editName, setEditName] = useState("");
@@ -81,8 +83,16 @@ const CompetitionBoardPage: NextPage = () => {
   const [assignRed, setAssignRed] = useState<number | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
+  const {
+    guildId,
+    guilds,
+    isLoggedIn,
+    username,
+    uploadNick,
+    currentRole,
+    handleGuildChange,
+    isLoadingGuilds,
+  } = useGuildManagement();
   const isManager = canManageGuild(currentRole);
 
   const {
@@ -341,7 +351,7 @@ const CompetitionBoardPage: NextPage = () => {
           competition={competition}
           isManager={isManager}
           busy={busy}
-          onUpload={() => router.push("/replay")}
+          onUpload={() => setUploadModalOpen(true)}
           onCloseApplications={() => lifecycleMutation.mutate("IN_PROGRESS")}
           onEnd={() => setEndModalOpen(true)}
           onReopen={() => lifecycleMutation.mutate("IN_PROGRESS")}
@@ -572,6 +582,19 @@ const CompetitionBoardPage: NextPage = () => {
           </div>
         </div>
       </Modal>
+
+      {competition && (
+        <ReplayUploadModal
+          isOpen={uploadModalOpen}
+          onClose={() => setUploadModalOpen(false)}
+          guildId={guildId}
+          competitionId={competition.id}
+          competitionName={competition.name}
+          isInProgress={competition.status === "IN_PROGRESS"}
+          nick={uploadNick ?? ""}
+          onUploaded={invalidateCompetitions}
+        />
+      )}
 
       <Modal isOpen={endModalOpen} onClose={() => setEndModalOpen(false)}>
         <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[380px]">
