@@ -159,7 +159,7 @@ const ApplicationApprovalPage: NextPage = () => {
 
     return (
       <>
-        <div className="flex items-center gap-0.5 overflow-x-auto border-b border-border2">
+        <div className="flex items-center gap-0.5 overflow-x-auto border-b border-border2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {APPLICATION_TABS.map((item) => {
             const active = item.status === tab;
             return (
