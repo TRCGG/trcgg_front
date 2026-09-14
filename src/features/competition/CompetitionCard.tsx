@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import { useRouter } from "next/router";
 import { CompetitionSummary } from "@/data/types/competition";
 import {
@@ -28,10 +29,23 @@ const CompetitionCard = ({ competition, isManager }: Props) => {
   const approvalLabel =
     competition.pendingCount > 0 ? `신청 ${competition.pendingCount}건 승인` : "참가 신청 관리";
 
-  const go = (path: string) => () => router.push(`/competitions/${competition.id}${path}`);
+  const openBoard = () => router.push(`/competitions/${competition.id}`);
+  // 카드 전체가 현황판으로 가므로, 안쪽 버튼은 자기 목적지로만 가도록 전파를 끊는다.
+  const go = (path: string) => (e: MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/competitions/${competition.id}${path}`);
+  };
 
   return (
-    <div className="flex items-center gap-4 rounded border border-border2 bg-darkBg2 px-4 py-4 sm:gap-5 sm:px-5">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={openBoard}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") openBoard();
+      }}
+      className="flex cursor-pointer items-center gap-4 rounded border border-border2 bg-darkBg2 px-4 py-4 hover:border-blueText2 sm:gap-5 sm:px-5"
+    >
       <div
         className={`hidden h-14 w-14 shrink-0 items-center justify-center rounded text-xl font-bold sm:flex ${
           isClosed ? "bg-rankBg2 text-primary3" : "bg-blueText/10 text-blueText"
@@ -81,13 +95,6 @@ const CompetitionCard = ({ competition, isManager }: Props) => {
             {approvalLabel}
           </button>
         )}
-        <button
-          type="button"
-          onClick={go("")}
-          className="h-9 rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1"
-        >
-          현황판
-        </button>
       </div>
     </div>
   );
