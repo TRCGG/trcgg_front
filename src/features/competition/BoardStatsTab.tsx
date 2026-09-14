@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { CompetitionChampionStat, CompetitionUserStat } from "@/data/types/competition";
 import { getWinRateColor } from "@/utils/statColors";
+import { getChampionSprite } from "@/utils/spriteLoader";
+import SpriteImage from "@/components/ui/SpriteImage";
+import PlayerNameButton from "@/features/matchHistory/PlayerNameButton";
 
 interface Props {
   users: CompetitionUserStat[];
@@ -11,12 +14,28 @@ interface Props {
 const MIN_GAMES = 3;
 const BOARD_SIZE = 10;
 
-const displayName = (user: CompetitionUserStat) => `${user.riotName}#${user.riotNameTag}`;
-
 const num = (value: string | number): number => {
   const parsed = typeof value === "string" ? parseFloat(value) : value;
   return Number.isFinite(parsed) ? parsed : 0;
 };
+
+const userKey = (user: CompetitionUserStat) => `${user.riotName}#${user.riotNameTag}`;
+
+/** 1·2·3위만 메달색 원형 뱃지. 나머지는 숫자만. */
+const rankClass = (rank: number): string => {
+  if (rank === 1) return "bg-yellow/[0.16] text-yellow";
+  if (rank === 2) return "bg-primary1/[0.14] text-primary1";
+  if (rank === 3) return "bg-damageAmberFrom/[0.16] text-damageAmberFrom";
+  return "text-primary3";
+};
+
+interface BoardRow {
+  rank: number;
+  user: CompetitionUserStat;
+  main: string;
+  /** 1위 대비 비율(%). 행 배경 막대 길이로 쓴다. */
+  ratio: number;
+}
 
 const BoardStatsTab = ({ users, champions }: Props) => {
   const eligible = useMemo(() => users.filter((user) => user.totalCount >= MIN_GAMES), [users]);
@@ -27,30 +46,28 @@ const BoardStatsTab = ({ users, champions }: Props) => {
       note: string,
       pick: (user: CompetitionUserStat) => number,
       format: (user: CompetitionUserStat) => string
-    ) => ({
-      title,
-      note,
-      rows: [...eligible]
-        .sort((a, b) => pick(b) - pick(a))
-        .slice(0, BOARD_SIZE)
-        .map((user, index) => ({
-          rank: index + 1,
-          name: displayName(user),
-          main: format(user),
-          sub: `${user.totalCount}판`,
-        })),
-    });
+    ) => {
+      const sorted = [...eligible].sort((a, b) => pick(b) - pick(a)).slice(0, BOARD_SIZE);
+      const best = sorted.length > 0 ? pick(sorted[0]) : 0;
+      const rows: BoardRow[] = sorted.map((user, index) => ({
+        rank: index + 1,
+        user,
+        main: format(user),
+        ratio: best > 0 ? Math.max((pick(user) / best) * 100, 4) : 0,
+      }));
+      return { title, note, rows };
+    };
 
     return [
       top(
         "KDA",
-        "킬 관여 기여도",
+        "(킬+어시) / 데스",
         (u) => num(u.kda),
         (u) => num(u.kda).toFixed(2)
       ),
       top(
         "분당 딜량",
-        "avgDpm",
+        "챔피언에게 넣은 피해",
         (u) => num(u.avgDpm),
         (u) => Math.round(num(u.avgDpm)).toLocaleString()
       ),
@@ -96,14 +113,18 @@ const BoardStatsTab = ({ users, champions }: Props) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-6 rounded border border-border2 bg-darkBg2 px-5 py-4">
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
         {summary.map((item) => (
-          <div key={item.label} className="flex flex-col gap-1">
+          <div
+            key={item.label}
+            className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5"
+          >
             <span className="text-[11px] text-primary2">{item.label}</span>
-            <span className={`text-[19px] font-bold ${item.className}`}>{item.value}</span>
+            <span className={`text-[22px] font-bold leading-tight tabular-nums ${item.className}`}>
+              {item.value}
+            </span>
           </div>
         ))}
-        <span className="ml-auto text-xs text-primary3">순위는 {MIN_GAMES}판 이상 참가자 기준</span>
       </div>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -112,9 +133,10 @@ const BoardStatsTab = ({ users, champions }: Props) => {
             key={board.title}
             className="overflow-hidden rounded border border-border2 bg-darkBg2"
           >
-            <div className="flex items-center gap-2 border-b border-border2 px-4 py-3">
+            <div className="flex items-baseline gap-2 border-b border-border2 px-4 py-3">
               <span className="text-sm font-bold text-primary1">{board.title}</span>
               <span className="text-[11px] text-primary3">{board.note}</span>
+              <span className="ml-auto text-[11px] text-primary3">{MIN_GAMES}판 이상</span>
             </div>
             {board.rows.length === 0 ? (
               <div className="px-4 py-8 text-center text-xs text-primary3">
@@ -123,20 +145,34 @@ const BoardStatsTab = ({ users, champions }: Props) => {
             ) : (
               board.rows.map((row) => (
                 <div
-                  key={row.name}
-                  className="grid grid-cols-[28px_1fr_auto] items-center gap-2.5 border-b border-cardBorder px-4 py-2 last:border-0"
+                  key={userKey(row.user)}
+                  className="relative border-b border-cardBorder last:border-0"
                 >
-                  <span
-                    className={`text-center text-xs font-bold ${
-                      row.rank <= 3 ? "text-yellow" : "text-primary3"
-                    }`}
-                  >
-                    {row.rank}
-                  </span>
-                  <span className="truncate text-[13px] text-primary1">{row.name}</span>
-                  <span className="whitespace-nowrap text-xs tabular-nums text-primary2">
-                    <span className="font-bold text-primary1">{row.main}</span> {row.sub}
-                  </span>
+                  {/* 1위 대비 비율 막대. 숫자만으로는 격차가 잘 안 읽힌다. */}
+                  <div
+                    className="absolute inset-y-0 left-0 bg-blueText/[0.06]"
+                    style={{ width: `${row.ratio}%` }}
+                    aria-hidden="true"
+                  />
+                  <div className="relative grid grid-cols-[26px_1fr_auto] items-center gap-2.5 px-4 py-2">
+                    <span
+                      className={`flex h-[22px] w-[22px] items-center justify-center rounded-full text-[11px] font-bold tabular-nums ${rankClass(
+                        row.rank
+                      )}`}
+                    >
+                      {row.rank}
+                    </span>
+                    <PlayerNameButton
+                      name={row.user.riotName}
+                      tag={row.user.riotNameTag}
+                      isCenter={false}
+                      className="text-[13px] text-primary1 hover:text-blueText"
+                    />
+                    <span className="whitespace-nowrap text-xs tabular-nums text-primary3">
+                      <span className="text-[13px] font-bold text-primary1">{row.main}</span>{" "}
+                      {row.user.totalCount}판
+                    </span>
+                  </div>
                 </div>
               ))
             )}
@@ -153,14 +189,31 @@ const BoardStatsTab = ({ users, champions }: Props) => {
             {topChampions.map((champion) => (
               <div
                 key={champion.champNameEng}
-                className="flex flex-col items-center gap-2 border-b border-r border-cardBorder p-4 last:border-r-0"
+                className="flex flex-col items-center gap-2 border-b border-r border-cardBorder px-3 py-4 last:border-r-0"
               >
-                <span className="text-[13px] text-primary1">{champion.champName}</span>
-                <span className="text-xs text-primary2">
-                  {champion.totalCount}판 · 승률{" "}
-                  <span className={getWinRateColor(champion.winRate)}>
-                    {num(champion.winRate).toFixed(1)}%
-                  </span>
+                <SpriteImage
+                  spriteData={getChampionSprite(champion.champNameEng)}
+                  width={48}
+                  height={48}
+                  alt={champion.champName}
+                  fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champion.champNameEng}.png`}
+                  className="h-12 w-12 rounded-md"
+                />
+                <span className="max-w-full truncate text-[13px] text-primary1">
+                  {champion.champName}
+                </span>
+                <span className="text-[11px] text-primary2">
+                  {champion.totalCount}판 · {champion.win}승 {champion.lose}패
+                </span>
+                <div className="h-1 w-full overflow-hidden rounded-full bg-slotEmpty">
+                  <div
+                    className="h-full rounded-full bg-blueText/60"
+                    style={{ width: `${Math.min(Math.max(num(champion.winRate), 0), 100)}%` }}
+                    aria-hidden="true"
+                  />
+                </div>
+                <span className={`text-xs font-bold ${getWinRateColor(champion.winRate)}`}>
+                  승률 {num(champion.winRate).toFixed(1)}%
                 </span>
               </div>
             ))}
