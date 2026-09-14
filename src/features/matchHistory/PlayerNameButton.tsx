@@ -13,7 +13,9 @@ const PlayerNameButton = ({
   className?: string;
 }) => {
   return (
-    <div className="relative group min-w-0 w-full">
+    // 왼쪽 정렬일 때는 칸 전체가 아니라 이름 너비에 맞춘다. 칸에 맞추면 툴팁이 칸
+    // 한가운데에 떠서 커서와 멀어지고, 이름 밖 빈 공간에서도 툴팁이 뜬다.
+    <div className={`relative group min-w-0 ${isCenter ? "w-full" : "w-fit max-w-full"}`}>
       {/* 레거시 next/link(Next 12)는 className을 <a>로 전달하지 않으므로, 실제 <a href>를
           자식으로 두어 우클릭 → 새 탭 열기를 지원하고 말줄임 스타일은 <a>에 직접 적용한다. */}
       <Link href={`/summoners/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`} passHref>
