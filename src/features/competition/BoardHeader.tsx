@@ -85,7 +85,7 @@ const BoardHeader = ({
             스크림 <span className="text-primary1">{competition.scrimCount}</span> · ★본경기{" "}
             <span className="text-primary1">{competition.mainCount}</span>
           </span>
-          {competition.pendingCount > 0 && (
+          {isRecruiting && competition.pendingCount > 0 && (
             <>
               <span className="text-border2">|</span>
               <span className="text-yellow">대기 신청 {competition.pendingCount}건</span>
