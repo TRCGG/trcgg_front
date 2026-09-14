@@ -52,6 +52,9 @@ const MatchItem = ({ matchData }: Props) => {
       ? matchData.kill + matchData.assist
       : (matchData.kill + matchData.assist) / matchData.death;
 
+  // 스크림(2)·본경기(3)는 대회 경기다. 일반내전(1)만 담는 종합 탭에서는 아래 칸이 통째로 빠진다.
+  const isCompetitionGame = matchData.gameType === "2" || matchData.gameType === "3";
+
   const durationMin = Math.floor(matchData.timePlayed / 60);
   const durationSec = String(matchData.timePlayed % 60).padStart(2, "0");
 
@@ -84,6 +87,16 @@ const MatchItem = ({ matchData }: Props) => {
           <span className="text-primary2 text-xs text-center leading-snug whitespace-nowrap">
             {formatTimeAgo(matchData.createDate)}
           </span>
+          {/* 모바일은 오른쪽 대회 칸이 빠지므로 뱃지만 여기에 둔다 */}
+          {isCompetitionGame && (
+            <span
+              className={`sm:hidden rounded px-1 text-[9px] font-bold leading-4 whitespace-nowrap ${
+                matchData.gameType === "3" ? "bg-yellow/10 text-yellow" : "bg-rankBg2 text-primary2"
+              }`}
+            >
+              {matchData.gameType === "3" ? "★본경기" : "스크림"}
+            </span>
+          )}
         </div>
 
         {/* 본문 */}
@@ -258,6 +271,31 @@ const MatchItem = ({ matchData }: Props) => {
               )
             )}
           </div>
+
+          {/* 대회 정보 — 상대팀은 대회를 특정해 조회했을 때만 채워진다 */}
+          {isCompetitionGame && (
+            <div className="hidden sm:flex flex-col items-end gap-1 shrink-0 max-w-[132px]">
+              <span
+                className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
+                  matchData.gameType === "3"
+                    ? "bg-yellow/10 text-yellow"
+                    : "bg-rankBg2 text-primary2"
+                }`}
+              >
+                {matchData.gameType === "3" ? "★본경기" : "스크림"}
+              </span>
+              {matchData.opponentTeamName ? (
+                <span
+                  className="max-w-full truncate text-[11px] text-primary3"
+                  title={matchData.opponentTeamName}
+                >
+                  vs {matchData.opponentTeamName}
+                </span>
+              ) : (
+                <span className="text-[11px] text-primary3">상대 미배정</span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 펼치기 버튼 */}

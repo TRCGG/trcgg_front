@@ -3,9 +3,10 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ApiResponse } from "@/services/apiService";
-import { UserRecentRecordsResponse, RecentGameRecord } from "@/data/types/record";
+import { UserRecentRecordsResponse } from "@/data/types/record";
 import { CompetitionStatus, PlayerCompetitionItem } from "@/data/types/competition";
 import { getRecentRecords } from "@/services/record";
+import MatchItem from "@/features/matchHistory/MatchItem";
 import usePlayerCompetitions from "@/hooks/competition/usePlayerCompetitions";
 import PlayerCompetitionCard from "./PlayerCompetitionCard";
 import { positionLabel } from "./competitionMeta";
@@ -22,22 +23,6 @@ const FILTERS: { label: string; status?: CompetitionStatus }[] = [
   { label: "진행중", status: "IN_PROGRESS" },
   { label: "종료", status: "CLOSED" },
 ];
-
-const formatLength = (seconds: number): string => {
-  const min = Math.floor(seconds / 60);
-  return `${min}:${String(seconds % 60).padStart(2, "0")}`;
-};
-
-const formatDate = (iso: string): string => {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "-";
-  return `${date.getMonth() + 1}/${date.getDate()}`;
-};
-
-const kdaRatio = (game: RecentGameRecord): string => {
-  const ratio = game.death === 0 ? game.kill + game.assist : (game.kill + game.assist) / game.death;
-  return ratio.toFixed(2);
-};
 
 /** 대회 경기 목록. competitionId를 주면 백엔드가 teamName·opponentTeamName을 채워준다. */
 const CompetitionGames = ({
@@ -77,6 +62,24 @@ const CompetitionGames = ({
     { label: "경기 수", value: String(competition.record.games), className: "text-primary1" },
   ];
 
+  const renderGames = () => {
+    if (isLoading) return <LoadingSpinner />;
+    if (games.length === 0) {
+      return (
+        <div className="rounded border border-border2 bg-darkBg2 py-11 text-center text-[13px] text-primary3">
+          이 대회의 경기 기록이 없습니다
+        </div>
+      );
+    }
+    return (
+      <div className="flex min-w-0 flex-col gap-4">
+        {games.map((game) => (
+          <MatchItem key={game.gameId} matchData={game} />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2.5">
@@ -105,71 +108,7 @@ const CompetitionGames = ({
         ))}
       </div>
 
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : (
-        <div className="overflow-hidden rounded border border-border2 bg-darkBg2">
-          {games.length === 0 ? (
-            <div className="px-4 py-11 text-center text-[13px] text-primary3">
-              이 대회의 경기 기록이 없습니다
-            </div>
-          ) : (
-            games.map((game) => {
-              const isWin = game.gameResult === "승";
-              return (
-                <div
-                  key={game.gameId}
-                  className={`grid grid-cols-[6px_84px_1fr_128px_112px_72px] items-center gap-3 border-b border-cardBorder pr-4 last:border-0 ${
-                    isWin ? "bg-blueDarken" : "bg-redDarken"
-                  }`}
-                >
-                  <div className={`h-full min-h-[52px] ${isWin ? "bg-blue" : "bg-red"}`} />
-                  <div className="flex flex-col gap-0.5 py-3">
-                    <span
-                      className={`text-[13px] font-bold ${isWin ? "text-blueText" : "text-redText"}`}
-                    >
-                      {game.gameResult}
-                    </span>
-                    <span className="text-[11px] text-primary3">
-                      {formatLength(game.timePlayed)}
-                    </span>
-                  </div>
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="truncate text-[13px] text-primary1">{game.champName}</span>
-                    <span className="text-[11px] text-primary2">
-                      {positionLabel(game.position)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[13px] tabular-nums text-primary1">
-                      {game.kill} / {game.death} / {game.assist}{" "}
-                      <span className="text-xs text-primary2">({kdaRatio(game)})</span>
-                    </span>
-                    <span className="text-[11px] text-primary2">시야 {game.visionScore}</span>
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    <span
-                      className={`w-fit rounded px-1.5 py-0.5 text-[11px] font-bold ${
-                        game.gameType === "3"
-                          ? "bg-yellow/10 text-yellow"
-                          : "bg-rankBg2 text-primary2"
-                      }`}
-                    >
-                      {game.gameType === "3" ? "★본경기" : "스크림"}
-                    </span>
-                    <span className="truncate text-[11px] text-primary3">
-                      {game.opponentTeamName ? `vs ${game.opponentTeamName}` : "상대 미배정"}
-                    </span>
-                  </div>
-                  <div className="text-right text-[11px] text-primary3">
-                    {formatDate(game.createDate)}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
+      {renderGames()}
     </div>
   );
 };
