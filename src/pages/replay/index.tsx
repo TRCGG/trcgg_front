@@ -108,7 +108,7 @@ const Replay: NextPage = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange } =
+  const { guildId, guilds, isLoggedIn, username, uploadNick, currentRole, handleGuildChange } =
     useGuildManagement();
   const canDeleteReplay = hasMinRole(currentRole, "userUploader");
   const [confirmingCode, setConfirmingCode] = useState<string | null>(null);
@@ -258,7 +258,7 @@ const Replay: NextPage = () => {
         const result = await uploadReplays(
           guildId,
           batch.map((unit) => unit.upload),
-          username ?? ""
+          uploadNick ?? ""
         );
         succeeded.push(...(result.data?.succeeded ?? []));
         failed.push(...(result.data?.failed ?? []));
