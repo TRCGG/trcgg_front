@@ -355,8 +355,8 @@ const CompetitionBoardPage: NextPage = () => {
           onUpload={() => setUploadModalOpen(true)}
           onCloseApplications={() => lifecycleMutation.mutate("IN_PROGRESS")}
           onEnd={() => setEndModalOpen(true)}
-          onReopen={() => lifecycleMutation.mutate("IN_PROGRESS")}
           onRoster={() => router.push(`/competitions/${validId}/roster`)}
+          onApplications={() => router.push(`/competitions/${validId}/applications`)}
           onEdit={() => {
             setEditName(competition.name);
             setEditApproval(competition.approvalRequired);

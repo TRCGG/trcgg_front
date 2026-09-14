@@ -1,4 +1,5 @@
 import { CompetitionDetail } from "@/data/types/competition";
+import OverflowMenu, { OverflowMenuItem } from "@/components/ui/OverflowMenu";
 import { competitionInitial, getCompetitionStatusMeta } from "./competitionMeta";
 
 interface Props {
@@ -6,10 +7,10 @@ interface Props {
   isManager: boolean;
   onCloseApplications: () => void;
   onEnd: () => void;
-  onReopen: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onRoster: () => void;
+  onApplications: () => void;
   onUpload: () => void;
   busy: boolean;
 }
@@ -27,16 +28,25 @@ const BoardHeader = ({
   isManager,
   onCloseApplications,
   onEnd,
-  onReopen,
   onEdit,
   onDelete,
   onRoster,
+  onApplications,
   onUpload,
   busy,
 }: Props) => {
   const status = getCompetitionStatusMeta(competition.status);
   const isClosed = competition.status === "CLOSED";
   const isRecruiting = competition.status === "RECRUITING";
+  const isInProgress = competition.status === "IN_PROGRESS";
+
+  // 상태 전이는 대회 수정 안에 모두 있으므로 여기에 따로 두지 않는다.
+  const menuItems: OverflowMenuItem[] = [
+    ...(isRecruiting ? [] : [{ label: "참가 신청 관리", onSelect: onApplications }]),
+    ...(isClosed ? [{ label: "로스터 편성", onSelect: onRoster }] : []),
+    { label: "대회 수정", onSelect: onEdit, disabled: busy },
+    { label: "대회 삭제", onSelect: onDelete, disabled: busy, danger: true },
+  ];
 
   return (
     <div className="flex flex-col gap-4 rounded border border-border2 bg-darkBg2 p-5 lg:flex-row lg:items-center lg:gap-5">
@@ -96,12 +106,49 @@ const BoardHeader = ({
 
       {isManager && (
         <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
-          {/* 종료된 대회에는 경기를 붙일 수 없다(백엔드 competition-not-open) */}
-          {!isClosed && (
+          {/* ① 다음 단계 */}
+          {isRecruiting && (
+            <button
+              type="button"
+              onClick={onCloseApplications}
+              disabled={busy}
+              className="h-[38px] whitespace-nowrap rounded bg-bluePrimary px-4 text-sm text-white disabled:opacity-40"
+            >
+              신청 마감하고 시작
+            </button>
+          )}
+          {isInProgress && (
+            <button
+              type="button"
+              onClick={onEnd}
+              disabled={busy}
+              className="h-[38px] whitespace-nowrap rounded border border-yellow/40 bg-darkBg1 px-3.5 text-[13px] text-yellow disabled:opacity-40"
+            >
+              대회 종료
+            </button>
+          )}
+
+          {/* ② 이 단계에서 하는 일 */}
+          {isRecruiting && (
+            <button
+              type="button"
+              onClick={onApplications}
+              className={`h-[38px] whitespace-nowrap rounded border bg-darkBg1 px-3.5 text-[13px] ${
+                competition.pendingCount > 0
+                  ? "border-blueText text-blueText"
+                  : "border-border2 text-primary1"
+              }`}
+            >
+              {competition.pendingCount > 0
+                ? `신청 ${competition.pendingCount}건 승인`
+                : "참가 신청 관리"}
+            </button>
+          )}
+          {isInProgress && (
             <button
               type="button"
               onClick={onUpload}
-              className="flex h-[38px] items-center gap-1.5 rounded bg-bluePrimary px-4 text-sm text-white"
+              className="flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded bg-bluePrimary px-4 text-sm text-white"
             >
               <svg
                 className="h-4 w-4"
@@ -120,59 +167,19 @@ const BoardHeader = ({
               리플레이 업로드
             </button>
           )}
-          {isRecruiting && (
+
+          {/* ③ 자주 쓰는 것 */}
+          {!isClosed && (
             <button
               type="button"
-              onClick={onCloseApplications}
-              disabled={busy}
-              className="h-[38px] rounded border border-blueText bg-darkBg1 px-3.5 text-[13px] text-blueText disabled:opacity-40"
+              onClick={onRoster}
+              className="h-[38px] whitespace-nowrap rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1"
             >
-              신청 마감하고 시작
+              로스터 편성
             </button>
           )}
-          {competition.status === "IN_PROGRESS" && (
-            <button
-              type="button"
-              onClick={onEnd}
-              disabled={busy}
-              className="h-[38px] rounded border border-yellow/40 bg-darkBg1 px-3.5 text-[13px] text-yellow disabled:opacity-40"
-            >
-              대회 종료
-            </button>
-          )}
-          {isClosed && (
-            <button
-              type="button"
-              onClick={onReopen}
-              disabled={busy}
-              className="h-[38px] rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1 disabled:opacity-40"
-            >
-              진행중으로 되돌리기
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onRoster}
-            className="h-[38px] rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1"
-          >
-            로스터 편성
-          </button>
-          <button
-            type="button"
-            onClick={onEdit}
-            disabled={busy}
-            className="h-[38px] rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1 disabled:opacity-40"
-          >
-            대회 수정
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            disabled={busy}
-            className="h-[38px] rounded border border-redLighten bg-darkBg1 px-3.5 text-[13px] text-redText disabled:opacity-40"
-          >
-            삭제
-          </button>
+
+          <OverflowMenu items={menuItems} />
         </div>
       )}
     </div>
