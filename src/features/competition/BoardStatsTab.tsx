@@ -87,12 +87,10 @@ const BoardStatsTab = ({ users, champions }: Props) => {
   }, [eligible]);
 
   const summary = useMemo(() => {
-    const totalGames = users.reduce((sum, user) => sum + user.totalCount, 0);
     const pentas = users.reduce((sum, user) => sum + (user.multiKills?.penta ?? 0), 0);
     const quadras = users.reduce((sum, user) => sum + (user.multiKills?.quadra ?? 0), 0);
     return [
       { label: "참가자", value: String(users.length), className: "text-primary1" },
-      { label: "집계 경기 수(인원 합)", value: String(totalGames), className: "text-primary1" },
       { label: "쿼드라 킬", value: String(quadras), className: "text-blueText" },
       { label: "펜타 킬", value: String(pentas), className: "text-yellow" },
     ];
@@ -113,7 +111,7 @@ const BoardStatsTab = ({ users, champions }: Props) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         {summary.map((item) => (
           <div
             key={item.label}
@@ -205,13 +203,6 @@ const BoardStatsTab = ({ users, champions }: Props) => {
                 <span className="text-[11px] text-primary2">
                   {champion.totalCount}판 · {champion.win}승 {champion.lose}패
                 </span>
-                <div className="h-1 w-full overflow-hidden rounded-full bg-slotEmpty">
-                  <div
-                    className="h-full rounded-full bg-blueText/60"
-                    style={{ width: `${Math.min(Math.max(num(champion.winRate), 0), 100)}%` }}
-                    aria-hidden="true"
-                  />
-                </div>
                 <span className={`text-xs font-bold ${getWinRateColor(champion.winRate)}`}>
                   승률 {num(champion.winRate).toFixed(1)}%
                 </span>
