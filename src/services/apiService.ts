@@ -135,6 +135,23 @@ const toErrorResponse = <T>(error: unknown): ApiResponse<T> => {
   };
 };
 
+/**
+ * 성공 응답에서 백엔드 봉투({ status, message, data })를 벗겨 페이로드만 남긴다.
+ *
+ * 봉투의 status·message를 읽는 호출부가 한 곳도 없어, 읽기 서비스는 이 함수를 거쳐
+ * 실제 데이터 타입을 그대로 노출한다. 그래야 훅의 반환 타입이 컴포넌트 prop 타입과 맞는다.
+ */
+const unwrap = async <E extends { data: unknown }>(
+  request: Promise<ApiResponse<E>>
+): Promise<E["data"]> => {
+  const res = await request;
+  // 실패는 인터셉터가 이미 throw했으므로 여기서 봉투는 항상 존재한다.
+  const payload = (res.data as E | null)?.data;
+  // React Query는 undefined를 쿼리 결과로 받으면 예외를 던진다. 봉투에 data가 빠져 있을 때
+  // "데이터 없음"이 "요청 실패"로 둔갑하지 않도록 null로 맞춘다.
+  return (payload ?? null) as E["data"];
+};
+
 const createApiService = (baseUrl?: string) => {
   if (!baseUrl) {
     throw new Error("API base URL is undefined. Check your environment variables.");
@@ -169,5 +186,5 @@ const createApiService = (baseUrl?: string) => {
 
 type ApiService = ReturnType<typeof createApiService>;
 
-export { createApiService, toErrorResponse };
+export { createApiService, toErrorResponse, unwrap };
 export type { ApiResponse, ApiService, RequestConfig };

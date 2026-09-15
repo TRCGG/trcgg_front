@@ -1,31 +1,30 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { GuildsResponse, MeResponse } from "@/data/types/auth";
+import { GuildInfo, MeResponse } from "@/data/types/auth";
 import { getGuilds, getMe } from "@/services/auth";
 import { getGuildById } from "@/services/guildMember";
-import { GuildResponse, hasMinRole } from "@/data/types/guildMember";
+import { GuildRow, hasMinRole } from "@/data/types/guildMember";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
 const useGuildManagement = () => {
   const [guildId, setGuildId] = useState<string>("");
 
-  const { data: guildsData, isLoading: isLoadingGuilds } = useQuery<ApiResponse<GuildsResponse>>({
+  const { data: guildsData, isLoading: isLoadingGuilds } = useQuery<GuildInfo[]>({
     queryKey: ["guilds"],
     queryFn: () => getGuilds(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
-  const { data: meData } = useQuery<ApiResponse<MeResponse>>({
+  const { data: meData } = useQuery<MeResponse["data"]>({
     queryKey: ["me"],
     queryFn: () => getMe(),
     staleTime: 60 * 1000,
   });
 
   const guilds = useMemo(() => {
-    const rawGuilds = guildsData?.data?.data || [];
+    const rawGuilds = guildsData ?? [];
     return rawGuilds.map((guild) => ({
       ...guild,
       id: encodeGuildId(guild.id),
@@ -33,11 +32,11 @@ const useGuildManagement = () => {
   }, [guildsData]);
 
   const isLoggedIn = useMemo(() => {
-    return !!meData?.data?.data?.user?.username;
+    return !!meData?.user?.username;
   }, [meData]);
 
-  const username = meData?.data?.data?.user?.global_name || meData?.data?.data?.user?.username;
-  const avatar = meData?.data?.data?.user?.avatar;
+  const username = meData?.user?.global_name || meData?.user?.username;
+  const avatar = meData?.user?.avatar;
 
   const currentRole = useMemo(
     () => guilds.find((guild) => guild.id === guildId)?.role,
@@ -49,7 +48,7 @@ const useGuildManagement = () => {
     [guilds, guildId, username]
   );
 
-  const { data: guildData } = useQuery<ApiResponse<GuildResponse>>({
+  const { data: guildData } = useQuery<GuildRow>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
     enabled: !!guildId && isLoggedIn,
@@ -58,7 +57,7 @@ const useGuildManagement = () => {
 
   // 업로드 권한: 업로더 이상이거나, 길드가 전체 업로드 허용(allowAllUploads)인 경우
   const canUploadReplay =
-    hasMinRole(currentRole, "userUploader") || guildData?.data?.data?.allowAllUploads === true;
+    hasMinRole(currentRole, "userUploader") || guildData?.allowAllUploads === true;
 
   useEffect(() => {
     if (typeof window !== "undefined" && guilds.length > 0) {

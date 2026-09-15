@@ -24,7 +24,7 @@ const CompetitionListPage: NextPage = () => {
   const isManager = canManageGuild(currentRole);
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -32,7 +32,7 @@ const CompetitionListPage: NextPage = () => {
 
   const {
     competitions,
-    error,
+    isError: isErrorCompetitions,
     isLoading: isLoadingCompetitions,
   } = useCompetitions(guildId, statusFilter);
 
@@ -41,7 +41,7 @@ const CompetitionListPage: NextPage = () => {
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
     if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
     if (isLoadingCompetitions) return <LoadingSpinner />;
-    if (error) return <TextCard text="대회 목록을 불러오지 못했습니다" />;
+    if (isErrorCompetitions) return <TextCard text="대회 목록을 불러오지 못했습니다" />;
 
     return (
       <div className="flex flex-col gap-4">
@@ -84,7 +84,7 @@ const CompetitionListPage: NextPage = () => {
           onSearch={handleSearchButtonClick}
           isLoading={isLoading}
           isError={isError}
-          users={userSearchData?.data}
+          users={userSearchData}
           guilds={guilds}
           selectedGuildId={guildId}
           onGuildChange={handleGuildChange}

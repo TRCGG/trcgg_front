@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { FrequentOpponent, FrequentOpponentsResponse } from "@/data/types/h2h";
+import { FrequentOpponent } from "@/data/types/h2h";
 import { getFrequentOpponents } from "@/services/h2h";
 import colors from "@/styles/colors";
 import LaneIcon from "./LaneIcon";
@@ -57,7 +56,7 @@ const OpponentSearchInput = ({
     return () => clearTimeout(t);
   }, [input]);
 
-  const { data, isFetching } = useQuery<ApiResponse<FrequentOpponentsResponse>>({
+  const { data, isFetching } = useQuery<FrequentOpponent[]>({
     queryKey: ["h2hAutocomplete", guildId, meName, meTag, debounced],
     queryFn: () =>
       getFrequentOpponents(guildId!, meName, { riotNameTag: meTag, q: debounced, limit: 8 }),
@@ -65,7 +64,7 @@ const OpponentSearchInput = ({
     staleTime: 60 * 1000,
   });
 
-  const results: FrequentOpponent[] = data?.data?.data ?? [];
+  const results: FrequentOpponent[] = data ?? [];
   const showDropdown = open && debounced.length >= 1;
 
   const choose = (opponent: Selected) => {

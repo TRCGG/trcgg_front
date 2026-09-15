@@ -38,11 +38,11 @@ const RiotAccountPicker = ({
   useClickOutside(containerRef, () => setFocused(false));
 
   const { debouncedTerm, isTyping } = useDebouncedRiotNameTag(draft);
-  const { data } = useUserSearchQuery(
+  const { users } = useUserSearchQuery(
     isTyping ? { riotName: "", riotNameTag: "" } : debouncedTerm,
     guildId
   );
-  const results = data?.data?.data ?? [];
+  const results = users;
 
   if (selected) {
     return (

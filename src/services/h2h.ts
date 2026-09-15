@@ -1,5 +1,11 @@
-import { ApiResponse, toErrorResponse } from "@/services/apiService";
-import { FrequentOpponentsResponse, H2HDetailResponse } from "@/data/types/h2h";
+import { unwrap } from "@/services/apiService";
+import {
+  FrequentOpponent,
+  FrequentOpponentsResponse,
+  H2HCandidate,
+  H2HDetail,
+  H2HDetailResponse,
+} from "@/data/types/h2h";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
 
@@ -16,7 +22,7 @@ export const getFrequentOpponents = async (
     season?: string;
     limit?: number;
   }
-): Promise<ApiResponse<FrequentOpponentsResponse>> => {
+): Promise<FrequentOpponent[]> => {
   const query = buildQuery({
     riotName,
     riotNameTag: params?.riotNameTag,
@@ -24,11 +30,7 @@ export const getFrequentOpponents = async (
     season: params?.season,
     limit: params?.limit,
   });
-  try {
-    return await api.get(`/api/h2h/${guildId}/frequent${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+  return unwrap(api.get<FrequentOpponentsResponse>(`/api/h2h/${guildId}/frequent${query}`));
 };
 
 /**
@@ -44,7 +46,7 @@ export const getH2HDetail = async (
     recentLimit?: number;
     recentOffset?: number;
   }
-): Promise<ApiResponse<H2HDetailResponse>> => {
+): Promise<H2HDetail | H2HCandidate[] | null> => {
   const query = buildQuery({
     riotName1: me.riotName,
     riotNameTag1: me.riotNameTag,
@@ -54,9 +56,5 @@ export const getH2HDetail = async (
     recentLimit: params?.recentLimit,
     recentOffset: params?.recentOffset,
   });
-  try {
-    return await api.get(`/api/h2h/${guildId}${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+  return unwrap(api.get<H2HDetailResponse>(`/api/h2h/${guildId}${query}`));
 };

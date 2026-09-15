@@ -1,5 +1,10 @@
-import { ApiResponse, toErrorResponse } from "@/services/apiService";
-import { UserStatisticsResponse, ChampionStatisticsResponse } from "@/data/types/statistics";
+import { unwrap } from "@/services/apiService";
+import {
+  ChampionStatistics,
+  ChampionStatisticsResponse,
+  UserStatistics,
+  UserStatisticsResponse,
+} from "@/data/types/statistics";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
 
@@ -13,22 +18,18 @@ export const getUserStatistics = async (
   season?: string,
   fromMonth?: number,
   toMonth?: number
-): Promise<ApiResponse<UserStatisticsResponse>> => {
-  try {
-    const query = buildQuery({
-      position: position !== "ALL" ? position : undefined,
-      sortBy: "winRate",
-      limit: 100000,
-      datePreset,
-      season,
-      fromMonth,
-      toMonth,
-    });
+): Promise<UserStatistics[]> => {
+  const query = buildQuery({
+    position: position !== "ALL" ? position : undefined,
+    sortBy: "winRate",
+    limit: 100000,
+    datePreset,
+    season,
+    fromMonth,
+    toMonth,
+  });
 
-    return await api.get(`/api/statistics/${guildId}/users${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+  return unwrap(api.get<UserStatisticsResponse>(`/api/statistics/${guildId}/users${query}`));
 };
 
 export const getChampionStatistics = async (
@@ -38,20 +39,18 @@ export const getChampionStatistics = async (
   season?: string,
   fromMonth?: number,
   toMonth?: number
-): Promise<ApiResponse<ChampionStatisticsResponse>> => {
-  try {
-    const query = buildQuery({
-      position,
-      sortBy: "winRate",
-      limit: 100000,
-      datePreset,
-      season,
-      fromMonth,
-      toMonth,
-    });
+): Promise<ChampionStatistics[]> => {
+  const query = buildQuery({
+    position,
+    sortBy: "winRate",
+    limit: 100000,
+    datePreset,
+    season,
+    fromMonth,
+    toMonth,
+  });
 
-    return await api.get(`/api/statistics/${guildId}/champions${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+  return unwrap(
+    api.get<ChampionStatisticsResponse>(`/api/statistics/${guildId}/champions${query}`)
+  );
 };

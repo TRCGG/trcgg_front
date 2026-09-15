@@ -19,7 +19,7 @@ interface Props {
   onSearch: () => void;
   isLoading: boolean;
   isError: boolean;
-  users: PlayerInfo[] | undefined;
+  users: PlayerInfo[];
   guilds: GuildInfo[];
   selectedGuildId: string;
   onGuildChange: (encodedGuildId: string) => void;

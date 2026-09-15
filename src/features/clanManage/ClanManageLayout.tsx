@@ -22,7 +22,7 @@ const ClanManageLayout = ({ title, description, children }: Props) => {
   const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -59,7 +59,7 @@ const ClanManageLayout = ({ title, description, children }: Props) => {
         onSearch={handleSearchButtonClick}
         isLoading={isLoading}
         isError={isError}
-        users={userSearchData?.data}
+        users={userSearchData}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}

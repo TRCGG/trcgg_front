@@ -2,8 +2,7 @@ import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { UserRecordResponse, MultiplePlayerInfo, MatchDashboardData } from "@/data/types/record";
+import { MultiplePlayerInfo, MatchDashboardData } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
@@ -22,14 +21,14 @@ const RiotProfilePage = () => {
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
   } = useUserSearchController(searchTerm, guildId);
 
   const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
-    ApiResponse<UserRecordResponse>
+    MatchDashboardData | MultiplePlayerInfo[]
   >({
     queryKey: ["userRecords", riotNameString, null, guildId],
     queryFn: () => getAllRecords(riotNameString, null, guildId),
@@ -37,7 +36,7 @@ const RiotProfilePage = () => {
     enabled: !!riotName && !!guildId,
   });
 
-  const data = userRecordData?.data?.data;
+  const data = userRecordData;
 
   // 타입 가드: data가 MultiplePlayerInfo[] 배열인지 확인
   const isPlayerInfoArray = (value: unknown): value is MultiplePlayerInfo[] => {
@@ -92,7 +91,7 @@ const RiotProfilePage = () => {
         onSearch={handleSearchButtonClick}
         isLoading={isLoading}
         isError={isError}
-        users={userSearchData?.data}
+        users={userSearchData}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}

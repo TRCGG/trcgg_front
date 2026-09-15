@@ -11,7 +11,7 @@ import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
 const useUserSearchController = (searchTerm: string, guildId: string) => {
   const router = useRouter();
   const { debouncedTerm, isTyping, flushDebounce } = useDebouncedRiotNameTag(searchTerm);
-  const { data, isLoading, isError } = useUserSearchQuery(
+  const { users, isLoading, isError } = useUserSearchQuery(
     isTyping ? { riotName: "", riotNameTag: "" } : debouncedTerm,
     guildId
   );
@@ -32,7 +32,7 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
   };
 
   return {
-    data: data?.data,
+    users,
     isLoading,
     isError,
     handleSearchButtonClick,

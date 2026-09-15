@@ -63,7 +63,7 @@ const ApplicationApprovalPage: NextPage = () => {
   const isManager = canManageGuild(currentRole);
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -72,7 +72,7 @@ const ApplicationApprovalPage: NextPage = () => {
   const { competition } = useCompetitionDetail(guildId, validId);
   const {
     applications,
-    error: listError,
+    isError: listError,
     isLoading: isLoadingApplications,
   } = useCompetitionApplications(guildId, validId);
 
@@ -268,7 +268,7 @@ const ApplicationApprovalPage: NextPage = () => {
           onSearch={handleSearchButtonClick}
           isLoading={isLoading}
           isError={isError}
-          users={userSearchData?.data}
+          users={userSearchData}
           guilds={guilds}
           selectedGuildId={guildId}
           onGuildChange={handleGuildChange}

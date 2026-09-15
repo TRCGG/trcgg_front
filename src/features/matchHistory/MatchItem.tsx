@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
-import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
+import { GameParticipant, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
 import SpriteImage from "@/components/ui/SpriteImage";
@@ -26,16 +25,14 @@ const MatchItem = ({ matchData }: Props) => {
   const guildId =
     typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
 
-  const { data: gameData, isLoading: isLoadingGameData } = useQuery<
-    ApiResponse<GameRecordResponse>
-  >({
+  const { data: gameData, isLoading: isLoadingGameData } = useQuery<GameParticipant[]>({
     queryKey: ["gameData", matchData.gameId, guildId],
     queryFn: () => getGameRecords(matchData.gameId, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: isOpen && !!guildId,
   });
 
-  const detailData = gameData?.data?.data;
+  const detailData = gameData;
   const showDetail = isOpen && !isLoadingGameData && !!detailData;
 
   const itemArr = [

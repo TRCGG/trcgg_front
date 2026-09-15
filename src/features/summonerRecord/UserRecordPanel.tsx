@@ -7,13 +7,11 @@ import {
   MostPicksResponse,
   MostPickStats,
   RecentGameRecord,
-  UserRecentRecordsResponse,
 } from "@/data/types/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
 import { getMostPicks, getRecentRecords } from "@/services/record";
 import PositionStats from "@/features/matchHistory/PositionStats";
 import TeamworkStats from "@/features/matchHistory/TeamworkStats";
@@ -56,9 +54,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   });
   const [championPosition, setChampionPosition] = useState<Position>("ALL");
 
-  const { data: recentRecordsData, refetch: refetchRecentRecords } = useQuery<
-    ApiResponse<UserRecentRecordsResponse>
-  >({
+  const { data: recentRecordsData, refetch: refetchRecentRecords } = useQuery<RecentGameRecord[]>({
     queryKey: ["userRecentRecords", riotName, riotTag, guildId],
     queryFn: () => getRecentRecords(riotName, riotTag, guildId),
     staleTime: 3 * 60 * 1000,
@@ -81,7 +77,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
     data: mostPicksData,
     isLoading: isLoadingMostPicks,
     isFetching: isFetchingMostPicks,
-  } = useQuery<ApiResponse<MostPicksResponse>>({
+  } = useQuery<MostPicksResponse["data"]>({
     queryKey: ["mostPicks", riotName, guildId, championDateRange, championPosition],
     queryFn: () =>
       getMostPicks(riotName, guildId!, {
@@ -103,11 +99,11 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   }, [dateRangeKey]);
 
   useEffect(() => {
-    const lines = mostPicksData?.data?.data?.lines;
+    const lines = mostPicksData?.lines;
     if (lines) setShareLines(lines);
   }, [mostPicksData]);
 
-  const allRecords = recentRecordsData?.data?.data || [];
+  const allRecords = recentRecordsData || [];
   const displayedRecords = allRecords.slice(0, displayCount);
   const hasMoreData = allRecords.length > displayCount;
 
@@ -167,7 +163,7 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   };
 
   const sortedChampions = useMemo((): MostPickStats[] => {
-    const source = mostPicksData?.data?.data?.mostPicks ?? [];
+    const source = mostPicksData?.mostPicks ?? [];
     const sorted = [...source];
     const multiplier = championSortOrder === "asc" ? -1 : 1;
     if (championSortType === "winRate") {

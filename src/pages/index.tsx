@@ -67,7 +67,7 @@ const Home: NextPage = () => {
   const { guildId, guilds, isLoggedIn, username, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
 
-  const { data, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
+  const { users, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
     searchTerm,
     guildId
   );
@@ -145,7 +145,7 @@ const Home: NextPage = () => {
             <SearchBarResultList
               isLoading={isLoading}
               isError={isError}
-              users={data?.data}
+              users={users}
               enable={isSearchFocused}
               searchTerm={searchTerm}
             />

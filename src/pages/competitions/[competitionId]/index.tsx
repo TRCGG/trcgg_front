@@ -97,7 +97,7 @@ const CompetitionBoardPage: NextPage = () => {
   const isManager = canManageGuild(currentRole);
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -145,11 +145,11 @@ const CompetitionBoardPage: NextPage = () => {
     }
   );
 
-  const teams = teamsQuery.data?.data?.data ?? [];
-  const matches = matchesQuery.data?.data?.data ?? [];
-  const standings = standingsQuery.data?.data?.data ?? null;
-  const userStats = userStatsQuery.data?.data?.data ?? [];
-  const championStats = championStatsQuery.data?.data?.data ?? [];
+  const teams = teamsQuery.data ?? [];
+  const matches = matchesQuery.data ?? [];
+  const standings = standingsQuery.data ?? null;
+  const userStats = userStatsQuery.data ?? [];
+  const championStats = championStatsQuery.data ?? [];
 
   const changeTab = (tab: BoardTab) => {
     router.push({ pathname: router.pathname, query: { ...router.query, tab } }, undefined, {
@@ -415,7 +415,7 @@ const CompetitionBoardPage: NextPage = () => {
           onSearch={handleSearchButtonClick}
           isLoading={isLoading}
           isError={isError}
-          users={userSearchData?.data}
+          users={userSearchData}
           guilds={guilds}
           selectedGuildId={guildId}
           onGuildChange={handleGuildChange}

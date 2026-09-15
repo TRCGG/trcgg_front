@@ -16,12 +16,11 @@ import useRosterDraft, {
   RosterSlotMember,
   approvedApplicants,
 } from "@/hooks/competition/useRosterDraft";
-import { ApiResponse } from "@/services/apiService";
 import { canManageGuild } from "@/data/types/guildMember";
 import {
   CompetitionApplicationItem,
   CompetitionPosition,
-  TeamListResponse,
+  CompetitionTeamWithRoster,
 } from "@/data/types/competition";
 import { getTeams, saveRoster } from "@/services/competition";
 import RosterPool from "@/features/competition/RosterPool";
@@ -54,7 +53,7 @@ const RosterPage: NextPage = () => {
   const isManager = canManageGuild(currentRole);
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -67,13 +66,13 @@ const RosterPage: NextPage = () => {
   );
 
   const enabled = !!guildId && validId !== null;
-  const { data: teamsRes, isLoading: isLoadingTeams } = useQuery<ApiResponse<TeamListResponse>>({
+  const { data: teamsRes, isLoading: isLoadingTeams } = useQuery<CompetitionTeamWithRoster[]>({
     queryKey: ["competitionTeams", guildId, validId],
     queryFn: () => getTeams(guildId, validId as number),
     enabled,
     staleTime: 30 * 1000,
   });
-  const serverTeams = teamsRes?.data?.data ?? [];
+  const serverTeams = teamsRes ?? [];
 
   const draft = useRosterDraft(serverTeams, !isLoadingTeams && enabled);
   const applicants = approvedApplicants(applications);
@@ -284,7 +283,7 @@ const RosterPage: NextPage = () => {
           onSearch={handleSearchButtonClick}
           isLoading={isLoading}
           isError={isError}
-          users={userSearchData?.data}
+          users={userSearchData}
           guilds={guilds}
           selectedGuildId={guildId}
           onGuildChange={handleGuildChange}

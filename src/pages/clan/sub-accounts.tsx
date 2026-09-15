@@ -1,17 +1,12 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
 import {
   getGuildMembers,
   getSubAccounts,
   linkSubAccount,
   removeSubAccount,
 } from "@/services/guildMember";
-import {
-  MemberListResponse,
-  SubAccountLink,
-  SubAccountListResponse,
-} from "@/data/types/guildMember";
+import { GuildMemberRow, SubAccountLink } from "@/data/types/guildMember";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useDebouncedRiotNameTag from "@/hooks/searchUserList/useDebouncedRiotNameTag";
 import useUserSearchQuery from "@/hooks/searchUserList/useUserSearchQuery";
@@ -57,27 +52,26 @@ const SubAccountContent = () => {
   const [draftFocused, setDraftFocused] = useState(false);
   useClickOutside(draftRef, () => setDraftFocused(false));
   const { debouncedTerm, isTyping } = useDebouncedRiotNameTag(draft);
-  const { data: previewData } = useUserSearchQuery(
+  const { users: previewResults } = useUserSearchQuery(
     isTyping ? { riotName: "", riotNameTag: "" } : debouncedTerm,
     guildId
   );
-  const previewResults = previewData?.data?.data ?? [];
 
-  const membersQuery = useQuery<ApiResponse<MemberListResponse>>({
+  const membersQuery = useQuery<GuildMemberRow[]>({
     queryKey: ["clanMembers", guildId, "active"],
     queryFn: () => getGuildMembers(guildId, { status: "1", limit: 1000 }),
     enabled: !!guildId,
     staleTime: 30 * 1000,
   });
-  const subAccountsQuery = useQuery<ApiResponse<SubAccountListResponse>>({
+  const subAccountsQuery = useQuery<SubAccountLink[]>({
     queryKey: ["subAccounts", guildId],
     queryFn: () => getSubAccounts(guildId),
     enabled: !!guildId,
     staleTime: 30 * 1000,
   });
 
-  const mains = useMemo(() => membersQuery.data?.data?.data ?? [], [membersQuery.data]);
-  const links = useMemo(() => subAccountsQuery.data?.data?.data ?? [], [subAccountsQuery.data]);
+  const mains = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const links = useMemo(() => subAccountsQuery.data ?? [], [subAccountsQuery.data]);
 
   // 본계정 key → 부계정 목록
   const altsByMain = useMemo(() => {

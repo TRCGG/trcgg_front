@@ -8,13 +8,12 @@ import Modal from "@/components/modal/Modal";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { uploadReplays, getReplayList, deleteReplay } from "@/services/replay";
-import { ApiResponse } from "@/services/apiService";
 import { hasMinRole } from "@/data/types/guildMember";
 import {
+  ReplayLog,
   ReplayUploadData,
   ReplayUploadFailed,
   ReplayUploadSuccess,
-  ReplayListResponse,
 } from "@/data/types/replay";
 import { formatTimeAgo } from "@/utils/parseTime";
 import { sliceRoflForUpload } from "@/utils/rofl";
@@ -69,7 +68,7 @@ const Replay: NextPage = () => {
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -82,14 +81,14 @@ const Replay: NextPage = () => {
     data: replayListData,
     isLoading: isLoadingList,
     refetch: refetchList,
-  } = useQuery<ApiResponse<ReplayListResponse>>({
+  } = useQuery<ReplayLog[]>({
     queryKey: ["replayList", guildId],
     queryFn: () => getReplayList(guildId),
     enabled: !!guildId && isLoggedIn,
     staleTime: 60 * 1000,
   });
 
-  const replayList = replayListData?.data?.data?.slice(0, 10) ?? [];
+  const replayList = replayListData?.slice(0, 10) ?? [];
 
   const totalSizeMB = (files.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(1);
 
@@ -219,7 +218,7 @@ const Replay: NextPage = () => {
         onSearch={handleSearchButtonClick}
         isLoading={isLoading}
         isError={isError}
-        users={userSearchData?.data}
+        users={userSearchData}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}

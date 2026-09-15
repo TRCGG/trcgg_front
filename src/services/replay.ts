@@ -1,6 +1,6 @@
 import api from "@/services/index";
-import { ApiResponse, toErrorResponse } from "@/services/apiService";
-import { ReplayUploadResponse, ReplayListResponse } from "@/data/types/replay";
+import { ApiResponse, toErrorResponse, unwrap } from "@/services/apiService";
+import { ReplayListResponse, ReplayLog, ReplayUploadResponse } from "@/data/types/replay";
 
 // 업로드가 응답 없이 무한 대기(펜딩)하는 것을 막기 위한 요청 타임아웃(ms)
 const UPLOAD_TIMEOUT_MS = 120000;
@@ -30,12 +30,8 @@ export const uploadReplays = async (
   return res.data as ReplayUploadResponse;
 };
 
-export const getReplayList = async (guildId: string): Promise<ApiResponse<ReplayListResponse>> => {
-  try {
-    return await api.get(`/api/replays/${guildId}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+export const getReplayList = async (guildId: string): Promise<ReplayLog[]> => {
+  return unwrap(api.get<ReplayListResponse>(`/api/replays/${guildId}`));
 };
 
 // 리플레이 삭제 — 목록의 replayCode가 삭제 API의 gameId에 매치됨. guildId는 이미 Base64

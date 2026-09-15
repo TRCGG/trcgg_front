@@ -10,8 +10,7 @@ import UserRankHeader from "@/features/statistics/UserRankHeader";
 import UserRankItem from "@/features/statistics/UserRankItem";
 import { useQuery } from "@tanstack/react-query";
 import { getUserStatistics, Position, DatePreset } from "@/services/statistics";
-import { ApiResponse } from "@/services/apiService";
-import { UserStatisticsResponse } from "@/data/types/statistics";
+import { UserStatistics } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
@@ -65,7 +64,7 @@ const User: NextPage = () => {
 
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -83,7 +82,7 @@ const User: NextPage = () => {
     isFetching: isFetchingStatistics,
     isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
-  } = useQuery<ApiResponse<UserStatisticsResponse>>({
+  } = useQuery<UserStatistics[]>({
     queryKey: [
       "userStatistics",
       guildId,
@@ -126,7 +125,7 @@ const User: NextPage = () => {
   };
 
   const sortedUsers = useMemo(() => {
-    const users = [...(userStatisticsData?.data?.data || [])];
+    const users = [...(userStatisticsData || [])];
 
     users.sort((a, b) => {
       let aValue: number;
@@ -150,7 +149,7 @@ const User: NextPage = () => {
     });
 
     return users;
-  }, [userStatisticsData?.data?.data, sortBy, sortOrder]);
+  }, [userStatisticsData, sortBy, sortOrder]);
 
   const displayedUsers = sortedUsers.slice(0, displayCount);
   const hasMore = sortedUsers.length > displayCount;
@@ -189,7 +188,7 @@ const User: NextPage = () => {
         onSearch={handleSearchButtonClick}
         isLoading={isLoading}
         isError={isError}
-        users={userSearchData?.data}
+        users={userSearchData}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}

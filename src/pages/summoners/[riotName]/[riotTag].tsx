@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { MatchDashboardData, MultiplePlayerInfo, UserRecordResponse } from "@/data/types/record";
+import { MatchDashboardData, MultiplePlayerInfo } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
@@ -32,7 +31,7 @@ const RiotProfilePage = () => {
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -42,7 +41,7 @@ const RiotProfilePage = () => {
     data: userRecordData,
     isLoading: isLoadingUserRecord,
     refetch: refetchUserRecords,
-  } = useQuery<ApiResponse<UserRecordResponse>>({
+  } = useQuery<MatchDashboardData | MultiplePlayerInfo[]>({
     queryKey: ["userRecords", riotNameString, riotTagString, guildId],
     queryFn: () => getAllRecords(riotNameString, riotTagString, guildId),
     staleTime: 3 * 60 * 1000,
@@ -76,7 +75,7 @@ const RiotProfilePage = () => {
   };
 
   // 배경 이미지용 mostChampion 가져오기
-  const data = userRecordData?.data?.data;
+  const data = userRecordData;
   const mostChampion =
     data && isMatchDashboardData(data) && data.mostPicks && data.mostPicks.length > 0
       ? data.mostPicks[0].champNameEng
@@ -122,7 +121,7 @@ const RiotProfilePage = () => {
             onSearch={handleSearchButtonClick}
             isLoading={isLoading}
             isError={isError}
-            users={userSearchData?.data}
+            users={userSearchData}
             guilds={guilds}
             selectedGuildId={guildId}
             onGuildChange={handleGuildChange}

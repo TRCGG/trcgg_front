@@ -10,8 +10,7 @@ import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
 import { useQuery } from "@tanstack/react-query";
 import { getChampionStatistics, Position, DatePreset } from "@/services/statistics";
-import { ApiResponse } from "@/services/apiService";
-import { ChampionStatisticsResponse } from "@/data/types/statistics";
+import { ChampionStatistics } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
@@ -64,7 +63,7 @@ const Champion: NextPage = () => {
   const hasMoreRef = useRef(false);
   const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -82,7 +81,7 @@ const Champion: NextPage = () => {
     isFetching: isFetchingStatistics,
     isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
-  } = useQuery<ApiResponse<ChampionStatisticsResponse>>({
+  } = useQuery<ChampionStatistics[]>({
     queryKey: [
       "championStatistics",
       guildId,
@@ -126,15 +125,15 @@ const Champion: NextPage = () => {
 
   const popularChampions = useMemo(
     () =>
-      [...(championStatisticsData?.data?.data || [])]
+      [...(championStatisticsData || [])]
         .sort((a, b) => b.totalCount - a.totalCount)
         .slice(0, 10)
         .map((c) => c.champNameEng),
-    [championStatisticsData?.data?.data]
+    [championStatisticsData]
   );
 
   const sortedChampions = useMemo(() => {
-    const champions = [...(championStatisticsData?.data?.data || [])];
+    const champions = [...(championStatisticsData || [])];
     const metric = (c: (typeof champions)[number]) => {
       if (sortBy === "totalGames") return c.totalCount;
       if (sortBy === "kda") return parseFloat(c.kda) || 0;
@@ -142,7 +141,7 @@ const Champion: NextPage = () => {
     };
     champions.sort((a, b) => (sortOrder === "asc" ? metric(a) - metric(b) : metric(b) - metric(a)));
     return champions;
-  }, [championStatisticsData?.data?.data, sortBy, sortOrder]);
+  }, [championStatisticsData, sortBy, sortOrder]);
 
   const displayedChampions = sortedChampions.slice(0, displayCount);
   const hasMore = sortedChampions.length > displayCount;
@@ -181,7 +180,7 @@ const Champion: NextPage = () => {
         onSearch={handleSearchButtonClick}
         isLoading={isLoading}
         isError={isError}
-        users={userSearchData?.data}
+        users={userSearchData}
         guilds={guilds}
         selectedGuildId={guildId}
         onGuildChange={handleGuildChange}

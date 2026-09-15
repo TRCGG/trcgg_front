@@ -1,12 +1,16 @@
-import { ApiResponse, toErrorResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse, unwrap } from "@/services/apiService";
 import {
-  GuildMembersResponse,
-  UpdateMemberRoleResponse,
-  GuildResponse,
   AssignableRole,
+  DiscordMemberRoleItem,
+  GuildMemberRow,
+  GuildMembersResponse,
+  GuildResponse,
+  GuildRow,
   MemberListResponse,
-  SubAccountListResponse,
   MemberStatus,
+  SubAccountLink,
+  SubAccountListResponse,
+  UpdateMemberRoleResponse,
 } from "@/data/types/guildMember";
 import api from "@/services/index";
 
@@ -20,17 +24,15 @@ interface GetMembersParams {
 export const getGuildDiscordMembers = async (
   guildId: string,
   { search, page = 1, limit = 50 }: GetMembersParams = {}
-): Promise<ApiResponse<GuildMembersResponse>> => {
-  try {
-    const params: Record<string, string> = {
-      page: String(page),
-      limit: String(limit),
-    };
-    if (search) params.search = search;
-    return await api.get(`/api/guildMember/${guildId}/discord-members`, params);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<DiscordMemberRoleItem[]> => {
+  const params: Record<string, string> = {
+    page: String(page),
+    limit: String(limit),
+  };
+  if (search) params.search = search;
+  return unwrap(
+    api.get<GuildMembersResponse>(`/api/guildMember/${guildId}/discord-members`, params)
+  );
 };
 
 export const updateMemberRole = async (
@@ -48,12 +50,8 @@ export const updateMemberRole = async (
 };
 
 // 주의: GET /api/guilds/{id}는 Base64가 아닌 원본 id를 받음(다른 엔드포인트와 달리 디코딩 미들웨어 없음)
-export const getGuildById = async (guildId: string): Promise<ApiResponse<GuildResponse>> => {
-  try {
-    return await api.get(`/api/guilds/${atob(guildId)}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+export const getGuildById = async (guildId: string): Promise<GuildRow> => {
+  return unwrap(api.get<GuildResponse>(`/api/guilds/${atob(guildId)}`));
 };
 
 export const setAllowAllUploads = async (
@@ -76,26 +74,16 @@ export const getGuildMembers = async (
     page,
     limit,
   }: { status?: MemberStatus | "all"; page?: number; limit?: number } = {}
-): Promise<ApiResponse<MemberListResponse>> => {
-  try {
-    const params: Record<string, string> = { status };
-    if (page) params.page = String(page);
-    if (limit) params.limit = String(limit);
-    return await api.get(`/api/guildMember/${guildId}/members`, params);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<GuildMemberRow[]> => {
+  const params: Record<string, string> = { status };
+  if (page) params.page = String(page);
+  if (limit) params.limit = String(limit);
+  return unwrap(api.get<MemberListResponse>(`/api/guildMember/${guildId}/members`, params));
 };
 
 // 연결된 부계정 목록 조회 (sub → main 링크)
-export const getSubAccounts = async (
-  guildId: string
-): Promise<ApiResponse<SubAccountListResponse>> => {
-  try {
-    return await api.get(`/api/guildMember/${guildId}/sub-accounts`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+export const getSubAccounts = async (guildId: string): Promise<SubAccountLink[]> => {
+  return unwrap(api.get<SubAccountListResponse>(`/api/guildMember/${guildId}/sub-accounts`));
 };
 
 // 부계정 연결

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { GameRecordResponse } from "@/data/types/record";
+import { GameParticipant } from "@/data/types/record";
 import { getGameRecords } from "@/services/record";
 import { CompetitionMatchTeamItem } from "@/data/types/competition";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
@@ -48,14 +47,14 @@ const BoardMatchRow = ({
   const [isOpen, setOpen] = useState(false);
   const toggleOpen = () => setOpen((prev) => !prev);
 
-  const { data, isLoading } = useQuery<ApiResponse<GameRecordResponse>>({
+  const { data, isLoading } = useQuery<GameParticipant[]>({
     queryKey: ["gameData", match.customMatchId, guildId],
     queryFn: () => getGameRecords(match.customMatchId, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: isOpen && !!guildId,
   });
 
-  const detail = data?.data?.data;
+  const detail = data;
   const showDetail = isOpen && !isLoading && !!detail;
   const isMain = match.gameType === "3";
   const blue = sideResult(match, "blue");

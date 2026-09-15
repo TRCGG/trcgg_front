@@ -1,14 +1,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import {
-  FrequentOpponent,
-  FrequentOpponentsResponse,
-  H2HCandidate,
-  H2HDetail,
-  H2HDetailResponse,
-} from "@/data/types/h2h";
+import { FrequentOpponent, H2HCandidate, H2HDetail } from "@/data/types/h2h";
 import { getFrequentOpponents, getH2HDetail } from "@/services/h2h";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import H2HEmptyState from "./H2HEmptyState";
@@ -59,9 +52,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     });
   };
 
-  const { data: frequentData, isLoading: isLoadingFrequent } = useQuery<
-    ApiResponse<FrequentOpponentsResponse>
-  >({
+  const { data: frequentData, isLoading: isLoadingFrequent } = useQuery<FrequentOpponent[]>({
     queryKey: ["h2hFrequent", guildId, riotName, riotTag],
     queryFn: () => getFrequentOpponents(guildId!, riotName, { riotNameTag: riotTag, limit: 12 }),
     staleTime: 5 * 60 * 1000,
@@ -72,7 +63,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     data: detailData,
     isLoading: isLoadingDetail,
     isFetching: isFetchingDetail,
-  } = useQuery<ApiResponse<H2HDetailResponse>>({
+  } = useQuery<H2HDetail | H2HCandidate[] | null>({
     queryKey: ["h2hDetail", guildId, riotName, riotTag, opponent],
     queryFn: () =>
       getH2HDetail(
@@ -84,10 +75,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     enabled: !!guildId && !!riotName && !!opponent,
   });
 
-  const frequent = useMemo<FrequentOpponent[]>(
-    () => frequentData?.data?.data ?? [],
-    [frequentData]
-  );
+  const frequent = useMemo<FrequentOpponent[]>(() => frequentData ?? [], [frequentData]);
 
   const handleSelect = (o: SelectedOpponent) => pushVs(buildVs(o));
 
@@ -111,7 +99,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     return <LoadingSpinner />;
   }
 
-  const detail = detailData?.data?.data;
+  const detail = detailData;
 
   // 동명이인 후보 여러 명
   if (isCandidateList(detail)) {

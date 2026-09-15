@@ -1,4 +1,4 @@
-import { ApiResponse, toErrorResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse, unwrap } from "@/services/apiService";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
 import {
@@ -6,31 +6,40 @@ import {
   ApplicationListResponse,
   ApplicationMutationResponse,
   ApplicationResponse,
+  CompetitionApplicationItem,
   CompetitionApplicationStatus,
   CompetitionApplicationUpdateInput,
   CompetitionApplyInput,
+  CompetitionChampionStat,
+  CompetitionChampionStatResponse,
   CompetitionCreateInput,
+  CompetitionDetail,
   CompetitionDetailResponse,
   CompetitionGameType,
   CompetitionListResponse,
+  CompetitionMatchTeamItem,
   CompetitionPosition,
   CompetitionRemoveResponse,
   CompetitionResolveResponse,
   CompetitionResponse,
+  CompetitionStandings,
   CompetitionStatus,
+  CompetitionSummary,
+  CompetitionTeamWithRoster,
   CompetitionUpdateInput,
+  CompetitionUserStat,
+  CompetitionUserStatResponse,
+  HeadToHeadResponse,
   MatchGameTypeChangeResponse,
   MatchTeamAssignInput,
   MatchTeamListResponse,
+  PlayerCompetitionItem,
   PlayerCompetitionListResponse,
   RosterSaveInput,
   StandingsResponse,
   TeamListResponse,
-  HeadToHeadResponse,
   TeamRecordListResponse,
   TeamResponse,
-  CompetitionUserStatResponse,
-  CompetitionChampionStatResponse,
 } from "@/data/types/competition";
 
 // guildId는 useGuildManagement가 보관하는 이미 Base64 인코딩된 값 — 그대로 path에 쓴다
@@ -53,13 +62,9 @@ export const createCompetition = async (
 export const getCompetitions = async (
   guildId: string,
   params?: { season?: string; status?: CompetitionStatus }
-): Promise<ApiResponse<CompetitionListResponse>> => {
-  try {
-    const query = buildQuery({ season: params?.season, status: params?.status });
-    return await api.get(`${BASE(guildId)}${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionSummary[]> => {
+  const query = buildQuery({ season: params?.season, status: params?.status });
+  return unwrap(api.get<CompetitionListResponse>(`${BASE(guildId)}${query}`));
 };
 
 /** 이름 생략 시 진행중 대회, 없으면 최근 종료 대회를 돌려준다. */
@@ -77,12 +82,8 @@ export const resolveCompetition = async (
 export const getCompetitionDetail = async (
   guildId: string,
   competitionId: number
-): Promise<ApiResponse<CompetitionDetailResponse>> => {
-  try {
-    return await api.get(`${BASE(guildId)}/${competitionId}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionDetail> => {
+  return unwrap(api.get<CompetitionDetailResponse>(`${BASE(guildId)}/${competitionId}`));
 };
 
 export const updateCompetition = async (
@@ -142,12 +143,8 @@ export const applyToCompetition = async (
 export const getMyApplication = async (
   guildId: string,
   competitionId: number
-): Promise<ApiResponse<ApplicationResponse>> => {
-  try {
-    return await api.get(`${BASE(guildId)}/${competitionId}/applications/me`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionApplicationItem | null> => {
+  return unwrap(api.get<ApplicationResponse>(`${BASE(guildId)}/${competitionId}/applications/me`));
 };
 
 export const updateMyApplication = async (
@@ -177,13 +174,11 @@ export const getApplications = async (
   guildId: string,
   competitionId: number,
   params?: { status?: CompetitionApplicationStatus }
-): Promise<ApiResponse<ApplicationListResponse>> => {
-  try {
-    const query = buildQuery({ status: params?.status });
-    return await api.get(`${BASE(guildId)}/${competitionId}/applications${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionApplicationItem[]> => {
+  const query = buildQuery({ status: params?.status });
+  return unwrap(
+    api.get<ApplicationListResponse>(`${BASE(guildId)}/${competitionId}/applications${query}`)
+  );
 };
 
 /** 일괄 승인·거절. status를 PENDING으로 보내면 결정을 되돌린다. */
@@ -216,12 +211,8 @@ export const createTeam = async (
 export const getTeams = async (
   guildId: string,
   competitionId: number
-): Promise<ApiResponse<TeamListResponse>> => {
-  try {
-    return await api.get(`${BASE(guildId)}/${competitionId}/teams`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamWithRoster[]> => {
+  return unwrap(api.get<TeamListResponse>(`${BASE(guildId)}/${competitionId}/teams`));
 };
 
 /** 로스터 전체 저장. payload에 없는 팀은 삭제되므로 항상 전체를 보낸다. */
@@ -309,15 +300,13 @@ export const getCompetitionMatches = async (
   guildId: string,
   competitionId: number,
   params?: { unassigned?: boolean }
-): Promise<ApiResponse<MatchTeamListResponse>> => {
-  try {
-    const query = buildQuery({
-      unassigned: params?.unassigned === undefined ? undefined : String(params.unassigned),
-    });
-    return await api.get(`${BASE(guildId)}/${competitionId}/matches${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionMatchTeamItem[]> => {
+  const query = buildQuery({
+    unassigned: params?.unassigned === undefined ? undefined : String(params.unassigned),
+  });
+  return unwrap(
+    api.get<MatchTeamListResponse>(`${BASE(guildId)}/${competitionId}/matches${query}`)
+  );
 };
 
 /** 경기 한 건의 진영별 팀 귀속. null을 보내면 귀속을 해제한다. */
@@ -355,12 +344,8 @@ export const changeMatchGameType = async (
 export const getStandings = async (
   guildId: string,
   competitionId: number
-): Promise<ApiResponse<StandingsResponse>> => {
-  try {
-    return await api.get(`${BASE(guildId)}/${competitionId}/standings`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionStandings> => {
+  return unwrap(api.get<StandingsResponse>(`${BASE(guildId)}/${competitionId}/standings`));
 };
 
 /** 두 팀의 맞대결 전적 + 경기 목록. 응답이 배열이 아니라 단일 객체다. */
@@ -391,26 +376,26 @@ export const getCompetitionUserStatistics = async (
   guildId: string,
   competitionId: number,
   params?: CompetitionStatisticsParams
-): Promise<ApiResponse<CompetitionUserStatResponse>> => {
-  try {
-    const query = buildQuery({ ...params });
-    return await api.get(`${BASE(guildId)}/${competitionId}/statistics/users${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionUserStat[]> => {
+  const query = buildQuery({ ...params });
+  return unwrap(
+    api.get<CompetitionUserStatResponse>(
+      `${BASE(guildId)}/${competitionId}/statistics/users${query}`
+    )
+  );
 };
 
 export const getCompetitionChampionStatistics = async (
   guildId: string,
   competitionId: number,
   params?: CompetitionStatisticsParams
-): Promise<ApiResponse<CompetitionChampionStatResponse>> => {
-  try {
-    const query = buildQuery({ ...params });
-    return await api.get(`${BASE(guildId)}/${competitionId}/statistics/champions${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionChampionStat[]> => {
+  const query = buildQuery({ ...params });
+  return unwrap(
+    api.get<CompetitionChampionStatResponse>(
+      `${BASE(guildId)}/${competitionId}/statistics/champions${query}`
+    )
+  );
 };
 
 /** 선수 한 명이 참여한 대회 목록 — 전적 페이지의 대회 탭에서 쓴다. */
@@ -418,13 +403,11 @@ export const getPlayerCompetitions = async (
   guildId: string,
   playerCode: string,
   params?: { status?: CompetitionStatus }
-): Promise<ApiResponse<PlayerCompetitionListResponse>> => {
-  try {
-    const query = buildQuery({ status: params?.status });
-    return await api.get(
+): Promise<PlayerCompetitionItem[]> => {
+  const query = buildQuery({ status: params?.status });
+  return unwrap(
+    api.get<PlayerCompetitionListResponse>(
       `${BASE(guildId)}/players/${encodeURIComponent(playerCode)}/competitions${query}`
-    );
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+    )
+  );
 };

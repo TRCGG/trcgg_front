@@ -12,10 +12,9 @@ import useUserSearchController from "@/hooks/searchUserList/useUserSearchControl
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useChampions from "@/hooks/competition/useChampions";
-import { ApiResponse } from "@/services/apiService";
 import {
-  ApplicationResponse,
   COMPETITION_POSITIONS,
+  CompetitionApplicationItem,
   CompetitionPosition,
   CompetitionSubPosition,
   PracticeLevel,
@@ -113,7 +112,7 @@ const CompetitionApplyPage: NextPage = () => {
     useGuildManagement();
 
   const {
-    data: userSearchData,
+    users: userSearchData,
     isLoading,
     isError,
     handleSearchButtonClick,
@@ -122,15 +121,14 @@ const CompetitionApplyPage: NextPage = () => {
   const { competition } = useCompetitionDetail(guildId, validId);
   const { champions } = useChampions(!!guildId);
 
-  const { data: myApplicationRes, isLoading: isLoadingMine } = useQuery<
-    ApiResponse<ApplicationResponse>
-  >({
-    queryKey: ["myCompetitionApplication", guildId, validId],
-    queryFn: () => getMyApplication(guildId, validId as number),
-    enabled: !!guildId && validId !== null,
-    staleTime: 15 * 1000,
-  });
-  const mine = myApplicationRes?.data?.data ?? null;
+  const { data: myApplicationRes, isLoading: isLoadingMine } =
+    useQuery<CompetitionApplicationItem | null>({
+      queryKey: ["myCompetitionApplication", guildId, validId],
+      queryFn: () => getMyApplication(guildId, validId as number),
+      enabled: !!guildId && validId !== null,
+      staleTime: 15 * 1000,
+    });
+  const mine = myApplicationRes ?? null;
   const isEditing = mine !== null;
 
   // 기존 신청서를 폼에 채운다. 사용자가 편집을 시작한 뒤 덮어쓰지 않도록 id가 바뀔 때만 동작한다.
@@ -473,7 +471,7 @@ const CompetitionApplyPage: NextPage = () => {
           onSearch={handleSearchButtonClick}
           isLoading={isLoading}
           isError={isError}
-          users={userSearchData?.data}
+          users={userSearchData}
           guilds={guilds}
           selectedGuildId={guildId}
           onGuildChange={handleGuildChange}

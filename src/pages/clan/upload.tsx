@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
-import { ApiResponse } from "@/services/apiService";
 import {
   getGuildDiscordMembers,
   getGuildById,
@@ -9,14 +8,13 @@ import {
   setAllowAllUploads,
 } from "@/services/guildMember";
 import {
-  GuildMembersResponse,
-  GuildResponse,
-  DiscordMemberRoleItem,
   AssignableRole,
-  Role,
+  DiscordMemberRoleItem,
+  GuildRow,
   ROLE_HIERARCHY,
-  hasMinRole,
+  Role,
   getRoleMeta,
+  hasMinRole,
 } from "@/data/types/guildMember";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
 import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
@@ -50,14 +48,14 @@ const UploadPermissionContent = () => {
   const [allowAll, setAllowAll] = useState<boolean | null>(null);
 
   // 전체 멤버를 한 번에 불러오고(정렬·페이지네이션은 프론트에서 처리), role 변경 시 재조회하지 않는다.
-  const membersQuery = useQuery<ApiResponse<GuildMembersResponse>>({
+  const membersQuery = useQuery<DiscordMemberRoleItem[]>({
     queryKey: ["guildMembers", guildId],
     queryFn: () => getGuildDiscordMembers(guildId, { limit: FETCH_LIMIT }),
     enabled: !!guildId,
     staleTime: 30 * 1000,
   });
 
-  const guildQuery = useQuery<ApiResponse<GuildResponse>>({
+  const guildQuery = useQuery<GuildRow>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
     enabled: !!guildId,
@@ -65,11 +63,11 @@ const UploadPermissionContent = () => {
   });
 
   useEffect(() => {
-    const value = guildQuery.data?.data?.data?.allowAllUploads;
+    const value = guildQuery.data?.allowAllUploads;
     if (typeof value === "boolean") setAllowAll(value);
   }, [guildQuery.data]);
 
-  const rawMembers = useMemo(() => membersQuery.data?.data?.data ?? [], [membersQuery.data]);
+  const rawMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
 
   // 멤버 구성(추가·삭제·길드 변경)이 바뀔 때만 매니저 > 업로더 > 일반 순으로 정렬한다.
   // role만 바뀐 경우엔 재정렬하지 않아 화면상 순서가 유지된다(새로고침 시 다시 정렬).
