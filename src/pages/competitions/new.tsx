@@ -72,16 +72,12 @@ const CompetitionCreatePage: NextPage = () => {
 
   const createMutation = useMutation({
     mutationFn: () => createCompetition(guildId, { name: name.trim(), status, approvalRequired }),
-    onSuccess: async (res) => {
-      if (res.error || !res.data?.data) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async (created) => {
       setErrorMsg(null);
       await invalidateCompetitions();
-      router.push(`/competitions/${res.data.data.id}`);
+      router.push(`/competitions/${created.id}`);
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const trimmedName = name.trim();

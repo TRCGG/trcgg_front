@@ -6,20 +6,6 @@ import { ApiError, toApiError } from "@/services/apiError";
 // 기본 요청 타임아웃(ms). 이 시간 안에 응답이 없으면 요청을 취소해 무한 대기(펜딩)를 막는다.
 const DEFAULT_TIMEOUT_MS = 30000;
 
-/**
- * 성공 응답. 요청이 실패하면 이 타입을 반환하지 않고 ApiError를 throw한다.
- *
- * error/errorType 필드는 호출부 마이그레이션이 끝날 때까지 남겨둔 호환용이며 성공 시 항상 null이다.
- * 서비스 레이어가 ApiError를 잡아 이 형태로 되돌리고 있어, 호출부가 모두 예외 기반으로
- * 옮겨간 뒤 제거한다.
- */
-interface ApiResponse<T> {
-  data: T | null;
-  error: string | null;
-  errorType?: string | null;
-  status: number;
-}
-
 interface RequestConfig {
   params?: Record<string, string>;
   headers?: Record<string, string>;
@@ -101,55 +87,24 @@ const createClient = (baseUrl: string): AxiosInstance => {
   return client;
 };
 
-/** 성공 응답을 ApiResponse로 감싼다. 실패는 인터셉터가 이미 throw했으므로 여기 오지 않는다. */
-const toApiResponse = async <T>(
-  client: AxiosInstance,
-  config: AxiosRequestConfig
-): Promise<ApiResponse<T>> => {
+/** 응답 본문을 그대로 돌려준다. 실패는 인터셉터가 이미 ApiError로 throw했다. */
+const send = async <T>(client: AxiosInstance, config: AxiosRequestConfig): Promise<T> => {
   const response = await client.request<T>(config);
-  return {
-    // 204 No Content에서 axios는 빈 문자열을 주므로 null로 맞춘다.
-    data: response.status === 204 ? null : response.data,
-    error: null,
-    errorType: null,
-    status: response.status,
-  };
-};
-
-/**
- * ApiError를 예전 { data, error } 형태로 되돌린다.
- *
- * 클라이언트가 throw로 바뀌면서 서비스 레이어의 catch가 비로소 실행되기 시작했다.
- * 호출부 100여 곳이 아직 이 형태를 읽고 있어 그 사이를 잇는 임시 어댑터이며,
- * 호출부가 모두 예외 기반으로 옮겨가면 이 함수와 ApiResponse의 error 필드는 함께 사라진다.
- *
- * status와 errorType을 반드시 실어 보낸다 — 화면 문구 매핑(competitionErrors.ts)이 둘 다 본다.
- */
-const toErrorResponse = <T>(error: unknown): ApiResponse<T> => {
-  const apiError = toApiError(error);
-  return {
-    data: null,
-    error: apiError.message,
-    errorType: apiError.errorType,
-    status: apiError.status,
-  };
+  // 204 No Content에서 axios는 빈 문자열을 주므로 null로 맞춘다.
+  return (response.status === 204 ? null : response.data) as T;
 };
 
 /**
  * 성공 응답에서 백엔드 봉투({ status, message, data })를 벗겨 페이로드만 남긴다.
  *
- * 봉투의 status·message를 읽는 호출부가 한 곳도 없어, 읽기 서비스는 이 함수를 거쳐
+ * 봉투의 status·message를 읽는 호출부가 한 곳도 없어, 서비스 함수는 이 함수를 거쳐
  * 실제 데이터 타입을 그대로 노출한다. 그래야 훅의 반환 타입이 컴포넌트 prop 타입과 맞는다.
  */
-const unwrap = async <E extends { data: unknown }>(
-  request: Promise<ApiResponse<E>>
-): Promise<E["data"]> => {
-  const res = await request;
-  // 실패는 인터셉터가 이미 throw했으므로 여기서 봉투는 항상 존재한다.
-  const payload = (res.data as E | null)?.data;
+const unwrap = async <E extends { data: unknown }>(request: Promise<E>): Promise<E["data"]> => {
+  const body = await request;
   // React Query는 undefined를 쿼리 결과로 받으면 예외를 던진다. 봉투에 data가 빠져 있을 때
   // "데이터 없음"이 "요청 실패"로 둔갑하지 않도록 null로 맞춘다.
-  return (payload ?? null) as E["data"];
+  return (body?.data ?? null) as E["data"];
 };
 
 const createApiService = (baseUrl?: string) => {
@@ -161,30 +116,30 @@ const createApiService = (baseUrl?: string) => {
 
   return {
     get<T>(endpoint: string, params?: Record<string, string>, headers?: Record<string, string>) {
-      return toApiResponse<T>(client, { method: "GET", url: endpoint, params, headers });
+      return send<T>(client, { method: "GET", url: endpoint, params, headers });
     },
 
     post<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
-      return toApiResponse<T>(client, { method: "POST", url: endpoint, data: body, ...config });
+      return send<T>(client, { method: "POST", url: endpoint, data: body, ...config });
     },
 
     put<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
-      return toApiResponse<T>(client, { method: "PUT", url: endpoint, data: body, ...config });
+      return send<T>(client, { method: "PUT", url: endpoint, data: body, ...config });
     },
 
     patch<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
-      return toApiResponse<T>(client, { method: "PATCH", url: endpoint, data: body, ...config });
+      return send<T>(client, { method: "PATCH", url: endpoint, data: body, ...config });
     },
 
     /** DELETE는 본문을 받는다 — 삭제 확인값(confirmName 등)을 싣는 엔드포인트가 있다. */
     delete<T>(endpoint: string, options?: RequestConfig & { body?: unknown }) {
       const { body, ...config } = options ?? {};
-      return toApiResponse<T>(client, { method: "DELETE", url: endpoint, data: body, ...config });
+      return send<T>(client, { method: "DELETE", url: endpoint, data: body, ...config });
     },
   };
 };
 
 type ApiService = ReturnType<typeof createApiService>;
 
-export { createApiService, toErrorResponse, unwrap };
-export type { ApiResponse, ApiService, RequestConfig };
+export { createApiService, unwrap };
+export type { ApiService, RequestConfig };

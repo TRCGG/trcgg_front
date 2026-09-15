@@ -20,6 +20,7 @@ import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
 import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
 import { NextPageWithLayout } from "@/data/types/next";
 import Avatar from "@/components/ui/Avatar";
+import { toApiError } from "@/services/apiError";
 
 const PAGE_SIZE = 10;
 const FETCH_LIMIT = 1000;
@@ -107,28 +108,19 @@ const UploadPermissionContent = () => {
   const roleMutation = useMutation({
     mutationFn: ({ memberId, role }: { memberId: string; role: AssignableRole }) =>
       updateMemberRole(guildId, memberId, role),
-    onSuccess: (res) => {
-      if (res.error || !res.data?.data) {
-        setErrorMsg(roleErrorMessage(res.status));
-        return;
-      }
+    onSuccess: ({ memberId, role }) => {
       setErrorMsg(null);
       // 재조회 없이 해당 멤버의 role만 제자리 갱신 → 화면상 순서 유지
-      const { memberId, role } = res.data.data;
       setOrderedMembers((prev) => prev.map((m) => (m.memberId === memberId ? { ...m, role } : m)));
     },
-    onError: () => setErrorMsg(roleErrorMessage(0)),
+    onError: (err) => setErrorMsg(roleErrorMessage(toApiError(err).status)),
   });
 
   const allowAllMutation = useMutation({
     mutationFn: (next: boolean) => setAllowAllUploads(guildId, next),
-    onSuccess: (res) => {
-      if (res.error || !res.data?.data) {
-        setErrorMsg("전체 업로드 설정 변경에 실패했습니다.");
-        return;
-      }
+    onSuccess: (guild) => {
       setErrorMsg(null);
-      setAllowAll(res.data.data.allowAllUploads);
+      setAllowAll(guild.allowAllUploads);
     },
     onError: () => setErrorMsg("전체 업로드 설정 변경에 실패했습니다."),
   });

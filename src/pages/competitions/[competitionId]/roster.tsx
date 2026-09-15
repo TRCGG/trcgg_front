@@ -81,16 +81,12 @@ const RosterPage: NextPage = () => {
 
   const saveMutation = useMutation({
     mutationFn: () => saveRoster(guildId, validId as number, draft.toPayload()),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setSavedAt(new Date().toLocaleTimeString("ko-KR"));
       await invalidateCompetitions();
     },
-    onError: () => setErrorMsg("저장에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const handleSave = () => {

@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { toApiError } from "@/services/apiError";
 
 /**
  * 대회 API 에러를 화면 문구로 바꾼다.
@@ -11,11 +11,13 @@ const parseMainAccount = (detail: string | null): string | null => {
   return matched ? matched[1].trim() : null;
 };
 
-export const competitionErrorMessage = (res: ApiResponse<unknown>): string => {
+export const competitionErrorMessage = (error: unknown): string => {
+  const res = toApiError(error);
+
   switch (res.errorType) {
     case "sub-account-not-allowed": {
       // 백엔드가 연결된 본계정을 메시지에 담아 준다 — 어느 계정으로 다시 신청할지 알려준다.
-      const main = parseMainAccount(res.error);
+      const main = parseMainAccount(res.message);
       return main
         ? `부계정으로는 신청할 수 없습니다. 본계정(${main})으로 신청해주세요.`
         : "부계정으로는 신청할 수 없습니다. 본계정으로 신청해주세요.";
@@ -64,7 +66,7 @@ export const competitionErrorMessage = (res: ApiResponse<unknown>): string => {
 
   if (res.status === 403) return "운영진만 할 수 있는 작업입니다.";
   if (res.status === 404) return "대회를 찾을 수 없습니다.";
-  if (res.status === 400) return res.error ?? "요청이 올바르지 않습니다.";
-  if (res.status === 409) return res.error ?? "이미 처리된 요청입니다.";
+  if (res.status === 400) return res.message || "요청이 올바르지 않습니다.";
+  if (res.status === 409) return res.message || "이미 처리된 요청입니다.";
   return "요청에 실패했습니다. 잠시 후 다시 시도해주세요.";
 };

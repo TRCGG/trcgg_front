@@ -146,8 +146,9 @@ const Replay: NextPage = () => {
     if (deletingCode) return;
     setDeletingCode(replayCode);
     setDeleteError(null);
-    const res = await deleteReplay(guildId, replayCode);
-    if (res.error) {
+    try {
+      await deleteReplay(guildId, replayCode);
+    } catch {
       setDeleteError("리플레이 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setDeletingCode(null);
       return;
@@ -188,8 +189,8 @@ const Replay: NextPage = () => {
           batch.map((unit) => unit.upload),
           uploadNick ?? ""
         );
-        succeeded.push(...(result.data?.succeeded ?? []));
-        failed.push(...(result.data?.failed ?? []));
+        succeeded.push(...(result?.succeeded ?? []));
+        failed.push(...(result?.failed ?? []));
         done += batch.length;
         setUploadProgress({ done, total });
         setUploadResult({ succeeded: [...succeeded], failed: [...failed] });

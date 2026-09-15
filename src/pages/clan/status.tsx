@@ -128,7 +128,8 @@ const MemberStatusContent = () => {
     if (busy || targets.length === 0) return;
     setBusy(true);
     setErrorMsg(null);
-    const results = await Promise.all(
+    // allSettled로 받아야 일부만 실패했을 때도 나머지 결과를 잃지 않는다.
+    const results = await Promise.allSettled(
       targets.map((t) =>
         updateMemberStatus(guildId, {
           riotName: t.riotName,
@@ -137,7 +138,7 @@ const MemberStatusContent = () => {
         })
       )
     );
-    if (results.some((r) => r.error)) {
+    if (results.some((r) => r.status === "rejected")) {
       setErrorMsg("상태 변경 중 일부가 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
     setSelected({});

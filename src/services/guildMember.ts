@@ -1,4 +1,4 @@
-import { ApiResponse, toErrorResponse, unwrap } from "@/services/apiService";
+import { unwrap } from "@/services/apiService";
 import {
   AssignableRole,
   DiscordMemberRoleItem,
@@ -10,6 +10,7 @@ import {
   MemberStatus,
   SubAccountLink,
   SubAccountListResponse,
+  UpdateMemberRoleData,
   UpdateMemberRoleResponse,
 } from "@/data/types/guildMember";
 import api from "@/services/index";
@@ -39,14 +40,15 @@ export const updateMemberRole = async (
   guildId: string,
   memberId: string,
   role: AssignableRole
-): Promise<ApiResponse<UpdateMemberRoleResponse>> => {
-  try {
-    return await api.patch(`/api/guildMember/${guildId}/discord-members/${memberId}/role`, {
-      role,
-    });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<UpdateMemberRoleData> => {
+  return unwrap(
+    api.patch<UpdateMemberRoleResponse>(
+      `/api/guildMember/${guildId}/discord-members/${memberId}/role`,
+      {
+        role,
+      }
+    )
+  );
 };
 
 // 주의: GET /api/guilds/{id}는 Base64가 아닌 원본 id를 받음(다른 엔드포인트와 달리 디코딩 미들웨어 없음)
@@ -57,12 +59,10 @@ export const getGuildById = async (guildId: string): Promise<GuildRow> => {
 export const setAllowAllUploads = async (
   guildId: string,
   allowAllUploads: boolean
-): Promise<ApiResponse<GuildResponse>> => {
-  try {
-    return await api.patch(`/api/guilds/${guildId}/allow-all-uploads`, { allowAllUploads });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<GuildRow> => {
+  return unwrap(
+    api.patch<GuildResponse>(`/api/guilds/${guildId}/allow-all-uploads`, { allowAllUploads })
+  );
 };
 
 // guildId는 Base64 인코딩된 값 — path 엔드포인트는 그대로(서버가 디코드), body 엔드포인트는 atob로 디코드해 전달
@@ -90,36 +90,24 @@ export const getSubAccounts = async (guildId: string): Promise<SubAccountLink[]>
 export const linkSubAccount = async (
   guildId: string,
   payload: { subRiotName: string; subRiotTag: string; mainRiotName: string; mainRiotTag: string }
-): Promise<ApiResponse<unknown>> => {
-  try {
-    return await api.post(`/api/guildMember/sub-account`, { guildId: atob(guildId), ...payload });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<void> => {
+  await api.post(`/api/guildMember/sub-account`, { guildId: atob(guildId), ...payload });
 };
 
 // 부계정 연결 해제
 export const removeSubAccount = async (
   guildId: string,
   payload: { riotName: string; riotNameTag: string }
-): Promise<ApiResponse<unknown>> => {
-  try {
-    return await api.delete(`/api/guildMember/sub-account`, {
-      body: { guildId: atob(guildId), ...payload },
-    });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<void> => {
+  await api.delete(`/api/guildMember/sub-account`, {
+    body: { guildId: atob(guildId), ...payload },
+  });
 };
 
 // 클랜원 상태 변경 (1: 활성 / 2: 비활성) — 부계정 포함 일괄 처리
 export const updateMemberStatus = async (
   guildId: string,
   payload: { riotName: string; riotNameTag: string; status: MemberStatus }
-): Promise<ApiResponse<unknown>> => {
-  try {
-    return await api.put(`/api/guildMember/status`, { guildId: atob(guildId), ...payload });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<void> => {
+  await api.put(`/api/guildMember/status`, { guildId: atob(guildId), ...payload });
 };

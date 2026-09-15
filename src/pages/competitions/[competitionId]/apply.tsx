@@ -195,30 +195,22 @@ const CompetitionApplyPage: NextPage = () => {
         ? updateMyApplication(guildId, validId as number, payload)
         : applyToCompetition(guildId, validId as number, payload);
     },
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       await invalidateCompetitions();
       router.push("/competitions");
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const cancelMutation = useMutation({
     mutationFn: () => cancelMyApplication(guildId, validId as number),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       await invalidateCompetitions();
       router.push("/competitions");
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   // 백엔드 updateMyApplication·deleteMyApplication에 assertRecruiting이 걸려 있어

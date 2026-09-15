@@ -167,16 +167,12 @@ const CompetitionBoardPage: NextPage = () => {
   // CLOSED로 보내다 409 competition-invalid-transition이 났었다.
   const lifecycleMutation = useMutation({
     mutationFn: (to: CompetitionStatus) => changeCompetitionStatus(guildId, validId as number, to),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setEndModalOpen(false);
       await refreshAll();
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const editMutation = useMutation({
@@ -188,53 +184,40 @@ const CompetitionBoardPage: NextPage = () => {
         !!current &&
         (editName.trim() !== current.name || editApproval !== current.approvalRequired);
       if (detailChanged) {
-        const res = await updateCompetition(guildId, validId as number, {
+        // 실패하면 예외가 올라가 상태 변경까지 가지 않는다.
+        await updateCompetition(guildId, validId as number, {
           name: editName.trim(),
           approvalRequired: editApproval,
         });
-        if (res.error) return res;
       }
       if (current && editStatus !== current.status) {
-        return changeCompetitionStatus(guildId, validId as number, editStatus);
+        await changeCompetitionStatus(guildId, validId as number, editStatus);
       }
       // 바뀐 것이 없으면 update가 400 competition-update-empty를 주므로 호출하지 않는다.
-      return { data: null, error: null, status: 200 };
     },
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setEditModalOpen(false);
       await refreshAll();
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const deleteMutation = useMutation({
     mutationFn: () => removeCompetition(guildId, validId as number, confirmName.trim()),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setDeleteModalOpen(false);
       // 지운 대회가 목록 캐시에 남지 않게 무효화한 뒤 이동한다.
       await refreshAll();
       router.push("/competitions");
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const deleteMatchMutation = useMutation({
     mutationFn: (customMatchId: string) => deleteReplay(guildId, customMatchId),
-    onSuccess: async (res) => {
+    onSuccess: async () => {
       setDeletingMatchId(null);
-      if (res.error) {
-        setErrorMsg("경기 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
-        return;
-      }
       setErrorMsg(null);
       await refreshAll();
     },
@@ -252,26 +235,22 @@ const CompetitionBoardPage: NextPage = () => {
       let skipped = 0;
       for (let i = 0; i < ids.length; i += GAME_TYPE_CHUNK) {
         const chunk = ids.slice(i, i + GAME_TYPE_CHUNK);
+        // 한 청크라도 실패하면 예외가 올라가 남은 청크를 보내지 않는다.
         // eslint-disable-next-line no-await-in-loop
-        const res = await changeMatchGameType(guildId, validId as number, {
+        const result = await changeMatchGameType(guildId, validId as number, {
           customMatchIds: chunk,
           gameType,
         });
-        if (res.error) return { failed: res, skipped };
-        skipped += res.data?.data?.skipped?.length ?? 0;
+        skipped += result?.skipped?.length ?? 0;
       }
-      return { failed: null, skipped };
+      return skipped;
     },
-    onSuccess: async ({ failed, skipped }) => {
-      if (failed) {
-        setErrorMsg(competitionErrorMessage(failed));
-        return;
-      }
+    onSuccess: async (skipped) => {
       // 이미 그 유형이던 경기는 서버가 skipped로 빼고 성공으로 응답한다.
       setErrorMsg(skipped > 0 ? `${skipped}경기는 이미 해당 유형이라 건너뛰었습니다.` : null);
       await refreshAll();
     },
-    onError: () => setErrorMsg("경기 유형 변경에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const assignMutation = useMutation({
@@ -285,16 +264,12 @@ const CompetitionBoardPage: NextPage = () => {
           red: assignRed,
         }
       ),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setAssignTarget(null);
       await refreshAll();
     },
-    onError: () => setErrorMsg("팀 배정에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   // 바꾼 것이 없으면 저장을 막는다. 백엔드도 빈 PATCH를 400으로 거절한다.

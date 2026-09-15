@@ -107,8 +107,8 @@ const ReplayUploadModal = ({
           nick,
           { gameType, competitionId }
         );
-        succeeded.push(...(res.data?.succeeded ?? []));
-        failed.push(...(res.data?.failed ?? []));
+        succeeded.push(...(res?.succeeded ?? []));
+        failed.push(...(res?.failed ?? []));
         done += batch.length;
         setProgress({ done, total });
         setResult({ succeeded: [...succeeded], failed: [...failed] });

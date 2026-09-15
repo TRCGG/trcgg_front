@@ -1,4 +1,4 @@
-import { ApiResponse, toErrorResponse, unwrap } from "@/services/apiService";
+import { unwrap } from "@/services/apiService";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
 import {
@@ -6,6 +6,7 @@ import {
   ApplicationListResponse,
   ApplicationMutationResponse,
   ApplicationResponse,
+  Competition,
   CompetitionApplicationItem,
   CompetitionApplicationStatus,
   CompetitionApplicationUpdateInput,
@@ -16,21 +17,27 @@ import {
   CompetitionDetail,
   CompetitionDetailResponse,
   CompetitionGameType,
+  CompetitionHeadToHeadResult,
   CompetitionListResponse,
   CompetitionMatchTeamItem,
   CompetitionPosition,
   CompetitionRemoveResponse,
+  CompetitionRemoveResult,
   CompetitionResolveResponse,
+  CompetitionResolveResult,
   CompetitionResponse,
   CompetitionStandings,
   CompetitionStatus,
   CompetitionSummary,
+  CompetitionTeamRecordItem,
+  CompetitionTeamRoster,
   CompetitionTeamWithRoster,
   CompetitionUpdateInput,
   CompetitionUserStat,
   CompetitionUserStatResponse,
   HeadToHeadResponse,
   MatchGameTypeChangeResponse,
+  MatchGameTypeChangeResult,
   MatchTeamAssignInput,
   MatchTeamListResponse,
   PlayerCompetitionItem,
@@ -51,12 +58,8 @@ const BASE = (guildId: string) => `/api/competitions/${guildId}`;
 export const createCompetition = async (
   guildId: string,
   body: CompetitionCreateInput
-): Promise<ApiResponse<CompetitionResponse>> => {
-  try {
-    return await api.post(BASE(guildId), body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<Competition> => {
+  return unwrap(api.post<CompetitionResponse>(BASE(guildId), body));
 };
 
 export const getCompetitions = async (
@@ -71,12 +74,10 @@ export const getCompetitions = async (
 export const resolveCompetition = async (
   guildId: string,
   name?: string
-): Promise<ApiResponse<CompetitionResolveResponse>> => {
-  try {
-    return await api.get(`${BASE(guildId)}/resolve${buildQuery({ name })}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionResolveResult> => {
+  return unwrap(
+    api.get<CompetitionResolveResponse>(`${BASE(guildId)}/resolve${buildQuery({ name })}`)
+  );
 };
 
 export const getCompetitionDetail = async (
@@ -90,24 +91,18 @@ export const updateCompetition = async (
   guildId: string,
   competitionId: number,
   body: CompetitionUpdateInput
-): Promise<ApiResponse<CompetitionResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<Competition> => {
+  return unwrap(api.patch<CompetitionResponse>(`${BASE(guildId)}/${competitionId}`, body));
 };
 
 export const changeCompetitionStatus = async (
   guildId: string,
   competitionId: number,
   status: CompetitionStatus
-): Promise<ApiResponse<CompetitionResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}/status`, { status });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<Competition> => {
+  return unwrap(
+    api.patch<CompetitionResponse>(`${BASE(guildId)}/${competitionId}/status`, { status })
+  );
 };
 
 /**
@@ -117,12 +112,12 @@ export const removeCompetition = async (
   guildId: string,
   competitionId: number,
   confirmName: string
-): Promise<ApiResponse<CompetitionRemoveResponse>> => {
-  try {
-    return await api.delete(`${BASE(guildId)}/${competitionId}`, { body: { confirmName } });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionRemoveResult> => {
+  return unwrap(
+    api.delete<CompetitionRemoveResponse>(`${BASE(guildId)}/${competitionId}`, {
+      body: { confirmName },
+    })
+  );
 };
 
 // ── 신청 ──
@@ -131,12 +126,10 @@ export const applyToCompetition = async (
   guildId: string,
   competitionId: number,
   body: CompetitionApplyInput
-): Promise<ApiResponse<ApplicationMutationResponse>> => {
-  try {
-    return await api.post(`${BASE(guildId)}/${competitionId}/applications`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<ApplicationMutationResponse["data"]> => {
+  return unwrap(
+    api.post<ApplicationMutationResponse>(`${BASE(guildId)}/${competitionId}/applications`, body)
+  );
 };
 
 /** 본인 신청서. 신청 이력이 없으면 data가 null이다. */
@@ -151,23 +144,22 @@ export const updateMyApplication = async (
   guildId: string,
   competitionId: number,
   body: CompetitionApplicationUpdateInput
-): Promise<ApiResponse<ApplicationMutationResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}/applications/me`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<ApplicationMutationResponse["data"]> => {
+  return unwrap(
+    api.patch<ApplicationMutationResponse>(
+      `${BASE(guildId)}/${competitionId}/applications/me`,
+      body
+    )
+  );
 };
 
 export const cancelMyApplication = async (
   guildId: string,
   competitionId: number
-): Promise<ApiResponse<ApplicationResponse>> => {
-  try {
-    return await api.delete(`${BASE(guildId)}/${competitionId}/applications/me`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionApplicationItem | null> => {
+  return unwrap(
+    api.delete<ApplicationResponse>(`${BASE(guildId)}/${competitionId}/applications/me`)
+  );
 };
 
 export const getApplications = async (
@@ -186,12 +178,13 @@ export const decideApplications = async (
   guildId: string,
   competitionId: number,
   body: ApplicationDecideInput
-): Promise<ApiResponse<ApplicationListResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}/applications/decide`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionApplicationItem[]> => {
+  return unwrap(
+    api.patch<ApplicationListResponse>(
+      `${BASE(guildId)}/${competitionId}/applications/decide`,
+      body
+    )
+  );
 };
 
 // ── 팀·로스터 ──
@@ -200,12 +193,8 @@ export const createTeam = async (
   guildId: string,
   competitionId: number,
   name: string
-): Promise<ApiResponse<TeamResponse>> => {
-  try {
-    return await api.post(`${BASE(guildId)}/${competitionId}/teams`, { name });
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamRoster> => {
+  return unwrap(api.post<TeamResponse>(`${BASE(guildId)}/${competitionId}/teams`, { name }));
 };
 
 export const getTeams = async (
@@ -220,12 +209,8 @@ export const saveRoster = async (
   guildId: string,
   competitionId: number,
   body: RosterSaveInput
-): Promise<ApiResponse<TeamListResponse>> => {
-  try {
-    return await api.put(`${BASE(guildId)}/${competitionId}/roster`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamWithRoster[]> => {
+  return unwrap(api.put<TeamListResponse>(`${BASE(guildId)}/${competitionId}/roster`, body));
 };
 
 export const updateTeam = async (
@@ -233,24 +218,16 @@ export const updateTeam = async (
   competitionId: number,
   teamId: number,
   body: { name?: string; captainPlayerCode?: string | null }
-): Promise<ApiResponse<TeamResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}/teams/${teamId}`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamRoster> => {
+  return unwrap(api.patch<TeamResponse>(`${BASE(guildId)}/${competitionId}/teams/${teamId}`, body));
 };
 
 export const removeTeam = async (
   guildId: string,
   competitionId: number,
   teamId: number
-): Promise<ApiResponse<TeamResponse>> => {
-  try {
-    return await api.delete(`${BASE(guildId)}/${competitionId}/teams/${teamId}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamRoster> => {
+  return unwrap(api.delete<TeamResponse>(`${BASE(guildId)}/${competitionId}/teams/${teamId}`));
 };
 
 export const addTeamMember = async (
@@ -258,12 +235,10 @@ export const addTeamMember = async (
   competitionId: number,
   teamId: number,
   body: { playerCode: string; position: CompetitionPosition }
-): Promise<ApiResponse<TeamResponse>> => {
-  try {
-    return await api.post(`${BASE(guildId)}/${competitionId}/teams/${teamId}/members`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamRoster> => {
+  return unwrap(
+    api.post<TeamResponse>(`${BASE(guildId)}/${competitionId}/teams/${teamId}/members`, body)
+  );
 };
 
 export const removeTeamMember = async (
@@ -271,14 +246,12 @@ export const removeTeamMember = async (
   competitionId: number,
   teamId: number,
   playerCode: string
-): Promise<ApiResponse<TeamResponse>> => {
-  try {
-    return await api.delete(
+): Promise<CompetitionTeamRoster> => {
+  return unwrap(
+    api.delete<TeamResponse>(
       `${BASE(guildId)}/${competitionId}/teams/${teamId}/members/${encodeURIComponent(playerCode)}`
-    );
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+    )
+  );
 };
 
 /** 이 팀의 상대 팀별 전적(스크림·본경기 분리). 항목마다 상대 팀 하나다. */
@@ -286,12 +259,10 @@ export const getTeamRecords = async (
   guildId: string,
   competitionId: number,
   teamId: number
-): Promise<ApiResponse<TeamRecordListResponse>> => {
-  try {
-    return await api.get(`${BASE(guildId)}/${competitionId}/teams/${teamId}/records`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionTeamRecordItem[]> => {
+  return unwrap(
+    api.get<TeamRecordListResponse>(`${BASE(guildId)}/${competitionId}/teams/${teamId}/records`)
+  );
 };
 
 // ── 경기 ──
@@ -315,15 +286,13 @@ export const assignMatchTeams = async (
   competitionId: number,
   customMatchId: string,
   body: MatchTeamAssignInput
-): Promise<ApiResponse<MatchTeamListResponse>> => {
-  try {
-    return await api.put(
+): Promise<CompetitionMatchTeamItem[]> => {
+  return unwrap(
+    api.put<MatchTeamListResponse>(
       `${BASE(guildId)}/${competitionId}/matches/${encodeURIComponent(customMatchId)}/teams`,
       body
-    );
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+    )
+  );
 };
 
 /** 경기 유형 일괄 변경(2=스크림 / 3=본경기). 최대 100건. */
@@ -331,12 +300,13 @@ export const changeMatchGameType = async (
   guildId: string,
   competitionId: number,
   body: { customMatchIds: string[]; gameType: CompetitionGameType }
-): Promise<ApiResponse<MatchGameTypeChangeResponse>> => {
-  try {
-    return await api.patch(`${BASE(guildId)}/${competitionId}/matches/game-type`, body);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<MatchGameTypeChangeResult> => {
+  return unwrap(
+    api.patch<MatchGameTypeChangeResponse>(
+      `${BASE(guildId)}/${competitionId}/matches/game-type`,
+      body
+    )
+  );
 };
 
 // ── 순위표·전적·통계 ──
@@ -354,13 +324,9 @@ export const getTeamHeadToHead = async (
   competitionId: number,
   teamA: number,
   teamB: number
-): Promise<ApiResponse<HeadToHeadResponse>> => {
-  try {
-    const query = buildQuery({ teamA, teamB });
-    return await api.get(`${BASE(guildId)}/${competitionId}/records${query}`);
-  } catch (error) {
-    return toErrorResponse(error);
-  }
+): Promise<CompetitionHeadToHeadResult> => {
+  const query = buildQuery({ teamA, teamB });
+  return unwrap(api.get<HeadToHeadResponse>(`${BASE(guildId)}/${competitionId}/records${query}`));
 };
 
 interface CompetitionStatisticsParams {

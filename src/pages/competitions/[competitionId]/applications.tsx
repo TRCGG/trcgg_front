@@ -116,28 +116,23 @@ const ApplicationApprovalPage: NextPage = () => {
   const decideMutation = useMutation({
     mutationFn: async (status: CompetitionApplicationStatus) => {
       const ids = Array.from(checkedIds);
-      // 200건 제한이 있어 나눠 보낸다. 한 덩어리라도 실패하면 그 결과를 그대로 올린다.
+      // 200건 제한이 있어 나눠 보낸다.
       for (let i = 0; i < ids.length; i += DECIDE_CHUNK) {
         const chunk = ids.slice(i, i + DECIDE_CHUNK);
+        // 한 청크라도 실패하면 예외가 올라가 남은 청크를 보내지 않는다.
         // eslint-disable-next-line no-await-in-loop
-        const res = await decideApplications(guildId, validId as number, {
+        await decideApplications(guildId, validId as number, {
           applicationIds: chunk,
           status,
         });
-        if (res.error) return res;
       }
-      return null;
     },
-    onSuccess: async (failed) => {
-      if (failed) {
-        setErrorMsg(competitionErrorMessage(failed));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setCheckedIds(new Set());
       await invalidateCompetitions();
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const runBulk = (action: BulkAction) => {
