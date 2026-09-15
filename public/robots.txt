@@ -7,6 +7,7 @@ Disallow: /replay
 Disallow: /summoners/
 Disallow: /user
 Disallow: /champion
+Disallow: /competitions
 
 # 아래 AI 학습·수집 봇 차단은 Cloudflare가 자동 생성해 주던 robots.txt의 규칙이다.
 # 이 파일이 자동 생성본을 대체하므로 직접 옮겨 유지한다.

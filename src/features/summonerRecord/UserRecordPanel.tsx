@@ -24,6 +24,7 @@ import PositionFilter from "@/features/statistics/PositionFilter";
 import DateRangeFilter, { DateRangeValue } from "@/features/statistics/DateRangeFilter";
 import { Position } from "@/services/statistics";
 import H2HPanel from "@/features/h2h/H2HPanel";
+import CompetitionRecordTab from "@/features/competition/CompetitionRecordTab";
 
 interface Props {
   riotName: string;
@@ -44,7 +45,9 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
   const router = useRouter();
   const tabParam = router.query.tab;
   const activeTab: SummonerTab =
-    tabParam === "champion" || tabParam === "h2h" ? tabParam : "overview";
+    tabParam === "champion" || tabParam === "h2h" || tabParam === "competition"
+      ? tabParam
+      : "overview";
   const [displayCount, setDisplayCount] = useState(RECORD_DISPLAY_COUNT);
   const [championSortType, setChampionSortType] = useState<ChampionSortType>("gameCount");
   const [championSortOrder, setChampionSortOrder] = useState<"asc" | "desc">("desc");
@@ -334,6 +337,16 @@ const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) =
 
       {/* ── 상대전적 탭 ── */}
       {activeTab === "h2h" && <H2HPanel riotName={riotName} riotTag={riotTag} guildId={guildId} />}
+
+      {/* ── 대회 탭 ── */}
+      {activeTab === "competition" && (
+        <CompetitionRecordTab
+          guildId={guildId}
+          playerCode={data.member.playerCode}
+          riotName={riotName}
+          riotTag={riotTag}
+        />
+      )}
     </main>
   );
 };

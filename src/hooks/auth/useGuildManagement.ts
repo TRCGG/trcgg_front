@@ -44,6 +44,11 @@ const useGuildManagement = () => {
     [guilds, guildId]
   );
 
+  const uploadNick = useMemo(
+    () => guilds.find((guild) => guild.id === guildId)?.nick || username,
+    [guilds, guildId, username]
+  );
+
   const { data: guildData } = useQuery<ApiResponse<GuildResponse>>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
@@ -77,6 +82,7 @@ const useGuildManagement = () => {
     guilds,
     isLoggedIn,
     username,
+    uploadNick,
     avatar,
     currentRole,
     canUploadReplay,
