@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
@@ -22,6 +21,7 @@ import {
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
 import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
 import { NextPageWithLayout } from "@/data/types/next";
+import Avatar from "@/components/ui/Avatar";
 
 const PAGE_SIZE = 10;
 const FETCH_LIMIT = 1000;
@@ -165,19 +165,12 @@ const UploadPermissionContent = () => {
           className="grid grid-cols-[1fr_90px_132px] gap-2 items-center px-4 py-2.5 border-b border-cardBorder last:border-0"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            {member.avatarUrl ? (
-              <Image
-                src={member.avatarUrl}
-                alt={member.displayName}
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full object-cover border border-border1 shrink-0"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-rankBg2 border border-border1 flex items-center justify-center text-sm text-primary1 shrink-0">
-                {member.displayName.charAt(0)}
-              </div>
-            )}
+            <Avatar
+              src={member.avatarUrl}
+              name={member.displayName}
+              size={32}
+              className="h-8 w-8 text-sm"
+            />
             <span className="text-sm text-primary1 truncate">{member.displayName}</span>
           </div>
           <div className="text-center">

@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/router";
-import Image from "next/image";
 import { FaDiscord } from "react-icons/fa";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { canManageGuild } from "@/data/types/guildMember";
 import { logout } from "@/services/auth";
+import Avatar from "@/components/ui/Avatar";
 
 interface DiscordLoginButtonProps {
   onClick?: () => void;
@@ -45,15 +45,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
         className="flex h-[40px] min-w-[96px] items-center justify-center gap-1.5 rounded p-2 text-white bg-[#5865F2] hover:bg-[#4752C4] transition whitespace-nowrap text-sm"
       >
         {username ? (
-          avatar && (
-            <Image
-              src={avatar}
-              alt="프로필"
-              width={24}
-              height={24}
-              className="w-6 h-6 rounded-full object-cover shrink-0"
-            />
-          )
+          <Avatar src={avatar} name={username} size={24} className="h-6 w-6 text-xs" />
         ) : (
           <FaDiscord className="w-[24px] h-[24px]" />
         )}
