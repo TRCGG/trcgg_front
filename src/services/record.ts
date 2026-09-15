@@ -28,9 +28,16 @@ export const getAllRecords = async (
 export const getRecentRecords = async (
   riotName: string,
   riotNameTag: string | null,
-  guildId?: string
+  guildId?: string,
+  /** 대회 범위로 좁힐 때 사용. competitionId를 주면 각 항목에 teamName·opponentTeamName이 채워진다. */
+  scope?: { competitionId?: number; gameType?: string }
 ): Promise<ApiResponse<UserRecentRecordsResponse>> => {
-  const query = buildQuery({ riotNameTag: riotNameTag ?? undefined, limit: 200 });
+  const query = buildQuery({
+    riotNameTag: riotNameTag ?? undefined,
+    limit: 200,
+    competitionId: scope?.competitionId,
+    gameType: scope?.gameType,
+  });
   try {
     return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games${query}`);
   } catch (error) {

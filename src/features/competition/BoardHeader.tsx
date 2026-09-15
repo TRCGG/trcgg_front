@@ -1,0 +1,173 @@
+import { CompetitionDetail } from "@/data/types/competition";
+import OverflowMenu, { OverflowMenuItem } from "@/components/ui/OverflowMenu";
+import { competitionInitial, getCompetitionStatusMeta } from "./competitionMeta";
+
+interface Props {
+  competition: CompetitionDetail;
+  isManager: boolean;
+  onCloseApplications: () => void;
+  onEnd: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onRoster: () => void;
+  onApplications: () => void;
+  onUpload: () => void;
+  busy: boolean;
+}
+
+const formatDate = (iso: string): string => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "-";
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate()
+  ).padStart(2, "0")}`;
+};
+
+const BoardHeader = ({
+  competition,
+  isManager,
+  onCloseApplications,
+  onEnd,
+  onEdit,
+  onDelete,
+  onRoster,
+  onApplications,
+  onUpload,
+  busy,
+}: Props) => {
+  const status = getCompetitionStatusMeta(competition.status);
+  const isClosed = competition.status === "CLOSED";
+  const isRecruiting = competition.status === "RECRUITING";
+  const isInProgress = competition.status === "IN_PROGRESS";
+
+  // 상태 전이는 대회 수정 안에 모두 있으므로 여기에 따로 두지 않는다.
+  const menuItems: OverflowMenuItem[] = [
+    ...(isRecruiting ? [] : [{ label: "참가 신청 관리", onSelect: onApplications }]),
+    ...(isClosed ? [{ label: "로스터 편성", onSelect: onRoster }] : []),
+    { label: "대회 수정", onSelect: onEdit, disabled: busy },
+    { label: "대회 삭제", onSelect: onDelete, disabled: busy, danger: true },
+  ];
+
+  return (
+    <div className="flex flex-col gap-4 rounded border border-border2 bg-darkBg2 p-5 lg:flex-row lg:items-center lg:gap-5">
+      <div
+        className={`hidden h-16 w-16 shrink-0 items-center justify-center rounded text-[22px] font-bold sm:flex ${
+          isClosed ? "bg-rankBg2 text-primary3" : "bg-blueText/10 text-blueText"
+        }`}
+      >
+        {competitionInitial(competition.name)}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xl font-bold text-primary1">{competition.name}</span>
+          <span
+            className={`rounded px-2 py-0.5 text-[11px] font-bold ${status.textClass} ${status.bgClass}`}
+          >
+            {status.label}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-primary2">
+          <span>생성 {formatDate(competition.createDate)}</span>
+          <span className="text-border2">|</span>
+          <span>
+            참가 <span className="text-primary1">{competition.participantCount}명</span> ·{" "}
+            {competition.teamCount}팀
+          </span>
+          <span className="text-border2">|</span>
+          <span>
+            스크림 <span className="text-primary1">{competition.scrimCount}</span> · ★본경기{" "}
+            <span className="text-primary1">{competition.mainCount}</span>
+          </span>
+          {isRecruiting && competition.pendingCount > 0 && (
+            <>
+              <span className="text-border2">|</span>
+              <span className="text-yellow">대기 신청 {competition.pendingCount}건</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {isManager && (
+        <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
+          {/* ① 다음 단계 */}
+          {isRecruiting && (
+            <button
+              type="button"
+              onClick={onCloseApplications}
+              disabled={busy}
+              className="h-[38px] whitespace-nowrap rounded bg-bluePrimary px-4 text-sm text-white disabled:opacity-40"
+            >
+              신청 마감하고 시작
+            </button>
+          )}
+          {isInProgress && (
+            <button
+              type="button"
+              onClick={onEnd}
+              disabled={busy}
+              className="h-[38px] whitespace-nowrap rounded border border-yellow/40 bg-darkBg1 px-3.5 text-[13px] text-yellow disabled:opacity-40"
+            >
+              대회 종료
+            </button>
+          )}
+
+          {/* ② 이 단계에서 하는 일 */}
+          {isRecruiting && (
+            <button
+              type="button"
+              onClick={onApplications}
+              className={`h-[38px] whitespace-nowrap rounded border bg-darkBg1 px-3.5 text-[13px] ${
+                competition.pendingCount > 0
+                  ? "border-blueText text-blueText"
+                  : "border-border2 text-primary1"
+              }`}
+            >
+              {competition.pendingCount > 0
+                ? `신청 ${competition.pendingCount}건 승인`
+                : "참가 신청 관리"}
+            </button>
+          )}
+          {isInProgress && (
+            <button
+              type="button"
+              onClick={onUpload}
+              className="flex h-[38px] items-center gap-1.5 whitespace-nowrap rounded bg-bluePrimary px-4 text-sm text-white"
+            >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 15v3a2 2 0 002 2h14a2 2 0 002-2v-3" />
+                <path d="M7 9l5-5 5 5" />
+                <path d="M12 4v12" />
+              </svg>
+              리플레이 업로드
+            </button>
+          )}
+
+          {/* ③ 자주 쓰는 것 */}
+          {!isClosed && (
+            <button
+              type="button"
+              onClick={onRoster}
+              className="h-[38px] whitespace-nowrap rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1"
+            >
+              로스터 편성
+            </button>
+          )}
+
+          <OverflowMenu items={menuItems} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default BoardHeader;
