@@ -53,36 +53,15 @@ const createClient = (baseUrl: string): AxiosInstance => {
   const client = axios.create({
     baseURL: baseUrl,
     timeout: DEFAULT_TIMEOUT_MS,
-    withCredentials: true, // 쿠키 전송
+    // 인증은 백엔드가 심는 session_uid 쿠키로 이뤄진다. 이 줄이 인증의 전부다.
+    // 세션 만료 시 쿠키 정리도 백엔드가 직접 한다(authHandler의 clearCookie).
+    withCredentials: true,
   });
 
-  // 요청 전처리: 인증 토큰 추가
-  client.interceptors.request.use((config) => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-    if (token) {
-      config.headers.set("Authorization", `Bearer ${token}`);
-    }
-    return config;
+  // 실패한 요청은 예외로 전파한다. status·errorType을 보존하는 ApiError로 바꿔 던진다.
+  client.interceptors.response.use(undefined, (error: unknown) => {
+    throw normalizeError(error);
   });
-
-  client.interceptors.response.use(
-    // 응답 후처리: 새 토큰이 응답에 포함되어 있으면 저장
-    (response) => {
-      const newToken = response.headers["x-auth-token"];
-      if (newToken && typeof window !== "undefined") {
-        localStorage.setItem("authToken", newToken);
-      }
-      return response;
-    },
-    // 에러 처리: 401이면 만료된 토큰을 버리고, 항상 ApiError로 바꿔 다시 던진다
-    (error: unknown) => {
-      const apiError = normalizeError(error);
-      if (apiError.status === 401 && typeof window !== "undefined") {
-        localStorage.removeItem("authToken");
-      }
-      throw apiError;
-    }
-  );
 
   return client;
 };
