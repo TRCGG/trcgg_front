@@ -14,7 +14,7 @@ const TogetherAgainstDonut = ({ withGames, againstGames, size = 80 }: Props) => 
   const againstDash = c - withDash;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <div className="flex items-center gap-3">
       <svg width={size} height={size}>
         <circle
           className="stroke-rankBg3"
@@ -57,31 +57,13 @@ const TogetherAgainstDonut = ({ withGames, againstGames, size = 80 }: Props) => 
           {total}
         </text>
       </svg>
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <span className="text-primary2" style={{ fontSize: 11 }}>
-          <span
-            className="bg-blueText"
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              marginRight: 4,
-              borderRadius: 2,
-            }}
-          />
+      <div className="flex flex-col gap-1">
+        <span className="text-primary2 text-[11px]">
+          <span className="bg-blueText inline-block w-2 h-2 mr-1 rounded-sm" />
           함께 {withGames}
         </span>
-        <span className="text-primary2" style={{ fontSize: 11 }}>
-          <span
-            className="bg-yellow"
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              marginRight: 4,
-              borderRadius: 2,
-            }}
-          />
+        <span className="text-primary2 text-[11px]">
+          <span className="bg-yellow inline-block w-2 h-2 mr-1 rounded-sm" />
           맞붙어 {againstGames}
         </span>
       </div>

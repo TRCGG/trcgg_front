@@ -29,7 +29,8 @@ const LaneIcon = ({ position, size = 16 }: Props) => {
       alt={position || ""}
       width={size}
       height={size}
-      style={{ width: size, height: size, objectFit: "contain", flexShrink: 0 }}
+      className="object-contain shrink-0"
+      style={{ width: size, height: size }}
     />
   );
 };

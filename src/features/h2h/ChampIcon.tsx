@@ -24,13 +24,11 @@ const ChampIcon = ({ en, size = 40, rounded = 2, mine = false }: Props) => {
 
   return (
     <div
+      className="relative shrink-0 overflow-hidden"
       style={{
-        position: "relative",
-        flexShrink: 0,
         width: size,
         height: size,
         borderRadius: rounded,
-        overflow: "hidden",
         boxShadow: mine ? `0 0 0 2px ${colors.blueText}` : undefined,
       }}
     >

@@ -1,4 +1,3 @@
-import colors from "@/styles/colors";
 import { LanePos, POSITIONS, POSITION_LABELS } from "./h2hHelpers";
 import LaneIcon from "./LaneIcon";
 
@@ -35,12 +34,9 @@ const LaneTabs = ({ value, onChange, share }: Props) => (
           {label}
           {pct != null && (
             <span
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                color: active ? colors.blueDarken : colors.blueText,
-                fontFeatureSettings: '"tnum"',
-              }}
+              className={`text-[10px] font-bold tabular-nums ${
+                active ? "text-blueDarken" : "text-blueText"
+              }`}
             >
               {pct}%
             </span>

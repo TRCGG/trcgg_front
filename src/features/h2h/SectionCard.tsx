@@ -11,13 +11,7 @@ interface Props {
 }
 
 const SectionCard = ({ title, subtitle, rightSlot, stackOnMobile, children }: Props) => (
-  <div
-    className="bg-darkBg2 border border-border2"
-    style={{
-      borderRadius: 4,
-      overflow: "hidden",
-    }}
-  >
+  <div className="bg-darkBg2 border border-border2 rounded overflow-hidden">
     <div
       className={`border-b border-border2 flex gap-3 px-4 py-3 ${
         stackOnMobile
@@ -26,14 +20,8 @@ const SectionCard = ({ title, subtitle, rightSlot, stackOnMobile, children }: Pr
       }`}
     >
       <div>
-        <div className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
-          {title}
-        </div>
-        {subtitle && (
-          <div className="text-primary2" style={{ fontSize: 11, marginTop: 2 }}>
-            {subtitle}
-          </div>
-        )}
+        <div className="text-primary1 text-sm font-bold">{title}</div>
+        {subtitle && <div className="text-primary2 text-[11px] mt-0.5">{subtitle}</div>}
       </div>
       {rightSlot}
     </div>

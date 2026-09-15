@@ -16,62 +16,32 @@ const H2HTopLanePairCard = ({ label, myLane, oppoLane, count, wins, separator = 
   const wr = Math.round((wins / count) * 100);
   return (
     <div
-      className="border border-border2 border-l-[3px] border-l-blueText"
+      className="border border-border2 border-l-[3px] border-l-blueText grid grid-cols-[1fr_auto_auto] items-center gap-3.5 py-[11px] px-4 rounded"
       style={{
-        display: "grid",
-        gridTemplateColumns: "1fr auto auto",
-        alignItems: "center",
-        gap: 14,
-        padding: "11px 16px",
         background: `linear-gradient(90deg, rgba(107,184,255,0.12), ${colors.darkBg1} 70%)`,
-        borderRadius: 4,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flexWrap: "wrap" }}>
-        <span
-          className="text-blueText"
-          style={{ fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}
-        >
-          {label}
-        </span>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+      <div className="flex items-center gap-2 min-w-0 flex-wrap">
+        <span className="text-blueText text-[11px] font-bold whitespace-nowrap">{label}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[5px]">
             <LaneIcon position={myLane} size={22} />
-            <span className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
-              {POSITION_LABELS[myLane]}
-            </span>
+            <span className="text-primary1 text-sm font-bold">{POSITION_LABELS[myLane]}</span>
           </div>
-          <span className="text-primary2" style={{ fontSize: 13, fontWeight: 700 }}>
-            {separator}
-          </span>
-          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <span className="text-primary2 text-[13px] font-bold">{separator}</span>
+          <div className="flex items-center gap-[5px]">
             <LaneIcon position={oppoLane} size={22} />
-            <span className="text-primary1" style={{ fontSize: 14, fontWeight: 700 }}>
-              {POSITION_LABELS[oppoLane]}
-            </span>
+            <span className="text-primary1 text-sm font-bold">{POSITION_LABELS[oppoLane]}</span>
           </div>
         </div>
       </div>
-      <div
-        className="text-primary2"
-        style={{
-          fontSize: 13,
-          fontFeatureSettings: '"tnum"',
-          textAlign: "right",
-        }}
-      >
+      <div className="text-primary2 text-[13px] tabular-nums text-right">
         {count}전 <b className="text-blueText">{wins}</b>승 <b className="text-redText">{losses}</b>
         패
       </div>
       <div
-        style={{
-          fontSize: 18,
-          fontWeight: 700,
-          color: v2WinRateColor(wr),
-          minWidth: 44,
-          textAlign: "right",
-          fontFeatureSettings: '"tnum"',
-        }}
+        className="text-lg font-bold min-w-[44px] text-right tabular-nums"
+        style={{ color: v2WinRateColor(wr) }}
       >
         {wr}%
       </div>
