@@ -8,7 +8,7 @@ interface Props {
   isManager: boolean;
   /** 종료된 대회는 경기 편집이 잠긴다(백엔드 assertWritable). */
   locked?: boolean;
-  onDelete?: (customMatchId: string) => void;
+  onDelete?: (match: CompetitionMatchTeamItem) => void;
   deletingId?: string | null;
   onAssign?: (match: CompetitionMatchTeamItem) => void;
   onChangeGameType?: (customMatchIds: string[], gameType: "2" | "3") => void;
@@ -150,7 +150,7 @@ const BoardMatchesTab = ({
               checked={checked.has(match.customMatchId)}
               onToggleCheck={() => toggle(match.customMatchId)}
               onAssign={onAssign ? () => onAssign(match) : undefined}
-              onDelete={onDelete ? () => onDelete(match.customMatchId) : undefined}
+              onDelete={onDelete ? () => onDelete(match) : undefined}
               deleting={deletingId === match.customMatchId}
             />
           ))}

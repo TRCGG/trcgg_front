@@ -79,6 +79,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [confirmName, setConfirmName] = useState("");
   const [deletingMatchId, setDeletingMatchId] = useState<string | null>(null);
   const [assignTarget, setAssignTarget] = useState<CompetitionMatchTeamItem | null>(null);
+  const [deleteMatchTarget, setDeleteMatchTarget] = useState<CompetitionMatchTeamItem | null>(null);
   const [assignBlue, setAssignBlue] = useState<number | null>(null);
   const [assignRed, setAssignRed] = useState<number | null>(null);
 
@@ -316,10 +317,7 @@ const CompetitionBoardPage: NextPage = () => {
             locked={competition?.status === "CLOSED"}
             deletingId={deletingMatchId}
             changingGameType={gameTypeMutation.isPending}
-            onDelete={(customMatchId) => {
-              setDeletingMatchId(customMatchId);
-              deleteMatchMutation.mutate(customMatchId);
-            }}
+            onDelete={(match) => setDeleteMatchTarget(match)}
             onChangeGameType={(ids, gameType) => gameTypeMutation.mutate({ ids, gameType })}
             onAssign={(match) => {
               setAssignBlue(match.blueTeamId);
@@ -432,6 +430,42 @@ const CompetitionBoardPage: NextPage = () => {
           {renderBody()}
         </main>
       </div>
+
+      <Modal isOpen={deleteMatchTarget !== null} onClose={() => setDeleteMatchTarget(null)}>
+        <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[380px]">
+          <h2 className="text-base font-bold text-redText">이 경기를 삭제할까요?</h2>
+          <p className="text-[13px] leading-relaxed text-primary2">
+            <span className="text-primary1">
+              {deleteMatchTarget?.blueTeamName ?? "미배정"} vs{" "}
+              {deleteMatchTarget?.redTeamName ?? "미배정"}
+            </span>
+            <br />
+            경기 기록이 전적·순위표·통계에서 함께 사라집니다. 되돌릴 수 없습니다.
+          </p>
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDeleteMatchTarget(null)}
+              className="h-9 flex-1 rounded border border-border2 bg-darkBg2 text-[13px] text-primary2"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!deleteMatchTarget) return;
+                setDeletingMatchId(deleteMatchTarget.customMatchId);
+                deleteMatchMutation.mutate(deleteMatchTarget.customMatchId);
+                setDeleteMatchTarget(null);
+              }}
+              disabled={deleteMatchMutation.isPending}
+              className="h-9 flex-1 rounded bg-redButton text-[13px] text-white disabled:opacity-50"
+            >
+              삭제
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal isOpen={assignTarget !== null} onClose={() => setAssignTarget(null)}>
         <div className="flex w-[300px] flex-col gap-3 text-left sm:w-[400px]">
