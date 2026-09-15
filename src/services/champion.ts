@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse } from "@/services/apiService";
 import api from "@/services/index";
 import { ChampionListResponse } from "@/data/types/champion";
 
@@ -10,10 +10,6 @@ export const getChampions = async (): Promise<ApiResponse<ChampionListResponse>>
   try {
     return await api.get("/api/champions");
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };

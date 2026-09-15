@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse } from "@/services/apiService";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
 import {
@@ -37,12 +37,6 @@ import {
 // (백엔드 competition.routes가 decodeGuildIdMiddleware로 디코드한다).
 const BASE = (guildId: string) => `/api/competitions/${guildId}`;
 
-const errResponse = (error: unknown) => ({
-  data: null,
-  error: error instanceof Error ? error.message : "Unknown error",
-  status: 500,
-});
-
 // ── 대회 ──
 
 export const createCompetition = async (
@@ -52,7 +46,7 @@ export const createCompetition = async (
   try {
     return await api.post(BASE(guildId), body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -64,7 +58,7 @@ export const getCompetitions = async (
     const query = buildQuery({ season: params?.season, status: params?.status });
     return await api.get(`${BASE(guildId)}${query}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -76,7 +70,7 @@ export const resolveCompetition = async (
   try {
     return await api.get(`${BASE(guildId)}/resolve${buildQuery({ name })}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -87,7 +81,7 @@ export const getCompetitionDetail = async (
   try {
     return await api.get(`${BASE(guildId)}/${competitionId}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -99,7 +93,7 @@ export const updateCompetition = async (
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -111,13 +105,12 @@ export const changeCompetitionStatus = async (
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}/status`, { status });
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
 /**
  * 대회 삭제. 대회명을 confirmName으로 다시 받아 확인하고, 속한 경기를 함께 soft-delete한다.
- * ApiService.delete가 body를 지원하지 않아 raw fetch를 쓴다(removeSubAccount와 같은 사정).
  */
 export const removeCompetition = async (
   guildId: string,
@@ -125,29 +118,9 @@ export const removeCompetition = async (
   confirmName: string
 ): Promise<ApiResponse<CompetitionRemoveResponse>> => {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (token) headers.Authorization = `Bearer ${token}`;
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}${BASE(guildId)}/${competitionId}`,
-      {
-        method: "DELETE",
-        headers,
-        credentials: "include",
-        body: JSON.stringify({ confirmName }),
-      }
-    );
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      return {
-        data: null,
-        error: data?.message || `Error: ${response.status}`,
-        status: response.status,
-      };
-    }
-    return { data, error: null, status: response.status };
+    return await api.delete(`${BASE(guildId)}/${competitionId}`, { body: { confirmName } });
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -161,7 +134,7 @@ export const applyToCompetition = async (
   try {
     return await api.post(`${BASE(guildId)}/${competitionId}/applications`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -173,7 +146,7 @@ export const getMyApplication = async (
   try {
     return await api.get(`${BASE(guildId)}/${competitionId}/applications/me`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -185,7 +158,7 @@ export const updateMyApplication = async (
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}/applications/me`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -196,7 +169,7 @@ export const cancelMyApplication = async (
   try {
     return await api.delete(`${BASE(guildId)}/${competitionId}/applications/me`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -209,7 +182,7 @@ export const getApplications = async (
     const query = buildQuery({ status: params?.status });
     return await api.get(`${BASE(guildId)}/${competitionId}/applications${query}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -222,7 +195,7 @@ export const decideApplications = async (
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}/applications/decide`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -236,7 +209,7 @@ export const createTeam = async (
   try {
     return await api.post(`${BASE(guildId)}/${competitionId}/teams`, { name });
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -247,7 +220,7 @@ export const getTeams = async (
   try {
     return await api.get(`${BASE(guildId)}/${competitionId}/teams`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -260,7 +233,7 @@ export const saveRoster = async (
   try {
     return await api.put(`${BASE(guildId)}/${competitionId}/roster`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -273,7 +246,7 @@ export const updateTeam = async (
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}/teams/${teamId}`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -285,7 +258,7 @@ export const removeTeam = async (
   try {
     return await api.delete(`${BASE(guildId)}/${competitionId}/teams/${teamId}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -298,7 +271,7 @@ export const addTeamMember = async (
   try {
     return await api.post(`${BASE(guildId)}/${competitionId}/teams/${teamId}/members`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -313,7 +286,7 @@ export const removeTeamMember = async (
       `${BASE(guildId)}/${competitionId}/teams/${teamId}/members/${encodeURIComponent(playerCode)}`
     );
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -326,7 +299,7 @@ export const getTeamRecords = async (
   try {
     return await api.get(`${BASE(guildId)}/${competitionId}/teams/${teamId}/records`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -343,7 +316,7 @@ export const getCompetitionMatches = async (
     });
     return await api.get(`${BASE(guildId)}/${competitionId}/matches${query}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -360,7 +333,7 @@ export const assignMatchTeams = async (
       body
     );
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -373,7 +346,7 @@ export const changeMatchGameType = async (
   try {
     return await api.patch(`${BASE(guildId)}/${competitionId}/matches/game-type`, body);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -386,7 +359,7 @@ export const getStandings = async (
   try {
     return await api.get(`${BASE(guildId)}/${competitionId}/standings`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -401,7 +374,7 @@ export const getTeamHeadToHead = async (
     const query = buildQuery({ teamA, teamB });
     return await api.get(`${BASE(guildId)}/${competitionId}/records${query}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -423,7 +396,7 @@ export const getCompetitionUserStatistics = async (
     const query = buildQuery({ ...params });
     return await api.get(`${BASE(guildId)}/${competitionId}/statistics/users${query}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -436,7 +409,7 @@ export const getCompetitionChampionStatistics = async (
     const query = buildQuery({ ...params });
     return await api.get(`${BASE(guildId)}/${competitionId}/statistics/champions${query}`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -452,6 +425,6 @@ export const getPlayerCompetitions = async (
       `${BASE(guildId)}/players/${encodeURIComponent(playerCode)}/competitions${query}`
     );
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };

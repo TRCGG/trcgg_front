@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse } from "@/services/apiService";
 import {
   GameRecordResponse,
   MostPicksResponse,
@@ -17,11 +17,7 @@ export const getAllRecords = async (
   try {
     return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/dashboard${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -41,11 +37,7 @@ export const getRecentRecords = async (
   try {
     return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -80,11 +72,7 @@ export const getMostPicks = async (
   try {
     return await api.get(`/api/matches/${guildId}/${riotName}/most-picks${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -95,10 +83,6 @@ export const getGameRecords = async (
   try {
     return await api.get(`/api/matches/${guildId ?? ""}/games/${gameId}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };

@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse } from "@/services/apiService";
 import { FrequentOpponentsResponse, H2HDetailResponse } from "@/data/types/h2h";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
@@ -27,11 +27,7 @@ export const getFrequentOpponents = async (
   try {
     return await api.get(`/api/h2h/${guildId}/frequent${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -61,10 +57,6 @@ export const getH2HDetail = async (
   try {
     return await api.get(`/api/h2h/${guildId}${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };

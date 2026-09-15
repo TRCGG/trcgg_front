@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse } from "@/services/apiService";
 import { UserStatisticsResponse, ChampionStatisticsResponse } from "@/data/types/statistics";
 import api from "@/services/index";
 import buildQuery from "@/utils/buildQuery";
@@ -27,11 +27,7 @@ export const getUserStatistics = async (
 
     return await api.get(`/api/statistics/${guildId}/users${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -56,10 +52,6 @@ export const getChampionStatistics = async (
 
     return await api.get(`/api/statistics/${guildId}/champions${query}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };

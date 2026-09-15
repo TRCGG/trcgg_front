@@ -1,373 +1,173 @@
-// apiService.ts
+// apiService.ts — axios 기반 HTTP 클라이언트
 
-type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+import axios, { AxiosInstance, AxiosRequestConfig, isAxiosError } from "axios";
+import { ApiError, toApiError } from "@/services/apiError";
 
 // 기본 요청 타임아웃(ms). 이 시간 안에 응답이 없으면 요청을 취소해 무한 대기(펜딩)를 막는다.
 const DEFAULT_TIMEOUT_MS = 30000;
 
-interface RequestOptions {
-  method: HttpMethod;
-  headers?: Record<string, string>;
-  body?: unknown;
-  params?: Record<string, string>;
-}
-
+/**
+ * 성공 응답. 요청이 실패하면 이 타입을 반환하지 않고 ApiError를 throw한다.
+ *
+ * error/errorType 필드는 호출부 마이그레이션이 끝날 때까지 남겨둔 호환용이며 성공 시 항상 null이다.
+ * 서비스 레이어가 ApiError를 잡아 이 형태로 되돌리고 있어, 호출부가 모두 예외 기반으로
+ * 옮겨간 뒤 제거한다.
+ */
 interface ApiResponse<T> {
   data: T | null;
   error: string | null;
-  /**
-   * 백엔드 에러의 RFC 7807 Problem Details type (예: "competition-in-progress-exists").
-   * 같은 상태 코드에 사유가 여럿인 경우를 구분하는 데 쓴다.
-   */
   errorType?: string | null;
   status: number;
-  headers?: Headers;
 }
 
-// 인터셉터 타입 정의
-type RequestInterceptor = (
-  url: string,
-  options: RequestOptions
-) => { url: string; options: RequestOptions };
+interface RequestConfig {
+  params?: Record<string, string>;
+  headers?: Record<string, string>;
+  /** 기본 타임아웃으로 부족한 요청(파일 업로드 등)에서만 덮어쓴다. */
+  timeout?: number;
+}
 
-type ResponseInterceptor = (
-  response: Response,
-  data: unknown
-) => Promise<{ response: Response; data: unknown }>;
+/** axios가 던진 것을 status·errorType을 보존한 ApiError로 정규화한다. */
+const normalizeError = (error: unknown): ApiError => {
+  if (!isAxiosError(error)) return toApiError(error);
 
-type ErrorInterceptor = (
-  error: unknown,
-  requestOptions: { url: string; options: RequestOptions }
-) => Promise<unknown>;
-
-class ApiService {
-  private static instance: ApiService;
-
-  private baseUrl: string;
-
-  private requestInterceptors: RequestInterceptor[] = [];
-
-  private responseInterceptors: ResponseInterceptor[] = [];
-
-  private errorInterceptors: ErrorInterceptor[] = [];
-
-  private constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-
-    // 기본 인터셉터 설정
-    this.setupDefaultInterceptors();
+  if (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
+    return new ApiError(408, null, "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.");
   }
 
-  public static getInstance(baseUrl: string): ApiService {
-    if (!ApiService.instance) {
-      ApiService.instance = new ApiService(baseUrl);
+  const { response } = error;
+  if (!response) {
+    // 응답 자체를 받지 못한 경우 — 네트워크 단절, CORS, DNS 실패 등
+    return new ApiError(0, null, error.message || "An unknown error occurred");
+  }
+
+  // 백엔드 에러는 Problem Details({ type, title, status, detail })로 오고 message가 없다.
+  // message만 보던 탓에 모든 비즈니스 에러가 "Error: 4xx"로 뭉개졌어서 detail·type도 읽는다.
+  const body =
+    typeof response.data === "object" && response.data !== null
+      ? (response.data as Record<string, unknown>)
+      : null;
+
+  const message = (() => {
+    if (body && typeof body.message === "string") return body.message;
+    if (body && typeof body.detail === "string") return body.detail;
+    return `Error: ${response.status}`;
+  })();
+
+  return new ApiError(
+    response.status,
+    body && typeof body.type === "string" ? body.type : null,
+    message
+  );
+};
+
+const createClient = (baseUrl: string): AxiosInstance => {
+  // Content-Type을 기본값으로 박지 않는다. axios가 본문 종류에 맞춰 정해주는데,
+  // FormData일 때 multipart boundary를 붙이려면 이 자리가 비어 있어야 한다.
+  const client = axios.create({
+    baseURL: baseUrl,
+    timeout: DEFAULT_TIMEOUT_MS,
+    withCredentials: true, // 쿠키 전송
+  });
+
+  // 요청 전처리: 인증 토큰 추가
+  client.interceptors.request.use((config) => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+    if (token) {
+      config.headers.set("Authorization", `Bearer ${token}`);
     }
-    return ApiService.instance;
-  }
+    return config;
+  });
 
-  // 기본 인터셉터 설정
-  private setupDefaultInterceptors(): void {
-    // 요청 전처리: 인증 토큰 추가
-    this.addRequestInterceptor((url, options) => {
-      // 로컬 스토리지에서 토큰 가져오기
-      const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-
-      if (token) {
-        // eslint-disable-next-line no-param-reassign
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${token}`,
-        };
-      }
-
-      return { url, options };
-    });
-
-    // 응답 후처리: 토큰 갱신
-    this.addResponseInterceptor(async (response, data) => {
-      // 새 토큰이 응답에 포함되어 있는 경우 저장
-      const newToken = response.headers.get("x-auth-token");
+  client.interceptors.response.use(
+    // 응답 후처리: 새 토큰이 응답에 포함되어 있으면 저장
+    (response) => {
+      const newToken = response.headers["x-auth-token"];
       if (newToken && typeof window !== "undefined") {
         localStorage.setItem("authToken", newToken);
       }
-
-      return { response, data };
-    });
-
-    // 에러 처리: 401 에러 시 로그아웃
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.addErrorInterceptor(async (error) => {
-      if (error && typeof error === "object" && "status" in error && error.status === 401) {
-        // 토큰 만료 또는 인증 오류
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("authToken");
-          // 로그인 페이지로 리다이렉트 등의 처리
-          // window.location.href = "/login";
-        }
+      return response;
+    },
+    // 에러 처리: 401이면 만료된 토큰을 버리고, 항상 ApiError로 바꿔 다시 던진다
+    (error: unknown) => {
+      const apiError = normalizeError(error);
+      if (apiError.status === 401 && typeof window !== "undefined") {
+        localStorage.removeItem("authToken");
       }
-
-      throw error; // 에러를 다시 던져서 호출자가 처리할 수 있게 함
-    });
-  }
-
-  // 요청 인터셉터 추가
-  public addRequestInterceptor(interceptor: RequestInterceptor): void {
-    this.requestInterceptors.push(interceptor);
-  }
-
-  // 응답 인터셉터 추가
-  public addResponseInterceptor(interceptor: ResponseInterceptor): void {
-    this.responseInterceptors.push(interceptor);
-  }
-
-  // 에러 인터셉터 추가
-  public addErrorInterceptor(interceptor: ErrorInterceptor): void {
-    this.errorInterceptors.push(interceptor);
-  }
-
-  // 요청 인터셉터 실행
-  private async applyRequestInterceptors(
-    url: string,
-    options: RequestOptions
-  ): Promise<{ url: string; options: RequestOptions }> {
-    let result = { url, options };
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const interceptor of this.requestInterceptors) {
-      result = interceptor(result.url, result.options);
+      throw apiError;
     }
+  );
 
-    return result;
-  }
+  return client;
+};
 
-  // 응답 인터셉터 실행
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async applyResponseInterceptors<T>(
-    response: Response,
-    data: unknown
-  ): Promise<{ response: Response; data: unknown }> {
-    let result = { response, data };
+/** 성공 응답을 ApiResponse로 감싼다. 실패는 인터셉터가 이미 throw했으므로 여기 오지 않는다. */
+const toApiResponse = async <T>(
+  client: AxiosInstance,
+  config: AxiosRequestConfig
+): Promise<ApiResponse<T>> => {
+  const response = await client.request<T>(config);
+  return {
+    // 204 No Content에서 axios는 빈 문자열을 주므로 null로 맞춘다.
+    data: response.status === 204 ? null : response.data,
+    error: null,
+    errorType: null,
+    status: response.status,
+  };
+};
 
-    // eslint-disable-next-line no-restricted-syntax
-    for (const interceptor of this.responseInterceptors) {
-      // eslint-disable-next-line no-await-in-loop
-      result = await interceptor(result.response, result.data);
-    }
+/**
+ * ApiError를 예전 { data, error } 형태로 되돌린다.
+ *
+ * 클라이언트가 throw로 바뀌면서 서비스 레이어의 catch가 비로소 실행되기 시작했다.
+ * 호출부 100여 곳이 아직 이 형태를 읽고 있어 그 사이를 잇는 임시 어댑터이며,
+ * 호출부가 모두 예외 기반으로 옮겨가면 이 함수와 ApiResponse의 error 필드는 함께 사라진다.
+ *
+ * status와 errorType을 반드시 실어 보낸다 — 화면 문구 매핑(competitionErrors.ts)이 둘 다 본다.
+ */
+const toErrorResponse = <T>(error: unknown): ApiResponse<T> => {
+  const apiError = toApiError(error);
+  return {
+    data: null,
+    error: apiError.message,
+    errorType: apiError.errorType,
+    status: apiError.status,
+  };
+};
 
-    return result;
-  }
-
-  // 에러 인터셉터 실행
-  private async applyErrorInterceptors(
-    error: unknown,
-    requestOptions: { url: string; options: RequestOptions }
-  ): Promise<unknown> {
-    let result = error;
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const interceptor of this.errorInterceptors) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await interceptor(result, requestOptions);
-      } catch (e) {
-        result = e;
-      }
-    }
-
-    return result;
-  }
-
-  private async request<T>(endpoint: string, options: RequestOptions): Promise<ApiResponse<T>> {
-    const { method, headers = {}, body, params } = options;
-
-    let url = `${this.baseUrl}${endpoint}`;
-
-    // Handle query parameters
-    if (params) {
-      const queryParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value);
-        }
-      });
-
-      const queryString = queryParams.toString();
-      if (queryString) {
-        url += `${url.includes("?") ? "&" : "?"}${queryString}`;
-      }
-    }
-
-    // 요청 옵션 생성
-    const requestOptions: RequestOptions = {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    };
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
-
-    try {
-      // 요청 인터셉터 적용
-      const interceptedRequest = await this.applyRequestInterceptors(url, requestOptions);
-
-      // fetch 요청 실행
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      const response = await fetch(interceptedRequest.url, {
-        ...interceptedRequest.options,
-        credentials: "include", // 쿠키 전송을 위한 설정
-        signal: controller.signal,
-      });
-
-      // 응답 데이터 파싱
-      let data: unknown;
-      if (response.status === 204) {
-        data = null;
-      } else {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          data = await response.json();
-        } else {
-          data = await response.text();
-        }
-      }
-
-      // 응답 인터셉터 적용
-      const interceptedResponse = await this.applyResponseInterceptors<T>(response, data);
-
-      // 응답 처리
-      if (response.ok) {
-        return {
-          data: interceptedResponse.data as T,
-          error: null,
-          status: response.status,
-          headers: response.headers,
-        };
-      }
-      // 백엔드 에러는 Problem Details({ type, title, status, detail })로 오고 message가 없다.
-      // message만 보던 탓에 모든 비즈니스 에러가 "Error: 4xx"로 뭉개졌어서 detail·type도 읽는다.
-      const errorBody =
-        typeof interceptedResponse.data === "object" && interceptedResponse.data !== null
-          ? (interceptedResponse.data as Record<string, unknown>)
-          : null;
-      const errorMessage = (() => {
-        if (errorBody && typeof errorBody.message === "string") return errorBody.message;
-        if (errorBody && typeof errorBody.detail === "string") return errorBody.detail;
-        return `Error: ${response.status}`;
-      })();
-
-      const error = {
-        data: null,
-        error: errorMessage,
-        errorType: errorBody && typeof errorBody.type === "string" ? errorBody.type : null,
-        status: response.status,
-        headers: response.headers,
-      };
-
-      // 에러 인터셉터 적용
-      await this.applyErrorInterceptors(error, {
-        url: interceptedRequest.url,
-        options: interceptedRequest.options,
-      });
-
-      return error;
-    } catch (error: unknown) {
-      // 네트워크 오류·타임아웃 등 예외 처리
-      const isTimeout = error instanceof Error && error.name === "AbortError";
-      const errorResponse = {
-        data: null,
-        error: isTimeout
-          ? "요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요."
-          : (error instanceof Error && error.message) || "An unknown error occurred",
-        status: isTimeout ? 408 : 0,
-      };
-
-      // 에러 인터셉터 적용
-      await this.applyErrorInterceptors(errorResponse, { url, options: requestOptions });
-
-      return errorResponse;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  // GET 요청 메서드
-  public async get<T>(
-    endpoint: string,
-    params?: Record<string, string>,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "GET",
-      params,
-      headers,
-    });
-  }
-
-  // POST 요청 메서드
-  public async post<T>(
-    endpoint: string,
-    body?: unknown,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "POST",
-      body,
-      headers,
-    });
-  }
-
-  // PUT 요청 메서드
-  public async put<T>(
-    endpoint: string,
-    body?: unknown,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "PUT",
-      body,
-      headers,
-    });
-  }
-
-  // DELETE 요청 메서드
-  public async delete<T>(
-    endpoint: string,
-    params?: Record<string, string>,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "DELETE",
-      params,
-      headers,
-    });
-  }
-
-  // PATCH 요청 메서드
-  public async patch<T>(
-    endpoint: string,
-    body?: unknown,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: "PATCH",
-      body,
-      headers,
-    });
-  }
-}
-
-// API 서비스 인스턴스 생성 함수
-const createApiService = (baseUrl?: string): ApiService => {
+const createApiService = (baseUrl?: string) => {
   if (!baseUrl) {
     throw new Error("API base URL is undefined. Check your environment variables.");
   }
-  return ApiService.getInstance(baseUrl);
+
+  const client = createClient(baseUrl);
+
+  return {
+    get<T>(endpoint: string, params?: Record<string, string>, headers?: Record<string, string>) {
+      return toApiResponse<T>(client, { method: "GET", url: endpoint, params, headers });
+    },
+
+    post<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
+      return toApiResponse<T>(client, { method: "POST", url: endpoint, data: body, ...config });
+    },
+
+    put<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
+      return toApiResponse<T>(client, { method: "PUT", url: endpoint, data: body, ...config });
+    },
+
+    patch<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
+      return toApiResponse<T>(client, { method: "PATCH", url: endpoint, data: body, ...config });
+    },
+
+    /** DELETE는 본문을 받는다 — 삭제 확인값(confirmName 등)을 싣는 엔드포인트가 있다. */
+    delete<T>(endpoint: string, options?: RequestConfig & { body?: unknown }) {
+      const { body, ...config } = options ?? {};
+      return toApiResponse<T>(client, { method: "DELETE", url: endpoint, data: body, ...config });
+    },
+  };
 };
 
-export { ApiService, createApiService };
-export type { ApiResponse };
+type ApiService = ReturnType<typeof createApiService>;
+
+export { createApiService, toErrorResponse };
+export type { ApiResponse, ApiService, RequestConfig };

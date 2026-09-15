@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/services/apiService";
+import { ApiResponse, toErrorResponse } from "@/services/apiService";
 import {
   GuildMembersResponse,
   UpdateMemberRoleResponse,
@@ -9,8 +9,6 @@ import {
   MemberStatus,
 } from "@/data/types/guildMember";
 import api from "@/services/index";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface GetMembersParams {
   search?: string;
@@ -31,11 +29,7 @@ export const getGuildDiscordMembers = async (
     if (search) params.search = search;
     return await api.get(`/api/guildMember/${guildId}/discord-members`, params);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -49,11 +43,7 @@ export const updateMemberRole = async (
       role,
     });
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -62,11 +52,7 @@ export const getGuildById = async (guildId: string): Promise<ApiResponse<GuildRe
   try {
     return await api.get(`/api/guilds/${atob(guildId)}`);
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
@@ -77,21 +63,11 @@ export const setAllowAllUploads = async (
   try {
     return await api.patch(`/api/guilds/${guildId}/allow-all-uploads`, { allowAllUploads });
   } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
+    return toErrorResponse(error);
   }
 };
 
 // guildId는 Base64 인코딩된 값 — path 엔드포인트는 그대로(서버가 디코드), body 엔드포인트는 atob로 디코드해 전달
-const errResponse = (error: unknown) => ({
-  data: null,
-  error: error instanceof Error ? error.message : "Unknown error",
-  status: 500,
-});
-
 // 클랜원(본계정) 목록 조회. status=1(활성)/2(비활성)/all
 export const getGuildMembers = async (
   guildId: string,
@@ -107,7 +83,7 @@ export const getGuildMembers = async (
     if (limit) params.limit = String(limit);
     return await api.get(`/api/guildMember/${guildId}/members`, params);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -118,7 +94,7 @@ export const getSubAccounts = async (
   try {
     return await api.get(`/api/guildMember/${guildId}/sub-accounts`);
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -130,36 +106,21 @@ export const linkSubAccount = async (
   try {
     return await api.post(`/api/guildMember/sub-account`, { guildId: atob(guildId), ...payload });
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
-// 부계정 연결 해제 (DELETE + body — ApiService가 body를 지원하지 않아 raw fetch 사용)
+// 부계정 연결 해제
 export const removeSubAccount = async (
   guildId: string,
   payload: { riotName: string; riotNameTag: string }
 ): Promise<ApiResponse<unknown>> => {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (token) headers.Authorization = `Bearer ${token}`;
-    const response = await fetch(`${BASE_URL}/api/guildMember/sub-account`, {
-      method: "DELETE",
-      headers,
-      credentials: "include",
-      body: JSON.stringify({ guildId: atob(guildId), ...payload }),
+    return await api.delete(`/api/guildMember/sub-account`, {
+      body: { guildId: atob(guildId), ...payload },
     });
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      return {
-        data: null,
-        error: data?.message || `Error: ${response.status}`,
-        status: response.status,
-      };
-    }
-    return { data, error: null, status: response.status };
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
 
@@ -171,6 +132,6 @@ export const updateMemberStatus = async (
   try {
     return await api.put(`/api/guildMember/status`, { guildId: atob(guildId), ...payload });
   } catch (error) {
-    return errResponse(error);
+    return toErrorResponse(error);
   }
 };
