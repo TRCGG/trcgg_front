@@ -81,6 +81,14 @@ const RiotProfilePage = () => {
       ? data.mostPicks[0].champNameEng
       : "";
 
+  useEffect(() => {
+    if (!mostChampion) return undefined;
+    document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`;
+    return () => {
+      document.body.style.background = "";
+    };
+  }, [mostChampion]);
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gmok.kr";
   const pageTitle = riotNameString
     ? `${riotNameString}#${riotTagString} - GMOK`
@@ -101,19 +109,7 @@ const RiotProfilePage = () => {
         />
         <meta property="og:url" content={pageUrl} />
       </Head>
-      <div
-        className="w-full min-h-screen pb-10"
-        style={
-          mostChampion
-            ? {
-                background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`,
-                backgroundColor: "#191b20",
-              }
-            : {
-                backgroundColor: "#191b20",
-              }
-        }
-      >
+      <div className="w-full min-h-screen pb-10">
         <div className="w-full md:max-w-[1080px] mx-auto">
           <SummonerPageHeader
             searchTerm={searchTerm}
