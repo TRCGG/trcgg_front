@@ -23,6 +23,7 @@ import DateRangeFilter, { DateRangeValue } from "@/features/statistics/DateRange
 import { Position } from "@/services/statistics";
 import H2HPanel from "@/features/h2h/H2HPanel";
 import CompetitionRecordTab from "@/features/competition/CompetitionRecordTab";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 
 interface Props {
   riotName: string;
@@ -36,8 +37,8 @@ type ChampionSortType = "gameCount" | "winRate" | "kda";
 const UserRecordPanel = ({ riotName, riotTag, data, onRefreshRecords }: Props) => {
   const RECORD_DISPLAY_COUNT = 10;
   const MOST_PICK_DISTPLAY_COUNT = 10;
-  const guildId =
-    typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
+  const { guildId: selectedGuildId } = useGuildContext();
+  const guildId = selectedGuildId || undefined;
 
   // 탭 상태를 URL 쿼리(?tab=)로 승격 — 딥링크/새로고침/뒤로가기 대응. 잘못된 값은 overview로 폴백.
   const router = useRouter();

@@ -12,6 +12,7 @@ import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -22,8 +23,8 @@ const MatchItem = ({ matchData }: Props) => {
   const toggleOpen = () => setOpen((prev) => !prev);
   const isWin = matchData.gameResult === "승";
 
-  const guildId =
-    typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
+  const { guildId: selectedGuildId } = useGuildContext();
+  const guildId = selectedGuildId || undefined;
 
   const { data: gameData, isLoading: isLoadingGameData } = useQuery<GameParticipant[]>({
     queryKey: ["gameData", matchData.gameId, guildId],

@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import useSpriteLoader from "@/hooks/common/useSpriteLoader";
 import Footer from "@/components/layout/Footer";
 import { NextPageWithLayout } from "@/data/types/next";
+import { GuildProvider } from "@/hooks/auth/GuildContext";
 import { isApiError } from "@/services/apiError";
 import "@/styles/global.css";
 
@@ -50,13 +51,16 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        {/* 좌우 여백은 여기서만 준다. 푸터는 이 바깥에 있어야 화면을 꽉 채운다. */}
-        <div className={`flex-1 ${isFullBleed ? "" : "px-2 md:px-0"}`}>
-          {getLayout(<Component {...pageProps} />)}
+      {/* useGuildManagement가 useQuery를 쓰므로 QueryClientProvider 안쪽이어야 한다. */}
+      <GuildProvider>
+        <div className="flex min-h-screen flex-col">
+          {/* 좌우 여백은 여기서만 준다. 푸터는 이 바깥에 있어야 화면을 꽉 채운다. */}
+          <div className={`flex-1 ${isFullBleed ? "" : "px-2 md:px-0"}`}>
+            {getLayout(<Component {...pageProps} />)}
+          </div>
+          {!isFullBleed && <Footer />}
         </div>
-        {!isFullBleed && <Footer />}
-      </div>
+      </GuildProvider>
     </QueryClientProvider>
   );
 };
