@@ -6,9 +6,11 @@ import AnchorNav from "@/components/layout/AnchorNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
+import colors from "@/styles/colors";
+import { withAlpha } from "@/utils/color";
 
 const Code = ({ children }: { children: ReactNode }) => (
-  <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-[#C8D0DA]">
+  <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-landing-bodyStrong">
     {children}
   </span>
 );
@@ -18,14 +20,14 @@ const DiscordLink = ({ children }: { children: ReactNode }) => (
     href={DISCORD_INVITE_URL}
     target="_blank"
     rel="noreferrer"
-    className="font-bold text-[#8AA0FF] hover:text-[#B0BEFF]"
+    className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
   >
     {children}
   </a>
 );
 
 const Menu = ({ children }: { children: ReactNode }) => (
-  <b className="text-[#C8D0DA]">{children}</b>
+  <b className="text-landing-bodyStrong">{children}</b>
 );
 
 interface FaqItem {
@@ -94,10 +96,10 @@ const CATEGORIES: FaqCategory[] = [
         q: "업로드가 실패해요.",
         a: (
           <>
-            <p className="m-0 mb-3 text-[15px] leading-[1.85] text-[#9BA3AD]">
+            <p className="m-0 mb-3 text-[15px] leading-[1.85] text-landing-body2">
               다음을 확인해 주세요.
             </p>
-            <ul className="m-0 list-disc pl-5 text-[15px] leading-[1.9] text-[#9BA3AD]">
+            <ul className="m-0 list-disc pl-5 text-[15px] leading-[1.9] text-landing-body2">
               <li>
                 확장자가 <Code>.rofl</Code>인지 (다른 파일은 처리되지 않습니다)
               </li>
@@ -166,7 +168,7 @@ const CATEGORIES: FaqCategory[] = [
           <>
             디스코드 계정 기본 정보와 리플레이 파일에 포함된 경기 데이터입니다. 자세한 항목은{" "}
             <Link href="/privacy">
-              <span className="cursor-pointer font-bold text-[#8AA0FF] hover:text-[#B0BEFF]">
+              <span className="cursor-pointer font-bold text-landing-periwinkle hover:text-landing-periwinkleHover">
                 개인정보처리방침
               </span>
             </Link>
@@ -184,21 +186,23 @@ const CATEGORIES: FaqCategory[] = [
 
 const FaqCard = ({ item }: { item: FaqItem }) => (
   <div
-    className={`rounded-[14px] border bg-[#121418] px-7 py-6 ${
-      item.highlight ? "border-[#C8AA6E]/[0.26]" : "border-white/[0.07]"
+    className={`rounded-[14px] border bg-landing-bgCard px-7 py-6 ${
+      item.highlight ? "border-landing-gold/[0.26]" : "border-white/[0.07]"
     }`}
   >
-    <h3 className="m-0 mb-2.5 text-[17px] font-bold leading-[1.5] text-[#EAF0F6]">{item.q}</h3>
+    <h3 className="m-0 mb-2.5 text-[17px] font-bold leading-[1.5] text-landing-heading3">
+      {item.q}
+    </h3>
     {typeof item.a === "string" ? (
-      <p className="m-0 text-[15px] leading-[1.85] text-[#9BA3AD]">{item.a}</p>
+      <p className="m-0 text-[15px] leading-[1.85] text-landing-body2">{item.a}</p>
     ) : (
-      <div className="text-[15px] leading-[1.85] text-[#9BA3AD]">{item.a}</div>
+      <div className="text-[15px] leading-[1.85] text-landing-body2">{item.a}</div>
     )}
   </div>
 );
 
 const Faq: NextPage = () => (
-  <div className="w-full bg-[#0a0b0d] text-[#C4CBD4]">
+  <div className="w-full bg-landing-bg text-landing-body">
     <Head>
       <title>자주 묻는 질문 | GMOK</title>
       <meta
@@ -217,14 +221,14 @@ const Faq: NextPage = () => (
       >
         <div className="faq-glow pointer-events-none absolute left-1/2 top-[-200px] h-[520px] w-[900px] max-w-full -translate-x-1/2" />
         <div className="relative mx-auto max-w-[860px] text-center">
-          <div className="mb-3.5 text-sm font-bold tracking-[1.5px] text-[#C8AA6E]">FAQ</div>
+          <div className="mb-3.5 text-sm font-bold tracking-[1.5px] text-landing-gold">FAQ</div>
           <h1
-            className="m-0 mb-4 font-bold text-[#F5F8FC]"
+            className="m-0 mb-4 font-bold text-landing-heading"
             style={{ fontSize: "clamp(32px,5vw,54px)", lineHeight: 1.15, letterSpacing: "-1.2px" }}
           >
             자주 묻는 질문
           </h1>
-          <p className="mx-auto max-w-[600px] text-[17px] leading-[1.7] text-[#8A929C]">
+          <p className="mx-auto max-w-[600px] text-[17px] leading-[1.7] text-landing-caption">
             GMOK 이용 중 궁금한 점을 모았습니다. 찾는 답이 없다면 디스코드로 문의해 주세요.
           </p>
         </div>
@@ -237,12 +241,12 @@ const Faq: NextPage = () => (
             <section key={cat.id} id={cat.id} className="scroll-mt-[90px]">
               <div className="mb-[22px] flex items-center gap-3.5">
                 <h2
-                  className="m-0 font-bold tracking-[-0.4px] text-[#EAF0F6]"
+                  className="m-0 font-bold tracking-[-0.4px] text-landing-heading3"
                   style={{ fontSize: "clamp(20px,2.4vw,25px)" }}
                 >
                   {cat.label}
                 </h2>
-                <span className="h-px flex-1 bg-gradient-to-r from-[#C8AA6E]/[0.35] to-transparent" />
+                <span className="h-px flex-1 bg-gradient-to-r from-landing-gold/[0.35] to-transparent" />
               </div>
               <div className="flex flex-col gap-3.5">
                 {cat.items.map((item) => (
@@ -253,22 +257,22 @@ const Faq: NextPage = () => (
           ))}
 
           {/* 문의 CTA */}
-          <section className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-[#5865F2]/[0.55] via-[#C8AA6E]/[0.25] to-transparent p-px">
-            <div className="rounded-[19px] bg-gradient-to-b from-[#14161B] to-[#0D0F13] px-6 py-8 text-center md:px-11 md:py-12">
+          <section className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-landing-discord/[0.55] via-landing-gold/[0.25] to-transparent p-px">
+            <div className="rounded-[19px] bg-gradient-to-b from-landing-gradTopAlt to-landing-gradBottomAlt px-6 py-8 text-center md:px-11 md:py-12">
               <h2
-                className="m-0 mb-2.5 font-bold tracking-[-0.6px] text-[#F1F5FA]"
+                className="m-0 mb-2.5 font-bold tracking-[-0.6px] text-landing-heading2"
                 style={{ fontSize: "clamp(22px,2.8vw,30px)" }}
               >
                 찾는 답이 없으신가요?
               </h2>
-              <p className="m-0 mb-6 text-[15.5px] leading-[1.7] text-[#8A929C]">
+              <p className="m-0 mb-6 text-[15.5px] leading-[1.7] text-landing-caption">
                 클랜 등록 문의, 오류 신고, 기록 삭제 요청 모두 디스코드에서 받고 있습니다.
               </p>
               <a
                 href={DISCORD_INVITE_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2.5 rounded-xl bg-[#5865F2] px-[30px] py-[15px] text-base font-bold text-white shadow-[0_14px_34px_-10px_rgba(88,101,242,0.6)] hover:bg-[#4954da]"
+                className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-[30px] py-[15px] text-base font-bold text-white shadow-[0_14px_34px_-10px_theme(colors.landing.discord/0.6)] hover:bg-landing-discordHover"
               >
                 <DiscordIcon size={20} />
                 디스코드 지원 서버 가기
@@ -286,7 +290,11 @@ const Faq: NextPage = () => (
         scroll-behavior: smooth;
       }
       .faq-glow {
-        background: radial-gradient(closest-side, rgba(43, 111, 219, 0.22), transparent 70%);
+        background: radial-gradient(
+          closest-side,
+          ${withAlpha(colors.landing.glowBlue, 0.22)},
+          transparent 70%
+        );
         animation: gmokGlow 8s ease-in-out infinite;
       }
       @keyframes gmokGlow {

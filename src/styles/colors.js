@@ -49,6 +49,40 @@ const colors = {
   damageAmberFrom: "#E8913C",
   damageAmberTo: "#F5C877",
   damageSlate: "#6B74A0",
+  // about·faq·guide 전용. 앱 본문보다 밝은 톤이라 기존 토큰과 섞지 않는다.
+  landing: {
+    bg: "#0A0B0D",
+    bgSection: "#0C0D10",
+    bgCard: "#121418",
+    bgChrome: "#15171B", // 브라우저 목업 상단 바
+    bgOverlay: "#050608", // 이미지 확대 오버레이
+    gradTop: "#15181D",
+    gradTopAlt: "#14161B",
+    gradBottom: "#101216",
+    gradBottomAlt: "#0D0F13",
+    heading: "#F5F8FC",
+    heading2: "#F1F5FA",
+    heading3: "#EAF0F6",
+    heading4: "#E8EDF3",
+    bodyStrong: "#C8D0DA",
+    body: "#C4CBD4",
+    bodyMuted: "#A9B2BD",
+    body2: "#9BA3AD",
+    caption: "#8A929C",
+    micro: "#6C727A",
+    microFaint: "#5E656E",
+    gold: "#C8AA6E",
+    goldLight: "#E8D6A8",
+    goldMuted: "#D9BE85",
+    periwinkle: "#8AA0FF",
+    periwinkleHover: "#B0BEFF",
+    discord: "#5865F2",
+    discordHover: "#4954DA",
+    dotRed: "#FF5F57",
+    dotAmber: "#FEBC2E",
+    dotGreen: "#28C840",
+    glowBlue: "#2B6FDB", // 배경 글로우 radial-gradient
+  },
   // 기타
   slotEmpty: "#1C1F24", // 빈 아이템 슬롯 / 바 트랙
   levelBadgeBg: "#0A0B0D",
