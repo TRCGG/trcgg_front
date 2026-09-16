@@ -10,7 +10,7 @@ import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 
 const Code = ({ children }: { children: ReactNode }) => (
-  <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-landing-bodyStrong">
+  <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-landing-body">
     {children}
   </span>
 );
@@ -27,7 +27,7 @@ const DiscordLink = ({ children }: { children: ReactNode }) => (
 );
 
 const Menu = ({ children }: { children: ReactNode }) => (
-  <b className="text-landing-bodyStrong">{children}</b>
+  <b className="text-landing-body">{children}</b>
 );
 
 interface FaqItem {
@@ -96,10 +96,10 @@ const CATEGORIES: FaqCategory[] = [
         q: "업로드가 실패해요.",
         a: (
           <>
-            <p className="m-0 mb-3 text-[15px] leading-[1.85] text-landing-body2">
+            <p className="m-0 mb-3 text-[15px] leading-[1.85] text-landing-bodySecondary">
               다음을 확인해 주세요.
             </p>
-            <ul className="m-0 list-disc pl-5 text-[15px] leading-[1.9] text-landing-body2">
+            <ul className="m-0 list-disc pl-5 text-[15px] leading-[1.9] text-landing-bodySecondary">
               <li>
                 확장자가 <Code>.rofl</Code>인지 (다른 파일은 처리되지 않습니다)
               </li>
@@ -190,13 +190,13 @@ const FaqCard = ({ item }: { item: FaqItem }) => (
       item.highlight ? "border-landing-gold/[0.26]" : "border-white/[0.07]"
     }`}
   >
-    <h3 className="m-0 mb-2.5 text-[17px] font-bold leading-[1.5] text-landing-heading3">
+    <h3 className="m-0 mb-2.5 text-[17px] font-bold leading-[1.5] text-landing-headingSm">
       {item.q}
     </h3>
     {typeof item.a === "string" ? (
-      <p className="m-0 text-[15px] leading-[1.85] text-landing-body2">{item.a}</p>
+      <p className="m-0 text-[15px] leading-[1.85] text-landing-bodySecondary">{item.a}</p>
     ) : (
-      <div className="text-[15px] leading-[1.85] text-landing-body2">{item.a}</div>
+      <div className="text-[15px] leading-[1.85] text-landing-bodySecondary">{item.a}</div>
     )}
   </div>
 );
@@ -241,7 +241,7 @@ const Faq: NextPage = () => (
             <section key={cat.id} id={cat.id} className="scroll-mt-[90px]">
               <div className="mb-[22px] flex items-center gap-3.5">
                 <h2
-                  className="m-0 font-bold tracking-[-0.4px] text-landing-heading3"
+                  className="m-0 font-bold tracking-[-0.4px] text-landing-headingSm"
                   style={{ fontSize: "clamp(20px,2.4vw,25px)" }}
                 >
                   {cat.label}
@@ -258,9 +258,9 @@ const Faq: NextPage = () => (
 
           {/* 문의 CTA */}
           <section className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-landing-discord/[0.55] via-landing-gold/[0.25] to-transparent p-px">
-            <div className="rounded-[19px] bg-gradient-to-b from-landing-gradTopAlt to-landing-gradBottomAlt px-6 py-8 text-center md:px-11 md:py-12">
+            <div className="rounded-[19px] bg-gradient-to-b from-landing-bgElevated to-landing-gradBottomAlt px-6 py-8 text-center md:px-11 md:py-12">
               <h2
-                className="m-0 mb-2.5 font-bold tracking-[-0.6px] text-landing-heading2"
+                className="m-0 mb-2.5 font-bold tracking-[-0.6px] text-landing-heading"
                 style={{ fontSize: "clamp(22px,2.8vw,30px)" }}
               >
                 찾는 답이 없으신가요?

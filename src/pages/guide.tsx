@@ -10,13 +10,13 @@ import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 
 const Code = ({ children }: { children: ReactNode }) => (
-  <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-landing-bodyStrong">
+  <span className="rounded-[5px] bg-white/[0.06] px-[7px] py-0.5 font-mono text-[13.5px] text-landing-body">
     {children}
   </span>
 );
 
 const Menu = ({ children }: { children: ReactNode }) => (
-  <b className="text-landing-bodyStrong">{children}</b>
+  <b className="text-landing-body">{children}</b>
 );
 
 const Highlight = ({ children }: { children: ReactNode }) => (
@@ -38,7 +38,7 @@ const Note = ({ tone, children }: { tone: "discord" | "gold"; children: ReactNod
         : "border-landing-gold/[0.22] bg-landing-gold/[0.06]"
     }`}
   >
-    <p className="m-0 text-[14.5px] leading-[1.8] text-landing-bodyMuted">{children}</p>
+    <p className="m-0 text-[14.5px] leading-[1.8] text-landing-bodyOnTint">{children}</p>
   </div>
 );
 
@@ -58,7 +58,7 @@ const Section = ({ id, step, title, badge, children }: SectionProps) => (
         {step}
       </span>
       <h2
-        className="m-0 font-bold tracking-[-0.4px] text-landing-heading3"
+        className="m-0 font-bold tracking-[-0.4px] text-landing-headingSm"
         style={{ fontSize: "clamp(21px,2.5vw,26px)" }}
       >
         {title}
@@ -185,13 +185,13 @@ const Guide: NextPage = () => (
         <div className="mx-auto flex max-w-[860px] flex-col gap-[52px] md:gap-20">
           <Section id="s1" step={1} title="GMOK이란">
             <Card className="flex flex-col gap-4 px-[30px] py-7">
-              <p className="m-0 text-[15.5px] leading-[1.85] text-landing-body2">
+              <p className="m-0 text-[15.5px] leading-[1.85] text-landing-bodySecondary">
                 GMOK은 리그 오브 레전드{" "}
                 <Highlight>내전(커스텀 게임) 전적 기록·통계 서비스</Highlight>
                 입니다. 내전이 끝난 뒤 리플레이 파일(.rofl)을 업로드하면 경기 결과가 자동으로
                 분석되어, 클랜(디스코드 서버) 단위의 전적·통계·랭킹을 웹에서 확인할 수 있습니다.
               </p>
-              <p className="m-0 text-[15.5px] leading-[1.85] text-landing-body2">
+              <p className="m-0 text-[15.5px] leading-[1.85] text-landing-bodySecondary">
                 솔로랭크·일반 게임 전적은 다루지 않습니다. GMOK이 기록하는 것은 여러분의 클랜이 직접
                 치른 내전 경기입니다 — 일반 전적 사이트에서는 볼 수 없는 기록입니다.
               </p>
@@ -209,10 +209,12 @@ const Guide: NextPage = () => (
                     {i + 1}
                   </span>
                   <div>
-                    <h3 className="m-0 mb-1.5 text-[16.5px] font-bold text-landing-heading3">
+                    <h3 className="m-0 mb-1.5 text-[16.5px] font-bold text-landing-headingSm">
                       {step.title}
                     </h3>
-                    <p className="m-0 text-[15px] leading-[1.8] text-landing-body2">{step.body}</p>
+                    <p className="m-0 text-[15px] leading-[1.8] text-landing-bodySecondary">
+                      {step.body}
+                    </p>
                   </div>
                 </Card>
               ))}
@@ -234,11 +236,11 @@ const Guide: NextPage = () => (
           <Section id="s3" step={3} title="전적 기록하기 — 리플레이 업로드">
             <div className="flex flex-col gap-3">
               <Card className="px-[30px] py-7">
-                <p className="m-0 mb-4 text-[15.5px] leading-[1.85] text-landing-body2">
+                <p className="m-0 mb-4 text-[15.5px] leading-[1.85] text-landing-bodySecondary">
                   상단 메뉴의 <Highlight>리플레이 업로드</Highlight>에서 <Code>.rofl</Code> 파일을
                   드래그&amp;드롭하면 경기가 자동으로 전적에 반영됩니다.
                 </p>
-                <ul className="m-0 list-disc pl-5 text-[15px] leading-[1.95] text-landing-body2">
+                <ul className="m-0 list-disc pl-5 text-[15px] leading-[1.95] text-landing-bodySecondary">
                   <li>파일당 최대 50MB, 한 번에 최대 10개까지 올릴 수 있습니다.</li>
                   <li>이미 등록된 경기는 중복 등록되지 않습니다.</li>
                   <li>
@@ -248,10 +250,10 @@ const Guide: NextPage = () => (
                 </ul>
               </Card>
               <Card className="px-[30px] py-7">
-                <h3 className="m-0 mb-4 text-[16.5px] font-bold text-landing-heading3">
+                <h3 className="m-0 mb-4 text-[16.5px] font-bold text-landing-headingSm">
                   리플레이 파일 받는 법
                 </h3>
-                <ol className="m-0 mb-[18px] list-decimal pl-5 text-[15px] leading-[1.95] text-landing-body2">
+                <ol className="m-0 mb-[18px] list-decimal pl-5 text-[15px] leading-[1.95] text-landing-bodySecondary">
                   <li>
                     롤 클라이언트에서 <Menu>대전 기록</Menu>을 엽니다.
                   </li>
@@ -280,10 +282,12 @@ const Guide: NextPage = () => (
                   <div className={`mb-2 text-xs font-bold tracking-[0.5px] ${tab.tabColor}`}>
                     {tab.tab}
                   </div>
-                  <h3 className="m-0 mb-2 text-[16.5px] font-bold text-landing-heading3">
+                  <h3 className="m-0 mb-2 text-[16.5px] font-bold text-landing-headingSm">
                     {tab.title}
                   </h3>
-                  <p className="m-0 text-[14.5px] leading-[1.8] text-landing-body2">{tab.body}</p>
+                  <p className="m-0 text-[14.5px] leading-[1.8] text-landing-bodySecondary">
+                    {tab.body}
+                  </p>
                 </Card>
               ))}
             </div>
@@ -297,10 +301,12 @@ const Guide: NextPage = () => (
             <div className="mb-3 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-3">
               {CLAN_STATS.map((item) => (
                 <Card key={item.title} className="px-[26px] py-6">
-                  <h3 className="m-0 mb-2 text-[16.5px] font-bold text-landing-heading3">
+                  <h3 className="m-0 mb-2 text-[16.5px] font-bold text-landing-headingSm">
                     {item.title}
                   </h3>
-                  <p className="m-0 text-[14.5px] leading-[1.8] text-landing-body2">{item.body}</p>
+                  <p className="m-0 text-[14.5px] leading-[1.8] text-landing-bodySecondary">
+                    {item.body}
+                  </p>
                 </Card>
               ))}
             </div>
@@ -313,10 +319,10 @@ const Guide: NextPage = () => (
           <Section id="s6" step={6} title="클랜 관리" badge="운영진">
             <div className="flex flex-col gap-3">
               <Card className="px-[30px] py-7">
-                <h3 className="m-0 mb-3.5 text-[16.5px] font-bold text-landing-heading3">
+                <h3 className="m-0 mb-3.5 text-[16.5px] font-bold text-landing-headingSm">
                   들어가는 방법
                 </h3>
-                <ol className="m-0 list-decimal pl-5 text-[15px] leading-[1.95] text-landing-body2">
+                <ol className="m-0 list-decimal pl-5 text-[15px] leading-[1.95] text-landing-bodySecondary">
                   <li>디스코드로 로그인합니다.</li>
                   <li>화면 상단의 프로필 메뉴를 엽니다.</li>
                   <li>
@@ -328,10 +334,10 @@ const Guide: NextPage = () => (
               <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3">
                 {CLAN_ADMIN.map((item) => (
                   <Card key={item.title} className="px-[26px] py-6">
-                    <h3 className="m-0 mb-2 text-base font-bold text-landing-heading3">
+                    <h3 className="m-0 mb-2 text-base font-bold text-landing-headingSm">
                       {item.title}
                     </h3>
-                    <p className="m-0 text-[14.5px] leading-[1.8] text-landing-body2">
+                    <p className="m-0 text-[14.5px] leading-[1.8] text-landing-bodySecondary">
                       {item.body}
                     </p>
                   </Card>
@@ -342,9 +348,9 @@ const Guide: NextPage = () => (
 
           {/* CTA */}
           <section className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-landing-discord/[0.55] via-landing-gold/[0.25] to-transparent p-px">
-            <div className="rounded-[19px] bg-gradient-to-b from-landing-gradTopAlt to-landing-gradBottomAlt px-6 py-8 text-center md:px-11 md:py-12">
+            <div className="rounded-[19px] bg-gradient-to-b from-landing-bgElevated to-landing-gradBottomAlt px-6 py-8 text-center md:px-11 md:py-12">
               <h2
-                className="m-0 mb-2.5 font-bold tracking-[-0.6px] text-landing-heading2"
+                className="m-0 mb-2.5 font-bold tracking-[-0.6px] text-landing-heading"
                 style={{ fontSize: "clamp(22px,2.8vw,30px)" }}
               >
                 더 궁금한 점이 있으신가요?
@@ -354,7 +360,7 @@ const Guide: NextPage = () => (
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link href="/faq">
-                  <span className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-landing-gold/40 bg-white/[0.05] px-7 py-[15px] text-base font-bold text-landing-heading4 hover:bg-landing-gold/10">
+                  <span className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-landing-gold/40 bg-white/[0.05] px-7 py-[15px] text-base font-bold text-landing-headingSm hover:bg-landing-gold/10">
                     자주 묻는 질문
                   </span>
                 </Link>

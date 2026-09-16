@@ -28,7 +28,7 @@ const Shot = ({ src, alt, onOpen, browserBar }: ShotProps) => (
   <button
     type="button"
     onClick={() => onOpen(src.src)}
-    className="about-shot block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-white/[0.08] bg-landing-bgChrome text-left"
+    className="about-shot block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-white/[0.08] bg-landing-bgElevated text-left"
   >
     {browserBar && (
       <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-3.5 py-2.5">
@@ -206,7 +206,7 @@ const About: NextPage = () => {
             <p
               data-reveal
               data-delay="120"
-              className="mx-auto mb-9 max-w-[640px] text-landing-body2"
+              className="mx-auto mb-9 max-w-[640px] text-landing-bodySecondary"
               style={{ fontSize: "clamp(16px,2vw,19px)", lineHeight: 1.7 }}
             >
               게임이 끝나면 사라지는 순간들, 이제 리플레이 업로드로 남겨두세요.
@@ -229,7 +229,7 @@ const About: NextPage = () => {
               </a>
               <a
                 href="#flow"
-                className="inline-flex items-center gap-2 rounded-xl border px-6 py-3.5 text-base font-bold text-landing-heading4"
+                className="inline-flex items-center gap-2 rounded-xl border px-6 py-3.5 text-base font-bold text-landing-headingSm"
                 style={{
                   background: withAlpha(colors.white, 0.04),
                   borderColor: withAlpha(colors.landing.gold, 0.4),
@@ -264,7 +264,7 @@ const About: NextPage = () => {
                 onClick={() => setLightbox(dashboard.src)}
                 className="block w-full cursor-zoom-in overflow-hidden rounded-t-2xl border border-b-0 border-white/[0.08] text-left shadow-[0_40px_120px_-30px_theme(colors.black/0.9)]"
               >
-                <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-landing-bgChrome px-4 py-3">
+                <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-landing-bgElevated px-4 py-3">
                   <span className="h-[11px] w-[11px] rounded-full bg-landing-dotRed" />
                   <span className="h-[11px] w-[11px] rounded-full bg-landing-dotAmber" />
                   <span className="h-[11px] w-[11px] rounded-full bg-landing-dotGreen" />
@@ -320,7 +320,7 @@ const About: NextPage = () => {
                 data-delay={i * 80}
                 className="rounded-2xl border border-white/[0.06] p-6"
                 style={{
-                  background: `linear-gradient(160deg,${colors.landing.gradTop},${colors.landing.gradBottom})`,
+                  background: `linear-gradient(160deg,${colors.landing.bgElevated},${colors.landing.gradBottom})`,
                 }}
               >
                 <div
@@ -333,7 +333,7 @@ const About: NextPage = () => {
                 >
                   {k.big}
                 </div>
-                <div className="mt-1.5 text-[15px] font-bold text-landing-heading4">{k.t}</div>
+                <div className="mt-1.5 text-[15px] font-bold text-landing-headingSm">{k.t}</div>
                 <div className="mt-1 text-[13px] text-landing-caption">{k.d}</div>
               </div>
             ))}
@@ -348,7 +348,7 @@ const About: NextPage = () => {
                 KEY POINTS
               </div>
               <h2
-                className="m-0 mb-6 font-bold text-landing-heading2"
+                className="m-0 mb-6 font-bold text-landing-heading"
                 style={{ fontSize: "clamp(28px,4.2vw,46px)", letterSpacing: "-1px" }}
               >
                 우리 전적 사이트가 보여주는 것들
@@ -368,12 +368,14 @@ const About: NextPage = () => {
                       {f.tag}
                     </span>
                     <h3
-                      className="m-0 mb-3 font-bold text-landing-heading2"
+                      className="m-0 mb-3 font-bold text-landing-heading"
                       style={{ fontSize: "clamp(22px,2.6vw,28px)", letterSpacing: "-0.5px" }}
                     >
                       {f.title}
                     </h3>
-                    <p className="m-0 text-base leading-[1.75] text-landing-body2">{f.body}</p>
+                    <p className="m-0 text-base leading-[1.75] text-landing-bodySecondary">
+                      {f.body}
+                    </p>
                   </div>
                 );
                 const shot = <Shot src={f.img} alt={f.alt} onOpen={setLightbox} />;
@@ -413,7 +415,7 @@ const About: NextPage = () => {
                 HOW IT WORKS
               </div>
               <h2
-                className="m-0 mb-6 font-bold text-landing-heading2"
+                className="m-0 mb-6 font-bold text-landing-heading"
                 style={{ fontSize: "clamp(28px,4.2vw,46px)", letterSpacing: "-1px" }}
               >
                 클라이언트에서 웹까지
@@ -436,9 +438,9 @@ const About: NextPage = () => {
                   body: (
                     <>
                       경기가 끝나면 롤 클라이언트{" "}
-                      <b style={{ color: colors.landing.heading4 }}>대전 기록</b>에서 내전 경기의{" "}
-                      <b style={{ color: colors.landing.heading4 }}>다운로드 버튼(↓)</b>을 눌러{" "}
-                      <b style={{ color: colors.landing.heading4 }}>.rofl</b> 파일을 받아 둡니다.
+                      <b style={{ color: colors.landing.headingSm }}>대전 기록</b>에서 내전 경기의{" "}
+                      <b style={{ color: colors.landing.headingSm }}>다운로드 버튼(↓)</b>을 눌러{" "}
+                      <b style={{ color: colors.landing.headingSm }}>.rofl</b> 파일을 받아 둡니다.
                       리플레이는 현재 패치의 경기만 받을 수 있습니다.
                     </>
                   ),
@@ -457,8 +459,8 @@ const About: NextPage = () => {
                   title: "리플레이 파일 업로드",
                   body: (
                     <>
-                      상단 메뉴의 <b style={{ color: colors.landing.heading4 }}>리플레이 업로드</b>
-                      에 받은 <b style={{ color: colors.landing.heading4 }}>.rofl</b> 파일을
+                      상단 메뉴의 <b style={{ color: colors.landing.headingSm }}>리플레이 업로드</b>
+                      에 받은 <b style={{ color: colors.landing.headingSm }}>.rofl</b> 파일을
                       드래그&amp;드롭하면 끝. 한 번에 최대 10개까지 올릴 수 있고, 이미 등록된 경기는
                       중복으로 쌓이지 않습니다.
                     </>
@@ -522,12 +524,14 @@ const About: NextPage = () => {
                       </span>
                     </div>
                     <h3
-                      className="m-0 mb-3.5 font-bold text-landing-heading2"
+                      className="m-0 mb-3.5 font-bold text-landing-heading"
                       style={{ fontSize: "clamp(24px,3vw,32px)", letterSpacing: "-0.5px" }}
                     >
                       {s.title}
                     </h3>
-                    <p className="m-0 text-base leading-[1.75] text-landing-body2">{s.body}</p>
+                    <p className="m-0 text-base leading-[1.75] text-landing-bodySecondary">
+                      {s.body}
+                    </p>
                   </div>
                 );
                 const shot = (
@@ -570,7 +574,7 @@ const About: NextPage = () => {
             data-reveal
             className="relative mx-auto max-w-[760px] rounded-3xl border border-white/[0.08] px-8 py-12 text-center shadow-[0_40px_100px_-40px_theme(colors.black/0.9)] md:py-16"
             style={{
-              background: `linear-gradient(180deg,${colors.landing.gradTop},${colors.landing.gradBottomAlt})`,
+              background: `linear-gradient(180deg,${colors.landing.bgElevated},${colors.landing.gradBottomAlt})`,
             }}
           >
             <Image
@@ -587,13 +591,13 @@ const About: NextPage = () => {
             >
               지금 바로 내전을 시작하세요
             </h2>
-            <p className="mx-auto mb-8 max-w-[480px] text-[17px] text-landing-body2">
+            <p className="mx-auto mb-8 max-w-[480px] text-[17px] text-landing-bodySecondary">
               디스코드에 봇을 초대하고 결과를{" "}
-              <b style={{ color: colors.landing.heading4 }}>업로드</b>하면 끝.
+              <b style={{ color: colors.landing.headingSm }}>업로드</b>하면 끝.
             </p>
             <div className="flex flex-wrap justify-center gap-3.5">
               <Link href="/guide">
-                <span className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-landing-gold/40 bg-white/[0.05] px-7 py-3.5 text-base font-bold text-landing-heading4 transition hover:-translate-y-0.5 hover:bg-landing-gold/10">
+                <span className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-landing-gold/40 bg-white/[0.05] px-7 py-3.5 text-base font-bold text-landing-headingSm transition hover:-translate-y-0.5 hover:bg-landing-gold/10">
                   자세한 이용 방법 보기
                 </span>
               </Link>
