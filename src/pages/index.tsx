@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -15,6 +16,8 @@ import useClickOutside from "@/hooks/common/useClickOutside";
 import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import MainLogo from "@/assets/images/mainLogo.png";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://gmok.kr";
 
 const FeatureCard = ({ title, desc }: { title: string; desc: string }) => (
   <div className="rounded-lg border border-border2 bg-darkBg2 p-4">
@@ -108,9 +111,12 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex flex-col justify-center items-center">
+      <Head>
+        <title>GMOK - 롤 내전 전적·통계</title>
+        <link rel="canonical" href={`${SITE_URL}/`} />
+      </Head>
       {/* 헤더 영역 */}
       <header className="flex flex-col w-full gap-10 md:gap-20 justify-end">
-        <title>GMOK</title>
         <div className="self-end m-3 flex gap-3 items-center">
           {isLoggedIn && (
             <GuildDropdown
