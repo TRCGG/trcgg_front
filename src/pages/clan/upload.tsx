@@ -67,9 +67,12 @@ const UploadPermissionContent = () => {
 
   const rawMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
 
+  // 멤버 데이터의 주인은 쿼리 캐시고, 여기서는 표시 순서만 관리
   // 멤버 구성(추가·삭제·길드 변경)이 바뀔 때만 매니저 > 업로더 > 일반 순으로 정렬한다.
-  // role만 바뀐 경우엔 재정렬하지 않아 화면상 순서가 유지된다(새로고침 시 다시 정렬).
-  const [orderedMembers, setOrderedMembers] = useState<DiscordMemberRoleItem[]>([]);
+  // role만 바뀐 경우엔 재정렬하지 않아 화면상 순서를 유지한다(새로고침 시 재정렬).
+  const [order, setOrder] = useState<string[]>([]);
+  // 멤버 배열 직렬화
+  // 멤버 순서에 무관히 라인업이 같으면 항상 똑같은 순서로 정렬
   const memberSetKey = useMemo(
     () =>
       rawMembers
@@ -78,15 +81,28 @@ const UploadPermissionContent = () => {
         .join(","),
     [rawMembers]
   );
+
+  // 멤버 라인업이 바뀌면 역할순 재정렬
   useEffect(() => {
     const rank = (r: string) => ROLE_HIERARCHY[r as Role] ?? -1;
-    setOrderedMembers(
-      [...rawMembers].sort(
-        (a, b) => rank(b.role) - rank(a.role) || a.displayName.localeCompare(b.displayName)
-      )
+    // 표시 이름은 중복될 수 있다. 같을 때 memberId로 순서를 고정하지 않으면 서버 응답 순서를 따라 뒤집힌다.
+    setOrder(
+      [...rawMembers]
+        .sort(
+          (a, b) =>
+            rank(b.role) - rank(a.role) ||
+            a.displayName.localeCompare(b.displayName) ||
+            a.memberId.localeCompare(b.memberId)
+        )
+        .map((m) => m.memberId)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberSetKey]);
+
+  const orderedMembers = useMemo(() => {
+    const byId = new Map(rawMembers.map((m) => [m.memberId, m]));
+    return order.map((id) => byId.get(id)).filter((m): m is DiscordMemberRoleItem => !!m);
+  }, [order, rawMembers]);
 
   const filteredMembers = useMemo(
     () =>
@@ -107,8 +123,9 @@ const UploadPermissionContent = () => {
       updateMemberRole(guildId, memberId, role),
     onSuccess: ({ memberId, role }) => {
       setErrorMsg(null);
-      // 재조회 없이 해당 멤버의 role만 제자리 갱신 → 화면상 순서 유지
-      setOrderedMembers((prev) => prev.map((m) => (m.memberId === memberId ? { ...m, role } : m)));
+      queryClient.setQueryData<DiscordMemberRoleItem[]>(["guildMembers", guildId], (prev) =>
+        prev?.map((m) => (m.memberId === memberId ? { ...m, role } : m))
+      );
     },
     onError: (err) => setErrorMsg(roleErrorMessage(toApiError(err).status)),
   });
