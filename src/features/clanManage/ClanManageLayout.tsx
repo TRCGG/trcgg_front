@@ -8,7 +8,6 @@ import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { canManageGuild } from "@/data/types/guildMember";
 import ClanSidebar from "./ClanSidebar";
 import ClanMobileMenu from "./ClanMobileMenu";
-import ClanGuildContext from "./ClanGuildContext";
 
 interface Props {
   title: string;
@@ -44,7 +43,7 @@ const ClanManageLayout = ({ title, description, children }: Props) => {
             <h1 className="text-[22px] font-light text-primary1 mt-1">{title}</h1>
             <p className="text-xs text-primary2 mt-1">{description}</p>
           </div>
-          <ClanGuildContext.Provider value={guildId}>{children}</ClanGuildContext.Provider>
+          {children}
         </div>
       </div>
     );

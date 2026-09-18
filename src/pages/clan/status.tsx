@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getGuildMembers, updateMemberStatus } from "@/services/guildMember";
 import { GuildMemberRow, MemberStatus } from "@/data/types/guildMember";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
-import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 import { withHash } from "@/features/clanManage/riot";
 import { NextPageWithLayout } from "@/data/types/next";
 import { formatTimeAgo } from "@/utils/parseTime";
@@ -39,7 +39,7 @@ const CheckBox = ({ checked }: { checked: boolean }) => (
 );
 
 const MemberStatusContent = () => {
-  const guildId = useClanGuild();
+  const { guildId } = useGuildContext();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"active" | "left">("active");
   const [searchInput, setSearchInput] = useState("");

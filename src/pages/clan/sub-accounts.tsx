@@ -11,7 +11,7 @@ import useClickOutside from "@/hooks/common/useClickOutside";
 import useDebouncedRiotNameTag from "@/hooks/searchUserList/useDebouncedRiotNameTag";
 import useUserSearchQuery from "@/hooks/searchUserList/useUserSearchQuery";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
-import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 import { withHash, parseRiotId } from "@/features/clanManage/riot";
 import { NextPageWithLayout } from "@/data/types/next";
 import { toApiError } from "@/services/apiError";
@@ -40,7 +40,7 @@ const linkErrorMessage = (error: unknown): string => {
 };
 
 const SubAccountContent = () => {
-  const guildId = useClanGuild();
+  const { guildId } = useGuildContext();
   const queryClient = useQueryClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [mainSearch, setMainSearch] = useState("");

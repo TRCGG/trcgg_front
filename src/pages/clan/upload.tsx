@@ -17,7 +17,7 @@ import {
   hasMinRole,
 } from "@/data/types/guildMember";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
-import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 import { NextPageWithLayout } from "@/data/types/next";
 import Avatar from "@/components/ui/Avatar";
 import { toApiError } from "@/services/apiError";
@@ -33,7 +33,7 @@ const roleErrorMessage = (status: number): string => {
 };
 
 const UploadPermissionContent = () => {
-  const guildId = useClanGuild();
+  const { guildId } = useGuildContext();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
