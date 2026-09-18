@@ -10,7 +10,7 @@ import {
 import {
   AssignableRole,
   DiscordMemberRoleItem,
-  GuildRow,
+  GuildDetail,
   ROLE_HIERARCHY,
   Role,
   getRoleMeta,
@@ -56,7 +56,7 @@ const UploadPermissionContent = () => {
     staleTime: 30 * 1000,
   });
 
-  const guildQuery = useQuery<GuildRow>({
+  const guildQuery = useQuery<GuildDetail>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
     enabled: !!guildId,

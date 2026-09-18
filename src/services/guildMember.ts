@@ -5,7 +5,7 @@ import {
   GuildMemberRow,
   GuildMembersResponse,
   GuildResponse,
-  GuildRow,
+  GuildDetail,
   MemberListResponse,
   MemberStatus,
   SubAccountLink,
@@ -52,14 +52,14 @@ export const updateMemberRole = async (
 };
 
 // 주의: GET /api/guilds/{id}는 Base64가 아닌 원본 id를 받음(다른 엔드포인트와 달리 디코딩 미들웨어 없음)
-export const getGuildById = async (guildId: string): Promise<GuildRow> => {
+export const getGuildById = async (guildId: string): Promise<GuildDetail> => {
   return unwrap(api.get<GuildResponse>(`/api/guilds/${atob(guildId)}`));
 };
 
 export const setAllowAllUploads = async (
   guildId: string,
   allowAllUploads: boolean
-): Promise<GuildRow> => {
+): Promise<GuildDetail> => {
   return unwrap(
     api.patch<GuildResponse>(`/api/guilds/${guildId}/allow-all-uploads`, { allowAllUploads })
   );

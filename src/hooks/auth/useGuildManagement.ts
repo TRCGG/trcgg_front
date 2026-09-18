@@ -4,7 +4,7 @@ import { GuildInfo, MeResponse } from "@/data/types/auth";
 import { getGuilds, getMe } from "@/services/auth";
 import { getGuildById } from "@/services/guildMember";
 import { useGuildContext } from "@/hooks/auth/GuildContext";
-import { GuildRow, hasMinRole } from "@/data/types/guildMember";
+import { GuildDetail, hasMinRole } from "@/data/types/guildMember";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
@@ -49,7 +49,7 @@ const useGuildManagement = () => {
     [guilds, guildId, username]
   );
 
-  const { data: guildData } = useQuery<GuildRow>({
+  const { data: guildData } = useQuery<GuildDetail>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
     enabled: !!guildId && isLoggedIn,
