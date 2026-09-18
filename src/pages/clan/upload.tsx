@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import {
   getGuildDiscordMembers,
@@ -34,6 +34,7 @@ const roleErrorMessage = (status: number): string => {
 
 const UploadPermissionContent = () => {
   const { guildId } = useGuildContext();
+  const queryClient = useQueryClient();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -46,7 +47,6 @@ const UploadPermissionContent = () => {
   }, [searchInput]);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [allowAll, setAllowAll] = useState<boolean | null>(null);
 
   // 전체 멤버를 한 번에 불러오고(정렬·페이지네이션은 프론트에서 처리), role 변경 시 재조회하지 않는다.
   const membersQuery = useQuery<DiscordMemberRoleItem[]>({
@@ -63,10 +63,7 @@ const UploadPermissionContent = () => {
     staleTime: 30 * 1000,
   });
 
-  useEffect(() => {
-    const value = guildQuery.data?.allowAllUploads;
-    if (typeof value === "boolean") setAllowAll(value);
-  }, [guildQuery.data]);
+  const allowAll = guildQuery.data?.allowAllUploads ?? null;
 
   const rawMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
 
@@ -120,7 +117,7 @@ const UploadPermissionContent = () => {
     mutationFn: (next: boolean) => setAllowAllUploads(guildId, next),
     onSuccess: (guild) => {
       setErrorMsg(null);
-      setAllowAll(guild.allowAllUploads);
+      queryClient.setQueryData<GuildDetail>(["guild", guildId], guild);
     },
     onError: () => setErrorMsg("전체 업로드 설정 변경에 실패했습니다."),
   });
