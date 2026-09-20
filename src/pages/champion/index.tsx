@@ -2,8 +2,7 @@ import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import TitleBox from "@/components/ui/TitleBox";
 import PositionFilter from "@/features/statistics/PositionFilter";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
@@ -44,7 +43,6 @@ const SELECT_CLASS =
   "appearance-none bg-rankBg2 border border-border1 hover:border-blueText2 rounded-lg pl-3 pr-8 py-1.5 text-sm text-primary1 cursor-pointer focus:outline-none focus:border-blueText2 transition-colors duration-150";
 
 const Champion: NextPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
   const [sortBy, setSortBy] = useState<SortBy>("winRate");
@@ -61,13 +59,7 @@ const Champion: NextPage = () => {
   });
   const observerInstance = useRef<IntersectionObserver | null>(null);
   const hasMoreRef = useRef(false);
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-  const {
-    users: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
 
   let querySeason: string | undefined;
   if (dateMode === "season") querySeason = selectedSeason;
@@ -174,19 +166,7 @@ const Champion: NextPage = () => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
       <TitleBox
         className="mt-10"
         clanName={clanName}

@@ -5,8 +5,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TitleBox from "@/components/ui/TitleBox";
 import Modal from "@/components/modal/Modal";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import { uploadReplays, getReplayList, deleteReplay } from "@/services/replay";
 import { hasMinRole } from "@/data/types/guildMember";
 import {
@@ -48,7 +47,6 @@ const UploadNotice = ({ text }: { text: string }) => (
 );
 
 const Replay: NextPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -61,18 +59,11 @@ const Replay: NextPage = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { guildId, guilds, isLoggedIn, username, uploadNick, currentRole, handleGuildChange } =
-    useGuildManagement();
+  const { headerProps, guildId, guilds, isLoggedIn, uploadNick, currentRole } = usePageHeader();
   const canDeleteReplay = hasMinRole(currentRole, "userUploader");
   const [confirmingCode, setConfirmingCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const {
-    users: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
 
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
   const clanName = selectedGuild?.name || "클랜";
@@ -213,19 +204,7 @@ const Replay: NextPage = () => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
 
       <TitleBox
         className="mt-10"

@@ -8,8 +8,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useCompetitionApplications from "@/hooks/competition/useCompetitionApplications";
 import useRosterDraft, {
@@ -40,7 +39,6 @@ const RosterPage: NextPage = () => {
   const parsed = typeof rawId === "string" ? Number(rawId) : NaN;
   const validId = Number.isFinite(parsed) ? parsed : null;
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [picked, setPicked] = useState<CompetitionApplicationItem | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -48,16 +46,9 @@ const RosterPage: NextPage = () => {
   const draggingRef = useRef<RosterSlotMember | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
+  const { headerProps, guildId, guilds, isLoggedIn, currentRole, isLoadingGuilds } =
+    usePageHeader();
   const isManager = canManageGuild(currentRole);
-
-  const {
-    users: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
 
   const { competition, isLoading: isLoadingDetail } = useCompetitionDetail(guildId, validId);
   const { applications, isLoading: isLoadingApplications } = useCompetitionApplications(
@@ -273,19 +264,7 @@ const RosterPage: NextPage = () => {
         <title>로스터 편성 - GMOK</title>
       </Head>
       <div className="mx-auto w-full md:max-w-[1080px]">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
+        <SummonerPageHeader {...headerProps} />
 
         <main className="mb-10 mt-7 flex flex-col gap-4 px-4 md:px-0">
           <Link href={validId === null ? "/competitions" : `/competitions/${validId}`}>

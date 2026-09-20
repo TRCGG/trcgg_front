@@ -1,10 +1,9 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { useRouter } from "next/router";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import { canManageGuild } from "@/data/types/guildMember";
 import ClanSidebar from "./ClanSidebar";
 import ClanMobileMenu from "./ClanMobileMenu";
@@ -17,15 +16,7 @@ interface Props {
 
 const ClanManageLayout = ({ title, description, children }: Props) => {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
-  const {
-    users: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guilds, isLoggedIn, currentRole, isLoadingGuilds } = usePageHeader();
   const canManage = canManageGuild(currentRole);
 
   const renderBody = () => {
@@ -52,19 +43,7 @@ const ClanManageLayout = ({ title, description, children }: Props) => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
       <div className="mt-5 mb-10 px-4 md:px-0">{renderBody()}</div>
     </div>
   );

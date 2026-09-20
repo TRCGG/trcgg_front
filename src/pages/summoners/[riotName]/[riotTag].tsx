@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
 import { MatchDashboardData, MultiplePlayerInfo } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
@@ -10,7 +9,7 @@ import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
 import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import TextCard from "@/components/ui/TextCard";
 import { addRecentSearch } from "@/utils/recentSearches";
 
@@ -19,7 +18,6 @@ const RiotProfilePage = () => {
   const { riotName, riotTag } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
-  const [searchTerm, setSearchTerm] = useState("");
 
   // 페이지 로드 시 최근 검색어에 저장
   useEffect(() => {
@@ -28,14 +26,7 @@ const RiotProfilePage = () => {
     }
   }, [riotNameString, riotTagString]);
 
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-
-  const {
-    users: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
 
   const {
     data: userRecordData,
@@ -111,19 +102,7 @@ const RiotProfilePage = () => {
       </Head>
       <div className="w-full min-h-screen pb-10">
         <div className="w-full md:max-w-[1080px] mx-auto">
-          <SummonerPageHeader
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            onSearch={handleSearchButtonClick}
-            isLoading={isLoading}
-            isError={isError}
-            users={userSearchData}
-            guilds={guilds}
-            selectedGuildId={guildId}
-            onGuildChange={handleGuildChange}
-            username={username}
-            isLoggedIn={isLoggedIn}
-          />
+          <SummonerPageHeader {...headerProps} />
 
           {/* 메인 콘텐츠 */}
           {(() => {
