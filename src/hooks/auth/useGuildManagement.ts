@@ -9,7 +9,7 @@ import { GuildDetail, hasMinRole } from "@/data/types/guildMember";
 const encodeGuildId = (id: string): string => btoa(id);
 
 const useGuildManagement = () => {
-  const { guildId, setGuildId } = useGuildContext();
+  const { guildId: selectedGuildId, setGuildId, resolveGuildId } = useGuildContext();
 
   const { data: guildsData, isLoading: isLoadingGuilds } = useQuery<GuildInfo[]>({
     queryKey: ["guilds"],
@@ -24,13 +24,27 @@ const useGuildManagement = () => {
     staleTime: 60 * 1000,
   });
 
-  const guilds = useMemo(() => {
-    const rawGuilds = guildsData ?? [];
-    return rawGuilds.map((guild) => ({
-      ...guild,
-      id: encodeGuildId(guild.id),
-    }));
-  }, [guildsData]);
+  const myGuildIds = useMemo(
+    () => new Set((guildsData ?? []).map((guild) => encodeGuildId(guild.id))),
+    [guildsData]
+  );
+
+  const guilds = useMemo(
+    () =>
+      (guildsData ?? []).map((guild) => ({
+        ...guild,
+        id: encodeGuildId(guild.id),
+      })),
+    [guildsData]
+  );
+
+  // 저장된 선택이 목록에 없으면(세션 만료, 탈퇴 등) 첫 길드를 쓰되 저장값은 덮어쓰지 않는다
+  const guildId = guilds.some((guild) => guild.id === selectedGuildId)
+    ? selectedGuildId
+    : (guilds[0]?.id ?? "");
+
+  const isMember = myGuildIds.has(guildId);
+  const hasOwnGuild = myGuildIds.size > 0;
 
   const isLoggedIn = useMemo(() => {
     return !!meData?.user?.username;
@@ -52,7 +66,7 @@ const useGuildManagement = () => {
   const { data: guildData } = useQuery<GuildDetail>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
-    enabled: !!guildId && isLoggedIn,
+    enabled: !!guildId && isLoggedIn && isMember,
     staleTime: 30 * 1000,
   });
 
@@ -60,17 +74,20 @@ const useGuildManagement = () => {
   const canUploadReplay =
     hasMinRole(currentRole, "userUploader") || guildData?.allowAllUploads === true;
 
-  // 저장된 선택은 Provider가 복원한다. 여기서는 그래도 비어 있을 때 첫 길드로 채운다.
+  // useGuildContext로 guildId를 직접 읽는 컴포넌트도 같은 길드를 보도록 맞춘다
   useEffect(() => {
-    if (!guildId && guilds.length > 0) {
-      setGuildId(guilds[0].id);
+    if (!isLoadingGuilds && guildId !== selectedGuildId) {
+      resolveGuildId(guildId);
     }
-  }, [guildId, guilds, setGuildId]);
+  }, [isLoadingGuilds, guildId, selectedGuildId, resolveGuildId]);
 
   return {
     guildId,
     guilds,
     isLoggedIn,
+    isMember,
+    hasOwnGuild,
+    memberGuildId: isMember ? guildId : "",
     username,
     uploadNick,
     avatar,

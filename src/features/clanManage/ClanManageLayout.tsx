@@ -16,13 +16,13 @@ interface Props {
 
 const ClanManageLayout = ({ title, description, children }: Props) => {
   const router = useRouter();
-  const { headerProps, guilds, isLoggedIn, currentRole, isLoadingGuilds } = usePageHeader();
+  const { headerProps, isLoggedIn, hasOwnGuild, currentRole, isLoadingGuilds } = usePageHeader();
   const canManage = canManageGuild(currentRole);
 
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!hasOwnGuild) return <TextCard text="소속된 클랜이 없습니다" />;
     if (!canManage) return <TextCard text="매니저 전용 화면입니다. 접근 권한이 없습니다." />;
 
     return (

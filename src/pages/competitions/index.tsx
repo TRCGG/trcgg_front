@@ -17,8 +17,16 @@ const CompetitionListPage: NextPage = () => {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<CompetitionStatus | undefined>(undefined);
 
-  const { headerProps, guildId, guilds, isLoggedIn, currentRole, isLoadingGuilds } =
-    usePageHeader();
+  const {
+    headerProps,
+    memberGuildId: guildId,
+    guilds,
+    isMember,
+    hasOwnGuild,
+    isLoggedIn,
+    currentRole,
+    isLoadingGuilds,
+  } = usePageHeader();
   const isManager = canManageGuild(currentRole);
 
   const {
@@ -30,7 +38,8 @@ const CompetitionListPage: NextPage = () => {
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!hasOwnGuild) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!isMember) return <TextCard text="소속된 클랜에서만 이용할 수 있습니다" />;
     if (isLoadingCompetitions) return <LoadingSpinner />;
     if (isErrorCompetitions) return <TextCard text="대회 목록을 불러오지 못했습니다" />;
 
@@ -80,7 +89,7 @@ const CompetitionListPage: NextPage = () => {
                 안에서 함께 집계됩니다.
               </p>
             </div>
-            {isManager && isLoggedIn && guilds.length > 0 && (
+            {isManager && isLoggedIn && isMember && (
               <button
                 type="button"
                 onClick={() => router.push("/competitions/new")}

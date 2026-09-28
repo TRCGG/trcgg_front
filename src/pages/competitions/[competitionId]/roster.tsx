@@ -46,8 +46,15 @@ const RosterPage: NextPage = () => {
   const draggingRef = useRef<RosterSlotMember | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { headerProps, guildId, guilds, isLoggedIn, currentRole, isLoadingGuilds } =
-    usePageHeader();
+  const {
+    headerProps,
+    memberGuildId: guildId,
+    isMember,
+    hasOwnGuild,
+    isLoggedIn,
+    currentRole,
+    isLoadingGuilds,
+  } = usePageHeader();
   const isManager = canManageGuild(currentRole);
 
   const { competition, isLoading: isLoadingDetail } = useCompetitionDetail(guildId, validId);
@@ -226,7 +233,8 @@ const RosterPage: NextPage = () => {
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!hasOwnGuild) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!isMember) return <TextCard text="소속된 클랜에서만 이용할 수 있습니다" />;
     if (!isManager) return <TextCard text="운영진 전용 화면입니다. 접근 권한이 없습니다." />;
     if (validId === null) return <TextCard text="잘못된 대회 주소입니다" />;
     if (isLoadingDetail || isLoadingTeams || isLoadingApplications) return <LoadingSpinner />;

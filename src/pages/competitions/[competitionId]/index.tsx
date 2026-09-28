@@ -82,8 +82,16 @@ const CompetitionBoardPage: NextPage = () => {
   const [assignRed, setAssignRed] = useState<number | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { headerProps, guildId, guilds, isLoggedIn, uploadNick, currentRole, isLoadingGuilds } =
-    usePageHeader();
+  const {
+    headerProps,
+    memberGuildId: guildId,
+    isMember,
+    hasOwnGuild,
+    isLoggedIn,
+    uploadNick,
+    currentRole,
+    isLoadingGuilds,
+  } = usePageHeader();
   const isManager = canManageGuild(currentRole);
 
   const { competition, isLoading: isLoadingDetail } = useCompetitionDetail(guildId, validId);
@@ -297,7 +305,8 @@ const CompetitionBoardPage: NextPage = () => {
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!hasOwnGuild) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!isMember) return <TextCard text="소속된 클랜에서만 이용할 수 있습니다" />;
     if (validId === null) return <TextCard text="잘못된 대회 주소입니다" />;
     if (isLoadingDetail) return <LoadingSpinner />;
     if (!competition) return <TextCard text="대회를 찾을 수 없습니다" />;

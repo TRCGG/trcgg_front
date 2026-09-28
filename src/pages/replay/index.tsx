@@ -59,7 +59,16 @@ const Replay: NextPage = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { headerProps, guildId, guilds, isLoggedIn, uploadNick, currentRole } = usePageHeader();
+  const {
+    headerProps,
+    guildId,
+    guilds,
+    isLoggedIn,
+    isMember,
+    hasOwnGuild,
+    uploadNick,
+    currentRole,
+  } = usePageHeader();
   const canDeleteReplay = hasMinRole(currentRole, "userUploader");
   const [confirmingCode, setConfirmingCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
@@ -75,7 +84,7 @@ const Replay: NextPage = () => {
   } = useQuery<ReplayLog[]>({
     queryKey: ["replayList", guildId],
     queryFn: () => getReplayList(guildId),
-    enabled: !!guildId && isLoggedIn,
+    enabled: !!guildId && isLoggedIn && isMember,
     staleTime: 60 * 1000,
   });
 
@@ -239,7 +248,10 @@ const Replay: NextPage = () => {
           <div className="p-4 flex flex-col gap-3.5">
             {(() => {
               if (!isLoggedIn) return <UploadNotice text="로그인 후 이용해주세요" />;
-              if (guilds.length === 0) return <UploadNotice text="소속된 클랜이 없습니다" />;
+              if (!hasOwnGuild) return <UploadNotice text="소속된 클랜이 없습니다" />;
+              if (!isMember) {
+                return <UploadNotice text="소속된 클랜에서만 이용할 수 있습니다" />;
+              }
               return (
                 <>
                   {/* 드래그 앤 드롭 존 */}
