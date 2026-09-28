@@ -16,7 +16,7 @@ const RiotProfilePage = () => {
   const { riotName } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
 
-  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
+  const { headerProps, guildId, guilds, isLoggedIn, isLoadingGuilds } = usePageHeader();
 
   const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
     MatchDashboardData | MultiplePlayerInfo[]
@@ -80,18 +80,15 @@ const RiotProfilePage = () => {
 
       {/* 메인 콘텐츠 */}
       {(() => {
-        // 비로그인 상태
-        if (!isLoggedIn) {
-          return <TextCard text="로그인 후 이용해주세요" />;
-        }
-
-        // 소속 클랜 없음
-        if (guilds.length === 0) {
-          return <TextCard text="소속된 클랜이 없습니다" />;
+        // 공개 길드가 있으면 비로그인도 볼 수 있어, 볼 수 있는 길드가 없을 때만 막는다
+        if (!isLoadingGuilds && guilds.length === 0) {
+          return (
+            <TextCard text={isLoggedIn ? "소속된 클랜이 없습니다" : "로그인 후 이용해주세요"} />
+          );
         }
 
         // 로딩 중
-        if (isLoadingUserRecord) {
+        if (isLoadingGuilds || isLoadingUserRecord) {
           return (
             <main>
               <LoadingSpinner />
