@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import NoIndex from "@/components/layout/NoIndex";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import TitleBox from "@/components/ui/TitleBox";
@@ -165,7 +164,6 @@ const Champion: NextPage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
-      <NoIndex />
       <SummonerPageHeader {...headerProps} />
       <TitleBox
         className="mt-10"

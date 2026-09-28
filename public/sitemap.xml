@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  로그인·클랜 선택이 필요한 페이지(/champion, /user, /replay, /clan/*)와 유저 생성 경로
+  로그인·클랜 선택이 필요한 페이지(/replay, /clan/*, /competitions)와 유저 생성 경로
   (/summoners/*)는 검색 유입 가치가 없어 제외한다.
+  TRC-299 임시: 공개 길드로 비로그인 조회가 되는 /champion, /user를 포함한다.
   Cloudflare Pages(next-on-pages)는 non-static 라우트에 Edge Runtime을 요구하므로
   getServerSideProps 라우트 대신 정적 파일로 제공한다.
 -->
@@ -25,6 +26,16 @@
     <loc>https://gmok.kr/faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gmok.kr/champion</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://gmok.kr/user</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://gmok.kr/privacy</loc>
