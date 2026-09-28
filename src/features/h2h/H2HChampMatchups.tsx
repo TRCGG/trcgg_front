@@ -42,101 +42,42 @@ const MatchupChildRow = ({ matchup, koName }: ChildRowProps) => {
   const cross = matchup.myLane !== matchup.oppoLane;
   const laneColor = cross ? colors.primary2 : colors.yellow;
   return (
-    <div
-      className="hover:bg-rankBg2 flex items-center gap-3 px-3 py-2"
-      style={{ borderTop: `1px solid ${colors.border2}` }}
-    >
-      <span
-        className="text-redText shrink-0"
-        style={{ width: 22, textAlign: "center", fontSize: 10, fontWeight: 700 }}
-      >
-        VS
-      </span>
+    <div className="hover:bg-rankBg2 flex items-center gap-3 px-3 py-2 border-t border-border2">
+      <span className="text-redText shrink-0 w-[22px] text-center text-[10px] font-bold">VS</span>
       <ChampPortrait
         en={matchup.oppoChamp}
         lane={matchup.oppoLane}
         size={30}
         ringColor={laneColor}
       />
-      <div className="min-w-0" style={{ flex: 1 }}>
-        <div className="text-primary1 truncate" style={{ fontSize: 13 }}>
-          {koName(matchup.oppoChamp)}
-        </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-primary1 truncate text-[13px]">{koName(matchup.oppoChamp)}</div>
       </div>
-      <div
-        className="shrink-0"
-        style={{
-          width: 64,
-          textAlign: "center",
-          fontSize: 12,
-          whiteSpace: "nowrap",
-          fontFeatureSettings: '"tnum"',
-        }}
-      >
+      <div className="shrink-0 w-16 text-center text-xs whitespace-nowrap tabular-nums">
         <b className="text-blueText">{matchup.wins}</b>
         <span className="text-primary2">승 </span>
         <b className="text-redText">{matchup.count - matchup.wins}</b>
         <span className="text-primary2">패</span>
       </div>
-      <div
-        className="bg-rankBg3 hidden shrink-0 sm:block"
-        style={{ position: "relative", width: 84, height: 14, borderRadius: 3, overflow: "hidden" }}
-      >
+      <div className="bg-rankBg3 hidden shrink-0 sm:block relative w-[84px] h-3.5 rounded-[3px] overflow-hidden">
         <div
-          className="bg-blueText"
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: `${winPct}%`,
-            opacity: 0.55,
-          }}
+          className="bg-blueText absolute left-0 top-0 bottom-0 opacity-[0.55]"
+          style={{ width: `${winPct}%` }}
         />
         <div
-          className="bg-redText"
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: `${100 - winPct}%`,
-            opacity: 0.5,
-          }}
+          className="bg-redText absolute right-0 top-0 bottom-0 opacity-[0.5]"
+          style={{ width: `${100 - winPct}%` }}
         />
-        <span
-          className="text-primary2"
-          style={{
-            position: "absolute",
-            right: 5,
-            top: 0,
-            bottom: 0,
-            display: "flex",
-            alignItems: "center",
-            fontSize: 9,
-            fontFeatureSettings: '"tnum"',
-          }}
-        >
+        <span className="text-primary2 absolute right-[5px] top-0 bottom-0 flex items-center text-[9px] tabular-nums">
           {matchup.count}판
         </span>
       </div>
-      <div className="shrink-0" style={{ width: 54, textAlign: "center", whiteSpace: "nowrap" }}>
-        <div className="text-primary1" style={{ fontSize: 12, fontFeatureSettings: '"tnum"' }}>
-          {matchup.myKda}
-        </div>
-        <div className="text-primary2" style={{ fontSize: 9 }}>
-          내 KDA
-        </div>
+      <div className="shrink-0 w-[54px] text-center whitespace-nowrap">
+        <div className="text-primary1 text-xs tabular-nums">{matchup.myKda}</div>
+        <div className="text-primary2 text-[9px]">내 KDA</div>
       </div>
-      <div className="shrink-0" style={{ width: 44, textAlign: "right" }}>
-        <div
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: v2WinRateColor(wr),
-            fontFeatureSettings: '"tnum"',
-          }}
-        >
+      <div className="shrink-0 w-11 text-right">
+        <div className="text-sm font-bold tabular-nums" style={{ color: v2WinRateColor(wr) }}>
           {wr}%
         </div>
       </div>
@@ -168,86 +109,37 @@ const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
         className="hover:bg-rankBg2 flex w-full items-center gap-3 px-3 py-2.5 text-left"
       >
         <ChampPortrait en={group.champ} lane={group.lane} size={42} mine />
-        <div className="min-w-0" style={{ flex: 1 }}>
-          <div className="text-primary1 truncate" style={{ fontSize: 14, fontWeight: 700 }}>
-            {koName(group.champ)}
-          </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-primary1 truncate text-sm font-bold">{koName(group.champ)}</div>
         </div>
-        <div style={{ width: 80, textAlign: "center", flexShrink: 0 }}>
-          <div className="text-primary1" style={{ fontSize: 12, fontFeatureSettings: '"tnum"' }}>
-            {group.games}게임
-          </div>
-          <div style={{ fontSize: 11, fontFeatureSettings: '"tnum"' }}>
+        <div className="w-20 text-center shrink-0">
+          <div className="text-primary1 text-xs tabular-nums">{group.games}게임</div>
+          <div className="text-[11px] tabular-nums">
             <b className="text-blueText">{group.wins}</b>
             <span className="text-primary2">승 </span>
             <b className="text-redText">{group.games - group.wins}</b>
             <span className="text-primary2">패</span>
           </div>
         </div>
-        <div
-          className="bg-rankBg3 shrink-0"
-          style={{
-            position: "relative",
-            width: 84,
-            height: 16,
-            borderRadius: 3,
-            overflow: "hidden",
-          }}
-        >
+        <div className="bg-rankBg3 shrink-0 relative w-[84px] h-4 rounded-[3px] overflow-hidden">
           <div
-            className="bg-blueText"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: `${winPct}%`,
-              opacity: 0.6,
-            }}
+            className="bg-blueText absolute left-0 top-0 bottom-0 opacity-[0.6]"
+            style={{ width: `${winPct}%` }}
           />
           <div
-            className="bg-redText"
-            style={{
-              position: "absolute",
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: `${100 - winPct}%`,
-              opacity: 0.55,
-            }}
+            className="bg-redText absolute right-0 top-0 bottom-0 opacity-[0.55]"
+            style={{ width: `${100 - winPct}%` }}
           />
-          <span
-            className="text-white"
-            style={{
-              position: "absolute",
-              left: 6,
-              top: 0,
-              bottom: 0,
-              display: "flex",
-              alignItems: "center",
-              fontSize: 9,
-            }}
-          >
+          <span className="text-white absolute left-1.5 top-0 bottom-0 flex items-center text-[9px]">
             {children.length}개 매치업
           </span>
         </div>
-        <div style={{ width: 54, textAlign: "center", flexShrink: 0 }}>
-          <div className="text-primary1" style={{ fontSize: 13, fontFeatureSettings: '"tnum"' }}>
-            {kda}
-          </div>
-          <div className="text-primary2" style={{ fontSize: 9 }}>
-            내 KDA
-          </div>
+        <div className="w-[54px] text-center shrink-0">
+          <div className="text-primary1 text-[13px] tabular-nums">{kda}</div>
+          <div className="text-primary2 text-[9px]">내 KDA</div>
         </div>
-        <div style={{ width: 44, textAlign: "right", flexShrink: 0 }}>
-          <div
-            style={{
-              fontSize: 16,
-              fontWeight: 700,
-              color: v2WinRateColor(wr),
-              fontFeatureSettings: '"tnum"',
-            }}
-          >
+        <div className="w-11 text-right shrink-0">
+          <div className="text-base font-bold tabular-nums" style={{ color: v2WinRateColor(wr) }}>
             {wr}%
           </div>
         </div>
@@ -258,11 +150,8 @@ const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
           fill="none"
           stroke={colors.primary2}
           strokeWidth="2"
-          style={{
-            transform: open ? "rotate(180deg)" : "none",
-            transition: "transform 120ms",
-            flexShrink: 0,
-          }}
+          className="transition-transform duration-[120ms] shrink-0"
+          style={{ transform: open ? "rotate(180deg)" : "none" }}
         >
           <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -274,7 +163,7 @@ const ChampGroup = ({ group, koName, defaultOpen }: GroupProps) => {
       >
         <div className="min-h-0 overflow-hidden">
           {open && (
-            <div style={{ background: "rgba(0,0,0,0.25)" }}>
+            <div className="bg-black/25">
               {children.map((m, i) => (
                 // eslint-disable-next-line react/no-array-index-key
                 <MatchupChildRow key={i} matchup={m} koName={koName} />
@@ -364,7 +253,7 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
         </div>
       }
     >
-      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div className="p-3 flex flex-col gap-2.5">
         {topLanePair && (
           <H2HTopLanePairCard label="가장 많이 맞붙은 라인" {...topLanePair} separator="vs" />
         )}
@@ -382,9 +271,7 @@ const H2HChampMatchups = ({ matchups, topLanePair }: Props) => {
             );
           })
         ) : (
-          <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
-            해당 라인 매치업이 없어요
-          </div>
+          <div className="text-primary2 p-6 text-center text-[13px]">해당 라인 매치업이 없어요</div>
         )}
         {remaining > 0 && (
           <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { FrequentOpponent, FrequentOpponentsResponse } from "@/data/types/h2h";
+import { FrequentOpponent } from "@/data/types/h2h";
 import { getFrequentOpponents } from "@/services/h2h";
-import colors from "@/styles/colors";
 import LaneIcon from "./LaneIcon";
 
 interface Selected {
@@ -57,7 +55,7 @@ const OpponentSearchInput = ({
     return () => clearTimeout(t);
   }, [input]);
 
-  const { data, isFetching } = useQuery<ApiResponse<FrequentOpponentsResponse>>({
+  const { data, isFetching } = useQuery<FrequentOpponent[]>({
     queryKey: ["h2hAutocomplete", guildId, meName, meTag, debounced],
     queryFn: () =>
       getFrequentOpponents(guildId!, meName, { riotNameTag: meTag, q: debounced, limit: 8 }),
@@ -65,7 +63,7 @@ const OpponentSearchInput = ({
     staleTime: 60 * 1000,
   });
 
-  const results: FrequentOpponent[] = data?.data?.data ?? [];
+  const results: FrequentOpponent[] = data ?? [];
   const showDropdown = open && debounced.length >= 1;
 
   const choose = (opponent: Selected) => {
@@ -88,7 +86,7 @@ const OpponentSearchInput = ({
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="relative">
       <div className="bg-rankBg2 border border-border1 flex items-center gap-2 rounded-md px-2.5 py-1.5">
         <svg
           viewBox="0 0 24 24"
@@ -114,8 +112,7 @@ const OpponentSearchInput = ({
             if (e.key === "Escape") setOpen(false);
           }}
           placeholder={placeholder}
-          className="text-white min-w-0 flex-1 border-none bg-transparent text-sm outline-none"
-          style={{ fontFamily: "inherit" }}
+          className="text-white min-w-0 flex-1 border-none bg-transparent font-[inherit] text-sm outline-none"
         />
         {showClear && (
           <button
@@ -145,21 +142,7 @@ const OpponentSearchInput = ({
       </div>
 
       {showDropdown && (
-        <div
-          className="bg-darkBg2 border border-border1"
-          style={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            left: 0,
-            right: 0,
-            borderRadius: 6,
-            boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
-            zIndex: 20,
-            overflow: "hidden",
-            maxHeight: 320,
-            overflowY: "auto",
-          }}
-        >
+        <div className="absolute inset-x-0 top-[calc(100%+4px)] z-20 max-h-80 overflow-y-auto overflow-x-hidden rounded-md border border-border1 bg-darkBg2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
           {results.length > 0 ? (
             results.map((o) => (
               <button
@@ -167,8 +150,7 @@ const OpponentSearchInput = ({
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => choose({ riotName: o.riotName, riotNameTag: o.riotNameTag })}
-                className="hover:bg-rankBg2 flex w-full items-center gap-2 border-none bg-transparent px-3 py-2 text-left"
-                style={{ borderTop: `1px solid ${colors.rankBg1}` }}
+                className="hover:bg-rankBg2 flex w-full items-center gap-2 border-0 border-t border-rankBg1 bg-transparent px-3 py-2 text-left"
               >
                 <LaneIcon position={o.mainLane} size={16} />
                 <span className="text-white flex-1 truncate text-sm">

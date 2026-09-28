@@ -13,13 +13,13 @@ import useClickOutside from "@/hooks/common/useClickOutside";
 import { PlayerInfo } from "@/data/types/user";
 import { GuildInfo } from "@/data/types/auth";
 
-interface Props {
+export interface SummonerPageHeaderProps {
   searchTerm: string;
   setSearchTerm: (val: string) => void;
   onSearch: () => void;
   isLoading: boolean;
   isError: boolean;
-  users: PlayerInfo[] | undefined;
+  users: PlayerInfo[];
   guilds: GuildInfo[];
   selectedGuildId: string;
   onGuildChange: (encodedGuildId: string) => void;
@@ -39,7 +39,7 @@ const SummonerPageHeader = ({
   onGuildChange,
   username,
   isLoggedIn,
-}: Props) => {
+}: SummonerPageHeaderProps) => {
   const router = useRouter();
   const searchContainerRef = useRef(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);

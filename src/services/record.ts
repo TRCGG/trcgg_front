@@ -1,7 +1,12 @@
-import { ApiResponse } from "@/services/apiService";
+import { unwrap } from "@/services/apiService";
 import {
+  GameParticipant,
   GameRecordResponse,
+  MatchDashboardData,
+  MostPicksData,
   MostPicksResponse,
+  MultiplePlayerInfo,
+  RecentGameRecord,
   UserRecentRecordsResponse,
   UserRecordResponse,
 } from "@/data/types/record";
@@ -12,17 +17,11 @@ export const getAllRecords = async (
   riotName: string,
   riotNameTag: string | null,
   guildId?: string
-): Promise<ApiResponse<UserRecordResponse>> => {
+): Promise<MatchDashboardData | MultiplePlayerInfo[]> => {
   const query = buildQuery({ riotNameTag: riotNameTag ?? undefined });
-  try {
-    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/dashboard${query}`);
-  } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
-  }
+  return unwrap(
+    api.get<UserRecordResponse>(`/api/matches/${guildId ?? ""}/${riotName}/dashboard${query}`)
+  );
 };
 
 export const getRecentRecords = async (
@@ -31,22 +30,16 @@ export const getRecentRecords = async (
   guildId?: string,
   /** 대회 범위로 좁힐 때 사용. competitionId를 주면 각 항목에 teamName·opponentTeamName이 채워진다. */
   scope?: { competitionId?: number; gameType?: string }
-): Promise<ApiResponse<UserRecentRecordsResponse>> => {
+): Promise<RecentGameRecord[]> => {
   const query = buildQuery({
     riotNameTag: riotNameTag ?? undefined,
     limit: 200,
     competitionId: scope?.competitionId,
     gameType: scope?.gameType,
   });
-  try {
-    return await api.get(`/api/matches/${guildId ?? ""}/${riotName}/games${query}`);
-  } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
-  }
+  return unwrap(
+    api.get<UserRecentRecordsResponse>(`/api/matches/${guildId ?? ""}/${riotName}/games${query}`)
+  );
 };
 
 export interface MostPicksParams {
@@ -65,7 +58,7 @@ export const getMostPicks = async (
   riotName: string,
   guildId: string,
   params?: MostPicksParams
-): Promise<ApiResponse<MostPicksResponse>> => {
+): Promise<MostPicksData> => {
   const query = buildQuery({
     datePreset: params?.datePreset,
     season: params?.season,
@@ -77,28 +70,14 @@ export const getMostPicks = async (
     page: params?.page,
     limit: params?.limit ?? 100000,
   });
-  try {
-    return await api.get(`/api/matches/${guildId}/${riotName}/most-picks${query}`);
-  } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
-  }
+  return unwrap(
+    api.get<MostPicksResponse>(`/api/matches/${guildId}/${riotName}/most-picks${query}`)
+  );
 };
 
 export const getGameRecords = async (
   gameId: string,
   guildId?: string
-): Promise<ApiResponse<GameRecordResponse>> => {
-  try {
-    return await api.get(`/api/matches/${guildId ?? ""}/games/${gameId}`);
-  } catch (error) {
-    return {
-      data: null,
-      error: error instanceof Error ? error.message : "Unknown error",
-      status: 500,
-    };
-  }
+): Promise<GameParticipant[]> => {
+  return unwrap(api.get<GameRecordResponse>(`/api/matches/${guildId ?? ""}/games/${gameId}`));
 };

@@ -8,8 +8,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useCompetitionApplications from "@/hooks/competition/useCompetitionApplications";
 import { canManageGuild } from "@/data/types/guildMember";
@@ -52,27 +51,19 @@ const ApplicationApprovalPage: NextPage = () => {
   const competitionId = typeof rawId === "string" ? Number(rawId) : null;
   const validId = competitionId !== null && Number.isFinite(competitionId) ? competitionId : null;
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [tab, setTab] = useState<CompetitionApplicationStatus>("PENDING");
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
+  const { headerProps, guildId, guilds, isLoggedIn, currentRole, isLoadingGuilds } =
+    usePageHeader();
   const isManager = canManageGuild(currentRole);
-
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
 
   const { competition } = useCompetitionDetail(guildId, validId);
   const {
     applications,
-    error: listError,
+    isError: listError,
     isLoading: isLoadingApplications,
   } = useCompetitionApplications(guildId, validId);
 
@@ -116,28 +107,23 @@ const ApplicationApprovalPage: NextPage = () => {
   const decideMutation = useMutation({
     mutationFn: async (status: CompetitionApplicationStatus) => {
       const ids = Array.from(checkedIds);
-      // 200건 제한이 있어 나눠 보낸다. 한 덩어리라도 실패하면 그 결과를 그대로 올린다.
+      // 200건 제한이 있어 나눠 보낸다.
       for (let i = 0; i < ids.length; i += DECIDE_CHUNK) {
         const chunk = ids.slice(i, i + DECIDE_CHUNK);
+        // 한 청크라도 실패하면 예외가 올라가 남은 청크를 보내지 않는다.
         // eslint-disable-next-line no-await-in-loop
-        const res = await decideApplications(guildId, validId as number, {
+        await decideApplications(guildId, validId as number, {
           applicationIds: chunk,
           status,
         });
-        if (res.error) return res;
       }
-      return null;
     },
-    onSuccess: async (failed) => {
-      if (failed) {
-        setErrorMsg(competitionErrorMessage(failed));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setCheckedIds(new Set());
       await invalidateCompetitions();
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const runBulk = (action: BulkAction) => {
@@ -262,19 +248,7 @@ const ApplicationApprovalPage: NextPage = () => {
         <title>참가 신청 승인 - GMOK</title>
       </Head>
       <div className="mx-auto w-full md:max-w-[1080px]">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData?.data}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
+        <SummonerPageHeader {...headerProps} />
 
         <main className="mb-10 mt-7 flex flex-col gap-4 px-4 md:px-0">
           <Link href="/competitions">

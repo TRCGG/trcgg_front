@@ -95,46 +95,21 @@ const DetailStatCell = ({
   const mineBetter = betterIs === "high" ? mine > oppo : mine < oppo;
   const oppoBetter = betterIs === "high" ? oppo > mine : oppo < mine;
   return (
-    <div
-      className="bg-darkBg1 border border-border2"
-      style={{
-        borderRadius: 4,
-        padding: "8px 10px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 4,
-      }}
-    >
-      <div className="text-primary2" style={{ fontSize: 10 }}>
-        {label}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          gap: 6,
-          fontFeatureSettings: '"tnum"',
-        }}
-      >
+    <div className="bg-darkBg1 border border-border2 rounded py-2 px-2.5 flex flex-col gap-1">
+      <div className="text-primary2 text-[10px]">{label}</div>
+      <div className="flex items-baseline justify-between gap-1.5 tabular-nums">
         <span
-          style={{
-            fontSize: 13,
-            fontWeight: mineBetter ? 700 : 400,
-            color: mineBetter ? colors.blueText : colors.primary1,
-          }}
+          className={`text-[13px] ${
+            mineBetter ? "font-bold text-blueText" : "font-normal text-primary1"
+          }`}
         >
           {fmt(mine)}
         </span>
-        <span className="text-primary2" style={{ fontSize: 9 }}>
-          vs
-        </span>
+        <span className="text-primary2 text-[9px]">vs</span>
         <span
-          style={{
-            fontSize: 13,
-            fontWeight: oppoBetter ? 700 : 400,
-            color: oppoBetter ? colors.yellow : colors.primary1,
-          }}
+          className={`text-[13px] ${
+            oppoBetter ? "font-bold text-yellow" : "font-normal text-primary1"
+          }`}
         >
           {fmt(oppo)}
         </span>
@@ -151,39 +126,17 @@ const H2HRecentDetail = ({ row }: { row: H2HRecent }) => {
   const statSet = DETAIL_STAT_SETS[row.myLane] || DETAIL_STAT_SETS.ADC;
   return (
     <div
-      className="bg-darkBg2 border border-border2"
-      style={{
-        marginLeft: 20,
-        borderLeft: `3px solid ${accentText}`,
-        borderRadius: 4,
-        padding: "12px 14px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-      }}
+      className="bg-darkBg2 border border-border2 ml-5 rounded py-3 px-3.5 flex flex-col gap-2.5"
+      style={{ borderLeft: `3px solid ${accentText}` }}
     >
-      <div
-        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}
-      >
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-          <span className="text-primary1" style={{ fontSize: 12, fontWeight: 700 }}>
-            이 경기 1:1 비교
-          </span>
-          <span
-            className="bg-rankBg2 border border-border2 text-primary1"
-            style={{
-              fontSize: 10,
-              padding: "1px 8px",
-              borderRadius: 999,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 4,
-            }}
-          >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <span className="text-primary1 text-xs font-bold">이 경기 1:1 비교</span>
+          <span className="bg-rankBg2 border border-border2 text-primary1 text-[10px] py-px px-2 rounded-full inline-flex items-center gap-1">
             <LaneIcon position={row.myLane} size={11} />
             <span>{POSITION_LABELS[row.myLane]} 지표 세트</span>
           </span>
-          <span className="text-primary2" style={{ fontSize: 10 }}>
+          <span className="text-primary2 text-[10px]">
             {formatPlayedDate(row.playedDate)} · {formatGameLen(row.gameLen)} · 왼쪽 — 나 / 오른쪽 —
             상대
           </span>
@@ -218,21 +171,19 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
   const isWin = row.myResult === "W";
   const accentText = isWin ? colors.blueText : colors.redText;
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div className="flex flex-col">
       <div
         className="bg-darkBg1 border border-border2 flex items-center gap-2 rounded px-3 py-2.5 sm:grid sm:grid-cols-[8px_80px_50px_auto_1fr_auto_auto] sm:gap-3 sm:px-3.5"
         style={{ borderLeft: `3px solid ${accentText}` }}
       >
         <span className="hidden sm:block" />
         <div className="shrink-0">
-          <div style={{ fontSize: 13, fontWeight: 700, color: accentText }}>
+          <div className="text-[13px] font-bold" style={{ color: accentText }}>
             {isWin ? "승리" : "패배"}
           </div>
-          <div className="text-primary2" style={{ fontSize: 10 }}>
-            {formatAgo(row.playedDate)}
-          </div>
+          <div className="text-primary2 text-[10px]">{formatAgo(row.playedDate)}</div>
         </div>
-        <div className="text-primary2 hidden sm:block" style={{ fontSize: 11 }}>
+        <div className="text-primary2 hidden sm:block text-[11px]">
           {formatGameLen(row.gameLen)}
         </div>
 
@@ -240,12 +191,9 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           <LaneIcon position={row.myLane} size={16} />
           <ChampIcon en={row.myChamp} size={32} mine />
           <span
-            style={{
-              fontSize: 10,
-              color: mode === "with" ? colors.blueText : colors.primary2,
-              fontWeight: mode === "with" ? 700 : 400,
-              margin: "0 2px",
-            }}
+            className={`text-[10px] my-0 mx-0.5 ${
+              mode === "with" ? "font-bold text-blueText" : "font-normal text-primary2"
+            }`}
           >
             {mode === "with" ? "+" : "vs"}
           </span>
@@ -253,11 +201,11 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           <LaneIcon position={row.oppoLane} size={16} />
         </div>
 
-        <div className="flex min-w-0 flex-col gap-0.5" style={{ fontSize: 11 }}>
-          <span className="text-primary1 truncate" style={{ fontFeatureSettings: '"tnum"' }}>
+        <div className="flex min-w-0 flex-col gap-0.5 text-[11px]">
+          <span className="text-primary1 truncate tabular-nums">
             <b className="text-blueText">나</b> · {row.myKda}
           </span>
-          <span className="text-primary2 truncate" style={{ fontFeatureSettings: '"tnum"' }}>
+          <span className="text-primary2 truncate tabular-nums">
             {mode === "with" ? "팀원" : "상대"} · {row.oppoKda}
           </span>
         </div>
@@ -267,25 +215,15 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           onClick={onToggle}
           disabled={noDetail}
           title={isCrossLane ? "교차 라인 게임은 세부 비교를 제공하지 않아요" : undefined}
-          className="shrink-0"
-          style={{
-            padding: "4px 10px",
-            background: open ? colors.blue : colors.rankBg2,
-            border: `1px solid ${open ? colors.blueText : colors.border2}`,
-            borderRadius: 999,
-            color: open ? colors.blueText : colors.primary2,
-            fontSize: 11,
-            cursor: noDetail ? "default" : "pointer",
-            whiteSpace: "nowrap",
-            visibility: noDetail ? "hidden" : "visible",
-          }}
+          className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] whitespace-nowrap ${
+            open
+              ? "border-blueText bg-blue text-blueText"
+              : "border-border2 bg-rankBg2 text-primary2"
+          } ${noDetail ? "invisible cursor-default" : "cursor-pointer"}`}
         >
           {open ? "접기" : "세부 보기"}
         </button>
-        <span
-          className="text-primary2 hidden sm:inline"
-          style={{ fontSize: 10, whiteSpace: "nowrap" }}
-        >
+        <span className="text-primary2 hidden sm:inline text-[10px] whitespace-nowrap">
           {formatPlayedDate(row.playedDate)}
         </span>
       </div>
@@ -342,7 +280,7 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
         ) : undefined
       }
     >
-      <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+      <div className="p-3 flex flex-col gap-1.5">
         {filtered.length > 0 ? (
           shown.map((r, i) => {
             const isNew = i >= prevCount;
@@ -362,9 +300,7 @@ const H2HRecentList = ({ rows, mode, sameLaneOnly, onToggleSameLane }: Props) =>
             );
           })
         ) : (
-          <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
-            최근 기록이 없어요
-          </div>
+          <div className="text-primary2 p-6 text-center text-[13px]">최근 기록이 없어요</div>
         )}
         {remaining > 0 && (
           <LoadMoreButton onClick={() => setVisible((v) => v + PAGE_SIZE)} remaining={remaining} />

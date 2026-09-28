@@ -1,5 +1,4 @@
 import { H2HResult } from "@/data/types/h2h";
-import colors from "@/styles/colors";
 
 interface Props {
   streak: H2HResult[];
@@ -17,8 +16,8 @@ const H2HStreakDots = ({ streak }: Props) => {
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-      <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+    <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex gap-[3px] flex-wrap">
         {streak.map((s, i) => {
           const isWin = s === "W";
           return (
@@ -26,27 +25,17 @@ const H2HStreakDots = ({ streak }: Props) => {
               // eslint-disable-next-line react/no-array-index-key
               key={i}
               title={`${i + 1}번째 게임 — ${isWin ? "승" : "패"}`}
-              style={{
-                width: 14,
-                height: 22,
-                borderRadius: 2,
-                background: isWin ? colors.blueText : colors.redText,
-                opacity: 0.35 + (i / streak.length) * 0.65,
-              }}
+              className={`h-[22px] w-3.5 rounded-sm ${isWin ? "bg-blueText" : "bg-redText"}`}
+              // 최근 경기일수록 진하게 — 인덱스로 계산하는 값이라 클래스로 표현할 수 없다.
+              style={{ opacity: 0.35 + (i / streak.length) * 0.65 }}
             />
           );
         })}
       </div>
       <div
-        style={{
-          padding: "2px 10px",
-          borderRadius: 999,
-          background: curKind === "W" ? colors.blue : colors.red,
-          color: curKind === "W" ? colors.blueText : colors.redText,
-          fontSize: 12,
-          fontWeight: 700,
-          whiteSpace: "nowrap",
-        }}
+        className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold ${
+          curKind === "W" ? "bg-blue text-blueText" : "bg-red text-redText"
+        }`}
       >
         {curStreak}
         {curKind === "W" ? "연승" : "연패"} 중

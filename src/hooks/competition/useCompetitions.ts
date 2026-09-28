@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { CompetitionListResponse, CompetitionStatus } from "@/data/types/competition";
+import { CompetitionSummary, CompetitionStatus } from "@/data/types/competition";
 import { getCompetitions } from "@/services/competition";
 
 /**
@@ -9,7 +8,7 @@ import { getCompetitions } from "@/services/competition";
  * @param status 생략하면 전체
  */
 const useCompetitions = (guildId: string, status?: CompetitionStatus) => {
-  const { data, isLoading, isFetching, refetch } = useQuery<ApiResponse<CompetitionListResponse>>({
+  const { data, isError, isLoading, isFetching, refetch } = useQuery<CompetitionSummary[]>({
     queryKey: ["competitions", guildId, status ?? "ALL"],
     queryFn: () => getCompetitions(guildId, { status }),
     enabled: !!guildId,
@@ -17,8 +16,8 @@ const useCompetitions = (guildId: string, status?: CompetitionStatus) => {
   });
 
   return {
-    competitions: data?.data?.data ?? [],
-    error: data?.error ?? null,
+    competitions: data ?? [],
+    isError,
     isLoading,
     isFetching,
     refetch,

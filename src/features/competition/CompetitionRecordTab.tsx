@@ -2,8 +2,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { ApiResponse } from "@/services/apiService";
-import { UserRecentRecordsResponse } from "@/data/types/record";
+import { RecentGameRecord } from "@/data/types/record";
 import { CompetitionStatus, PlayerCompetitionItem } from "@/data/types/competition";
 import { getRecentRecords } from "@/services/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
@@ -38,14 +37,14 @@ const CompetitionGames = ({
   competition: PlayerCompetitionItem;
   onBack: () => void;
 }) => {
-  const { data, isLoading } = useQuery<ApiResponse<UserRecentRecordsResponse>>({
+  const { data, isLoading } = useQuery<RecentGameRecord[]>({
     queryKey: ["competitionPlayerGames", guildId, riotName, riotTag, competition.competitionId],
     queryFn: () =>
       getRecentRecords(riotName, riotTag, guildId, { competitionId: competition.competitionId }),
     enabled: !!guildId && !!riotName,
     staleTime: 60 * 1000,
   });
-  const games = data?.data?.data ?? [];
+  const games = data ?? [];
 
   const summary = [
     {
@@ -117,7 +116,7 @@ const CompetitionRecordTab = ({ guildId, playerCode, riotName, riotTag }: Props)
   const [statusFilter, setStatusFilter] = useState<CompetitionStatus | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const { competitions, isLoading, error } = usePlayerCompetitions(guildId ?? "", playerCode);
+  const { competitions, isLoading, isError } = usePlayerCompetitions(guildId ?? "", playerCode);
 
   const filtered = useMemo(
     () =>
@@ -128,7 +127,7 @@ const CompetitionRecordTab = ({ guildId, playerCode, riotName, riotTag }: Props)
   const selected = competitions.find((item) => item.competitionId === selectedId) ?? null;
 
   if (isLoading) return <LoadingSpinner />;
-  if (error) {
+  if (isError) {
     return (
       <div className="rounded border border-border2 bg-darkBg2 py-11 text-center text-[13px] text-primary3">
         대회 기록을 불러오지 못했습니다

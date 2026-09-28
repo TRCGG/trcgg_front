@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import colors from "@/styles/colors";
 
 interface SameLaneChipProps {
   active?: boolean;
@@ -11,29 +10,11 @@ export const SameLaneChip = ({ active = false, onChange }: SameLaneChipProps) =>
   <button
     type="button"
     onClick={() => onChange?.(!active)}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      padding: "4px 10px",
-      borderRadius: 999,
-      fontSize: 11,
-      border: `1px solid ${active ? colors.blueText : colors.border2}`,
-      background: active ? colors.blue : colors.rankBg2,
-      color: active ? colors.blueText : colors.primary1,
-      cursor: "pointer",
-      whiteSpace: "nowrap",
-      transition: "background 120ms, border-color 120ms",
-    }}
+    className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] transition-[background,border-color] duration-[120ms] ${
+      active ? "border-blueText bg-blue text-blueText" : "border-border2 bg-rankBg2 text-primary1"
+    }`}
   >
-    <span
-      style={{
-        width: 6,
-        height: 6,
-        borderRadius: "50%",
-        background: active ? colors.blueText : colors.primary2,
-      }}
-    />
+    <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-blueText" : "bg-primary2"}`} />
     맞라인만
   </button>
 );
@@ -65,21 +46,11 @@ export const SortChip = <T extends string>({ value, options, onChange }: SortChi
   }, [open]);
 
   return (
-    <div ref={ref} style={{ position: "relative" }}>
+    <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="bg-rankBg2 border border-border2 text-primary1"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
-          padding: "4px 10px",
-          borderRadius: 999,
-          fontSize: 11,
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-        }}
+        className="bg-rankBg2 border border-border2 text-primary1 flex items-center gap-1 py-1 px-2.5 rounded-full text-[11px] cursor-pointer whitespace-nowrap"
       >
         {current.label}
         <svg
@@ -89,25 +60,14 @@ export const SortChip = <T extends string>({ value, options, onChange }: SortChi
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
-          style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 120ms" }}
+          className="transition-transform duration-[120ms]"
+          style={{ transform: open ? "rotate(180deg)" : "none" }}
         >
           <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
       {open && (
-        <div
-          className="bg-darkBg2 border border-border1"
-          style={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            right: 0,
-            borderRadius: 6,
-            boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
-            zIndex: 20,
-            overflow: "hidden",
-            minWidth: 96,
-          }}
-        >
+        <div className="bg-darkBg2 border border-border1 absolute right-0 rounded-md overflow-hidden min-w-[96px] top-[calc(100%+4px)] shadow-[0_8px_30px_rgba(0,0,0,0.5)] z-20">
           {options.map((o) => {
             const active = o.key === value;
             return (
@@ -118,18 +78,9 @@ export const SortChip = <T extends string>({ value, options, onChange }: SortChi
                   onChange(o.key);
                   setOpen(false);
                 }}
-                className={`hover:bg-rankBg2 ${active ? "text-blueText" : "text-primary1"}`}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "6px 12px",
-                  fontSize: 11,
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                }}
+                className={`hover:bg-rankBg2 block w-full cursor-pointer whitespace-nowrap border-none bg-transparent px-3 py-1.5 text-left text-[11px] ${
+                  active ? "text-blueText" : "text-primary1"
+                }`}
               >
                 {o.label}
               </button>

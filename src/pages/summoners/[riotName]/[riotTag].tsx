@@ -1,17 +1,15 @@
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { MatchDashboardData, MultiplePlayerInfo, UserRecordResponse } from "@/data/types/record";
+import { MatchDashboardData, MultiplePlayerInfo } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import UserRecordPanel from "@/features/summonerRecord/UserRecordPanel";
 import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import TextCard from "@/components/ui/TextCard";
 import { addRecentSearch } from "@/utils/recentSearches";
 
@@ -20,7 +18,6 @@ const RiotProfilePage = () => {
   const { riotName, riotTag } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
   const riotTagString = Array.isArray(riotTag) ? riotTag[0] : riotTag || "";
-  const [searchTerm, setSearchTerm] = useState("");
 
   // 페이지 로드 시 최근 검색어에 저장
   useEffect(() => {
@@ -29,20 +26,13 @@ const RiotProfilePage = () => {
     }
   }, [riotNameString, riotTagString]);
 
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
 
   const {
     data: userRecordData,
     isLoading: isLoadingUserRecord,
     refetch: refetchUserRecords,
-  } = useQuery<ApiResponse<UserRecordResponse>>({
+  } = useQuery<MatchDashboardData | MultiplePlayerInfo[]>({
     queryKey: ["userRecords", riotNameString, riotTagString, guildId],
     queryFn: () => getAllRecords(riotNameString, riotTagString, guildId),
     staleTime: 3 * 60 * 1000,
@@ -76,11 +66,19 @@ const RiotProfilePage = () => {
   };
 
   // 배경 이미지용 mostChampion 가져오기
-  const data = userRecordData?.data?.data;
+  const data = userRecordData;
   const mostChampion =
     data && isMatchDashboardData(data) && data.mostPicks && data.mostPicks.length > 0
       ? data.mostPicks[0].champNameEng
       : "";
+
+  useEffect(() => {
+    if (!mostChampion) return undefined;
+    document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`;
+    return () => {
+      document.body.style.background = "";
+    };
+  }, [mostChampion]);
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gmok.kr";
   const pageTitle = riotNameString
@@ -102,33 +100,9 @@ const RiotProfilePage = () => {
         />
         <meta property="og:url" content={pageUrl} />
       </Head>
-      <div
-        className="w-full min-h-screen pb-10"
-        style={
-          mostChampion
-            ? {
-                background: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url(https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${mostChampion}_0.jpg) center/cover fixed`,
-                backgroundColor: "#191b20",
-              }
-            : {
-                backgroundColor: "#191b20",
-              }
-        }
-      >
+      <div className="w-full min-h-screen pb-10">
         <div className="w-full md:max-w-[1080px] mx-auto">
-          <SummonerPageHeader
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            onSearch={handleSearchButtonClick}
-            isLoading={isLoading}
-            isError={isError}
-            users={userSearchData?.data}
-            guilds={guilds}
-            selectedGuildId={guildId}
-            onGuildChange={handleGuildChange}
-            username={username}
-            isLoggedIn={isLoggedIn}
-          />
+          <SummonerPageHeader {...headerProps} />
 
           {/* 메인 콘텐츠 */}
           {(() => {

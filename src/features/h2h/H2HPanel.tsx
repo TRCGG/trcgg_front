@@ -1,14 +1,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import {
-  FrequentOpponent,
-  FrequentOpponentsResponse,
-  H2HCandidate,
-  H2HDetail,
-  H2HDetailResponse,
-} from "@/data/types/h2h";
+import { FrequentOpponent, H2HCandidate, H2HDetail } from "@/data/types/h2h";
 import { getFrequentOpponents, getH2HDetail } from "@/services/h2h";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import H2HEmptyState from "./H2HEmptyState";
@@ -35,6 +28,16 @@ const isH2HDetail = (data: H2HDetail | H2HCandidate[] | null | undefined): data 
 const buildVs = (o: SelectedOpponent) =>
   o.riotNameTag ? `${o.riotName}#${o.riotNameTag}` : o.riotName;
 
+const BackToSearchButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="cursor-pointer self-start border-none bg-transparent text-[13px] text-primary2"
+  >
+    ← 다시 검색
+  </button>
+);
+
 const parseVs = (vs: string): SelectedOpponent => {
   const i = vs.indexOf("#");
   return i === -1 ? { riotName: vs } : { riotName: vs.slice(0, i), riotNameTag: vs.slice(i + 1) };
@@ -59,9 +62,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     });
   };
 
-  const { data: frequentData, isLoading: isLoadingFrequent } = useQuery<
-    ApiResponse<FrequentOpponentsResponse>
-  >({
+  const { data: frequentData, isLoading: isLoadingFrequent } = useQuery<FrequentOpponent[]>({
     queryKey: ["h2hFrequent", guildId, riotName, riotTag],
     queryFn: () => getFrequentOpponents(guildId!, riotName, { riotNameTag: riotTag, limit: 12 }),
     staleTime: 5 * 60 * 1000,
@@ -72,7 +73,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     data: detailData,
     isLoading: isLoadingDetail,
     isFetching: isFetchingDetail,
-  } = useQuery<ApiResponse<H2HDetailResponse>>({
+  } = useQuery<H2HDetail | H2HCandidate[] | null>({
     queryKey: ["h2hDetail", guildId, riotName, riotTag, opponent],
     queryFn: () =>
       getH2HDetail(
@@ -84,10 +85,7 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     enabled: !!guildId && !!riotName && !!opponent,
   });
 
-  const frequent = useMemo<FrequentOpponent[]>(
-    () => frequentData?.data?.data ?? [],
-    [frequentData]
-  );
+  const frequent = useMemo<FrequentOpponent[]>(() => frequentData ?? [], [frequentData]);
 
   const handleSelect = (o: SelectedOpponent) => pushVs(buildVs(o));
 
@@ -111,53 +109,24 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
     return <LoadingSpinner />;
   }
 
-  const detail = detailData?.data?.data;
+  const detail = detailData;
 
   // 동명이인 후보 여러 명
   if (isCandidateList(detail)) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <button
-          type="button"
-          onClick={handleClear}
-          className="text-primary2"
-          style={{
-            alignSelf: "flex-start",
-            fontSize: 13,
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          ← 다시 검색
-        </button>
-        <div
-          className="bg-darkBg2 border border-border2"
-          style={{
-            borderRadius: 4,
-            padding: 16,
-          }}
-        >
-          <div className="text-primary1" style={{ fontSize: 14, marginBottom: 12 }}>
+      <div className="flex flex-col gap-4">
+        <BackToSearchButton onClick={handleClear} />
+        <div className="rounded border border-border2 bg-darkBg2 p-4">
+          <div className="mb-3 text-sm text-primary1">
             여러 명의 후보가 있어요. 한 명을 선택해 주세요.
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="flex flex-col gap-2">
             {detail.map((c) => (
               <button
                 key={c.playerCode}
                 type="button"
                 onClick={() => handleSelect({ riotName: c.riotName, riotNameTag: c.riotNameTag })}
-                className="bg-darkBg1 border border-border2 text-primary1"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "10px 14px",
-                  borderRadius: 4,
-                  fontSize: 14,
-                  textAlign: "left",
-                  cursor: "pointer",
-                }}
+                className="flex cursor-pointer items-center gap-1.5 rounded border border-border2 bg-darkBg1 px-[14px] py-2.5 text-left text-sm text-primary1"
               >
                 <b>{c.riotName}</b>
                 <span className="text-primary2">#{c.riotNameTag}</span>
@@ -185,36 +154,14 @@ const H2HPanel = ({ riotName, riotTag, guildId }: Props) => {
 
   // 멤버 없음 / 오류
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <button
-        type="button"
-        onClick={handleClear}
-        className="text-primary2"
-        style={{
-          alignSelf: "flex-start",
-          fontSize: 13,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        ← 다시 검색
-      </button>
-      <div
-        className="text-primary2 bg-darkBg2 border border-border2"
-        style={{
-          padding: 32,
-          textAlign: "center",
-          borderRadius: 4,
-        }}
-      >
+    <div className="flex flex-col gap-4">
+      <BackToSearchButton onClick={handleClear} />
+      <div className="rounded border border-border2 bg-darkBg2 p-8 text-center text-primary2">
         <b className="text-primary1">
           {opponent.riotName}
           {opponent.riotNameTag ? `#${opponent.riotNameTag}` : ""}
         </b>
-        <div style={{ marginTop: 6, fontSize: 13 }}>
-          상대를 찾을 수 없거나 함께한 기록이 없어요.
-        </div>
+        <div className="mt-1.5 text-[13px]">상대를 찾을 수 없거나 함께한 기록이 없어요.</div>
       </div>
     </div>
   );

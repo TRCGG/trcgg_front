@@ -10,43 +10,22 @@ interface Props {
 
 const H2HLaneMatrix = ({ matrix }: Props) => (
   <SectionCard title="라인 매트릭스" subtitle="세로 — 내 라인 / 가로 — 상대 라인">
-    <div style={{ padding: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "32px repeat(5, 1fr)", gap: 4 }}>
+    <div className="p-4">
+      <div className="grid grid-cols-[32px_repeat(5,_1fr)] gap-1">
         {/* header row */}
         <div />
         {POSITIONS.map((p) => (
-          <div
-            key={p}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-              padding: "4px 0",
-            }}
-          >
+          <div key={p} className="flex flex-col items-center gap-0.5 py-1 px-0">
             <LaneIcon position={p} size={18} />
-            <span className="text-primary2" style={{ fontSize: 10 }}>
-              {POSITION_LABELS[p]}
-            </span>
+            <span className="text-primary2 text-[10px]">{POSITION_LABELS[p]}</span>
           </div>
         ))}
         {/* body rows */}
         {POSITIONS.map((myL) => (
           <React.Fragment key={myL}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-              }}
-            >
+            <div className="flex flex-col items-center justify-center gap-0.5">
               <LaneIcon position={myL} size={18} />
-              <span className="text-primary2" style={{ fontSize: 10 }}>
-                {POSITION_LABELS[myL]}
-              </span>
+              <span className="text-primary2 text-[10px]">{POSITION_LABELS[myL]}</span>
             </div>
             {POSITIONS.map((opL) => {
               const cell = matrix[myL]?.[opL] ?? { c: 0, w: 0 };
@@ -54,34 +33,20 @@ const H2HLaneMatrix = ({ matrix }: Props) => (
               return (
                 <div
                   key={opL}
-                  className="border border-border2"
-                  style={{
-                    aspectRatio: "1 / 1",
-                    borderRadius: 4,
-                    background: v2MatrixCellBg(cell.c, wr),
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  className="border border-border2 aspect-square rounded flex flex-col items-center justify-center"
+                  style={{ background: v2MatrixCellBg(cell.c, wr) }}
                 >
                   {cell.c === 0 ? (
-                    <span className="text-primary2" style={{ fontSize: 14 }}>
-                      ·
-                    </span>
+                    <span className="text-primary2 text-sm">·</span>
                   ) : (
                     <>
                       <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: v2WinRateColor(wr),
-                          fontFeatureSettings: '"tnum"',
-                        }}
+                        className="text-sm font-bold tabular-nums"
+                        style={{ color: v2WinRateColor(wr) }}
                       >
                         {wr}%
                       </div>
-                      <div className="text-primary2" style={{ fontSize: 10 }}>
+                      <div className="text-primary2 text-[10px]">
                         {cell.w}-{cell.c - cell.w}
                       </div>
                     </>
@@ -92,45 +57,15 @@ const H2HLaneMatrix = ({ matrix }: Props) => (
           </React.Fragment>
         ))}
       </div>
-      <div
-        className="text-primary2"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginTop: 12,
-          fontSize: 10,
-        }}
-      >
+      <div className="text-primary2 flex items-center gap-2 mt-3 text-[10px]">
         <span>승률</span>
-        <span
-          style={{
-            display: "inline-block",
-            width: 16,
-            height: 8,
-            background: "rgba(255,107,139,0.42)",
-          }}
-        />
+        <span className="inline-block w-4 h-2 bg-[rgba(255,107,139,0.42)]" />
         <span>0%</span>
-        <span
-          style={{
-            display: "inline-block",
-            width: 16,
-            height: 8,
-            background: "rgba(120,120,120,0.18)",
-          }}
-        />
+        <span className="inline-block w-4 h-2 bg-[rgba(120,120,120,0.18)]" />
         <span>50%</span>
-        <span
-          style={{
-            display: "inline-block",
-            width: 16,
-            height: 8,
-            background: "rgba(107,184,255,0.42)",
-          }}
-        />
+        <span className="inline-block w-4 h-2 bg-[rgba(107,184,255,0.42)]" />
         <span>100%</span>
-        <span style={{ marginLeft: "auto" }}>색상 진하기 = 표본 수</span>
+        <span className="ml-auto">색상 진하기 = 표본 수</span>
       </div>
     </div>
   </SectionCard>

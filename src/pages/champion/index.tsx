@@ -2,16 +2,14 @@ import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import TitleBox from "@/components/ui/TitleBox";
 import PositionFilter from "@/features/statistics/PositionFilter";
 import ChampionRankHeader from "@/features/statistics/ChampionRankHeader";
 import ChampionRankItem from "@/features/statistics/ChampionRankItem";
 import { useQuery } from "@tanstack/react-query";
 import { getChampionStatistics, Position, DatePreset } from "@/services/statistics";
-import { ApiResponse } from "@/services/apiService";
-import { ChampionStatisticsResponse } from "@/data/types/statistics";
+import { ChampionStatistics } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
@@ -45,7 +43,6 @@ const SELECT_CLASS =
   "appearance-none bg-rankBg2 border border-border1 hover:border-blueText2 rounded-lg pl-3 pr-8 py-1.5 text-sm text-primary1 cursor-pointer focus:outline-none focus:border-blueText2 transition-colors duration-150";
 
 const Champion: NextPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
   const [sortBy, setSortBy] = useState<SortBy>("winRate");
@@ -62,13 +59,7 @@ const Champion: NextPage = () => {
   });
   const observerInstance = useRef<IntersectionObserver | null>(null);
   const hasMoreRef = useRef(false);
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
 
   let querySeason: string | undefined;
   if (dateMode === "season") querySeason = selectedSeason;
@@ -82,7 +73,7 @@ const Champion: NextPage = () => {
     isFetching: isFetchingStatistics,
     isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
-  } = useQuery<ApiResponse<ChampionStatisticsResponse>>({
+  } = useQuery<ChampionStatistics[]>({
     queryKey: [
       "championStatistics",
       guildId,
@@ -126,15 +117,15 @@ const Champion: NextPage = () => {
 
   const popularChampions = useMemo(
     () =>
-      [...(championStatisticsData?.data?.data || [])]
+      [...(championStatisticsData || [])]
         .sort((a, b) => b.totalCount - a.totalCount)
         .slice(0, 10)
         .map((c) => c.champNameEng),
-    [championStatisticsData?.data?.data]
+    [championStatisticsData]
   );
 
   const sortedChampions = useMemo(() => {
-    const champions = [...(championStatisticsData?.data?.data || [])];
+    const champions = [...(championStatisticsData || [])];
     const metric = (c: (typeof champions)[number]) => {
       if (sortBy === "totalGames") return c.totalCount;
       if (sortBy === "kda") return parseFloat(c.kda) || 0;
@@ -142,7 +133,7 @@ const Champion: NextPage = () => {
     };
     champions.sort((a, b) => (sortOrder === "asc" ? metric(a) - metric(b) : metric(b) - metric(a)));
     return champions;
-  }, [championStatisticsData?.data?.data, sortBy, sortOrder]);
+  }, [championStatisticsData, sortBy, sortOrder]);
 
   const displayedChampions = sortedChampions.slice(0, displayCount);
   const hasMore = sortedChampions.length > displayCount;
@@ -175,19 +166,7 @@ const Champion: NextPage = () => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData?.data}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
       <TitleBox
         className="mt-10"
         clanName={clanName}

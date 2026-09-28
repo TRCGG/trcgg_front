@@ -54,7 +54,7 @@ export interface UpdateMemberRoleResponse {
   data: UpdateMemberRoleData;
 }
 
-export interface GuildRow {
+export interface GuildDetail {
   id: string;
   name: string;
   languageCode: string;
@@ -67,7 +67,7 @@ export interface GuildRow {
 export interface GuildResponse {
   status: string;
   message: string;
-  data: GuildRow;
+  data: GuildDetail;
 }
 
 interface RoleMeta {

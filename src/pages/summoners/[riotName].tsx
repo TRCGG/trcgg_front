@@ -1,13 +1,11 @@
 import { useRouter } from "next/router";
-import React, { useState, useEffect } from "react";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { UserRecordResponse, MultiplePlayerInfo, MatchDashboardData } from "@/data/types/record";
+import { MultiplePlayerInfo, MatchDashboardData } from "@/data/types/record";
 import { getAllRecords } from "@/services/record";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
@@ -17,19 +15,11 @@ const RiotProfilePage = () => {
   const router = useRouter();
   const { riotName } = router.query;
   const riotNameString = Array.isArray(riotName) ? riotName[0] : riotName || "";
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
 
   const { data: userRecordData, isLoading: isLoadingUserRecord } = useQuery<
-    ApiResponse<UserRecordResponse>
+    MatchDashboardData | MultiplePlayerInfo[]
   >({
     queryKey: ["userRecords", riotNameString, null, guildId],
     queryFn: () => getAllRecords(riotNameString, null, guildId),
@@ -37,7 +27,7 @@ const RiotProfilePage = () => {
     enabled: !!riotName && !!guildId,
   });
 
-  const data = userRecordData?.data?.data;
+  const data = userRecordData;
 
   // 타입 가드: data가 MultiplePlayerInfo[] 배열인지 확인
   const isPlayerInfoArray = (value: unknown): value is MultiplePlayerInfo[] => {
@@ -86,19 +76,7 @@ const RiotProfilePage = () => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData?.data}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
 
       {/* 메인 콘텐츠 */}
       {(() => {

@@ -23,25 +23,16 @@ const H2HSummaryBanner = ({ relation, firstMet, lastMet, against, together }: Pr
     <div className="bg-darkBg2 border border-border2 grid grid-cols-1 items-center gap-5 rounded px-4 py-4 sm:grid-cols-[auto_1fr_auto] sm:gap-8 sm:px-7 sm:py-5">
       {/* Big number */}
       <div className="min-w-0">
-        <div className="text-primary2" style={{ fontSize: 12, letterSpacing: "0.08em" }}>
-          {label.toUpperCase()}
-        </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 4 }}>
+        <div className="text-primary2 text-xs tracking-[0.08em]">{label.toUpperCase()}</div>
+        <div className="flex items-baseline gap-2.5 mt-1">
           <span
-            className="text-[40px] sm:text-5xl"
-            style={{
-              fontWeight: 700,
-              color: primaryColor,
-              lineHeight: 1,
-              fontFeatureSettings: '"tnum"',
-            }}
+            className="text-[40px] sm:text-5xl font-bold leading-none tabular-nums"
+            style={{ color: primaryColor }}
           >
             {Math.round(winRate)}
-            <span className="text-primary2" style={{ fontSize: 22, marginLeft: 2 }}>
-              %
-            </span>
+            <span className="text-primary2 text-[22px] ml-0.5">%</span>
           </span>
-          <span className="text-primary1" style={{ fontSize: 18 }}>
+          <span className="text-primary1 text-lg">
             <b className="text-blueText">{wins}</b>승 <b className="text-redText">{losses}</b>패
           </span>
         </div>
@@ -51,8 +42,8 @@ const H2HSummaryBanner = ({ relation, firstMet, lastMet, against, together }: Pr
       </div>
 
       {/* Streak */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <div className="text-primary2" style={{ fontSize: 11, letterSpacing: "0.08em" }}>
+      <div className="flex flex-col gap-1.5">
+        <div className="text-primary2 text-[11px] tracking-[0.08em]">
           최근 {streak.length}전 ({isWith ? "함께" : "맞붙은"}, 우→최신)
         </div>
         <H2HStreakDots streak={streak} />

@@ -8,14 +8,12 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useChampions from "@/hooks/competition/useChampions";
-import { ApiResponse } from "@/services/apiService";
 import {
-  ApplicationResponse,
   COMPETITION_POSITIONS,
+  CompetitionApplicationItem,
   CompetitionPosition,
   CompetitionSubPosition,
   PracticeLevel,
@@ -96,7 +94,6 @@ const CompetitionApplyPage: NextPage = () => {
   const competitionId = typeof rawId === "string" ? Number(rawId) : null;
   const validId = competitionId !== null && Number.isFinite(competitionId) ? competitionId : null;
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [account, setAccount] = useState<PlayerInfo | null>(null);
   const [mainPosition, setMainPosition] = useState<CompetitionPosition | null>(null);
   const [subPositions, setSubPositions] = useState<CompetitionSubPosition[]>([]);
@@ -109,28 +106,19 @@ const CompetitionApplyPage: NextPage = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
-
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn, isLoadingGuilds } = usePageHeader();
 
   const { competition } = useCompetitionDetail(guildId, validId);
   const { champions } = useChampions(!!guildId);
 
-  const { data: myApplicationRes, isLoading: isLoadingMine } = useQuery<
-    ApiResponse<ApplicationResponse>
-  >({
-    queryKey: ["myCompetitionApplication", guildId, validId],
-    queryFn: () => getMyApplication(guildId, validId as number),
-    enabled: !!guildId && validId !== null,
-    staleTime: 15 * 1000,
-  });
-  const mine = myApplicationRes?.data?.data ?? null;
+  const { data: myApplicationRes, isLoading: isLoadingMine } =
+    useQuery<CompetitionApplicationItem | null>({
+      queryKey: ["myCompetitionApplication", guildId, validId],
+      queryFn: () => getMyApplication(guildId, validId as number),
+      enabled: !!guildId && validId !== null,
+      staleTime: 15 * 1000,
+    });
+  const mine = myApplicationRes ?? null;
   const isEditing = mine !== null;
 
   // 기존 신청서를 폼에 채운다. 사용자가 편집을 시작한 뒤 덮어쓰지 않도록 id가 바뀔 때만 동작한다.
@@ -197,30 +185,22 @@ const CompetitionApplyPage: NextPage = () => {
         ? updateMyApplication(guildId, validId as number, payload)
         : applyToCompetition(guildId, validId as number, payload);
     },
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       await invalidateCompetitions();
       router.push("/competitions");
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const cancelMutation = useMutation({
     mutationFn: () => cancelMyApplication(guildId, validId as number),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       await invalidateCompetitions();
       router.push("/competitions");
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   // 백엔드 updateMyApplication·deleteMyApplication에 assertRecruiting이 걸려 있어
@@ -467,19 +447,7 @@ const CompetitionApplyPage: NextPage = () => {
         <title>참가 신청 - GMOK</title>
       </Head>
       <div className="mx-auto w-full md:max-w-[1080px]">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData?.data}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
+        <SummonerPageHeader {...headerProps} />
 
         <main className="mb-10 mt-7 flex flex-col gap-4 px-4 md:px-0">
           <Link href="/competitions">

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
-import { GameRecordResponse, RecentGameRecord } from "@/data/types/record";
+import { GameParticipant, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
 import { getGameRecords } from "@/services/record";
 import { formatTimeAgo } from "@/utils/parseTime";
 import SpriteImage from "@/components/ui/SpriteImage";
@@ -13,6 +12,7 @@ import { getKdaColor } from "@/utils/statColors";
 import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -23,19 +23,17 @@ const MatchItem = ({ matchData }: Props) => {
   const toggleOpen = () => setOpen((prev) => !prev);
   const isWin = matchData.gameResult === "승";
 
-  const guildId =
-    typeof window !== "undefined" ? (localStorage.getItem("guildId") ?? undefined) : undefined;
+  const { guildId: selectedGuildId } = useGuildContext();
+  const guildId = selectedGuildId || undefined;
 
-  const { data: gameData, isLoading: isLoadingGameData } = useQuery<
-    ApiResponse<GameRecordResponse>
-  >({
+  const { data: gameData, isLoading: isLoadingGameData } = useQuery<GameParticipant[]>({
     queryKey: ["gameData", matchData.gameId, guildId],
     queryFn: () => getGameRecords(matchData.gameId, guildId),
     staleTime: 3 * 60 * 1000,
     enabled: isOpen && !!guildId,
   });
 
-  const detailData = gameData?.data?.data;
+  const detailData = gameData;
   const showDetail = isOpen && !isLoadingGameData && !!detailData;
 
   const itemArr = [

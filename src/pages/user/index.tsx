@@ -2,16 +2,14 @@ import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import TitleBox from "@/components/ui/TitleBox";
 import PositionFilter from "@/features/statistics/PositionFilter";
 import UserRankHeader from "@/features/statistics/UserRankHeader";
 import UserRankItem from "@/features/statistics/UserRankItem";
 import { useQuery } from "@tanstack/react-query";
 import { getUserStatistics, Position, DatePreset } from "@/services/statistics";
-import { ApiResponse } from "@/services/apiService";
-import { UserStatisticsResponse } from "@/data/types/statistics";
+import { UserStatistics } from "@/data/types/statistics";
 import TextCard from "@/components/ui/TextCard";
 
 type DateMode = "recent" | "season" | "range";
@@ -45,7 +43,6 @@ const SELECT_CLASS =
   "appearance-none bg-rankBg2 border border-border1 hover:border-blueText2 rounded-lg pl-3 pr-8 py-1.5 text-sm text-primary1 cursor-pointer focus:outline-none focus:border-blueText2 transition-colors duration-150";
 
 const User: NextPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<Position>("ALL");
   const [displayCount, setDisplayCount] = useState(10);
   const [sortBy, setSortBy] = useState<SortBy>("winRate");
@@ -63,13 +60,7 @@ const User: NextPage = () => {
   const observerInstance = useRef<IntersectionObserver | null>(null);
   const hasMoreRef = useRef(false);
 
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange } = useGuildManagement();
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
 
   let querySeason: string | undefined;
   if (dateMode === "season") querySeason = selectedSeason;
@@ -83,7 +74,7 @@ const User: NextPage = () => {
     isFetching: isFetchingStatistics,
     isFetched: isFetchedStatistics,
     isError: isErrorStatistics,
-  } = useQuery<ApiResponse<UserStatisticsResponse>>({
+  } = useQuery<UserStatistics[]>({
     queryKey: [
       "userStatistics",
       guildId,
@@ -126,7 +117,7 @@ const User: NextPage = () => {
   };
 
   const sortedUsers = useMemo(() => {
-    const users = [...(userStatisticsData?.data?.data || [])];
+    const users = [...(userStatisticsData || [])];
 
     users.sort((a, b) => {
       let aValue: number;
@@ -150,7 +141,7 @@ const User: NextPage = () => {
     });
 
     return users;
-  }, [userStatisticsData?.data?.data, sortBy, sortOrder]);
+  }, [userStatisticsData, sortBy, sortOrder]);
 
   const displayedUsers = sortedUsers.slice(0, displayCount);
   const hasMore = sortedUsers.length > displayCount;
@@ -183,19 +174,7 @@ const User: NextPage = () => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData?.data}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
 
       <TitleBox
         className="mt-10"

@@ -8,8 +8,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import { canManageGuild } from "@/data/types/guildMember";
 import { CompetitionInitialStatus } from "@/data/types/competition";
 import { createCompetition } from "@/services/competition";
@@ -52,36 +51,24 @@ const Notice = ({ children }: { children: React.ReactNode }) => (
 
 const CompetitionCreatePage: NextPage = () => {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
   const [name, setName] = useState("");
   const [approvalRequired, setApprovalRequired] = useState(true);
   const [status, setStatus] = useState<CompetitionInitialStatus>("RECRUITING");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
+  const { headerProps, guildId, guilds, isLoggedIn, currentRole, isLoadingGuilds } =
+    usePageHeader();
   const isManager = canManageGuild(currentRole);
-
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
 
   const createMutation = useMutation({
     mutationFn: () => createCompetition(guildId, { name: name.trim(), status, approvalRequired }),
-    onSuccess: async (res) => {
-      if (res.error || !res.data?.data) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async (created) => {
       setErrorMsg(null);
       await invalidateCompetitions();
-      router.push(`/competitions/${res.data.data.id}`);
+      router.push(`/competitions/${created.id}`);
     },
-    onError: () => setErrorMsg("요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const trimmedName = name.trim();
@@ -234,19 +221,7 @@ const CompetitionCreatePage: NextPage = () => {
         <title>대회 생성 - GMOK</title>
       </Head>
       <div className="mx-auto w-full md:max-w-[1080px]">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData?.data}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
+        <SummonerPageHeader {...headerProps} />
 
         <main className="mb-10 mt-7 flex flex-col gap-4 px-4 md:px-0">
           <Link href="/competitions">

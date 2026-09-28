@@ -5,16 +5,14 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TitleBox from "@/components/ui/TitleBox";
 import Modal from "@/components/modal/Modal";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import { uploadReplays, getReplayList, deleteReplay } from "@/services/replay";
-import { ApiResponse } from "@/services/apiService";
 import { hasMinRole } from "@/data/types/guildMember";
 import {
+  ReplayLog,
   ReplayUploadData,
   ReplayUploadFailed,
   ReplayUploadSuccess,
-  ReplayListResponse,
 } from "@/data/types/replay";
 import { formatTimeAgo } from "@/utils/parseTime";
 import { sliceRoflForUpload } from "@/utils/rofl";
@@ -49,7 +47,6 @@ const UploadNotice = ({ text }: { text: string }) => (
 );
 
 const Replay: NextPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -62,18 +59,11 @@ const Replay: NextPage = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { guildId, guilds, isLoggedIn, username, uploadNick, currentRole, handleGuildChange } =
-    useGuildManagement();
+  const { headerProps, guildId, guilds, isLoggedIn, uploadNick, currentRole } = usePageHeader();
   const canDeleteReplay = hasMinRole(currentRole, "userUploader");
   const [confirmingCode, setConfirmingCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
 
   const selectedGuild = guilds.find((guild) => guild.id === guildId);
   const clanName = selectedGuild?.name || "클랜";
@@ -82,14 +72,14 @@ const Replay: NextPage = () => {
     data: replayListData,
     isLoading: isLoadingList,
     refetch: refetchList,
-  } = useQuery<ApiResponse<ReplayListResponse>>({
+  } = useQuery<ReplayLog[]>({
     queryKey: ["replayList", guildId],
     queryFn: () => getReplayList(guildId),
     enabled: !!guildId && isLoggedIn,
     staleTime: 60 * 1000,
   });
 
-  const replayList = replayListData?.data?.data?.slice(0, 10) ?? [];
+  const replayList = replayListData?.slice(0, 10) ?? [];
 
   const totalSizeMB = (files.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024).toFixed(1);
 
@@ -147,8 +137,9 @@ const Replay: NextPage = () => {
     if (deletingCode) return;
     setDeletingCode(replayCode);
     setDeleteError(null);
-    const res = await deleteReplay(guildId, replayCode);
-    if (res.error) {
+    try {
+      await deleteReplay(guildId, replayCode);
+    } catch {
       setDeleteError("리플레이 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
       setDeletingCode(null);
       return;
@@ -189,8 +180,8 @@ const Replay: NextPage = () => {
           batch.map((unit) => unit.upload),
           uploadNick ?? ""
         );
-        succeeded.push(...(result.data?.succeeded ?? []));
-        failed.push(...(result.data?.failed ?? []));
+        succeeded.push(...(result?.succeeded ?? []));
+        failed.push(...(result?.failed ?? []));
         done += batch.length;
         setUploadProgress({ done, total });
         setUploadResult({ succeeded: [...succeeded], failed: [...failed] });
@@ -213,19 +204,7 @@ const Replay: NextPage = () => {
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
       <NoIndex />
-      <SummonerPageHeader
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        onSearch={handleSearchButtonClick}
-        isLoading={isLoading}
-        isError={isError}
-        users={userSearchData?.data}
-        guilds={guilds}
-        selectedGuildId={guildId}
-        onGuildChange={handleGuildChange}
-        username={username}
-        isLoggedIn={isLoggedIn}
-      />
+      <SummonerPageHeader {...headerProps} />
 
       <TitleBox
         className="mt-10"

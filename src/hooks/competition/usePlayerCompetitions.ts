@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { PlayerCompetitionListResponse } from "@/data/types/competition";
+import { PlayerCompetitionItem } from "@/data/types/competition";
 import { getPlayerCompetitions } from "@/services/competition";
 
 /**
@@ -9,7 +8,7 @@ import { getPlayerCompetitions } from "@/services/competition";
  * @param playerCode 대시보드 응답의 member.playerCode
  */
 const usePlayerCompetitions = (guildId: string, playerCode: string | null, enabled = true) => {
-  const { data, isLoading } = useQuery<ApiResponse<PlayerCompetitionListResponse>>({
+  const { data, isError, isLoading } = useQuery<PlayerCompetitionItem[]>({
     queryKey: ["playerCompetitions", guildId, playerCode],
     queryFn: () => getPlayerCompetitions(guildId, playerCode as string),
     enabled: enabled && !!guildId && !!playerCode,
@@ -17,8 +16,8 @@ const usePlayerCompetitions = (guildId: string, playerCode: string | null, enabl
   });
 
   return {
-    competitions: data?.data?.data ?? [],
-    error: data?.error ?? null,
+    competitions: data ?? [],
+    isError,
     isLoading,
   };
 };
