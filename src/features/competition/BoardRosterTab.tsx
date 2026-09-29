@@ -5,10 +5,11 @@ interface Props {
   teams: CompetitionTeamWithRoster[];
 }
 
-/** 스크림·본경기를 합친 팀 전적 요약. 순위표는 둘을 나눠 보여준다. */
+/** 스크림·예선·본선을 합친 팀 전적 요약. 순위표는 나눠 보여준다. */
 const totalRecord = (team: CompetitionTeamWithRoster): string => {
-  const win = team.records.scrim.win + team.records.main.win;
-  const lose = team.records.scrim.lose + team.records.main.lose;
+  const { scrim, preliminary, main } = team.records;
+  const win = scrim.win + preliminary.win + main.win;
+  const lose = scrim.lose + preliminary.lose + main.lose;
   if (win + lose === 0) return "경기 전";
   return `${win}승 ${lose}패`;
 };

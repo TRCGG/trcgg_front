@@ -1,21 +1,25 @@
 import { useState } from "react";
 import { CompetitionStandings, StandingRow } from "@/data/types/competition";
 import { getWinRateColor } from "@/utils/statColors";
+import { getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   standings: CompetitionStandings | null;
 }
 
-// API가 스크림·본경기를 나눠 주므로 화면에서도 나눠 본다.
-const SPLITS = [
-  { key: "main", label: "본경기" },
-  { key: "scrim", label: "스크림" },
-] as const;
+type Split = keyof CompetitionStandings;
+
+// API가 유형별로 나눠 주므로 화면에서도 나눠 본다. 결과가 가장 중요한 본선을 먼저 둔다.
+const SPLITS: readonly { key: Split; label: string }[] = [
+  { key: "main", label: getGameTypeMeta("4").label },
+  { key: "preliminary", label: getGameTypeMeta("3").label },
+  { key: "scrim", label: getGameTypeMeta("2").label },
+];
 
 const GRID = "grid-cols-[56px_1fr_72px_84px_78px_92px]";
 
 const BoardStandingsTab = ({ standings }: Props) => {
-  const [split, setSplit] = useState<"main" | "scrim">("main");
+  const [split, setSplit] = useState<Split>("main");
   const rows: StandingRow[] = standings?.[split] ?? [];
 
   return (

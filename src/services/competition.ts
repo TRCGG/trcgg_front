@@ -254,7 +254,7 @@ export const removeTeamMember = async (
   );
 };
 
-/** 이 팀의 상대 팀별 전적(스크림·본경기 분리). 항목마다 상대 팀 하나다. */
+/** 이 팀의 상대 팀별 전적(스크림·예선·본선 분리). 항목마다 상대 팀 하나다. */
 export const getTeamRecords = async (
   guildId: string,
   competitionId: number,
@@ -295,7 +295,7 @@ export const assignMatchTeams = async (
   );
 };
 
-/** 경기 유형 일괄 변경(2=스크림 / 3=본경기). 최대 100건. */
+/** 경기 유형 일괄 변경(2=스크림 / 3=예선 / 4=본선). 최대 100건. */
 export const changeMatchGameType = async (
   guildId: string,
   competitionId: number,

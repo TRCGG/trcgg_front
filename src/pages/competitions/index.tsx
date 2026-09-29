@@ -85,7 +85,7 @@ const CompetitionListPage: NextPage = () => {
             <div>
               <h1 className="text-[22px] font-light text-primary1">대회</h1>
               <p className="mt-1 text-xs text-primary2">
-                {clanName} 클랜에서 열린 대회를 관리하고 참가 신청합니다. 스크림과 본경기는 대회
+                {clanName} 클랜에서 열린 대회를 관리하고 참가 신청합니다. 스크림·예선·본선은 대회
                 안에서 함께 집계됩니다.
               </p>
             </div>

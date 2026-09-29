@@ -19,8 +19,8 @@ export const MAX_APPLICATION_CHAMPIONS = 3;
 /** 개설 시 고를 수 있는 상태 — 종료된 대회를 새로 만들 일은 없다. */
 export type CompetitionInitialStatus = Extract<CompetitionStatus, "RECRUITING" | "IN_PROGRESS">;
 
-/** 대회 경기 유형. 일반내전(1)은 대회에 속하지 않아 오갈 수 없다. */
-export const COMPETITION_GAME_TYPES = ["2", "3"] as const;
+/** 대회 경기 유형: 2=스크림 / 3=예선 / 4=본선. 일반내전(1)은 대회에 속하지 않아 오갈 수 없다. */
+export const COMPETITION_GAME_TYPES = ["2", "3", "4"] as const;
 export type CompetitionGameType = (typeof COMPETITION_GAME_TYPES)[number];
 
 export type CompetitionApplicationStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -41,6 +41,7 @@ export interface Competition {
 /** 대회 + 유형별 활성 경기 수 + 신청·팀 규모 */
 export interface CompetitionSummary extends Competition {
   scrimCount: number;
+  preliminaryCount: number;
   mainCount: number;
   applicationCount: number;
   pendingCount: number;
@@ -157,6 +158,7 @@ export interface RecordCount {
 
 export interface TeamRecordSplit {
   scrim: RecordCount;
+  preliminary: RecordCount;
   main: RecordCount;
 }
 
@@ -239,6 +241,7 @@ export interface StandingRow {
 
 export interface CompetitionStandings {
   scrim: StandingRow[];
+  preliminary: StandingRow[];
   main: StandingRow[];
 }
 
@@ -266,9 +269,9 @@ export interface PlayerCompetitionItem {
   closeDate: string | null;
   team: { id: number; name: string; position: CompetitionPosition; isCaptain: boolean } | null;
   applicationStatus: CompetitionApplicationStatus | null;
-  /** 팀 귀속과 무관한 본인 전적 (스크림+본경기 합산) */
+  /** 팀 귀속과 무관한 본인 전적 (스크림+예선+본선 합산) */
   record: { games: number; win: number; lose: number; winRate: number; kda: number };
-  teamRank: { scrim: number | null; main: number | null };
+  teamRank: { scrim: number | null; preliminary: number | null; main: number | null };
   /** 최근 6경기 결과('승'/'패'), 최신순 */
   recent: string[];
 }

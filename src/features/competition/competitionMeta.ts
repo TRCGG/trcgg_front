@@ -1,5 +1,6 @@
 import {
   CompetitionApplicationStatus,
+  CompetitionGameType,
   CompetitionPosition,
   CompetitionStatus,
   CompetitionSubPosition,
@@ -40,10 +41,45 @@ export const formatParticipants = (competition: CompetitionSummary): string => {
   return `${competition.participantCount}명 · ${competition.teamCount}팀`;
 };
 
+interface GameTypeMeta {
+  label: string;
+  textClass: string;
+  bgClass: string;
+  borderClass: string;
+}
+
+// 경기 유형 표기는 경기 목록·업로드·순위표·전적 탭에서 같아야 하므로 한곳에서 관리한다.
+const GAME_TYPE_META: Record<CompetitionGameType, GameTypeMeta> = {
+  "2": {
+    label: "스크림",
+    textClass: "text-primary2",
+    bgClass: "bg-rankBg2",
+    borderClass: "border-border2",
+  },
+  "3": {
+    label: "예선",
+    textClass: "text-blueText",
+    bgClass: "bg-blueText/10",
+    borderClass: "border-blueText/40",
+  },
+  "4": {
+    label: "★본선",
+    textClass: "text-yellow",
+    bgClass: "bg-yellow/10",
+    borderClass: "border-yellow/40",
+  },
+};
+
+export const isCompetitionGameType = (gameType: string): gameType is CompetitionGameType =>
+  gameType in GAME_TYPE_META;
+
+export const getGameTypeMeta = (gameType: string): GameTypeMeta =>
+  isCompetitionGameType(gameType) ? GAME_TYPE_META[gameType] : GAME_TYPE_META["2"];
+
 export const formatGameSummary = (competition: CompetitionSummary): string => {
-  const { scrimCount, mainCount } = competition;
-  if (scrimCount + mainCount === 0) return "경기 전";
-  return `스크림 ${scrimCount} · ★본경기 ${mainCount}`;
+  const { scrimCount, preliminaryCount, mainCount } = competition;
+  if (scrimCount + preliminaryCount + mainCount === 0) return "경기 전";
+  return `스크림 ${scrimCount} · 예선 ${preliminaryCount} · ★본선 ${mainCount}`;
 };
 
 /** 카드 좌측 아이콘에 쓸 대회명 첫 글자. */

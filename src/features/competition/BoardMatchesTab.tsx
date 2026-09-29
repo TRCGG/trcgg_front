@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
-import { CompetitionMatchTeamItem } from "@/data/types/competition";
+import {
+  COMPETITION_GAME_TYPES,
+  CompetitionGameType,
+  CompetitionMatchTeamItem,
+} from "@/data/types/competition";
 import BoardMatchRow from "./BoardMatchRow";
+import { getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   matches: CompetitionMatchTeamItem[];
@@ -11,18 +16,17 @@ interface Props {
   onDelete?: (match: CompetitionMatchTeamItem) => void;
   deletingId?: string | null;
   onAssign?: (match: CompetitionMatchTeamItem) => void;
-  onChangeGameType?: (customMatchIds: string[], gameType: "2" | "3") => void;
+  onChangeGameType?: (customMatchIds: string[], gameType: CompetitionGameType) => void;
   changingGameType?: boolean;
 }
 
-const FILTERS = [
-  { key: "ALL", label: "전체" },
-  { key: "2", label: "스크림" },
-  { key: "3", label: "본경기" },
-  { key: "UNASSIGNED", label: "미배정" },
-] as const;
+type Filter = "ALL" | CompetitionGameType | "UNASSIGNED";
 
-type Filter = (typeof FILTERS)[number]["key"];
+const FILTERS: readonly { key: Filter; label: string }[] = [
+  { key: "ALL", label: "전체" },
+  ...COMPETITION_GAME_TYPES.map((type) => ({ key: type, label: getGameTypeMeta(type).label })),
+  { key: "UNASSIGNED", label: "미배정" },
+];
 
 const isUnassigned = (match: CompetitionMatchTeamItem) =>
   match.blueTeamId === null && match.redTeamId === null;
@@ -63,7 +67,7 @@ const BoardMatchesTab = ({
       prev.size > 0 ? new Set() : new Set(rows.map((row) => row.customMatchId))
     );
 
-  const runGameType = (gameType: "2" | "3") => {
+  const runGameType = (gameType: CompetitionGameType) => {
     if (checked.size === 0 || !onChangeGameType) return;
     onChangeGameType(Array.from(checked), gameType);
     setChecked(new Set());
@@ -115,22 +119,22 @@ const BoardMatchesTab = ({
             </button>
           )}
           <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => runGameType("2")}
-              disabled={checked.size === 0 || changingGameType}
-              className="h-[34px] rounded border border-border2 bg-darkBg1 px-3.5 text-[13px] text-primary1 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              스크림으로
-            </button>
-            <button
-              type="button"
-              onClick={() => runGameType("3")}
-              disabled={checked.size === 0 || changingGameType}
-              className="h-[34px] rounded border border-yellow/40 bg-darkBg1 px-3.5 text-[13px] text-yellow disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              ★본경기로
-            </button>
+            {COMPETITION_GAME_TYPES.map((type) => {
+              const meta = getGameTypeMeta(type);
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => runGameType(type)}
+                  disabled={checked.size === 0 || changingGameType}
+                  className={`h-[34px] rounded border bg-darkBg1 px-3.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${meta.borderClass} ${
+                    type === "2" ? "text-primary1" : meta.textClass
+                  }`}
+                >
+                  {meta.label}으로
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

@@ -36,6 +36,7 @@ import { competitionErrorMessage } from "@/features/competition/competitionError
 import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
 import {
   COMPETITION_STATUS_VALUES,
+  CompetitionGameType,
   CompetitionMatchTeamItem,
   CompetitionStatus,
 } from "@/data/types/competition";
@@ -222,7 +223,7 @@ const CompetitionBoardPage: NextPage = () => {
   const GAME_TYPE_CHUNK = 100;
 
   const gameTypeMutation = useMutation({
-    mutationFn: async ({ ids, gameType }: { ids: string[]; gameType: "2" | "3" }) => {
+    mutationFn: async ({ ids, gameType }: { ids: string[]; gameType: CompetitionGameType }) => {
       let skipped = 0;
       for (let i = 0; i < ids.length; i += GAME_TYPE_CHUNK) {
         const chunk = ids.slice(i, i + GAME_TYPE_CHUNK);
