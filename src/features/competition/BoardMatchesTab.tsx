@@ -5,6 +5,7 @@ import {
   CompetitionMatchTeamItem,
 } from "@/data/types/competition";
 import BoardMatchRow from "./BoardMatchRow";
+import BoardMatchupList from "./BoardMatchupList";
 import { getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
@@ -28,6 +29,13 @@ const FILTERS: readonly { key: Filter; label: string }[] = [
   { key: "UNASSIGNED", label: "미배정" },
 ];
 
+type View = "GAMES" | "MATCHUPS";
+
+const VIEWS: readonly { key: View; label: string }[] = [
+  { key: "GAMES", label: "게임별" },
+  { key: "MATCHUPS", label: "팀 대진별" },
+];
+
 const isUnassigned = (match: CompetitionMatchTeamItem) =>
   match.blueTeamId === null && match.redTeamId === null;
 
@@ -42,6 +50,7 @@ const BoardMatchesTab = ({
   onChangeGameType,
   changingGameType = false,
 }: Props) => {
+  const [view, setView] = useState<View>("GAMES");
   const [filter, setFilter] = useState<Filter>("ALL");
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
@@ -52,7 +61,14 @@ const BoardMatchesTab = ({
   }, [matches, filter]);
 
   const unassignedCount = useMemo(() => matches.filter(isUnassigned).length, [matches]);
-  const editable = isManager && !locked;
+  const editable = isManager && !locked && view === "GAMES";
+
+  const changeView = (next: View) => {
+    setView(next);
+    setChecked(new Set());
+    // 대진은 양 팀이 배정된 경기만 묶으므로 미배정 필터가 의미 없다
+    if (next === "MATCHUPS" && filter === "UNASSIGNED") setFilter("ALL");
+  };
 
   const toggle = (id: string) =>
     setChecked((prev) => {
@@ -76,8 +92,28 @@ const BoardMatchesTab = ({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
+        <div className="flex overflow-hidden rounded border border-border2">
+          {VIEWS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => changeView(item.key)}
+              aria-pressed={view === item.key}
+              className={`px-3.5 py-1.5 text-[13px] ${
+                view === item.key
+                  ? "bg-blueText/10 text-primary1"
+                  : "bg-darkBg2 text-primary2 hover:text-primary1"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <span className="h-5 w-px bg-border2" aria-hidden="true" />
         {FILTERS.map((item) => {
-          if (item.key === "UNASSIGNED" && unassignedCount === 0) return null;
+          if (item.key === "UNASSIGNED" && (unassignedCount === 0 || view === "MATCHUPS")) {
+            return null;
+          }
           return (
             <button
               key={item.key}
@@ -139,11 +175,15 @@ const BoardMatchesTab = ({
         </div>
       )}
 
-      {rows.length === 0 ? (
+      {view === "MATCHUPS" && <BoardMatchupList matches={rows} guildId={guildId} />}
+
+      {view === "GAMES" && rows.length === 0 && (
         <div className="rounded border border-border2 bg-darkBg2 py-11 text-center text-[13px] text-primary3">
           등록된 경기가 없습니다
         </div>
-      ) : (
+      )}
+
+      {view === "GAMES" && rows.length > 0 && (
         <div className="flex min-w-0 flex-col gap-2.5">
           {rows.map((match) => (
             <BoardMatchRow
