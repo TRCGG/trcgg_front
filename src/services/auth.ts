@@ -22,6 +22,7 @@ export const getMe = async (): Promise<MeResponse["data"]> => {
   return unwrap(api.get<MeResponse>("/api/auth/me"));
 };
 
+// 백엔드가 302로 프론트 URL에 보내 XHR은 CORS로 실패하지만, 쿠키는 그 응답에서 이미 지워진다
 export const logout = async (): Promise<void> => {
-  await api.post("/api/auth/logout");
+  await api.post("/api/auth/logout").catch(() => undefined);
 };
