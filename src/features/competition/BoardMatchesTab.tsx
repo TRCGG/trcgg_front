@@ -6,6 +6,8 @@ import { GAME_TYPE_DISPLAY_ORDER, getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   matches: CompetitionMatchTeamItem[];
+  /** 팀 대진별 보기의 팀 선택지 */
+  teams: { id: number; name: string }[];
   guildId: string;
   isManager: boolean;
   /** 종료된 대회는 경기 편집이 잠긴다(백엔드 assertWritable). */
@@ -53,6 +55,7 @@ const isUnassigned = (match: CompetitionMatchTeamItem) =>
 
 const BoardMatchesTab = ({
   matches,
+  teams,
   guildId,
   isManager,
   locked = false,
@@ -218,7 +221,7 @@ const BoardMatchesTab = ({
         </div>
       )}
 
-      {view === "MATCHUPS" && <BoardMatchupList matches={rows} guildId={guildId} />}
+      {view === "MATCHUPS" && <BoardMatchupList matches={rows} teams={teams} guildId={guildId} />}
 
       {view === "GAMES" && rows.length === 0 && (
         <div className="rounded border border-border2 bg-darkBg2 py-11 text-center text-[13px] text-primary3">

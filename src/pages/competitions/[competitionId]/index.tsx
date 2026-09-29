@@ -336,6 +336,7 @@ const CompetitionBoardPage: NextPage = () => {
         return (
           <BoardMatchesTab
             matches={matches}
+            teams={teams}
             guildId={guildId}
             isManager={isManager}
             locked={competition?.status === "CLOSED"}
