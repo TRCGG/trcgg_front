@@ -9,6 +9,7 @@ import EmptySearchResultCard from "@/features/summonerRecord/EmptySearchResultCa
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import MultiplePlayersCard from "@/features/summonerRecord/MultiplePlayersCard";
 import TextCard from "@/components/ui/TextCard";
+import NoIndex from "@/components/layout/NoIndex";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -74,6 +75,7 @@ const RiotProfilePage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
+      <NoIndex />
       <SummonerPageHeader {...headerProps} />
 
       {/* 메인 콘텐츠 */}
