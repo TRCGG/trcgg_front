@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { CompetitionDetailResponse } from "@/data/types/competition";
+import { CompetitionDetail } from "@/data/types/competition";
 import { getCompetitionDetail } from "@/services/competition";
 
 /**
@@ -8,7 +7,7 @@ import { getCompetitionDetail } from "@/services/competition";
  * @param guildId Base64 인코딩된 길드 ID
  */
 const useCompetitionDetail = (guildId: string, competitionId: number | null) => {
-  const { data, isLoading, refetch } = useQuery<ApiResponse<CompetitionDetailResponse>>({
+  const { data, isError, isLoading, refetch } = useQuery<CompetitionDetail>({
     queryKey: ["competitionDetail", guildId, competitionId],
     queryFn: () => getCompetitionDetail(guildId, competitionId as number),
     enabled: !!guildId && competitionId !== null,
@@ -16,8 +15,8 @@ const useCompetitionDetail = (guildId: string, competitionId: number | null) => 
   });
 
   return {
-    competition: data?.data?.data ?? null,
-    error: data?.error ?? null,
+    competition: data ?? null,
+    isError,
     status: data?.status,
     isLoading,
     refetch,

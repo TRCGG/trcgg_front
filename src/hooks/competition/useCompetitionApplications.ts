@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
-import { ApplicationListResponse } from "@/data/types/competition";
+import { CompetitionApplicationItem } from "@/data/types/competition";
 import { getApplications } from "@/services/competition";
 
 /**
@@ -8,7 +7,7 @@ import { getApplications } from "@/services/competition";
  * 화면에서 상태별로 나눈다(신청은 최대 수백 건이라 전량이 부담되지 않는다).
  */
 const useCompetitionApplications = (guildId: string, competitionId: number | null) => {
-  const { data, isLoading, isFetching, refetch } = useQuery<ApiResponse<ApplicationListResponse>>({
+  const { data, isError, isLoading, isFetching, refetch } = useQuery<CompetitionApplicationItem[]>({
     queryKey: ["competitionApplications", guildId, competitionId],
     queryFn: () => getApplications(guildId, competitionId as number),
     enabled: !!guildId && competitionId !== null,
@@ -16,8 +15,8 @@ const useCompetitionApplications = (guildId: string, competitionId: number | nul
   });
 
   return {
-    applications: data?.data?.data ?? [],
-    error: data?.error ?? null,
+    applications: data ?? [],
+    isError,
     isLoading,
     isFetching,
     refetch,

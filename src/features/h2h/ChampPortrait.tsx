@@ -15,22 +15,15 @@ interface Props {
 
 // 챔피언 초상 + 우하단 원형 라인 배지
 const ChampPortrait = ({ en, lane, size = 40, mine = false, ringColor }: Props) => (
-  <div style={{ position: "relative", flexShrink: 0, width: size, height: size }}>
+  <div className="relative shrink-0" style={{ width: size, height: size }}>
     <ChampIcon en={en} size={size} mine={mine} />
     {lane && (
       <div
-        className="bg-darkBg2"
+        className="bg-darkBg2 absolute -right-1 -bottom-1 rounded-full flex items-center justify-center"
         style={{
-          position: "absolute",
-          right: -4,
-          bottom: -4,
           width: size * 0.5,
           height: size * 0.5,
-          borderRadius: "50%",
           border: `1px solid ${ringColor || colors.border1}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
         }}
       >
         <LaneIcon position={lane} size={size * 0.32} />

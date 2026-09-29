@@ -111,29 +111,19 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
   const edgeFade = (side: "left" | "right", show: boolean) => (
     <div
       aria-hidden
+      className="absolute top-0 bottom-0 w-11 pointer-events-none flex items-center"
       style={{
-        position: "absolute",
-        top: 0,
-        bottom: 0,
         [side]: 0,
-        width: 44,
-        pointerEvents: "none",
         opacity: show ? 1 : 0,
         transition: "opacity 0.2s ease",
         // 가장자리(바깥쪽)가 불투명하고 안쪽으로 갈수록 투명해지도록 중앙 방향으로 페이드.
         background: `linear-gradient(to ${side === "left" ? "right" : "left"}, ${colors.darkBg2} 30%, ${colors.darkBg2}00 100%)`,
-        display: "flex",
-        alignItems: "center",
         justifyContent: side === "left" ? "flex-start" : "flex-end",
       }}
     >
       <span
-        className="text-primary2"
-        style={{
-          fontSize: 16,
-          fontWeight: 700,
-          padding: side === "left" ? "0 0 0 6px" : "0 6px 0 0",
-        }}
+        className="text-primary2 text-base font-bold"
+        style={{ padding: side === "left" ? "0 0 0 6px" : "0 6px 0 0" }}
       >
         {side === "left" ? "‹" : "›"}
       </span>
@@ -146,37 +136,23 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
       subtitle={`맞대결 누적 우위 (내 승 − 내 패) · 좌→우 시간순${scrolls ? " · 좌우 스크롤 ↔" : ""}`}
       rightSlot={
         <span
-          className="bg-rankBg2 border border-border2"
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: curColor,
-            padding: "2px 10px",
-            borderRadius: 999,
-            fontFeatureSettings: '"tnum"',
-            whiteSpace: "nowrap",
-          }}
+          className="bg-rankBg2 border border-border2 text-xs font-bold py-0.5 px-2.5 rounded-full tabular-nums whitespace-nowrap"
+          style={{ color: curColor }}
         >
           현재 {advantageLabel(cur)}
         </span>
       }
     >
-      <div style={{ position: "relative" }}>
+      <div className="relative">
         <div
           ref={scrollRef}
-          style={{
-            padding: "8px 16px 14px",
-            overflowX: scrolls ? "auto" : "visible",
-            WebkitOverflowScrolling: "touch",
-          }}
+          className="pt-2 px-4 pb-3.5 [-webkit-overflow-scrolling:touch]"
+          style={{ overflowX: scrolls ? "auto" : "visible" }}
         >
           <svg
             viewBox={`0 0 ${w} ${h}`}
-            style={{
-              width: scrolls ? `${w}px` : "100%",
-              height: "auto",
-              display: "block",
-            }}
+            className="block h-auto"
+            style={{ width: scrolls ? `${w}px` : "100%" }}
           >
             {/* zero baseline */}
             <line
@@ -238,7 +214,7 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
               fill={curColor}
               fontSize={fzCur}
               fontWeight={700}
-              style={{ fontFeatureSettings: '"tnum"' }}
+              className="tabular-nums"
             >
               {cur > 0 ? `+${cur}` : cur}
             </text>

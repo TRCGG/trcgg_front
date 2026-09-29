@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
 import { getGuildMembers, updateMemberStatus } from "@/services/guildMember";
-import { GuildMemberRow, MemberListResponse, MemberStatus } from "@/data/types/guildMember";
+import { GuildMemberRow, MemberStatus } from "@/data/types/guildMember";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
-import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 import { withHash } from "@/features/clanManage/riot";
 import { NextPageWithLayout } from "@/data/types/next";
 import { formatTimeAgo } from "@/utils/parseTime";
@@ -40,7 +39,7 @@ const CheckBox = ({ checked }: { checked: boolean }) => (
 );
 
 const MemberStatusContent = () => {
-  const guildId = useClanGuild();
+  const { guildId } = useGuildContext();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"active" | "left">("active");
   const [searchInput, setSearchInput] = useState("");
@@ -59,14 +58,14 @@ const MemberStatusContent = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const membersQuery = useQuery<ApiResponse<MemberListResponse>>({
+  const membersQuery = useQuery<GuildMemberRow[]>({
     queryKey: ["clanMembers", guildId, "all"],
     queryFn: () => getGuildMembers(guildId, { status: "all", limit: 1000 }),
     enabled: !!guildId,
     staleTime: 30 * 1000,
   });
 
-  const all = useMemo(() => membersQuery.data?.data?.data ?? [], [membersQuery.data]);
+  const all = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
   const activeCount = all.filter((m) => m.status === "1").length;
   const leftCount = all.filter((m) => m.status === "2").length;
   const isLeftTab = tab === "left";
@@ -129,7 +128,8 @@ const MemberStatusContent = () => {
     if (busy || targets.length === 0) return;
     setBusy(true);
     setErrorMsg(null);
-    const results = await Promise.all(
+    // allSettled로 받아야 일부만 실패했을 때도 나머지 결과를 잃지 않는다.
+    const results = await Promise.allSettled(
       targets.map((t) =>
         updateMemberStatus(guildId, {
           riotName: t.riotName,
@@ -138,7 +138,7 @@ const MemberStatusContent = () => {
         })
       )
     );
-    if (results.some((r) => r.error)) {
+    if (results.some((r) => r.status === "rejected")) {
       setErrorMsg("상태 변경 중 일부가 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
     setSelected({});

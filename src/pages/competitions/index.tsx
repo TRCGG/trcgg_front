@@ -6,8 +6,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitions from "@/hooks/competition/useCompetitions";
 import { canManageGuild } from "@/data/types/guildMember";
 import { CompetitionStatus } from "@/data/types/competition";
@@ -16,32 +15,33 @@ import CompetitionStatusFilter from "@/features/competition/CompetitionStatusFil
 
 const CompetitionListPage: NextPage = () => {
   const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<CompetitionStatus | undefined>(undefined);
 
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
+  const {
+    headerProps,
+    memberGuildId: guildId,
+    guilds,
+    isMember,
+    hasOwnGuild,
+    isLoggedIn,
+    currentRole,
+    isLoadingGuilds,
+  } = usePageHeader();
   const isManager = canManageGuild(currentRole);
 
   const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
-
-  const {
     competitions,
-    error,
+    isError: isErrorCompetitions,
     isLoading: isLoadingCompetitions,
   } = useCompetitions(guildId, statusFilter);
 
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!hasOwnGuild) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!isMember) return <TextCard text="소속된 클랜에서만 이용할 수 있습니다" />;
     if (isLoadingCompetitions) return <LoadingSpinner />;
-    if (error) return <TextCard text="대회 목록을 불러오지 못했습니다" />;
+    if (isErrorCompetitions) return <TextCard text="대회 목록을 불러오지 못했습니다" />;
 
     return (
       <div className="flex flex-col gap-4">
@@ -78,19 +78,7 @@ const CompetitionListPage: NextPage = () => {
         <title>대회 - GMOK</title>
       </Head>
       <div className="mx-auto w-full md:max-w-[1080px]">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData?.data}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
+        <SummonerPageHeader {...headerProps} />
 
         <main className="mb-10 mt-7 flex flex-col gap-4 px-4 md:px-0">
           <div className="flex items-end justify-between gap-4">
@@ -101,7 +89,7 @@ const CompetitionListPage: NextPage = () => {
                 안에서 함께 집계됩니다.
               </p>
             </div>
-            {isManager && isLoggedIn && guilds.length > 0 && (
+            {isManager && isLoggedIn && isMember && (
               <button
                 type="button"
                 onClick={() => router.push("/competitions/new")}

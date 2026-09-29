@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "@/services/user";
-import { ApiResponse } from "@/services/apiService";
-import { UserSearchResult } from "@/data/types/user";
+import { PlayerInfo } from "@/data/types/user";
 
 interface DebouncedTerm {
   riotName: string;
@@ -16,7 +15,7 @@ interface DebouncedTerm {
 const useUserSearchQuery = (debouncedTerm: DebouncedTerm, guildId: string) => {
   const queryEnabled = debouncedTerm.riotName.length >= 2 && !!guildId;
 
-  const { data, isLoading, isError } = useQuery<ApiResponse<UserSearchResult>>({
+  const { data, isLoading, isError } = useQuery<PlayerInfo[]>({
     queryKey: ["userList", debouncedTerm.riotName, debouncedTerm.riotNameTag, guildId],
     queryFn: () => getUsers(debouncedTerm.riotName, debouncedTerm.riotNameTag, guildId),
     enabled: queryEnabled,
@@ -24,7 +23,7 @@ const useUserSearchQuery = (debouncedTerm: DebouncedTerm, guildId: string) => {
   });
 
   return {
-    data,
+    users: data ?? [],
     isLoading,
     isError,
   };

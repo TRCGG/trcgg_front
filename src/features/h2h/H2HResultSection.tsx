@@ -45,27 +45,17 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
   const isWith = relation === "with";
 
   return (
-    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="w-full flex flex-col gap-4">
       {/* Section title row */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-          <h2 className="text-primary1" style={{ margin: 0, fontSize: 22, fontWeight: 400 }}>
-            상대전적
-          </h2>
-          <span className="text-primary2" style={{ fontSize: 13 }}>
+      <div className="flex items-baseline justify-between flex-wrap gap-3">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <h2 className="text-primary1 m-0 text-[22px] font-normal">상대전적</h2>
+          <span className="text-primary2 text-[13px]">
             <b className="text-primary1">{data.oppo.riotName}</b>
             <span className="text-primary2">#{data.oppo.riotNameTag}</span> 와 만난 모든 기록
           </span>
         </div>
-        <div style={{ minWidth: 280, flex: "0 1 360px" }}>
+        <div className="min-w-[280px] flex-[0_1_360px]">
           <OpponentSearchInput
             guildId={guildId}
             meName={meName}
@@ -79,15 +69,7 @@ const H2HResultSection = ({ data, guildId, meName, meTag, onSelect, onClear }: P
       </div>
 
       {/* Filter bar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <H2HRelationToggle value={relation} onChange={handleRelationChange} counts={counts} />
       </div>
 

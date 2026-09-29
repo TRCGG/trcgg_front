@@ -1,24 +1,20 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ApiResponse } from "@/services/apiService";
 import {
   getGuildMembers,
   getSubAccounts,
   linkSubAccount,
   removeSubAccount,
 } from "@/services/guildMember";
-import {
-  MemberListResponse,
-  SubAccountLink,
-  SubAccountListResponse,
-} from "@/data/types/guildMember";
+import { GuildMemberRow, SubAccountLink } from "@/data/types/guildMember";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useDebouncedRiotNameTag from "@/hooks/searchUserList/useDebouncedRiotNameTag";
 import useUserSearchQuery from "@/hooks/searchUserList/useUserSearchQuery";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
-import { useClanGuild } from "@/features/clanManage/ClanGuildContext";
+import { useGuildContext } from "@/hooks/auth/GuildContext";
 import { withHash, parseRiotId } from "@/features/clanManage/riot";
 import { NextPageWithLayout } from "@/data/types/next";
+import { toApiError } from "@/services/apiError";
 
 const mainKey = (riotName: string, riotNameTag: string) => `${riotName}#${riotNameTag}`;
 
@@ -32,18 +28,19 @@ const SEGMENTS: { key: MainSegment; label: string }[] = [
  * 부계정 연결 실패 문구. 백엔드 detail이 영문이라 그대로 노출하지 않는다.
  * account-in-competition은 메시지 끝에 대회명 목록이 붙어 오므로 살려서 보여준다.
  */
-const linkErrorMessage = (res: { error: string | null; errorType?: string | null }): string => {
+const linkErrorMessage = (error: unknown): string => {
+  const res = toApiError(error);
   if (res.errorType === "account-in-competition") {
-    const names = res.error?.split("cancel it first:")[1]?.trim();
+    const names = res.message.split("cancel it first:")[1]?.trim();
     return names
       ? `진행 중인 대회에 신청·편성이 남아 있어 연결할 수 없습니다 (${names}). 해당 대회의 신청을 먼저 취소해주세요.`
       : "진행 중인 대회에 신청·편성이 남아 있어 연결할 수 없습니다. 해당 대회의 신청을 먼저 취소해주세요.";
   }
-  return res.error || "부계정 연결에 실패했습니다. 잠시 후 다시 시도해주세요.";
+  return res.message || "부계정 연결에 실패했습니다. 잠시 후 다시 시도해주세요.";
 };
 
 const SubAccountContent = () => {
-  const guildId = useClanGuild();
+  const { guildId } = useGuildContext();
   const queryClient = useQueryClient();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [mainSearch, setMainSearch] = useState("");
@@ -57,27 +54,26 @@ const SubAccountContent = () => {
   const [draftFocused, setDraftFocused] = useState(false);
   useClickOutside(draftRef, () => setDraftFocused(false));
   const { debouncedTerm, isTyping } = useDebouncedRiotNameTag(draft);
-  const { data: previewData } = useUserSearchQuery(
+  const { users: previewResults } = useUserSearchQuery(
     isTyping ? { riotName: "", riotNameTag: "" } : debouncedTerm,
     guildId
   );
-  const previewResults = previewData?.data?.data ?? [];
 
-  const membersQuery = useQuery<ApiResponse<MemberListResponse>>({
+  const membersQuery = useQuery<GuildMemberRow[]>({
     queryKey: ["clanMembers", guildId, "active"],
     queryFn: () => getGuildMembers(guildId, { status: "1", limit: 1000 }),
     enabled: !!guildId,
     staleTime: 30 * 1000,
   });
-  const subAccountsQuery = useQuery<ApiResponse<SubAccountListResponse>>({
+  const subAccountsQuery = useQuery<SubAccountLink[]>({
     queryKey: ["subAccounts", guildId],
     queryFn: () => getSubAccounts(guildId),
     enabled: !!guildId,
     staleTime: 30 * 1000,
   });
 
-  const mains = useMemo(() => membersQuery.data?.data?.data ?? [], [membersQuery.data]);
-  const links = useMemo(() => subAccountsQuery.data?.data?.data ?? [], [subAccountsQuery.data]);
+  const mains = useMemo(() => membersQuery.data ?? [], [membersQuery.data]);
+  const links = useMemo(() => subAccountsQuery.data ?? [], [subAccountsQuery.data]);
 
   // 본계정 key → 부계정 목록
   const altsByMain = useMemo(() => {
@@ -137,17 +133,17 @@ const SubAccountContent = () => {
     }
     setBusy(true);
     setErrorMsg(null);
-    const res = await linkSubAccount(guildId, {
-      subRiotName: name,
-      subRiotTag: tag,
-      mainRiotName: selected.riotName,
-      mainRiotTag: selected.riotNameTag,
-    });
-    if (res.error) {
-      setErrorMsg(linkErrorMessage(res));
-    } else {
+    try {
+      await linkSubAccount(guildId, {
+        subRiotName: name,
+        subRiotTag: tag,
+        mainRiotName: selected.riotName,
+        mainRiotTag: selected.riotNameTag,
+      });
       setDraft("");
       await refetchAll();
+    } catch (err) {
+      setErrorMsg(linkErrorMessage(err));
     }
     setBusy(false);
   };
@@ -156,14 +152,16 @@ const SubAccountContent = () => {
     if (busy) return;
     setBusy(true);
     setErrorMsg(null);
-    const res = await removeSubAccount(guildId, {
-      riotName: alt.subRiotName,
-      riotNameTag: alt.subRiotNameTag,
-    });
-    if (res.error) {
-      setErrorMsg(res.error || "부계정 연결 해제에 실패했습니다. 잠시 후 다시 시도해주세요.");
-    } else {
+    try {
+      await removeSubAccount(guildId, {
+        riotName: alt.subRiotName,
+        riotNameTag: alt.subRiotNameTag,
+      });
       await refetchAll();
+    } catch (err) {
+      setErrorMsg(
+        toApiError(err).message || "부계정 연결 해제에 실패했습니다. 잠시 후 다시 시도해주세요."
+      );
     }
     setBusy(false);
   };

@@ -8,20 +8,18 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import useUserSearchController from "@/hooks/searchUserList/useUserSearchController";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useCompetitionApplications from "@/hooks/competition/useCompetitionApplications";
 import useRosterDraft, {
   RosterSlotMember,
   approvedApplicants,
 } from "@/hooks/competition/useRosterDraft";
-import { ApiResponse } from "@/services/apiService";
 import { canManageGuild } from "@/data/types/guildMember";
 import {
   CompetitionApplicationItem,
   CompetitionPosition,
-  TeamListResponse,
+  CompetitionTeamWithRoster,
 } from "@/data/types/competition";
 import { getTeams, saveRoster } from "@/services/competition";
 import RosterPool from "@/features/competition/RosterPool";
@@ -41,7 +39,6 @@ const RosterPage: NextPage = () => {
   const parsed = typeof rawId === "string" ? Number(rawId) : NaN;
   const validId = Number.isFinite(parsed) ? parsed : null;
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [picked, setPicked] = useState<CompetitionApplicationItem | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -49,16 +46,16 @@ const RosterPage: NextPage = () => {
   const draggingRef = useRef<RosterSlotMember | null>(null);
 
   const invalidateCompetitions = useInvalidateCompetitions();
-  const { guildId, guilds, isLoggedIn, username, currentRole, handleGuildChange, isLoadingGuilds } =
-    useGuildManagement();
-  const isManager = canManageGuild(currentRole);
-
   const {
-    data: userSearchData,
-    isLoading,
-    isError,
-    handleSearchButtonClick,
-  } = useUserSearchController(searchTerm, guildId);
+    headerProps,
+    memberGuildId: guildId,
+    isMember,
+    hasOwnGuild,
+    isLoggedIn,
+    currentRole,
+    isLoadingGuilds,
+  } = usePageHeader();
+  const isManager = canManageGuild(currentRole);
 
   const { competition, isLoading: isLoadingDetail } = useCompetitionDetail(guildId, validId);
   const { applications, isLoading: isLoadingApplications } = useCompetitionApplications(
@@ -67,13 +64,13 @@ const RosterPage: NextPage = () => {
   );
 
   const enabled = !!guildId && validId !== null;
-  const { data: teamsRes, isLoading: isLoadingTeams } = useQuery<ApiResponse<TeamListResponse>>({
+  const { data: teamsRes, isLoading: isLoadingTeams } = useQuery<CompetitionTeamWithRoster[]>({
     queryKey: ["competitionTeams", guildId, validId],
     queryFn: () => getTeams(guildId, validId as number),
     enabled,
     staleTime: 30 * 1000,
   });
-  const serverTeams = teamsRes?.data?.data ?? [];
+  const serverTeams = teamsRes ?? [];
 
   const draft = useRosterDraft(serverTeams, !isLoadingTeams && enabled);
   const applicants = approvedApplicants(applications);
@@ -82,16 +79,12 @@ const RosterPage: NextPage = () => {
 
   const saveMutation = useMutation({
     mutationFn: () => saveRoster(guildId, validId as number, draft.toPayload()),
-    onSuccess: async (res) => {
-      if (res.error) {
-        setErrorMsg(competitionErrorMessage(res));
-        return;
-      }
+    onSuccess: async () => {
       setErrorMsg(null);
       setSavedAt(new Date().toLocaleTimeString("ko-KR"));
       await invalidateCompetitions();
     },
-    onError: () => setErrorMsg("저장에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
   const handleSave = () => {
@@ -240,7 +233,8 @@ const RosterPage: NextPage = () => {
   const renderBody = () => {
     if (!isLoggedIn) return <TextCard text="로그인 후 이용해주세요" />;
     if (isLoadingGuilds) return <TextCard text="불러오는 중..." />;
-    if (guilds.length === 0) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!hasOwnGuild) return <TextCard text="소속된 클랜이 없습니다" />;
+    if (!isMember) return <TextCard text="소속된 클랜에서만 이용할 수 있습니다" />;
     if (!isManager) return <TextCard text="운영진 전용 화면입니다. 접근 권한이 없습니다." />;
     if (validId === null) return <TextCard text="잘못된 대회 주소입니다" />;
     if (isLoadingDetail || isLoadingTeams || isLoadingApplications) return <LoadingSpinner />;
@@ -278,19 +272,7 @@ const RosterPage: NextPage = () => {
         <title>로스터 편성 - GMOK</title>
       </Head>
       <div className="mx-auto w-full md:max-w-[1080px]">
-        <SummonerPageHeader
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          onSearch={handleSearchButtonClick}
-          isLoading={isLoading}
-          isError={isError}
-          users={userSearchData?.data}
-          guilds={guilds}
-          selectedGuildId={guildId}
-          onGuildChange={handleGuildChange}
-          username={username}
-          isLoggedIn={isLoggedIn}
-        />
+        <SummonerPageHeader {...headerProps} />
 
         <main className="mb-10 mt-7 flex flex-col gap-4 px-4 md:px-0">
           <Link href={validId === null ? "/competitions" : `/competitions/${validId}`}>

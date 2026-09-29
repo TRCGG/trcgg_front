@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import useSpriteLoader from "@/hooks/common/useSpriteLoader";
 import Footer from "@/components/layout/Footer";
 import { NextPageWithLayout } from "@/data/types/next";
+import { GuildProvider } from "@/hooks/auth/GuildContext";
+import { isApiError } from "@/services/apiError";
 import "@/styles/global.css";
 
 type AppPropsWithLayout = AppProps & {
@@ -15,8 +17,28 @@ type AppPropsWithLayout = AppProps & {
 // 공용 좌우 여백과 공용 푸터를 모두 적용하지 않는다.
 const FULL_BLEED_PAGES = ["/about", "/faq", "/guide"];
 
+/**
+ * 재시도는 서버가 흔들렸을 때만 의미가 있다.
+ * 404·403·409 같은 응답은 몇 번을 더 물어도 답이 같아서, 기본값(3회)대로 두면
+ * 디바운스로 계속 쏘는 검색 쿼리에서 실패 요청만 4배가 된다.
+ */
+const shouldRetry = (failureCount: number, error: unknown): boolean => {
+  if (failureCount >= 2) return false;
+  if (!isApiError(error)) return false;
+  return error.status >= 500 || error.isNetworkError;
+};
+
 const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { retry: shouldRetry },
+          // 쓰기는 중복 실행이 부작용을 남길 수 있어 재시도하지 않는다.
+          mutations: { retry: false },
+        },
+      })
+  );
   const router = useRouter();
 
   // sprite 데이터 로드 최초 1회
@@ -29,13 +51,16 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        {/* 좌우 여백은 여기서만 준다. 푸터는 이 바깥에 있어야 화면을 꽉 채운다. */}
-        <div className={`flex-1 ${isFullBleed ? "" : "px-2 md:px-0"}`}>
-          {getLayout(<Component {...pageProps} />)}
+      {/* useGuildManagement가 useQuery를 쓰므로 QueryClientProvider 안쪽이어야 한다. */}
+      <GuildProvider>
+        <div className="flex min-h-screen flex-col">
+          {/* 좌우 여백은 여기서만 준다. 푸터는 이 바깥에 있어야 화면을 꽉 채운다. */}
+          <div className={`flex-1 ${isFullBleed ? "" : "px-2 md:px-0"}`}>
+            {getLayout(<Component {...pageProps} />)}
+          </div>
+          {!isFullBleed && <Footer />}
         </div>
-        {!isFullBleed && <Footer />}
-      </div>
+      </GuildProvider>
     </QueryClientProvider>
   );
 };

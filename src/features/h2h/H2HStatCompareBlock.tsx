@@ -34,105 +34,51 @@ const H2HStatDiffBar = ({
   if (diff !== 0) diffBadgeColor = mineBetter ? colors.blueText : colors.yellow;
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "60px 1fr 1fr 60px",
-        alignItems: "center",
-        gap: 12,
-        padding: "10px 0",
-      }}
-    >
+    <div className="grid grid-cols-[60px_1fr_1fr_60px] items-center gap-3 py-2.5 px-0">
       {/* Left value */}
       <div
-        style={{
-          textAlign: "right",
-          fontSize: 14,
-          fontWeight: mineBetter ? 700 : 400,
-          color: mineBetter ? colors.blueText : colors.primary1,
-          fontFeatureSettings: '"tnum"',
-        }}
+        className={`text-right text-sm tabular-nums ${
+          mineBetter ? "font-bold text-blueText" : "font-normal text-primary1"
+        }`}
       >
         {fmtVal(mine)}
         {unit}
       </div>
       {/* my bar */}
-      <div
-        className="bg-rankBg3"
-        style={{
-          flex: 1,
-          height: 8,
-          borderRadius: 2,
-          overflow: "hidden",
-        }}
-      >
+      <div className="bg-rankBg3 flex-1 h-2 rounded-sm overflow-hidden">
         <div
-          style={{
-            height: "100%",
-            width: `${minePct}%`,
-            background: mineBetter ? colors.blueText : colors.primary2,
-            transition: "width 200ms",
-          }}
+          className={`h-full transition-[width] duration-[200ms] ${
+            mineBetter ? "bg-blueText" : "bg-primary2"
+          }`}
+          // 막대 길이는 데이터 비율이라 Tailwind 클래스로 표현할 수 없다.
+          style={{ width: `${minePct}%` }}
         />
       </div>
       {/* oppo bar (mirrored) */}
-      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-        <div
-          className="bg-rankBg3"
-          style={{
-            flex: 1,
-            height: 8,
-            borderRadius: 2,
-            overflow: "hidden",
-            direction: "rtl",
-          }}
-        >
+      <div className="relative flex items-center">
+        <div className="bg-rankBg3 flex-1 h-2 rounded-sm overflow-hidden [direction:rtl]">
           <div
-            style={{
-              height: "100%",
-              width: `${oppoPct}%`,
-              background: oppoBetter ? colors.yellow : colors.primary2,
-              transition: "width 200ms",
-              direction: "ltr",
-            }}
+            className={`h-full transition-[width] duration-[200ms] [direction:ltr] ${
+              oppoBetter ? "bg-yellow" : "bg-primary2"
+            }`}
+            style={{ width: `${oppoPct}%` }}
           />
         </div>
       </div>
       <div
-        style={{
-          textAlign: "left",
-          fontSize: 14,
-          fontWeight: oppoBetter ? 700 : 400,
-          color: oppoBetter ? colors.yellow : colors.primary1,
-          fontFeatureSettings: '"tnum"',
-        }}
+        className={`text-left text-sm tabular-nums ${
+          oppoBetter ? "font-bold text-yellow" : "font-normal text-primary1"
+        }`}
       >
         {fmtVal(oppo)}
         {unit}
       </div>
       {/* label row */}
-      <div
-        style={{
-          gridColumn: "1 / -1",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 12,
-          marginTop: -4,
-        }}
-      >
-        <span className="text-primary2" style={{ fontSize: 11 }}>
-          {label}
-        </span>
+      <div className="col-span-full flex items-center justify-center gap-3 -mt-1">
+        <span className="text-primary2 text-[11px]">{label}</span>
         <span
-          className="bg-rankBg2 border border-border2"
-          style={{
-            fontSize: 10,
-            padding: "1px 8px",
-            borderRadius: 999,
-            color: diffBadgeColor,
-            fontFeatureSettings: '"tnum"',
-          }}
+          className="bg-rankBg2 border border-border2 text-[10px] py-px px-2 rounded-full tabular-nums"
+          style={{ color: diffBadgeColor }}
         >
           {diffStr}
           {unit}
@@ -162,7 +108,7 @@ const H2HStatCompareBlock = ({ mine, oppos }: Props) => {
   if (!mine || !oppos || mine.kda == null || oppos.kda == null) {
     return (
       <SectionCard title="평균 지표 비교" subtitle="왼쪽 — 나 / 오른쪽 — 상대">
-        <div className="text-primary2" style={{ padding: 24, textAlign: "center", fontSize: 13 }}>
+        <div className="text-primary2 p-6 text-center text-[13px]">
           비교할 평균 지표가 아직 없어요
         </div>
       </SectionCard>
@@ -225,26 +171,16 @@ const H2HStatCompareBlock = ({ mine, oppos }: Props) => {
 
   return (
     <SectionCard title="평균 지표 비교" subtitle="왼쪽 — 나 / 오른쪽 — 상대">
-      <div style={{ padding: "4px 16px 12px" }}>
-        <div
-          className="text-primary2"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "60px 1fr 1fr 60px",
-            gap: 12,
-            fontSize: 10,
-            marginBottom: 4,
-            alignItems: "center",
-          }}
-        >
-          <div style={{ textAlign: "right" }}>나</div>
+      <div className="pt-1 px-4 pb-3">
+        <div className="text-primary2 grid grid-cols-[60px_1fr_1fr_60px] gap-3 text-[10px] mb-1 items-center">
+          <div className="text-right">나</div>
           <div />
-          <div style={{ textAlign: "right" }} />
-          <div style={{ textAlign: "left" }}>상대</div>
+          <div className="text-right" />
+          <div className="text-left">상대</div>
         </div>
         {rows.map((r, i) => (
           <React.Fragment key={r.label}>
-            {i > 0 && <div className="bg-border2" style={{ height: 1 }} />}
+            {i > 0 && <div className="bg-border2 h-[1px]" />}
             <H2HStatDiffBar
               label={r.label}
               mine={r.mine}
