@@ -110,6 +110,11 @@ const createApiService = (baseUrl?: string) => {
       return send<T>(client, { method: "PATCH", url: endpoint, data: body, ...config });
     },
 
+    /** 파일 응답을 Blob으로 받는다. 실패 응답 본문도 Blob이라 ApiError에는 status만 실린다 */
+    download(endpoint: string, params?: Record<string, string>) {
+      return send<Blob>(client, { method: "GET", url: endpoint, params, responseType: "blob" });
+    },
+
     /** DELETE는 본문을 받는다 — 삭제 확인값(confirmName 등)을 싣는 엔드포인트가 있다. */
     delete<T>(endpoint: string, options?: RequestConfig & { body?: unknown }) {
       const { body, ...config } = options ?? {};

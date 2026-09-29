@@ -173,6 +173,14 @@ export const getApplications = async (
   );
 };
 
+/** 신청자 전원(상태 무관)의 CSV. 운영진 전용 */
+export const exportApplicationsCsv = async (
+  guildId: string,
+  competitionId: number
+): Promise<Blob> => {
+  return api.download(`${BASE(guildId)}/${competitionId}/applications/export.csv`);
+};
+
 /** 일괄 승인·거절. status를 PENDING으로 보내면 결정을 되돌린다. */
 export const decideApplications = async (
   guildId: string,

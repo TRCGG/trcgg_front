@@ -1,5 +1,5 @@
 import { CompetitionApplicationItem } from "@/data/types/competition";
-import { getApplicationStatusMeta, positionLabel, subPositionLabel } from "./competitionMeta";
+import { positionLabel, practiceLevelLabel, subPositionLabel } from "./competitionMeta";
 
 interface Props {
   applications: CompetitionApplicationItem[];
@@ -9,11 +9,12 @@ interface Props {
 }
 
 // 헤더와 행이 같은 그리드를 써야 열이 어긋나지 않는다.
-const GRID = "grid-cols-[34px_1.05fr_168px_1fr_56px_0.95fr_90px]";
+// 상태는 탭이 이미 나누고 있어 열로 두지 않는다. 가능 시간대·한마디는 자유 입력이라 넓게 준다.
+const GRID = "grid-cols-[34px_1fr_168px_0.9fr_56px_68px_1.3fr_1.6fr]";
 
 const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Props) => (
   <div className="overflow-x-auto">
-    <div className="min-w-[860px]">
+    <div className="min-w-[1100px]">
       <div
         className={`grid ${GRID} gap-2.5 border-b border-border2 px-4 py-2.5 text-xs text-primary2`}
       >
@@ -22,8 +23,9 @@ const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Pr
         <span>포지션</span>
         <span>주 챔피언</span>
         <span className="text-center">팀장</span>
+        <span className="text-center">연습량</span>
         <span>가능 시간대</span>
-        <span className="text-center">상태</span>
+        <span>한마디</span>
       </div>
 
       {applications.length === 0 ? (
@@ -31,7 +33,6 @@ const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Pr
       ) : (
         applications.map((application) => {
           const checked = checkedIds.has(application.id);
-          const statusMeta = getApplicationStatusMeta(application.status);
           return (
             <button
               key={application.id}
@@ -62,16 +63,9 @@ const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Pr
                 )}
               </span>
 
-              <span className="min-w-0">
-                <span className="block truncate text-[13px] text-primary1">
-                  {application.riotName}
-                  <span className="text-primary3">#{application.riotNameTag}</span>
-                </span>
-                {application.comment && (
-                  <span className="block truncate text-[11px] text-primary3">
-                    {application.comment}
-                  </span>
-                )}
+              <span className="min-w-0 truncate text-[13px] text-primary1">
+                {application.riotName}
+                <span className="text-primary3">#{application.riotNameTag}</span>
               </span>
 
               <span className="flex min-w-0 gap-1">
@@ -97,16 +91,16 @@ const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Pr
                 {application.captainAvailable ? "O" : "X"}
               </span>
 
-              <span className="truncate text-xs text-primary2">
+              <span className="text-center text-xs text-primary2">
+                {practiceLevelLabel(application.practiceLevel)}
+              </span>
+
+              <span className="min-w-0 whitespace-pre-wrap break-words text-xs text-primary2">
                 {application.availableTime || "-"}
               </span>
 
-              <span className="text-center">
-                <span
-                  className={`rounded px-2 py-[3px] text-[11px] font-bold ${statusMeta.textClass} ${statusMeta.bgClass}`}
-                >
-                  {statusMeta.label}
-                </span>
+              <span className="min-w-0 whitespace-pre-wrap break-words text-xs text-primary2">
+                {application.comment || "-"}
               </span>
             </button>
           );

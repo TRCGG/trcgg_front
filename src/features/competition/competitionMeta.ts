@@ -138,6 +138,9 @@ export const PRACTICE_LEVEL_OPTIONS: readonly { value: PracticeLevel; label: str
   { value: "ACTIVE", label: "적극적" },
 ];
 
+export const practiceLevelLabel = (level: PracticeLevel): string =>
+  PRACTICE_LEVEL_OPTIONS.find((option) => option.value === level)?.label ?? level;
+
 /** 내 신청서 상태별 안내. 수정·취소 가능 여부를 함께 알린다. */
 export const applicationStatusHint = (status: CompetitionApplicationStatus): string => {
   switch (status) {
