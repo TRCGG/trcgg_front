@@ -67,7 +67,7 @@ const Home: NextPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [nameLengthAlert, toggleNameLengthAlert] = useState(false);
 
-  const { guildId, guilds, isLoggedIn, username, handleGuildChange, isLoadingGuilds } =
+  const { guildId, guilds, isLoggedIn, hasOwnGuild, username, handleGuildChange, isLoadingGuilds } =
     useGuildManagement();
 
   const { users, isLoading, isError, handleSearchButtonClick } = useUserSearchController(
@@ -87,10 +87,10 @@ const Home: NextPage = () => {
 
   // 로그인 했지만 가입된 길드가 없을 때 모달 띄움
   useEffect(() => {
-    if (isLoggedIn && !isLoadingGuilds && guilds.length === 0) {
+    if (isLoggedIn && !isLoadingGuilds && !hasOwnGuild) {
       openNoGuildModal();
     }
-  }, [isLoggedIn, isLoadingGuilds, guilds, openNoGuildModal]);
+  }, [isLoggedIn, isLoadingGuilds, hasOwnGuild, openNoGuildModal]);
 
   useEffect(() => {
     if (searchTerm.length < 2 && searchTerm !== "") {

@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
-import NoIndex from "@/components/layout/NoIndex";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import TitleBox from "@/components/ui/TitleBox";
@@ -60,7 +59,7 @@ const User: NextPage = () => {
   const observerInstance = useRef<IntersectionObserver | null>(null);
   const hasMoreRef = useRef(false);
 
-  const { headerProps, guildId, guilds, isLoggedIn } = usePageHeader();
+  const { headerProps, guildId, guilds, isLoggedIn, isLoadingGuilds } = usePageHeader();
 
   let querySeason: string | undefined;
   if (dateMode === "season") querySeason = selectedSeason;
@@ -173,7 +172,6 @@ const User: NextPage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
-      <NoIndex />
       <SummonerPageHeader {...headerProps} />
 
       <TitleBox
@@ -299,17 +297,16 @@ const User: NextPage = () => {
         <UserRankHeader sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
         <div key={selectedPosition} className="space-y-3 mt-2">
           {(() => {
-            if (!isLoggedIn) {
-              return <TextCard text="로그인 후 이용해주세요" />;
-            }
-
-            if (guilds.length === 0) {
-              return <TextCard text="소속된 클랜이 없습니다" />;
+            // 공개 길드가 있으면 비로그인도 볼 수 있어, 볼 수 있는 길드가 없을 때만 막는다
+            if (!isLoadingGuilds && guilds.length === 0) {
+              return (
+                <TextCard text={isLoggedIn ? "소속된 클랜이 없습니다" : "로그인 후 이용해주세요"} />
+              );
             }
 
             return (
               <>
-                {(isLoadingStatistics || isFetchingStatistics) && (
+                {(isLoadingGuilds || isLoadingStatistics || isFetchingStatistics) && (
                   <div className="text-center py-10 text-primary2">데이터를 불러오는 중...</div>
                 )}
 
@@ -319,7 +316,12 @@ const User: NextPage = () => {
                   </div>
                 )}
 
-                {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+                {!(
+                  isErrorStatistics ||
+                  isLoadingGuilds ||
+                  isLoadingStatistics ||
+                  isFetchingStatistics
+                ) &&
                   sortedUsers.length > 0 && (
                     <>
                       {displayedUsers.map((user, index) => (
@@ -340,7 +342,12 @@ const User: NextPage = () => {
                     </>
                   )}
 
-                {!(isErrorStatistics || isLoadingStatistics || isFetchingStatistics) &&
+                {!(
+                  isErrorStatistics ||
+                  isLoadingGuilds ||
+                  isLoadingStatistics ||
+                  isFetchingStatistics
+                ) &&
                   isFetchedStatistics &&
                   sortedUsers.length === 0 && (
                     <div className="text-center py-10 text-primary2 bg-darkBg2 rounded border border-border2">

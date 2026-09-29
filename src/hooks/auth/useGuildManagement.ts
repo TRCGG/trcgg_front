@@ -4,19 +4,28 @@ import { GuildInfo, MeResponse } from "@/data/types/auth";
 import { getGuilds, getMe } from "@/services/auth";
 import { getGuildById } from "@/services/guildMember";
 import { useGuildContext } from "@/hooks/auth/GuildContext";
+import usePublicGuilds from "@/hooks/auth/usePublicGuilds";
 import { GuildDetail, hasMinRole } from "@/data/types/guildMember";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
-const useGuildManagement = () => {
-  const { guildId, setGuildId } = useGuildContext();
+// 내 길드와 겹치는 공개 길드는 role·nick이 있는 내 길드 항목을 남긴다
+const mergeGuilds = (myGuilds: GuildInfo[], publicGuilds: GuildInfo[]): GuildInfo[] => {
+  const myGuildIds = new Set(myGuilds.map((guild) => guild.id));
+  return [...myGuilds, ...publicGuilds.filter((guild) => !myGuildIds.has(guild.id))];
+};
 
-  const { data: guildsData, isLoading: isLoadingGuilds } = useQuery<GuildInfo[]>({
+const useGuildManagement = () => {
+  const { guildId: selectedGuildId, setGuildId, resolveGuildId } = useGuildContext();
+
+  const { data: guildsData, isLoading: isLoadingMyGuilds } = useQuery<GuildInfo[]>({
     queryKey: ["guilds"],
     queryFn: () => getGuilds(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
+
+  const { publicGuilds, isLoadingPublicGuilds } = usePublicGuilds();
 
   const { data: meData } = useQuery<MeResponse["data"]>({
     queryKey: ["me"],
@@ -24,13 +33,29 @@ const useGuildManagement = () => {
     staleTime: 60 * 1000,
   });
 
-  const guilds = useMemo(() => {
-    const rawGuilds = guildsData ?? [];
-    return rawGuilds.map((guild) => ({
-      ...guild,
-      id: encodeGuildId(guild.id),
-    }));
-  }, [guildsData]);
+  const isLoadingGuilds = isLoadingMyGuilds || isLoadingPublicGuilds;
+
+  const myGuildIds = useMemo(
+    () => new Set((guildsData ?? []).map((guild) => encodeGuildId(guild.id))),
+    [guildsData]
+  );
+
+  const guilds = useMemo(
+    () =>
+      mergeGuilds(guildsData ?? [], publicGuilds).map((guild) => ({
+        ...guild,
+        id: encodeGuildId(guild.id),
+      })),
+    [guildsData, publicGuilds]
+  );
+
+  // 저장된 선택이 목록에 없으면(세션 만료, 탈퇴 등) 첫 길드를 쓰되 저장값은 덮어쓰지 않는다
+  const guildId = guilds.some((guild) => guild.id === selectedGuildId)
+    ? selectedGuildId
+    : (guilds[0]?.id ?? "");
+
+  const isMember = myGuildIds.has(guildId);
+  const hasOwnGuild = myGuildIds.size > 0;
 
   const isLoggedIn = useMemo(() => {
     return !!meData?.user?.username;
@@ -52,7 +77,7 @@ const useGuildManagement = () => {
   const { data: guildData } = useQuery<GuildDetail>({
     queryKey: ["guild", guildId],
     queryFn: () => getGuildById(guildId),
-    enabled: !!guildId && isLoggedIn,
+    enabled: !!guildId && isLoggedIn && isMember,
     staleTime: 30 * 1000,
   });
 
@@ -60,17 +85,20 @@ const useGuildManagement = () => {
   const canUploadReplay =
     hasMinRole(currentRole, "userUploader") || guildData?.allowAllUploads === true;
 
-  // 저장된 선택은 Provider가 복원한다. 여기서는 그래도 비어 있을 때 첫 길드로 채운다.
+  // useGuildContext로 guildId를 직접 읽는 컴포넌트도 같은 길드를 보도록 맞춘다
   useEffect(() => {
-    if (!guildId && guilds.length > 0) {
-      setGuildId(guilds[0].id);
+    if (!isLoadingGuilds && guildId !== selectedGuildId) {
+      resolveGuildId(guildId);
     }
-  }, [guildId, guilds, setGuildId]);
+  }, [isLoadingGuilds, guildId, selectedGuildId, resolveGuildId]);
 
   return {
     guildId,
     guilds,
     isLoggedIn,
+    isMember,
+    hasOwnGuild,
+    memberGuildId: isMember ? guildId : "",
     username,
     uploadNick,
     avatar,

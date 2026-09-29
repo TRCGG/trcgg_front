@@ -5,9 +5,15 @@ interface GuildState {
   /** Base64 인코딩된 선택 길드 ID */
   guildId: string;
   setGuildId: (encodedGuildId: string) => void;
+  /** 저장하지 않고 화면용 선택만 바꾼다. 재로그인 시 저장된 선택으로 돌아가야 해서 분리했다 */
+  resolveGuildId: (encodedGuildId: string) => void;
 }
 
-const GuildContext = createContext<GuildState>({ guildId: "", setGuildId: () => {} });
+const GuildContext = createContext<GuildState>({
+  guildId: "",
+  setGuildId: () => {},
+  resolveGuildId: () => {},
+});
 
 export const GuildProvider = ({ children }: { children: ReactNode }) => {
   const [guildId, setGuildIdState] = useState("");
@@ -23,8 +29,15 @@ export const GuildProvider = ({ children }: { children: ReactNode }) => {
     setGuildIdState(encodedGuildId);
   }, []);
 
+  const resolveGuildId = useCallback((encodedGuildId: string) => {
+    setGuildIdState(encodedGuildId);
+  }, []);
+
   // 인라인 객체를 넘기면 렌더마다 참조가 바뀌어 소비자가 모두 리렌더된다.
-  const value = useMemo(() => ({ guildId, setGuildId }), [guildId, setGuildId]);
+  const value = useMemo(
+    () => ({ guildId, setGuildId, resolveGuildId }),
+    [guildId, setGuildId, resolveGuildId]
+  );
 
   return <GuildContext.Provider value={value}>{children}</GuildContext.Provider>;
 };

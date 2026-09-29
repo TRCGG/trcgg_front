@@ -7,6 +7,7 @@ import { CompetitionStatus, PlayerCompetitionItem } from "@/data/types/competiti
 import { getRecentRecords } from "@/services/record";
 import MatchItem from "@/features/matchHistory/MatchItem";
 import usePlayerCompetitions from "@/hooks/competition/usePlayerCompetitions";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import PlayerCompetitionCard from "./PlayerCompetitionCard";
 import { positionLabel } from "./competitionMeta";
 
@@ -116,7 +117,12 @@ const CompetitionRecordTab = ({ guildId, playerCode, riotName, riotTag }: Props)
   const [statusFilter, setStatusFilter] = useState<CompetitionStatus | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const { competitions, isLoading, isError } = usePlayerCompetitions(guildId ?? "", playerCode);
+  const { isMember } = useGuildManagement();
+  const { competitions, isLoading, isError } = usePlayerCompetitions(
+    guildId ?? "",
+    playerCode,
+    isMember
+  );
 
   const filtered = useMemo(
     () =>
@@ -126,6 +132,13 @@ const CompetitionRecordTab = ({ guildId, playerCode, riotName, riotTag }: Props)
 
   const selected = competitions.find((item) => item.competitionId === selectedId) ?? null;
 
+  if (!isMember) {
+    return (
+      <div className="rounded border border-border2 bg-darkBg2 py-11 text-center text-[13px] text-primary3">
+        소속된 클랜에서만 볼 수 있습니다
+      </div>
+    );
+  }
   if (isLoading) return <LoadingSpinner />;
   if (isError) {
     return (

@@ -27,3 +27,15 @@ export interface GuildsResponse {
   message: string;
   data: GuildInfo[];
 }
+
+export interface PublicGuild {
+  id: string;
+  name: string;
+  isPublic: boolean;
+}
+
+export interface PublicGuildsResponse {
+  status: string;
+  message: string;
+  data: PublicGuild[];
+}
