@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { CompetitionGameType, CompetitionMatchTeamItem } from "@/data/types/competition";
 import BoardMatchRow from "./BoardMatchRow";
 import BoardMatchupList from "./BoardMatchupList";
@@ -40,7 +40,7 @@ const FILTERS: readonly FilterItem[] = [
       activeClass: `${meta.borderClass} ${meta.bgClass}`,
     };
   }),
-  { key: "UNASSIGNED", label: "미배정", activeClass: "border-redText/40 bg-redDarken" },
+  { key: "UNASSIGNED", label: "팀 미배정", activeClass: "border-redText/40 bg-redDarken" },
 ];
 
 type View = "GAMES" | "MATCHUPS";
@@ -152,31 +152,37 @@ const BoardMatchesTab = ({
               return null;
             }
             const active = filter === item.key;
+            // 유형이 아니라 팀 배정 여부로 거르는 필터라, 유형 칩들과 떼어 놓고 점선으로 구분한다
+            const isTeamFilter = item.key === "UNASSIGNED";
             return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => {
-                  setFilter(item.key);
-                  setChecked(new Set());
-                }}
-                aria-pressed={active}
-                className={`inline-flex h-8 items-center gap-2 rounded-full border px-3.5 text-[13px] transition-colors ${
-                  active
-                    ? `${item.activeClass} font-bold text-primary1`
-                    : "border-border2 bg-darkBg1 text-primary2 hover:border-border1 hover:text-primary1"
-                }`}
-              >
-                {item.dotClass && (
-                  <span className={`h-2 w-2 rounded-full ${item.dotClass}`} aria-hidden="true" />
-                )}
-                {item.label}
-                <span
-                  className={`tabular-nums text-xs ${active ? "text-primary2" : "text-primary3"}`}
+              <Fragment key={item.key}>
+                {isTeamFilter && <span className="mx-1 h-5 w-px bg-border2" aria-hidden="true" />}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilter(item.key);
+                    setChecked(new Set());
+                  }}
+                  aria-pressed={active}
+                  className={`inline-flex h-8 items-center gap-2 rounded-full border px-3.5 text-[13px] transition-colors ${
+                    isTeamFilter ? "border-dashed" : ""
+                  } ${
+                    active
+                      ? `${item.activeClass} font-bold text-primary1`
+                      : "border-border2 bg-darkBg1 text-primary2 hover:border-border1 hover:text-primary1"
+                  }`}
                 >
-                  {counts[item.key]}
-                </span>
-              </button>
+                  {item.dotClass && (
+                    <span className={`h-2 w-2 rounded-full ${item.dotClass}`} aria-hidden="true" />
+                  )}
+                  {item.label}
+                  <span
+                    className={`tabular-nums text-xs ${active ? "text-primary2" : "text-primary3"}`}
+                  >
+                    {counts[item.key]}
+                  </span>
+                </button>
+              </Fragment>
             );
           })}
         </div>
