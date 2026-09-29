@@ -85,9 +85,9 @@ const BoardHeader = ({
           </span>
           <span className="text-border2">|</span>
           <span>
-            스크림 <span className="text-primary1">{competition.scrimCount}</span> · 예선{" "}
-            <span className="text-primary1">{competition.preliminaryCount}</span> · ★본선{" "}
-            <span className="text-primary1">{competition.mainCount}</span>
+            본선 <span className="text-primary1">{competition.mainCount}</span> · 예선{" "}
+            <span className="text-primary1">{competition.preliminaryCount}</span> · 스크림{" "}
+            <span className="text-primary1">{competition.scrimCount}</span>
           </span>
           {isRecruiting && competition.pendingCount > 0 && (
             <>

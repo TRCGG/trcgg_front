@@ -1,12 +1,8 @@
 import { useMemo, useState } from "react";
-import {
-  COMPETITION_GAME_TYPES,
-  CompetitionGameType,
-  CompetitionMatchTeamItem,
-} from "@/data/types/competition";
+import { CompetitionGameType, CompetitionMatchTeamItem } from "@/data/types/competition";
 import BoardMatchRow from "./BoardMatchRow";
 import BoardMatchupList from "./BoardMatchupList";
-import { getGameTypeMeta } from "./competitionMeta";
+import { GAME_TYPE_DISPLAY_ORDER, getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   matches: CompetitionMatchTeamItem[];
@@ -23,10 +19,26 @@ interface Props {
 
 type Filter = "ALL" | CompetitionGameType | "UNASSIGNED";
 
-const FILTERS: readonly { key: Filter; label: string }[] = [
-  { key: "ALL", label: "전체" },
-  ...COMPETITION_GAME_TYPES.map((type) => ({ key: type, label: getGameTypeMeta(type).label })),
-  { key: "UNASSIGNED", label: "미배정" },
+interface FilterItem {
+  key: Filter;
+  label: string;
+  /** 유형 필터만 색 점을 단다 */
+  dotClass?: string;
+  activeClass: string;
+}
+
+const FILTERS: readonly FilterItem[] = [
+  { key: "ALL", label: "전체", activeClass: "border-blueText bg-blueText/10" },
+  ...GAME_TYPE_DISPLAY_ORDER.map((type) => {
+    const meta = getGameTypeMeta(type);
+    return {
+      key: type,
+      label: meta.label,
+      dotClass: meta.dotClass,
+      activeClass: `${meta.borderClass} ${meta.bgClass}`,
+    };
+  }),
+  { key: "UNASSIGNED", label: "미배정", activeClass: "border-redText/40 bg-redDarken" },
 ];
 
 type View = "GAMES" | "MATCHUPS";
@@ -60,7 +72,21 @@ const BoardMatchesTab = ({
     return matches.filter((match) => match.gameType === filter);
   }, [matches, filter]);
 
-  const unassignedCount = useMemo(() => matches.filter(isUnassigned).length, [matches]);
+  const counts = useMemo(() => {
+    const byKey: Record<Filter, number> = {
+      ALL: matches.length,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      UNASSIGNED: 0,
+    };
+    matches.forEach((match) => {
+      if (match.gameType in byKey) byKey[match.gameType as CompetitionGameType] += 1;
+      if (isUnassigned(match)) byKey.UNASSIGNED += 1;
+    });
+    return byKey;
+  }, [matches]);
+  const unassignedCount = counts.UNASSIGNED;
   const editable = isManager && !locked && view === "GAMES";
 
   const changeView = (next: View) => {
@@ -90,50 +116,67 @@ const BoardMatchesTab = ({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex overflow-hidden rounded border border-border2">
-          {VIEWS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => changeView(item.key)}
-              aria-pressed={view === item.key}
-              className={`px-3.5 py-1.5 text-[13px] ${
-                view === item.key
-                  ? "bg-blueText/10 text-primary1"
-                  : "bg-darkBg2 text-primary2 hover:text-primary1"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border2 bg-darkBg2 p-3 sm:p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="inline-flex rounded-md bg-darkBg1 p-1">
+            {VIEWS.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => changeView(item.key)}
+                aria-pressed={view === item.key}
+                className={`rounded px-4 py-1.5 text-[13px] transition-colors ${
+                  view === item.key
+                    ? "bg-rankBg2 font-bold text-primary1"
+                    : "text-primary3 hover:text-primary1"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs text-primary2">
+            총 <span className="font-bold tabular-nums text-primary1">{rows.length}</span>경기
+          </span>
         </div>
-        <span className="h-5 w-px bg-border2" aria-hidden="true" />
-        {FILTERS.map((item) => {
-          if (item.key === "UNASSIGNED" && (unassignedCount === 0 || view === "MATCHUPS")) {
-            return null;
-          }
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => {
-                setFilter(item.key);
-                setChecked(new Set());
-              }}
-              className={`rounded border px-3.5 py-1.5 text-[13px] ${
-                filter === item.key
-                  ? "border-blueText bg-blueText/10 text-primary1"
-                  : "border-border2 bg-darkBg2 text-primary2 hover:text-primary1"
-              }`}
-            >
-              {item.label}
-              {item.key === "UNASSIGNED" && ` ${unassignedCount}`}
-            </button>
-          );
-        })}
-        <span className="ml-auto text-xs text-primary2">총 {rows.length}경기</span>
+
+        <div className="h-px bg-border2" aria-hidden="true" />
+
+        <div className="flex flex-wrap items-center gap-2">
+          {FILTERS.map((item) => {
+            if (item.key === "UNASSIGNED" && (unassignedCount === 0 || view === "MATCHUPS")) {
+              return null;
+            }
+            const active = filter === item.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => {
+                  setFilter(item.key);
+                  setChecked(new Set());
+                }}
+                aria-pressed={active}
+                className={`inline-flex h-8 items-center gap-2 rounded-full border px-3.5 text-[13px] transition-colors ${
+                  active
+                    ? `${item.activeClass} font-bold text-primary1`
+                    : "border-border2 bg-darkBg1 text-primary2 hover:border-border1 hover:text-primary1"
+                }`}
+              >
+                {item.dotClass && (
+                  <span className={`h-2 w-2 rounded-full ${item.dotClass}`} aria-hidden="true" />
+                )}
+                {item.label}
+                <span
+                  className={`tabular-nums text-xs ${active ? "text-primary2" : "text-primary3"}`}
+                >
+                  {counts[item.key]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {editable && (
@@ -155,7 +198,7 @@ const BoardMatchesTab = ({
             </button>
           )}
           <div className="ml-auto flex items-center gap-2">
-            {COMPETITION_GAME_TYPES.map((type) => {
+            {GAME_TYPE_DISPLAY_ORDER.map((type) => {
               const meta = getGameTypeMeta(type);
               return (
                 <button
