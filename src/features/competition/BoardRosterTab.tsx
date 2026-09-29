@@ -1,5 +1,6 @@
 import { CompetitionTeamWithRoster } from "@/data/types/competition";
 import { positionLabel } from "./competitionMeta";
+import WinnerBadge from "./WinnerBadge";
 
 interface Props {
   teams: CompetitionTeamWithRoster[];
@@ -28,13 +29,16 @@ const BoardRosterTab = ({ teams }: Props) => {
       {teams.map((team, index) => (
         <div
           key={team.id}
-          className="flex flex-col gap-2.5 rounded border border-border2 bg-darkBg2 p-3.5"
+          className={`flex flex-col gap-2.5 rounded border bg-darkBg2 p-3.5 ${
+            team.isWinner ? "border-yellow/40" : "border-border2"
+          }`}
         >
           <div className="flex items-center gap-2">
             <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded bg-blueText/10 text-[11px] font-bold text-blueText">
               {index + 1}
             </span>
             <span className="truncate text-[15px] font-bold text-primary1">{team.name}</span>
+            {team.isWinner && <WinnerBadge />}
             <span className="ml-auto whitespace-nowrap text-xs text-primary2">
               {totalRecord(team)}
             </span>

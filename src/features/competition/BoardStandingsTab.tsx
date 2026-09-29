@@ -2,9 +2,11 @@ import { useState } from "react";
 import { CompetitionStandings, StandingRow } from "@/data/types/competition";
 import { getWinRateColor } from "@/utils/statColors";
 import { getGameTypeMeta } from "./competitionMeta";
+import WinnerBadge from "./WinnerBadge";
 
 interface Props {
   standings: CompetitionStandings | null;
+  winnerTeamId: number | null;
 }
 
 type Split = keyof CompetitionStandings;
@@ -18,7 +20,7 @@ const SPLITS: readonly { key: Split; label: string }[] = [
 
 const GRID = "grid-cols-[56px_1fr_72px_84px_78px_92px]";
 
-const BoardStandingsTab = ({ standings }: Props) => {
+const BoardStandingsTab = ({ standings, winnerTeamId }: Props) => {
   const [split, setSplit] = useState<Split>("main");
   const rows: StandingRow[] = standings?.[split] ?? [];
 
@@ -72,7 +74,10 @@ const BoardStandingsTab = ({ standings }: Props) => {
                 >
                   {row.rank}
                 </span>
-                <span className="truncate text-sm text-primary1">{row.name}</span>
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span className="truncate text-sm text-primary1">{row.name}</span>
+                  {row.teamId === winnerTeamId && <WinnerBadge />}
+                </span>
                 <span className="text-center text-[13px] tabular-nums text-primary2">
                   {row.games}
                 </span>

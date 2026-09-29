@@ -24,6 +24,7 @@ import {
   getTeams,
   removeCompetition,
   updateCompetition,
+  updateTeam,
 } from "@/services/competition";
 import { deleteReplay } from "@/services/replay";
 import ReplayUploadModal from "@/features/competition/ReplayUploadModal";
@@ -75,6 +76,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [editName, setEditName] = useState("");
   const [editApproval, setEditApproval] = useState(true);
   const [editStatus, setEditStatus] = useState<CompetitionStatus>("RECRUITING");
+  const [winnerTeamId, setWinnerTeamId] = useState<number | null>(null);
   const [confirmName, setConfirmName] = useState("");
   const [deletingMatchId, setDeletingMatchId] = useState<string | null>(null);
   const [assignTarget, setAssignTarget] = useState<CompetitionMatchTeamItem | null>(null);
@@ -142,6 +144,8 @@ const CompetitionBoardPage: NextPage = () => {
   const standings = standingsQuery.data ?? null;
   const userStats = userStatsQuery.data ?? [];
   const championStats = championStatsQuery.data ?? [];
+  const currentWinner = teams.find((team) => team.isWinner) ?? null;
+  const currentWinnerId = currentWinner?.id ?? null;
 
   const changeTab = (tab: BoardTab) => {
     router.push({ pathname: router.pathname, query: { ...router.query, tab } }, undefined, {
@@ -167,6 +171,31 @@ const CompetitionBoardPage: NextPage = () => {
     onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
 
+  // 우승팀은 대회가 아니라 팀에 붙는다. true로 지정하면 서버가 이전 우승팀을 해제한다.
+  const applyWinner = async (next: number | null) => {
+    if (next === currentWinnerId) return;
+    if (next !== null) {
+      await updateTeam(guildId, validId as number, next, { isWinner: true });
+    } else if (currentWinnerId !== null) {
+      await updateTeam(guildId, validId as number, currentWinnerId, { isWinner: false });
+    }
+  };
+
+  const endMutation = useMutation({
+    mutationFn: async () => {
+      await changeCompetitionStatus(guildId, validId as number, "CLOSED");
+      // 종료된 대회도 우승팀만은 바꿀 수 있어, 상태를 먼저 확정한다
+      await applyWinner(winnerTeamId);
+    },
+    onSuccess: () => {
+      setErrorMsg(null);
+      setEndModalOpen(false);
+    },
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
+    // 종료만 되고 우승팀 지정이 실패해도 화면은 종료 상태를 보여야 한다
+    onSettled: () => refreshAll(),
+  });
+
   const editMutation = useMutation({
     // 이름·승인 여부는 PATCH /:id, 상태는 PATCH /:id/status로 엔드포인트가 나뉘어 있다.
     // 이름 변경이 상태 변경 실패에 묻히지 않도록 먼저 보낸다.
@@ -184,6 +213,9 @@ const CompetitionBoardPage: NextPage = () => {
       }
       if (current && editStatus !== current.status) {
         await changeCompetitionStatus(guildId, validId as number, editStatus);
+      }
+      if (editStatus === "CLOSED") {
+        await applyWinner(winnerTeamId);
       }
       // 바뀐 것이 없으면 update가 400 competition-update-empty를 주므로 호출하지 않는다.
     },
@@ -269,9 +301,34 @@ const CompetitionBoardPage: NextPage = () => {
     !!competition &&
     (editName.trim() !== competition.name ||
       editApproval !== competition.approvalRequired ||
-      editStatus !== competition.status);
+      editStatus !== competition.status ||
+      (editStatus === "CLOSED" && winnerTeamId !== currentWinnerId));
 
-  const busy = lifecycleMutation.isPending || deleteMutation.isPending || editMutation.isPending;
+  const busy =
+    lifecycleMutation.isPending ||
+    endMutation.isPending ||
+    deleteMutation.isPending ||
+    editMutation.isPending;
+
+  const renderWinnerSelect = (id: string) => (
+    <label className="flex flex-col gap-1.5" htmlFor={id}>
+      <span className="text-xs text-primary2">우승팀 (선택)</span>
+      <select
+        id={id}
+        value={winnerTeamId ?? ""}
+        onChange={(e) => setWinnerTeamId(e.target.value === "" ? null : Number(e.target.value))}
+        disabled={teams.length === 0}
+        className="h-10 rounded border border-border2 bg-darkBg2 px-3 text-sm text-primary1 outline-none focus:border-blueText2 disabled:opacity-40"
+      >
+        <option value="">{teams.length === 0 ? "편성된 팀이 없습니다" : "선택 안 함"}</option>
+        {teams.map((team) => (
+          <option key={team.id} value={team.id}>
+            {team.name}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 
   const renderTab = () => {
     switch (activeTab) {
@@ -294,7 +351,7 @@ const CompetitionBoardPage: NextPage = () => {
           />
         );
       case "standing":
-        return <BoardStandingsTab standings={standings} />;
+        return <BoardStandingsTab standings={standings} winnerTeamId={currentWinnerId} />;
       case "stats":
         if (userStatsQuery.isLoading || championStatsQuery.isLoading) return <LoadingSpinner />;
         return <BoardStatsTab users={userStats} champions={championStats} />;
@@ -316,17 +373,22 @@ const CompetitionBoardPage: NextPage = () => {
       <>
         <BoardHeader
           competition={competition}
+          winnerName={currentWinner?.name ?? null}
           isManager={isManager}
           busy={busy}
           onUpload={() => setUploadModalOpen(true)}
           onCloseApplications={() => lifecycleMutation.mutate("IN_PROGRESS")}
-          onEnd={() => setEndModalOpen(true)}
+          onEnd={() => {
+            setWinnerTeamId(currentWinnerId);
+            setEndModalOpen(true);
+          }}
           onRoster={() => router.push(`/competitions/${validId}/roster`)}
           onApplications={() => router.push(`/competitions/${validId}/applications`)}
           onEdit={() => {
             setEditName(competition.name);
             setEditApproval(competition.approvalRequired);
             setEditStatus(competition.status);
+            setWinnerTeamId(currentWinnerId);
             setEditModalOpen(true);
           }}
           onDelete={() => {
@@ -554,6 +616,7 @@ const CompetitionBoardPage: NextPage = () => {
               </p>
             )}
           </div>
+          {editStatus === "CLOSED" && renderWinnerSelect("edit-winner-team")}
           <div className="mt-1 flex items-center gap-2">
             <button
               type="button"
@@ -592,8 +655,9 @@ const CompetitionBoardPage: NextPage = () => {
           <h2 className="text-base font-bold text-primary1">대회를 종료할까요?</h2>
           <p className="text-[13px] leading-relaxed text-primary2">
             최종 순위가 확정되고 로스터·경기 편집이 잠깁니다. 운영진이 진행중으로 되돌리면 다시
-            편집할 수 있습니다.
+            편집할 수 있습니다. 우승팀은 종료 후에도 대회 수정에서 바꿀 수 있습니다.
           </p>
+          {renderWinnerSelect("end-winner-team")}
           <div className="mt-1 flex items-center gap-2">
             <button
               type="button"
@@ -604,11 +668,11 @@ const CompetitionBoardPage: NextPage = () => {
             </button>
             <button
               type="button"
-              onClick={() => lifecycleMutation.mutate("CLOSED")}
+              onClick={() => endMutation.mutate()}
               disabled={busy}
               className="h-9 flex-1 rounded bg-bluePrimary text-[13px] text-white disabled:opacity-50"
             >
-              {lifecycleMutation.isPending ? "처리 중..." : "대회 종료"}
+              {endMutation.isPending ? "처리 중..." : "대회 종료"}
             </button>
           </div>
         </div>

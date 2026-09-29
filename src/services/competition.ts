@@ -31,6 +31,7 @@ import {
   CompetitionSummary,
   CompetitionTeamRecordItem,
   CompetitionTeamRoster,
+  CompetitionTeamUpdateInput,
   CompetitionTeamWithRoster,
   CompetitionUpdateInput,
   CompetitionUserStat,
@@ -225,7 +226,7 @@ export const updateTeam = async (
   guildId: string,
   competitionId: number,
   teamId: number,
-  body: { name?: string; captainPlayerCode?: string | null }
+  body: CompetitionTeamUpdateInput
 ): Promise<CompetitionTeamRoster> => {
   return unwrap(api.patch<TeamResponse>(`${BASE(guildId)}/${competitionId}/teams/${teamId}`, body));
 };

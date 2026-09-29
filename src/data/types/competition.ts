@@ -167,6 +167,8 @@ export interface CompetitionTeam {
   competitionId: number;
   name: string;
   captainPlayerCode: string | null;
+  /** 대회당 최대 한 팀. 종료 후에도 바꿀 수 있다 */
+  isWinner: boolean;
   createDate: string;
 }
 
@@ -182,6 +184,8 @@ export interface CompetitionTeamWithRoster extends CompetitionTeamRoster {
 export interface CompetitionTeamUpdateInput {
   name?: string;
   captainPlayerCode?: string | null;
+  /** true면 이 팀을 우승팀으로 하고 기존 우승팀은 해제된다 */
+  isWinner?: boolean;
 }
 
 export interface RosterSaveTeamInput {
