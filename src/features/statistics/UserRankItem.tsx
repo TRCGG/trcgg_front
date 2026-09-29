@@ -1,5 +1,5 @@
 import Image, { StaticImageData } from "next/image";
-import { useRouter } from "next/router";
+import Link from "next/link";
 import LaneTopLogo from "@/assets/images/laneTop.png";
 import LaneJungleLogo from "@/assets/images/laneJungle.png";
 import LaneMidLogo from "@/assets/images/laneMid.png";
@@ -44,12 +44,6 @@ const UserRankItem = ({
   winRate,
   className,
 }: Props) => {
-  const router = useRouter();
-
-  const goToSummoner = () => {
-    router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotNameTag)}`);
-  };
-
   return (
     <div
       className={`bg-darkBg2 rounded-md border border-cardBorder px-3 sm:px-3.5 py-[11px] flex items-center gap-1.5 sm:gap-3.5 ${
@@ -76,13 +70,16 @@ const UserRankItem = ({
 
       {/* 닉네임 */}
       <div className="flex-1 min-w-0 relative group">
-        <button
-          type="button"
-          className="block text-[15px] text-primary1 truncate w-full text-left hover:text-primary2 transition-colors"
-          onClick={goToSummoner}
+        <Link
+          href={`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotNameTag)}`}
+          passHref
         >
-          {riotName}
-        </button>
+          {/* 크롤러가 소환사 페이지를 따라가도록 실제 <a href>로 둔다. href는 passHref가 주입한다 */}
+          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+          <a className="block text-[15px] text-primary1 truncate w-full text-left hover:text-primary2 transition-colors">
+            {riotName}
+          </a>
+        </Link>
         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block px-3 py-1 rounded bg-black text-white z-10 whitespace-nowrap">
           <span>{riotName}</span>
           <span className="text-primary2"> #{riotNameTag}</span>
