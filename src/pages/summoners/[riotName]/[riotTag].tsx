@@ -31,6 +31,7 @@ const RiotProfilePage = () => {
   const {
     data: userRecordData,
     isLoading: isLoadingUserRecord,
+    isSuccess: isUserRecordLoaded,
     refetch: refetchUserRecords,
   } = useQuery<MatchDashboardData | MultiplePlayerInfo[]>({
     queryKey: ["userRecords", riotNameString, riotTagString, guildId],
@@ -67,6 +68,13 @@ const RiotProfilePage = () => {
 
   // 배경 이미지용 mostChampion 가져오기
   const data = userRecordData;
+  const hasRecord = !!data && isMatchDashboardData(data) && hasValidMatchData(data);
+
+  // 렌더링 전 HTML에 noindex가 있으면 Google이 렌더링을 건너뛰어, 결과 없음이 확정된 뒤에만 붙인다(요청 실패는 제외)
+  const isConfirmedEmpty =
+    router.isReady &&
+    !isLoadingGuilds &&
+    (guilds.length === 0 || (isUserRecordLoaded && !hasRecord));
   const mostChampion =
     data && isMatchDashboardData(data) && data.mostPicks && data.mostPicks.length > 0
       ? data.mostPicks[0].champNameEng
@@ -92,6 +100,7 @@ const RiotProfilePage = () => {
     <>
       <Head>
         <title>{pageTitle}</title>
+        {isConfirmedEmpty && <meta name="robots" content="noindex" />}
         <meta property="og:title" content="롤 길드 전적 검색 - 지목 | GMOK.KR" />
         <meta
           property="og:description"
