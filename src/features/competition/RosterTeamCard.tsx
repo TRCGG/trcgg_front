@@ -6,6 +6,7 @@ interface Props {
   index: number;
   /** 클릭 배치를 위해 선택된 칩이 있는지 */
   hasPicked: boolean;
+  pickedCode: string | null;
   onRename: (name: string) => void;
   onRemoveTeam: () => void;
   /** 팀 카드 빈 곳(추가 칸)을 클릭 */
@@ -14,7 +15,8 @@ interface Props {
   onMemberClick: (member: RosterSlotMember) => void;
   onMemberDragStart: (member: RosterSlotMember) => void;
   onMemberRemove: (playerCode: string) => void;
-  onSetCaptain: (playerCode: string) => void;
+  /** null이면 팀장 해제 */
+  onSetCaptain: (playerCode: string | null) => void;
   disabled?: boolean;
 }
 
@@ -32,6 +34,7 @@ const RosterTeamCard = ({
   team,
   index,
   hasPicked,
+  pickedCode,
   onRename,
   onRemoveTeam,
   onAddClick,
@@ -82,7 +85,11 @@ const RosterTeamCard = ({
         return (
           <div
             key={member.playerCode}
-            className="flex h-8 items-center gap-2 rounded border border-solid border-border2 bg-darkBg2 px-2"
+            className={`flex h-8 items-center gap-2 rounded border border-solid px-2 ${
+              pickedCode === member.playerCode
+                ? "border-blueText bg-blueText/10"
+                : "border-border2 bg-darkBg2"
+            }`}
           >
             <span
               title="주 라인"
@@ -102,10 +109,20 @@ const RosterTeamCard = ({
               <span className="text-primary3">#{member.riotNameTag}</span>
             </button>
 
-            {isCaptain && (
+            {isCaptain && disabled && (
               <span className="shrink-0 rounded bg-yellow/10 px-1.5 py-px text-[10px] font-bold text-yellow">
                 팀장
               </span>
+            )}
+            {isCaptain && !disabled && (
+              <button
+                type="button"
+                onClick={() => onSetCaptain(null)}
+                title="팀장 해제"
+                className="shrink-0 rounded bg-yellow/10 px-1.5 py-px text-[10px] font-bold text-yellow hover:bg-yellow/20"
+              >
+                팀장
+              </button>
             )}
             {!isCaptain && !disabled && (
               <button

@@ -121,6 +121,7 @@ const RosterPage: NextPage = () => {
           draggingRef.current = toSlotMember(applicant);
         }}
         onDropToPool={() => {
+          if (draggingRef.current) draft.unplace(draggingRef.current.playerCode);
           draggingRef.current = null;
         }}
         disabled={locked}
@@ -134,6 +135,7 @@ const RosterPage: NextPage = () => {
             team={team}
             index={index}
             hasPicked={picked !== null}
+            pickedCode={picked?.playerCode ?? null}
             disabled={locked}
             onRename={(name) => draft.renameTeam(index, name)}
             onRemoveTeam={() => draft.removeTeam(index)}
@@ -150,11 +152,11 @@ const RosterPage: NextPage = () => {
             }}
             onMemberClick={(member) => {
               if (locked) return;
-              if (picked) {
-                placeMember(toSlotMember(picked), index);
+              // 배치는 "여기에 배치" 칸·드롭으로만 한다. 명단 클릭은 선택 전환이다.
+              if (picked?.playerCode === member.playerCode) {
+                setPicked(null);
                 return;
               }
-              // 선택된 칩이 없으면 이 사람을 집어 다른 팀으로 옮기게 한다.
               const source = applicants.find((a) => a.playerCode === member.playerCode);
               if (source) setPicked(source);
             }}

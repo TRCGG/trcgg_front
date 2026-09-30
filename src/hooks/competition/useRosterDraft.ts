@@ -80,6 +80,22 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
     );
   }, []);
 
+  /** 어느 팀에 있든 빼서 신청자 풀로 돌린다. */
+  const unplace = useCallback((playerCode: string) => {
+    setTeams((prev) =>
+      prev.map((team) =>
+        team.members.some((m) => m.playerCode === playerCode)
+          ? {
+              ...team,
+              members: team.members.filter((m) => m.playerCode !== playerCode),
+              captainPlayerCode:
+                team.captainPlayerCode === playerCode ? null : team.captainPlayerCode,
+            }
+          : team
+      )
+    );
+  }, []);
+
   const removeMember = useCallback((teamIndex: number, playerCode: string) => {
     setTeams((prev) =>
       prev.map((team, index) => {
@@ -157,6 +173,7 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
     canAddTeam: teams.length < MAX_TEAMS,
     place,
     removeMember,
+    unplace,
     addTeam,
     removeTeam,
     renameTeam,
