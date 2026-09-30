@@ -3,7 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useMutation, useQueries } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQueries } from "@tanstack/react-query";
+import { Position } from "@/services/statistics";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
@@ -83,6 +84,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [deleteMatchTarget, setDeleteMatchTarget] = useState<CompetitionMatchTeamItem | null>(null);
   const [assignBlue, setAssignBlue] = useState<number | null>(null);
   const [assignRed, setAssignRed] = useState<number | null>(null);
+  const [championPosition, setChampionPosition] = useState<Position>("ALL");
 
   const invalidateCompetitions = useInvalidateCompetitions();
   const {
@@ -129,10 +131,15 @@ const CompetitionBoardPage: NextPage = () => {
           staleTime: 60 * 1000,
         },
         {
-          queryKey: ["competitionChampionStats", guildId, validId],
+          queryKey: ["competitionChampionStats", guildId, validId, championPosition],
+          // 전체는 position을 빼야 라인 구분 없이 챔피언별로 합산된다(ALL은 챔피언×라인 행을 준다).
           queryFn: () =>
-            getCompetitionChampionStatistics(guildId, validId as number, { limit: 500 }),
+            getCompetitionChampionStatistics(guildId, validId as number, {
+              limit: 500,
+              position: championPosition === "ALL" ? undefined : championPosition,
+            }),
           enabled: enabled && activeTab === "stats",
+          placeholderData: keepPreviousData,
           staleTime: 60 * 1000,
         },
       ],
@@ -355,7 +362,15 @@ const CompetitionBoardPage: NextPage = () => {
         return <BoardStandingsTab standings={standings} winnerTeamId={currentWinnerId} />;
       case "stats":
         if (userStatsQuery.isLoading || championStatsQuery.isLoading) return <LoadingSpinner />;
-        return <BoardStatsTab users={userStats} champions={championStats} />;
+        return (
+          <BoardStatsTab
+            users={userStats}
+            champions={championStats}
+            championPosition={championPosition}
+            onChangeChampionPosition={setChampionPosition}
+            isFetchingChampions={championStatsQuery.isFetching}
+          />
+        );
       default:
         return <BoardRosterTab teams={teams} />;
     }
