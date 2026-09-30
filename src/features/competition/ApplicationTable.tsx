@@ -15,7 +15,7 @@ const GRID = "grid-cols-[34px_1fr_168px_0.9fr_56px_68px_1.3fr_1.6fr]";
 
 const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Props) => (
   <div className="overflow-x-auto">
-    <div className="min-w-[1100px]">
+    <div className="min-w-[960px]">
       <div
         className={`grid ${GRID} gap-2.5 border-b border-border2 px-4 py-2.5 text-xs text-primary2`}
       >
