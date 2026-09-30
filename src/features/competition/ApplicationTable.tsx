@@ -1,4 +1,5 @@
 import { CompetitionApplicationItem } from "@/data/types/competition";
+import ClampedText from "@/components/ui/ClampedText";
 import { positionLabel, practiceLevelLabel, subPositionLabel } from "./competitionMeta";
 
 interface Props {
@@ -95,12 +96,12 @@ const ApplicationTable = ({ applications, checkedIds, onToggle, emptyLabel }: Pr
                 {practiceLevelLabel(application.practiceLevel)}
               </span>
 
-              <span className="min-w-0 whitespace-pre-wrap break-words text-xs text-primary2">
-                {application.availableTime || "-"}
+              <span className="min-w-0 text-xs text-primary2">
+                <ClampedText text={application.availableTime} />
               </span>
 
-              <span className="min-w-0 whitespace-pre-wrap break-words text-xs text-primary2">
-                {application.comment || "-"}
+              <span className="min-w-0 text-xs text-primary2">
+                <ClampedText text={application.comment} />
               </span>
             </button>
           );
