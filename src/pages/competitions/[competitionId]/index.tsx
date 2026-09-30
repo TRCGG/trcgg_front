@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useMutation, useQueries } from "@tanstack/react-query";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Position } from "@/services/statistics";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
@@ -87,6 +87,7 @@ const CompetitionBoardPage: NextPage = () => {
   const [championPosition, setChampionPosition] = useState<Position>("ALL");
 
   const invalidateCompetitions = useInvalidateCompetitions();
+  const queryClient = useQueryClient();
   const {
     headerProps,
     memberGuildId: guildId,
@@ -258,8 +259,8 @@ const CompetitionBoardPage: NextPage = () => {
     }: {
       ids: string[];
       gameType: CompetitionGameType;
-    }): Promise<GameTypeChangeResult> => {
-      let changed = 0;
+    }): Promise<GameTypeChangeResult & { changedIds: string[] }> => {
+      const changedIds: string[] = [];
       let skipped = 0;
       for (let i = 0; i < ids.length; i += GAME_TYPE_CHUNK) {
         const chunk = ids.slice(i, i + GAME_TYPE_CHUNK);
@@ -269,17 +270,29 @@ const CompetitionBoardPage: NextPage = () => {
           customMatchIds: chunk,
           gameType,
         });
-        changed += result?.changed?.length ?? 0;
+        changedIds.push(...(result?.changed ?? []));
         // 이미 그 유형이던 경기는 서버가 skipped로 빼고 성공으로 응답한다.
         skipped += result?.skipped?.length ?? 0;
       }
-      return { gameType, changed, skipped };
+      return { gameType, changed: changedIds.length, skipped, changedIds };
     },
-    onSuccess: async () => {
+    onSuccess: ({ gameType, changedIds }) => {
       setErrorMsg(null);
-      await refreshAll();
+      // 전체 재조회는 여러 쿼리를 다시 받아 몇 초 걸린다. 목록 배지는 응답 즉시 바꾸고
+      // 재조회는 기다리지 않는다 — 기다리면 그동안 적용됐는지 알 수 없다.
+      const changed = new Set(changedIds);
+      queryClient.setQueryData<CompetitionMatchTeamItem[]>(
+        ["competitionMatches", guildId, validId],
+        (prev) =>
+          prev?.map((match) => (changed.has(match.customMatchId) ? { ...match, gameType } : match))
+      );
+      refreshAll();
     },
-    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
+    onError: (err) => {
+      setErrorMsg(competitionErrorMessage(err));
+      // 앞 청크는 이미 바뀌었을 수 있다.
+      refreshAll();
+    },
   });
 
   const assignMutation = useMutation({

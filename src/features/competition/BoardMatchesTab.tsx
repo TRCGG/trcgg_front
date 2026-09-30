@@ -133,6 +133,7 @@ const BoardMatchesTab = ({
   const [filter, setFilter] = useState<Filter>("ALL");
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<GameTypeChangeResult | null>(null);
+  const [pendingType, setPendingType] = useState<CompetitionGameType | null>(null);
 
   const rows = useMemo(() => {
     if (filter === "ALL") return matches;
@@ -190,12 +191,15 @@ const BoardMatchesTab = ({
 
   const runGameType = async (gameType: CompetitionGameType) => {
     if (checked.size === 0 || !onChangeGameType) return;
+    setPendingType(gameType);
     try {
       const outcome = await onChangeGameType(Array.from(checked), gameType);
       setChecked(new Set());
       setResult(outcome);
     } catch {
       // 실패 안내는 페이지의 onError가 맡는다. 선택은 남겨 다시 시도할 수 있게 한다.
+    } finally {
+      setPendingType(null);
     }
   };
 
@@ -357,6 +361,7 @@ const BoardMatchesTab = ({
             {GAME_TYPE_DISPLAY_ORDER.map((type) => {
               const meta = getGameTypeMeta(type);
               const allSame = selectedMatches.every((match) => match.gameType === type);
+              const pending = pendingType === type;
               return (
                 <button
                   key={type}
@@ -364,10 +369,22 @@ const BoardMatchesTab = ({
                   onClick={() => runGameType(type)}
                   disabled={allSame || changingGameType}
                   title={allSame ? `선택한 경기가 모두 ${meta.label}입니다` : undefined}
-                  className="inline-flex h-8 items-center gap-2 rounded-full border border-border2 bg-darkBg2 px-3.5 text-[13px] text-primary2 transition-colors hover:border-border1 hover:text-primary1 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-border2 disabled:hover:text-primary2"
+                  aria-busy={pending}
+                  className={`inline-flex h-8 items-center gap-2 rounded-full border px-3.5 text-[13px] transition-colors disabled:cursor-not-allowed ${
+                    pending
+                      ? "border-bluePrimary/55 bg-bluePrimary/10 text-primary1"
+                      : "border-border2 bg-darkBg2 text-primary2 hover:border-border1 hover:text-primary1 disabled:opacity-35 disabled:hover:border-border2 disabled:hover:text-primary2"
+                  }`}
                 >
-                  <span className={`h-2 w-2 rounded-full ${meta.dotClass}`} aria-hidden="true" />
-                  {meta.label}으로
+                  {pending ? (
+                    <span
+                      className="h-3 w-3 animate-spin rounded-full border-2 border-primary1 border-t-transparent"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span className={`h-2 w-2 rounded-full ${meta.dotClass}`} aria-hidden="true" />
+                  )}
+                  {pending ? "바꾸는 중…" : `${meta.label}으로`}
                 </button>
               );
             })}
