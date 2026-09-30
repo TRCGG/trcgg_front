@@ -282,18 +282,12 @@ const BoardStatsTab = ({
           {matchCounts && (
             <div className="mt-auto pt-3">
               <div className="flex gap-3 text-[11px] text-primary2">
-                {GAME_TYPE_DISPLAY_ORDER.map((type) => {
-                  const meta = getGameTypeMeta(type);
-                  return (
-                    <span key={type} className="flex items-center gap-1">
-                      <span className={`h-1.5 w-1.5 rounded-full ${meta.dotClass}`} />
-                      {meta.label}
-                      <span className="tabular-nums text-primary1">
-                        {countOf(matchCounts, type)}
-                      </span>
-                    </span>
-                  );
-                })}
+                {GAME_TYPE_DISPLAY_ORDER.map((type) => (
+                  <span key={type} className="flex items-center gap-1">
+                    {getGameTypeMeta(type).label}
+                    <span className="tabular-nums text-primary1">{countOf(matchCounts, type)}</span>
+                  </span>
+                ))}
               </div>
             </div>
           )}
