@@ -279,19 +279,8 @@ const BoardStatsTab = ({
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
         <SummaryCard label="총 경기 수">
           <BigNumber value={totalMatches ?? "-"} unit="경기" />
-          {matchCounts && totalMatches !== null && (
-            <div className="mt-auto flex flex-col gap-2 pt-3">
-              <div className="flex h-1.5 overflow-hidden rounded-full bg-rankBg2">
-                {GAME_TYPE_DISPLAY_ORDER.map((type) => (
-                  <div
-                    key={type}
-                    className={getGameTypeMeta(type).dotClass}
-                    style={{
-                      width: `${totalMatches > 0 ? (countOf(matchCounts, type) / totalMatches) * 100 : 0}%`,
-                    }}
-                  />
-                ))}
-              </div>
+          {matchCounts && (
+            <div className="mt-auto pt-3">
               <div className="flex gap-3 text-[11px] text-primary2">
                 {GAME_TYPE_DISPLAY_ORDER.map((type) => {
                   const meta = getGameTypeMeta(type);
@@ -312,15 +301,7 @@ const BoardStatsTab = ({
 
         <SummaryCard label="참가자">
           <BigNumber value={users.length} unit="명" />
-          <div className="mt-auto flex flex-col gap-2 pt-3">
-            <div className="h-1.5 overflow-hidden rounded-full bg-rankBg2">
-              <div
-                className="h-full bg-blueText"
-                style={{
-                  width: `${users.length > 0 ? (eligible.length / users.length) * 100 : 0}%`,
-                }}
-              />
-            </div>
+          <div className="mt-auto pt-3">
             <span className="text-[11px] text-primary2">
               랭킹 집계 대상 <span className="tabular-nums text-primary1">{eligible.length}명</span>{" "}
               · {MIN_GAMES}판 이상
