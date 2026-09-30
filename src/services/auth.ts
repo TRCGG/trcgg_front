@@ -12,10 +12,12 @@ export const getGuilds = async (): Promise<GuildInfo[]> => {
   return unwrap(api.get<GuildsResponse>("/api/auth/gmokGuilds"));
 };
 
-// 백엔드가 공개·비공개 길드를 함께 주고 isPublic으로 거르게 한다(limit 최대 100)
+// limit 최대 100
 export const getPublicGuilds = async (): Promise<PublicGuild[]> => {
-  const guilds = await unwrap(api.get<PublicGuildsResponse>("/api/guilds", { limit: "100" }));
-  return (guilds ?? []).filter((guild) => guild.isPublic);
+  const guilds = await unwrap(
+    api.get<PublicGuildsResponse>("/api/guilds", { limit: "100", isPublic: "true" })
+  );
+  return guilds ?? [];
 };
 
 export const getMe = async (): Promise<MeResponse["data"]> => {
