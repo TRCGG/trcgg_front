@@ -24,6 +24,7 @@ interface Props {
 /** 표본이 적은 참가자가 순위를 흔들지 않도록 프로토타입과 같은 기준을 쓴다. */
 const MIN_GAMES = 3;
 const PREVIEW_SIZE = 5;
+const MAX_SIZE = 10;
 
 const MULTI_KILLS = [
   { key: "penta", label: "펜타", className: "text-yellow" },
@@ -62,8 +63,8 @@ interface Board {
 
 const StatBoard = ({ board }: { board: Board }) => {
   const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? board.rows : board.rows.slice(0, PREVIEW_SIZE);
-  const hidden = board.rows.length - PREVIEW_SIZE;
+  const visible = board.rows.slice(0, expanded ? MAX_SIZE : PREVIEW_SIZE);
+  const canExpand = board.rows.length > PREVIEW_SIZE;
 
   return (
     <div className="overflow-hidden rounded border border-border2 bg-darkBg2">
@@ -110,13 +111,13 @@ const StatBoard = ({ board }: { board: Board }) => {
           </div>
         ))
       )}
-      {hidden > 0 && (
+      {canExpand && (
         <button
           type="button"
           onClick={() => setExpanded((prev) => !prev)}
           className="w-full border-t border-border2 py-2 text-xs text-primary2 hover:bg-grayHover hover:text-primary1"
         >
-          {expanded ? "접기" : `더보기 (${hidden}명)`}
+          {expanded ? "접기" : "더보기"}
         </button>
       )}
     </div>
