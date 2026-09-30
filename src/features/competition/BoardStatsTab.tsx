@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
-import { CompetitionChampionStat, CompetitionUserStat } from "@/data/types/competition";
+import {
+  CompetitionChampionStat,
+  CompetitionSummary,
+  CompetitionUserStat,
+} from "@/data/types/competition";
 import { Position } from "@/services/statistics";
 import { getWinRateColor } from "@/utils/statColors";
 import { getChampionSprite } from "@/utils/spriteLoader";
@@ -13,11 +17,19 @@ interface Props {
   championPosition: Position;
   onChangeChampionPosition: (position: Position) => void;
   isFetchingChampions?: boolean;
+  /** 대회 상세의 유형별 활성 경기 수. 상세를 아직 못 받았으면 null */
+  matchCounts: Pick<CompetitionSummary, "scrimCount" | "preliminaryCount" | "mainCount"> | null;
 }
 
 /** 표본이 적은 참가자가 순위를 흔들지 않도록 프로토타입과 같은 기준을 쓴다. */
 const MIN_GAMES = 3;
 const PREVIEW_SIZE = 5;
+
+const MULTI_KILLS = [
+  { key: "penta", label: "펜타", className: "text-yellow" },
+  { key: "quadra", label: "쿼드라", className: "text-blueText" },
+  { key: "triple", label: "트리플", className: "text-primary1" },
+] as const;
 
 const num = (value: string | number): number => {
   const parsed = typeof value === "string" ? parseFloat(value) : value;
@@ -117,6 +129,7 @@ const BoardStatsTab = ({
   championPosition,
   onChangeChampionPosition,
   isFetchingChampions = false,
+  matchCounts,
 }: Props) => {
   const eligible = useMemo(() => users.filter((user) => user.totalCount >= MIN_GAMES), [users]);
 
@@ -205,15 +218,22 @@ const BoardStatsTab = ({
     ];
   }, [eligible]);
 
-  const summary = useMemo(() => {
-    const pentas = users.reduce((sum, user) => sum + (user.multiKills?.penta ?? 0), 0);
-    const quadras = users.reduce((sum, user) => sum + (user.multiKills?.quadra ?? 0), 0);
-    return [
-      { label: "참가자", value: String(users.length), className: "text-primary1" },
-      { label: "쿼드라 킬", value: String(quadras), className: "text-blueText" },
-      { label: "펜타 킬", value: String(pentas), className: "text-yellow" },
-    ];
-  }, [users]);
+  const multiKills = useMemo(
+    () =>
+      users.reduce(
+        (acc, user) => ({
+          penta: acc.penta + (user.multiKills?.penta ?? 0),
+          quadra: acc.quadra + (user.multiKills?.quadra ?? 0),
+          triple: acc.triple + (user.multiKills?.triple ?? 0),
+        }),
+        { penta: 0, quadra: 0, triple: 0 }
+      ),
+    [users]
+  );
+
+  const totalMatches = matchCounts
+    ? matchCounts.mainCount + matchCounts.preliminaryCount + matchCounts.scrimCount
+    : null;
 
   const topChampions = useMemo(
     () => [...champions].sort((a, b) => b.totalCount - a.totalCount).slice(0, 5),
@@ -231,17 +251,37 @@ const BoardStatsTab = ({
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-        {summary.map((item) => (
-          <div
-            key={item.label}
-            className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5"
-          >
-            <span className="text-[11px] text-primary2">{item.label}</span>
-            <span className={`text-[22px] font-bold leading-tight tabular-nums ${item.className}`}>
-              {item.value}
+        <div className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5">
+          <span className="text-[11px] text-primary2">총 경기 수</span>
+          <span className="text-[22px] font-bold leading-tight tabular-nums text-primary1">
+            {totalMatches ?? "-"}
+          </span>
+          {matchCounts && (
+            <span className="text-[11px] tabular-nums text-primary3">
+              본선 {matchCounts.mainCount} · 예선 {matchCounts.preliminaryCount} · 스크림{" "}
+              {matchCounts.scrimCount}
             </span>
+          )}
+        </div>
+        <div className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5">
+          <span className="text-[11px] text-primary2">참가자</span>
+          <span className="text-[22px] font-bold leading-tight tabular-nums text-primary1">
+            {users.length}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5">
+          <span className="text-[11px] text-primary2">멀티킬</span>
+          <div className="flex items-baseline gap-3.5">
+            {MULTI_KILLS.map((item) => (
+              <span key={item.key} className="flex items-baseline gap-1">
+                <span className="text-[11px] text-primary2">{item.label}</span>
+                <span className={`text-[22px] font-bold leading-tight tabular-nums `}>
+                  {multiKills[item.key]}
+                </span>
+              </span>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">

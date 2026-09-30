@@ -369,6 +369,7 @@ const CompetitionBoardPage: NextPage = () => {
             championPosition={championPosition}
             onChangeChampionPosition={setChampionPosition}
             isFetchingChampions={championStatsQuery.isFetching}
+            matchCounts={competition ?? null}
           />
         );
       default:
