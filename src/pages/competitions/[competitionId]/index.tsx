@@ -30,7 +30,7 @@ import { deleteReplay } from "@/services/replay";
 import ReplayUploadModal from "@/features/competition/ReplayUploadModal";
 import BoardHeader from "@/features/competition/BoardHeader";
 import BoardRosterTab from "@/features/competition/BoardRosterTab";
-import BoardMatchesTab from "@/features/competition/BoardMatchesTab";
+import BoardMatchesTab, { GameTypeChangeResult } from "@/features/competition/BoardMatchesTab";
 import BoardStandingsTab from "@/features/competition/BoardStandingsTab";
 import BoardStatsTab from "@/features/competition/BoardStatsTab";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
@@ -252,7 +252,14 @@ const CompetitionBoardPage: NextPage = () => {
   const GAME_TYPE_CHUNK = 100;
 
   const gameTypeMutation = useMutation({
-    mutationFn: async ({ ids, gameType }: { ids: string[]; gameType: CompetitionGameType }) => {
+    mutationFn: async ({
+      ids,
+      gameType,
+    }: {
+      ids: string[];
+      gameType: CompetitionGameType;
+    }): Promise<GameTypeChangeResult> => {
+      let changed = 0;
       let skipped = 0;
       for (let i = 0; i < ids.length; i += GAME_TYPE_CHUNK) {
         const chunk = ids.slice(i, i + GAME_TYPE_CHUNK);
@@ -262,13 +269,14 @@ const CompetitionBoardPage: NextPage = () => {
           customMatchIds: chunk,
           gameType,
         });
+        changed += result?.changed?.length ?? 0;
+        // 이미 그 유형이던 경기는 서버가 skipped로 빼고 성공으로 응답한다.
         skipped += result?.skipped?.length ?? 0;
       }
-      return skipped;
+      return { gameType, changed, skipped };
     },
-    onSuccess: async (skipped) => {
-      // 이미 그 유형이던 경기는 서버가 skipped로 빼고 성공으로 응답한다.
-      setErrorMsg(skipped > 0 ? `${skipped}경기는 이미 해당 유형이라 건너뛰었습니다.` : null);
+    onSuccess: async () => {
+      setErrorMsg(null);
       await refreshAll();
     },
     onError: (err) => setErrorMsg(competitionErrorMessage(err)),
@@ -340,7 +348,7 @@ const CompetitionBoardPage: NextPage = () => {
             deletingId={deletingMatchId}
             changingGameType={gameTypeMutation.isPending}
             onDelete={(match) => setDeleteMatchTarget(match)}
-            onChangeGameType={(ids, gameType) => gameTypeMutation.mutate({ ids, gameType })}
+            onChangeGameType={(ids, gameType) => gameTypeMutation.mutateAsync({ ids, gameType })}
             onAssign={(match) => {
               setAssignBlue(match.blueTeamId);
               setAssignRed(match.redTeamId);

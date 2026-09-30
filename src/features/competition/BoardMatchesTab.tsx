@@ -15,7 +15,11 @@ interface Props {
   onDelete?: (match: CompetitionMatchTeamItem) => void;
   deletingId?: string | null;
   onAssign?: (match: CompetitionMatchTeamItem) => void;
-  onChangeGameType?: (customMatchIds: string[], gameType: CompetitionGameType) => void;
+  /** 실패하면 reject한다(안내는 호출한 쪽의 onError가 맡는다). */
+  onChangeGameType?: (
+    customMatchIds: string[],
+    gameType: CompetitionGameType
+  ) => Promise<GameTypeChangeResult>;
   changingGameType?: boolean;
 }
 
@@ -53,6 +57,66 @@ const VIEWS: readonly { key: View; label: string }[] = [
 const isUnassigned = (match: CompetitionMatchTeamItem) =>
   match.blueTeamId === null && match.redTeamId === null;
 
+export interface GameTypeChangeResult {
+  gameType: CompetitionGameType;
+  changed: number;
+  /** 이미 그 유형이라 서버가 건너뛴 경기 수 */
+  skipped: number;
+}
+
+type CheckState = "none" | "some" | "all";
+
+const ARIA_CHECKED: Record<CheckState, boolean | "mixed"> = {
+  none: false,
+  some: "mixed",
+  all: true,
+};
+
+const checkStateOf = (checkedCount: number, total: number): CheckState => {
+  if (checkedCount === 0) return "none";
+  return checkedCount === total ? "all" : "some";
+};
+
+// BoardMatchRow의 체크박스와 같은 모양. 역할은 감싼 버튼이 갖고 이건 그림만 그린다.
+const CheckBox = ({ state }: { state: CheckState }) => (
+  <span
+    aria-hidden="true"
+    className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border ${
+      state === "none" ? "border-border1 bg-darkBg1" : "border-bluePrimary bg-bluePrimary"
+    }`}
+  >
+    {state !== "none" && (
+      <svg
+        className="h-3 w-3 text-white"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={3.2}
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <path d={state === "all" ? "M20 6L9 17l-5-5" : "M6 12h12"} />
+      </svg>
+    )}
+  </span>
+);
+
+const GameTypeResultNotice = ({ result }: { result: GameTypeChangeResult }) => {
+  const { label } = getGameTypeMeta(result.gameType);
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 rounded border border-neonGreen/30 bg-neonGreen/[0.06] px-3.5 py-3 text-sm text-neonGreen">
+      {result.changed > 0
+        ? `${result.changed}경기를 ${label}으로 바꿨습니다`
+        : "바뀐 경기가 없습니다"}
+      {result.skipped > 0 && (
+        <span className="text-[13px] text-primary2">
+          · {result.skipped}경기는 이미 {label}
+        </span>
+      )}
+    </div>
+  );
+};
+
 const BoardMatchesTab = ({
   matches,
   teams,
@@ -68,6 +132,7 @@ const BoardMatchesTab = ({
   const [view, setView] = useState<View>("GAMES");
   const [filter, setFilter] = useState<Filter>("ALL");
   const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [result, setResult] = useState<GameTypeChangeResult | null>(null);
 
   const rows = useMemo(() => {
     if (filter === "ALL") return matches;
@@ -95,27 +160,43 @@ const BoardMatchesTab = ({
   const changeView = (next: View) => {
     setView(next);
     setChecked(new Set());
+    setResult(null);
     // 대진은 양 팀이 배정된 경기만 묶으므로 미배정 필터가 의미 없다
     if (next === "MATCHUPS" && filter === "UNASSIGNED") setFilter("ALL");
   };
 
-  const toggle = (id: string) =>
+  const toggle = (id: string) => {
+    setResult(null);
     setChecked((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
+  };
 
-  const toggleAll = () =>
-    setChecked((prev) =>
-      prev.size > 0 ? new Set() : new Set(rows.map((row) => row.customMatchId))
-    );
+  const checkedInView = rows.filter((row) => checked.has(row.customMatchId)).length;
+  const selectAll = checkStateOf(checkedInView, rows.length);
 
-  const runGameType = (gameType: CompetitionGameType) => {
+  const toggleAll = () => {
+    setResult(null);
+    setChecked(selectAll === "all" ? new Set() : new Set(rows.map((row) => row.customMatchId)));
+  };
+
+  const selectedMatches = useMemo(
+    () => matches.filter((match) => checked.has(match.customMatchId)),
+    [matches, checked]
+  );
+
+  const runGameType = async (gameType: CompetitionGameType) => {
     if (checked.size === 0 || !onChangeGameType) return;
-    onChangeGameType(Array.from(checked), gameType);
-    setChecked(new Set());
+    try {
+      const outcome = await onChangeGameType(Array.from(checked), gameType);
+      setChecked(new Set());
+      setResult(outcome);
+    } catch {
+      // 실패 안내는 페이지의 onError가 맡는다. 선택은 남겨 다시 시도할 수 있게 한다.
+    }
   };
 
   return (
@@ -162,6 +243,7 @@ const BoardMatchesTab = ({
                   onClick={() => {
                     setFilter(item.key);
                     setChecked(new Set());
+                    setResult(null);
                   }}
                   aria-pressed={active}
                   className={`inline-flex h-8 items-center gap-2 rounded-full border px-3.5 text-[13px] transition-colors ${
@@ -188,43 +270,29 @@ const BoardMatchesTab = ({
         </div>
       </div>
 
-      {editable && (
-        <div
-          className={`flex flex-wrap items-center gap-3 rounded border bg-darkBg2 px-4 py-3 ${
-            checked.size > 0 ? "border-blueText2" : "border-border2"
-          }`}
+      {result && <GameTypeResultNotice result={result} />}
+
+      {editable && rows.length > 0 && (
+        <button
+          type="button"
+          onClick={toggleAll}
+          role="checkbox"
+          aria-checked={ARIA_CHECKED[selectAll]}
+          className="flex items-center gap-2.5 self-start px-1 text-[13px] text-primary2 hover:text-primary1"
         >
-          <span className="text-[13px] text-primary1">
-            {checked.size > 0 ? `${checked.size}경기 선택됨` : "경기를 선택해 유형을 바꿉니다"}
-          </span>
-          {rows.length > 0 && (
-            <button
-              type="button"
-              onClick={toggleAll}
-              className="text-xs text-blueText hover:text-primary1"
-            >
-              {checked.size > 0 ? "선택 해제" : "전체 선택"}
-            </button>
+          <CheckBox state={selectAll} />
+          {filter === "ALL" || filter === "UNASSIGNED" ? (
+            <span>
+              {filter === "UNASSIGNED" ? "팀 미배정 " : ""}전체 선택{" "}
+              <span className="tabular-nums text-primary3">({rows.length}경기)</span>
+            </span>
+          ) : (
+            <span>
+              {getGameTypeMeta(filter).label} <span className="tabular-nums">{rows.length}</span>
+              경기 전체 선택
+            </span>
           )}
-          <div className="ml-auto flex items-center gap-2">
-            {GAME_TYPE_DISPLAY_ORDER.map((type) => {
-              const meta = getGameTypeMeta(type);
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => runGameType(type)}
-                  disabled={checked.size === 0 || changingGameType}
-                  className={`h-[34px] rounded border bg-darkBg1 px-3.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-40 ${meta.borderClass} ${
-                    type === "2" ? "text-primary1" : meta.textClass
-                  }`}
-                >
-                  {meta.label}으로
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        </button>
       )}
 
       {view === "MATCHUPS" && <BoardMatchupList matches={rows} teams={teams} guildId={guildId} />}
@@ -250,6 +318,60 @@ const BoardMatchesTab = ({
               deleting={deletingId === match.customMatchId}
             />
           ))}
+        </div>
+      )}
+
+      {editable && selectedMatches.length > 0 && (
+        // 긴 목록 아래쪽에서 골라도 버튼을 찾으러 올라가지 않도록 화면 하단에 붙인다.
+        <div
+          role="region"
+          aria-label="선택한 경기 유형 바꾸기"
+          className="sticky bottom-4 z-10 flex flex-wrap items-center gap-x-3.5 gap-y-2.5 rounded-lg border border-bluePrimary/55 bg-darkBg1 px-4 py-3 shadow-[0_10px_30px_theme(colors.black/0.55)]"
+        >
+          <span className="text-[13px] font-bold tabular-nums text-primary1">
+            {selectedMatches.length}경기 선택
+          </span>
+          <span className="flex flex-wrap items-center gap-2 text-xs text-primary2">
+            {GAME_TYPE_DISPLAY_ORDER.map((type) => {
+              const count = selectedMatches.filter((match) => match.gameType === type).length;
+              if (count === 0) return null;
+              const meta = getGameTypeMeta(type);
+              return (
+                <span key={type} className="flex items-center gap-1">
+                  <span className={`h-2 w-2 rounded-full ${meta.dotClass}`} aria-hidden="true" />
+                  {meta.label}
+                  <span className="font-bold tabular-nums text-primary1">{count}</span>
+                </span>
+              );
+            })}
+          </span>
+          <button
+            type="button"
+            onClick={() => setChecked(new Set())}
+            className="px-0.5 py-1 text-xs text-primary2 hover:text-primary1"
+          >
+            선택 해제
+          </button>
+          <div className="flex flex-wrap items-center gap-1.5 sm:ml-auto">
+            <span className="mr-0.5 text-xs text-primary3">유형 바꾸기</span>
+            {GAME_TYPE_DISPLAY_ORDER.map((type) => {
+              const meta = getGameTypeMeta(type);
+              const allSame = selectedMatches.every((match) => match.gameType === type);
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => runGameType(type)}
+                  disabled={allSame || changingGameType}
+                  title={allSame ? `선택한 경기가 모두 ${meta.label}입니다` : undefined}
+                  className="inline-flex h-8 items-center gap-2 rounded-full border border-border2 bg-darkBg2 px-3.5 text-[13px] text-primary2 transition-colors hover:border-border1 hover:text-primary1 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-border2 disabled:hover:text-primary2"
+                >
+                  <span className={`h-2 w-2 rounded-full ${meta.dotClass}`} aria-hidden="true" />
+                  {meta.label}으로
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
