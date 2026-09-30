@@ -159,11 +159,11 @@ const BoardMatchesTab = ({
   const editable = isManager && !locked && view === "GAMES";
 
   const changeView = (next: View) => {
+    if (next === view) return;
     setView(next);
     setChecked(new Set());
     setResult(null);
-    // 대진은 양 팀이 배정된 경기만 묶으므로 미배정 필터가 의미 없다
-    if (next === "MATCHUPS" && filter === "UNASSIGNED") setFilter("ALL");
+    setFilter("ALL");
   };
 
   const toggle = (id: string) => {
