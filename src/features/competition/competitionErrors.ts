@@ -50,8 +50,6 @@ export const competitionErrorMessage = (error: unknown): string => {
       return "이 대회에서 해당 경기를 찾을 수 없습니다.";
     case "team-limit-exceeded":
       return "한 대회에 팀은 20개까지 만들 수 있습니다.";
-    case "roster-limit-exceeded":
-      return "한 팀에 5명까지 편성할 수 있습니다.";
     case "team-name-exists":
       return "같은 이름의 팀이 있습니다. 팀명을 다르게 지어주세요.";
     case "team-duplicate":

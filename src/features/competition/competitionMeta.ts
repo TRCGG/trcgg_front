@@ -1,4 +1,5 @@
 import {
+  COMPETITION_POSITIONS,
   CompetitionApplicationStatus,
   CompetitionGameType,
   CompetitionPosition,
@@ -101,8 +102,17 @@ const POSITION_LABELS: Record<CompetitionPosition, string> = {
   SUP: "서폿",
 };
 
-export const positionLabel = (position: CompetitionPosition): string =>
-  POSITION_LABELS[position] ?? position;
+export const positionLabel = (position: CompetitionPosition | null): string =>
+  position ? (POSITION_LABELS[position] ?? position) : "-";
+
+/** 탑→정글→미드→원딜→서폿, 포지션이 없으면 맨 뒤. 같은 포지션끼리는 원래 순서를 지킨다. */
+export const sortByPosition = <T extends { position: CompetitionPosition | null }>(
+  members: T[]
+): T[] => {
+  const rank = (position: CompetitionPosition | null) =>
+    position ? COMPETITION_POSITIONS.indexOf(position) : COMPETITION_POSITIONS.length;
+  return [...members].sort((a, b) => rank(a.position) - rank(b.position));
+};
 
 /** 부포지션 표기. ALL이 섞여 있거나 4개 이상이면 "전체"로 접는다. */
 export const subPositionLabel = (subPositions: CompetitionSubPosition[]): string => {

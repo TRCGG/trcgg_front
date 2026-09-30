@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  COMPETITION_POSITIONS,
   CompetitionApplicationItem,
   CompetitionPosition,
   CompetitionTeamWithRoster,
   RosterSaveInput,
 } from "@/data/types/competition";
+import { sortByPosition } from "@/features/competition/competitionMeta";
 
-/** 슬롯에 놓인 사람. 신청서 정보를 그대로 들고 있어야 칩·슬롯이 같은 값을 보여준다. */
+/** 팀에 놓인 사람. 신청서 정보를 그대로 들고 있어야 칩·팀 카드가 같은 값을 보여준다. */
 export interface RosterSlotMember {
   playerCode: string;
   riotName: string;
   riotNameTag: string;
+  /** 신청서의 주 라인. 신청서가 없으면 null */
+  position: CompetitionPosition | null;
 }
 
 export interface DraftTeam {
@@ -19,7 +21,7 @@ export interface DraftTeam {
   id?: number;
   name: string;
   captainPlayerCode: string | null;
-  members: Partial<Record<CompetitionPosition, RosterSlotMember>>;
+  members: RosterSlotMember[];
 }
 
 /** 백엔드 MAX_TEAMS_PER_COMPETITION과 같은 값. 넘기면 409 team-limit-exceeded. */
@@ -28,7 +30,7 @@ export const MAX_TEAMS = 20;
 const emptyTeam = (index: number): DraftTeam => ({
   name: `${index + 1}팀`,
   captainPlayerCode: null,
-  members: {},
+  members: [],
 });
 
 const fromServer = (teams: CompetitionTeamWithRoster[]): DraftTeam[] =>
@@ -36,16 +38,13 @@ const fromServer = (teams: CompetitionTeamWithRoster[]): DraftTeam[] =>
     id: team.id,
     name: team.name,
     captainPlayerCode: team.captainPlayerCode,
-    members: team.roster.reduce<Partial<Record<CompetitionPosition, RosterSlotMember>>>(
-      (acc, member) => ({
-        ...acc,
-        [member.position]: {
-          playerCode: member.playerCode,
-          riotName: member.riotName,
-          riotNameTag: member.riotNameTag,
-        },
-      }),
-      {}
+    members: sortByPosition(
+      team.roster.map((member) => ({
+        playerCode: member.playerCode,
+        riotName: member.riotName,
+        riotNameTag: member.riotNameTag,
+        position: member.position,
+      }))
     ),
   }));
 
@@ -66,39 +65,29 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, serverKey]);
 
-  /** 한 대회에서 한 사람은 한 팀에만 속할 수 있다(DB 유니크) — 배치 전에 다른 슬롯에서 뺀다. */
-  const place = useCallback(
-    (member: RosterSlotMember, teamIndex: number, position: CompetitionPosition) => {
-      setTeams((prev) =>
-        prev.map((team, index) => {
-          const members = { ...team.members };
-          (Object.keys(members) as CompetitionPosition[]).forEach((key) => {
-            if (members[key]?.playerCode === member.playerCode) delete members[key];
-          });
-          if (index === teamIndex) members[position] = member;
-          const captainPlayerCode =
-            team.captainPlayerCode === member.playerCode && index !== teamIndex
-              ? null
-              : team.captainPlayerCode;
-          return { ...team, members, captainPlayerCode };
-        })
-      );
-    },
-    []
-  );
+  /** 한 대회에서 한 사람은 한 팀에만 속할 수 있다(DB 유니크) — 배치 전에 다른 팀에서 뺀다. */
+  const place = useCallback((member: RosterSlotMember, teamIndex: number) => {
+    setTeams((prev) =>
+      prev.map((team, index) => {
+        const others = team.members.filter((m) => m.playerCode !== member.playerCode);
+        if (index === teamIndex) {
+          return { ...team, members: sortByPosition([...others, member]) };
+        }
+        const captainPlayerCode =
+          team.captainPlayerCode === member.playerCode ? null : team.captainPlayerCode;
+        return { ...team, members: others, captainPlayerCode };
+      })
+    );
+  }, []);
 
-  const removeAt = useCallback((teamIndex: number, position: CompetitionPosition) => {
+  const removeMember = useCallback((teamIndex: number, playerCode: string) => {
     setTeams((prev) =>
       prev.map((team, index) => {
         if (index !== teamIndex) return team;
-        const target = team.members[position];
-        const members = { ...team.members };
-        delete members[position];
         return {
           ...team,
-          members,
-          captainPlayerCode:
-            target && team.captainPlayerCode === target.playerCode ? null : team.captainPlayerCode,
+          members: team.members.filter((m) => m.playerCode !== playerCode),
+          captainPlayerCode: team.captainPlayerCode === playerCode ? null : team.captainPlayerCode,
         };
       })
     );
@@ -134,26 +123,20 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
 
   const clearAll = useCallback(
     () =>
-      setTeams((prev) => prev.map((team) => ({ ...team, members: {}, captainPlayerCode: null }))),
+      setTeams((prev) => prev.map((team) => ({ ...team, members: [], captainPlayerCode: null }))),
     []
   );
 
   const placedCodes = new Set(
-    teams.flatMap((team) =>
-      (Object.values(team.members) as RosterSlotMember[]).map((member) => member.playerCode)
-    )
+    teams.flatMap((team) => team.members.map((member) => member.playerCode))
   );
-
-  const slotTotal = teams.length * COMPETITION_POSITIONS.length;
 
   const toPayload = (): RosterSaveInput => ({
     teams: teams.map((team) => ({
       id: team.id,
       name: team.name.trim(),
       captainPlayerCode: team.captainPlayerCode,
-      members: (Object.entries(team.members) as [CompetitionPosition, RosterSlotMember][]).map(
-        ([position, member]) => ({ playerCode: member.playerCode, position })
-      ),
+      members: team.members.map((member) => ({ playerCode: member.playerCode })),
     })),
   });
 
@@ -171,10 +154,9 @@ const useRosterDraft = (serverTeams: CompetitionTeamWithRoster[], ready: boolean
     teams,
     placedCodes,
     placedCount: placedCodes.size,
-    slotTotal,
     canAddTeam: teams.length < MAX_TEAMS,
     place,
-    removeAt,
+    removeMember,
     addTeam,
     removeTeam,
     renameTeam,

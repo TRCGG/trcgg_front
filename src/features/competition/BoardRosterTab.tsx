@@ -1,5 +1,5 @@
 import { CompetitionTeamWithRoster } from "@/data/types/competition";
-import { positionLabel } from "./competitionMeta";
+import { positionLabel, sortByPosition } from "./competitionMeta";
 import WinnerBadge from "./WinnerBadge";
 
 interface Props {
@@ -48,7 +48,7 @@ const BoardRosterTab = ({ teams }: Props) => {
             {team.roster.length === 0 ? (
               <span className="py-2 text-center text-xs text-primary3">로스터 미배정</span>
             ) : (
-              team.roster.map((member) => (
+              sortByPosition(team.roster).map((member) => (
                 <div key={member.playerCode} className="flex items-center gap-2">
                   <span className="flex h-5 w-6 shrink-0 items-center justify-center rounded border border-border2 bg-darkBg1 text-[10px] text-primary2">
                     {positionLabel(member.position)}

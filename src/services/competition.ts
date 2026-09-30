@@ -243,7 +243,7 @@ export const addTeamMember = async (
   guildId: string,
   competitionId: number,
   teamId: number,
-  body: { playerCode: string; position: CompetitionPosition }
+  body: { playerCode: string }
 ): Promise<CompetitionTeamRoster> => {
   return unwrap(
     api.post<TeamResponse>(`${BASE(guildId)}/${competitionId}/teams/${teamId}/members`, body)

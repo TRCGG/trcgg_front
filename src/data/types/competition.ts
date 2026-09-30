@@ -147,7 +147,7 @@ export interface CompetitionPlayerSummary {
 }
 
 export interface CompetitionRosterMember extends CompetitionPlayerSummary {
-  position: CompetitionPosition;
+  position: CompetitionPosition | null;
 }
 
 export interface RecordCount {
@@ -192,7 +192,7 @@ export interface RosterSaveTeamInput {
   id?: number;
   name: string;
   captainPlayerCode?: string | null;
-  members: { playerCode: string; position: CompetitionPosition }[];
+  members: { playerCode: string }[];
 }
 
 /** payload에 없는 팀은 삭제된다. */
@@ -271,7 +271,12 @@ export interface PlayerCompetitionItem {
   season: string;
   createDate: string;
   closeDate: string | null;
-  team: { id: number; name: string; position: CompetitionPosition; isCaptain: boolean } | null;
+  team: {
+    id: number;
+    name: string;
+    position: CompetitionPosition | null;
+    isCaptain: boolean;
+  } | null;
   applicationStatus: CompetitionApplicationStatus | null;
   /** 팀 귀속과 무관한 본인 전적 (스크림+예선+본선 합산) */
   record: { games: number; win: number; lose: number; winRate: number; kda: number };
