@@ -23,6 +23,9 @@ const GRID = "grid-cols-[56px_1fr_72px_84px_78px_92px]";
 const BoardStandingsTab = ({ standings, winnerTeamId }: Props) => {
   const [split, setSplit] = useState<Split>("main");
   const rows: StandingRow[] = standings?.[split] ?? [];
+  // 백엔드는 정렬 키가 같은 팀에 같은 등수를 줘서 0판 팀끼리 한 등수로 묶인다(전부 0판이면 전원 1위).
+  const hasGames = rows.some((row) => row.games > 0);
+  const splitLabel = SPLITS.find((item) => item.key === split)?.label ?? "";
 
   return (
     <div className="flex flex-col gap-3">
@@ -55,45 +58,51 @@ const BoardStandingsTab = ({ standings, winnerTeamId }: Props) => {
             <span className="text-center">승률</span>
             <span className="text-center">평균 KDA</span>
           </div>
-          {rows.length === 0 ? (
+          {!hasGames ? (
             <div className="px-4 py-11 text-center text-[13px] text-primary3">
-              집계된 경기가 없습니다
+              아직 등록된 {splitLabel} 경기가 없습니다
             </div>
           ) : (
-            rows.map((row) => (
-              <div
-                key={row.teamId}
-                className={`grid ${GRID} items-center gap-2.5 border-b border-cardBorder px-4 py-3 last:border-0 ${
-                  row.rank === 1 ? "bg-yellow/[0.04]" : ""
-                }`}
-              >
-                <span
-                  className={`text-center text-[15px] font-bold ${
-                    row.rank === 1 ? "text-yellow" : "text-primary2"
-                  }`}
+            rows.map((row) => {
+              const ranked = row.games > 0;
+              const isFirst = ranked && row.rank === 1;
+              return (
+                <div
+                  key={row.teamId}
+                  className={`grid ${GRID} items-center gap-2.5 border-b border-cardBorder px-4 py-3 last:border-0 ${
+                    isFirst ? "bg-yellow/[0.04]" : ""
+                  } ${ranked ? "" : "opacity-50"}`}
                 >
-                  {row.rank}
-                </span>
-                <span className="flex min-w-0 items-center gap-1.5">
-                  <span className="truncate text-sm text-primary1">{row.name}</span>
-                  {row.teamId === winnerTeamId && <WinnerBadge />}
-                </span>
-                <span className="text-center text-[13px] tabular-nums text-primary2">
-                  {row.games}
-                </span>
-                <span className="text-center text-[13px] tabular-nums text-primary1">
-                  {row.win} - {row.lose}
-                </span>
-                <span
-                  className={`text-center text-[13px] tabular-nums ${getWinRateColor(row.winRate)}`}
-                >
-                  {row.winRate}%
-                </span>
-                <span className="text-center text-[13px] tabular-nums text-primary1">
-                  {row.avgKda}
-                </span>
-              </div>
-            ))
+                  <span
+                    className={`text-center text-[15px] font-bold ${
+                      isFirst ? "text-yellow" : "text-primary2"
+                    }`}
+                  >
+                    {ranked ? row.rank : "-"}
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="truncate text-sm text-primary1">{row.name}</span>
+                    {row.teamId === winnerTeamId && <WinnerBadge />}
+                  </span>
+                  <span className="text-center text-[13px] tabular-nums text-primary2">
+                    {row.games}
+                  </span>
+                  <span className="text-center text-[13px] tabular-nums text-primary1">
+                    {row.win} - {row.lose}
+                  </span>
+                  <span
+                    className={`text-center text-[13px] tabular-nums ${
+                      ranked ? getWinRateColor(row.winRate) : "text-primary3"
+                    }`}
+                  >
+                    {ranked ? `${row.winRate}%` : "-"}
+                  </span>
+                  <span className="text-center text-[13px] tabular-nums text-primary1">
+                    {ranked ? row.avgKda : "-"}
+                  </span>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
