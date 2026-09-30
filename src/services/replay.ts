@@ -15,10 +15,10 @@ export const uploadReplays = async (
   files: File[],
   nick: string,
   /**
-   * 대회 귀속. gameType 2(스크림)·3(본경기)에만 competitionId를 붙일 수 있고, 생략하면
+   * 대회 귀속. gameType 2(스크림)·3(예선)·4(본선)에만 competitionId를 붙일 수 있고, 생략하면
    * 백엔드가 길드의 진행중 대회를 찾는다. gameType 1(일반내전)에 competitionId를 주면 400.
    */
-  scope?: { gameType?: "1" | "2" | "3"; competitionId?: number }
+  scope?: { gameType?: "1" | "2" | "3" | "4"; competitionId?: number }
 ): Promise<ReplayUploadData> => {
   const decodedGuildId = atob(guildId);
   const formData = new FormData();

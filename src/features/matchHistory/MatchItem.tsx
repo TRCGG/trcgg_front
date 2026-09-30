@@ -13,6 +13,7 @@ import ItemWithTooltip from "@/components/ui/ItemWithTooltip";
 import SpellWithTooltip from "@/components/ui/SpellWithTooltip";
 import RuneWithTooltip from "@/components/ui/RuneWithTooltip";
 import { useGuildContext } from "@/hooks/auth/GuildContext";
+import { getGameTypeMeta, isCompetitionGameType } from "@/features/competition/competitionMeta";
 
 interface Props {
   matchData: RecentGameRecord;
@@ -50,8 +51,9 @@ const MatchItem = ({ matchData }: Props) => {
       ? matchData.kill + matchData.assist
       : (matchData.kill + matchData.assist) / matchData.death;
 
-  // 스크림(2)·본경기(3)는 대회 경기다. 일반내전(1)만 담는 종합 탭에서는 아래 칸이 통째로 빠진다.
-  const isCompetitionGame = matchData.gameType === "2" || matchData.gameType === "3";
+  // 스크림·예선·본선은 대회 경기다. 일반내전(1)만 담는 종합 탭에서는 아래 칸이 통째로 빠진다.
+  const isCompetitionGame = !!matchData.gameType && isCompetitionGameType(matchData.gameType);
+  const gameTypeMeta = getGameTypeMeta(matchData.gameType ?? "");
 
   const durationMin = Math.floor(matchData.timePlayed / 60);
   const durationSec = String(matchData.timePlayed % 60).padStart(2, "0");
@@ -88,11 +90,9 @@ const MatchItem = ({ matchData }: Props) => {
           {/* 모바일은 오른쪽 대회 칸이 빠지므로 뱃지만 여기에 둔다 */}
           {isCompetitionGame && (
             <span
-              className={`sm:hidden rounded px-1 text-[9px] font-bold leading-4 whitespace-nowrap ${
-                matchData.gameType === "3" ? "bg-yellow/10 text-yellow" : "bg-rankBg2 text-primary2"
-              }`}
+              className={`sm:hidden rounded px-1 text-[9px] font-bold leading-4 whitespace-nowrap ${gameTypeMeta.bgClass} ${gameTypeMeta.textClass}`}
             >
-              {matchData.gameType === "3" ? "★본경기" : "스크림"}
+              {gameTypeMeta.label}
             </span>
           )}
         </div>
@@ -274,13 +274,9 @@ const MatchItem = ({ matchData }: Props) => {
           {isCompetitionGame && (
             <div className="hidden sm:flex flex-col items-end gap-1 shrink-0 max-w-[132px]">
               <span
-                className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
-                  matchData.gameType === "3"
-                    ? "bg-yellow/10 text-yellow"
-                    : "bg-rankBg2 text-primary2"
-                }`}
+                className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${gameTypeMeta.bgClass} ${gameTypeMeta.textClass}`}
               >
-                {matchData.gameType === "3" ? "★본경기" : "스크림"}
+                {gameTypeMeta.label}
               </span>
               {matchData.opponentTeamName ? (
                 <span

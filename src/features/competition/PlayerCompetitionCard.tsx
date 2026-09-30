@@ -14,9 +14,10 @@ const BADGES = [
   "bg-redText/[0.14] text-redText",
 ];
 
-/** 스크림·본경기 순위가 따로 잡히므로 본경기를 우선 보여준다. */
+/** 유형별 순위가 따로 잡히므로 본선 → 예선 → 스크림 순으로 먼저 있는 것을 보여준다. */
 const teamRankLabel = (item: PlayerCompetitionItem): string => {
   if (item.teamRank.main !== null) return `${item.teamRank.main}위`;
+  if (item.teamRank.preliminary !== null) return `${item.teamRank.preliminary}위`;
   if (item.teamRank.scrim !== null) return `${item.teamRank.scrim}위`;
   return "-";
 };

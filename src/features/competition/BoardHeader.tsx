@@ -1,9 +1,11 @@
 import { CompetitionDetail } from "@/data/types/competition";
 import OverflowMenu, { OverflowMenuItem } from "@/components/ui/OverflowMenu";
 import { competitionInitial, getCompetitionStatusMeta } from "./competitionMeta";
+import WinnerBadge from "./WinnerBadge";
 
 interface Props {
   competition: CompetitionDetail;
+  winnerName: string | null;
   isManager: boolean;
   onCloseApplications: () => void;
   onEnd: () => void;
@@ -25,6 +27,7 @@ const formatDate = (iso: string): string => {
 
 const BoardHeader = ({
   competition,
+  winnerName,
   isManager,
   onCloseApplications,
   onEnd,
@@ -66,6 +69,12 @@ const BoardHeader = ({
           >
             {status.label}
           </span>
+          {winnerName && (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <WinnerBadge />
+              <span className="truncate text-[13px] text-yellow">{winnerName}</span>
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-primary2">
           <span>생성 {formatDate(competition.createDate)}</span>
@@ -76,8 +85,9 @@ const BoardHeader = ({
           </span>
           <span className="text-border2">|</span>
           <span>
-            스크림 <span className="text-primary1">{competition.scrimCount}</span> · ★본경기{" "}
-            <span className="text-primary1">{competition.mainCount}</span>
+            본선 <span className="text-primary1">{competition.mainCount}</span> · 예선{" "}
+            <span className="text-primary1">{competition.preliminaryCount}</span> · 스크림{" "}
+            <span className="text-primary1">{competition.scrimCount}</span>
           </span>
           {isRecruiting && competition.pendingCount > 0 && (
             <>
