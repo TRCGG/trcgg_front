@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import {
   CompetitionChampionStat,
+  CompetitionGameType,
   CompetitionSummary,
   CompetitionUserStat,
 } from "@/data/types/competition";
@@ -11,6 +12,7 @@ import SpriteImage from "@/components/ui/SpriteImage";
 import PlayerNameButton from "@/features/matchHistory/PlayerNameButton";
 import PositionFilter from "@/features/statistics/PositionFilter";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { GAME_TYPE_DISPLAY_ORDER, getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   users: CompetitionUserStat[];
@@ -32,6 +34,28 @@ const MULTI_KILLS = [
   { key: "quadra", label: "쿼드라", className: "text-blueText" },
   { key: "triple", label: "트리플", className: "text-primary1" },
 ] as const;
+
+type MatchCounts = NonNullable<Props["matchCounts"]>;
+
+const countOf = (counts: MatchCounts, type: CompetitionGameType): number => {
+  if (type === "4") return counts.mainCount;
+  if (type === "3") return counts.preliminaryCount;
+  return counts.scrimCount;
+};
+
+const SummaryCard = ({ label, children }: { label: string; children: ReactNode }) => (
+  <div className="flex min-h-[116px] flex-col rounded border border-border2 bg-darkBg2 px-4 py-3.5">
+    <span className="text-xs text-primary2">{label}</span>
+    <div className="mt-1.5 flex flex-1 flex-col">{children}</div>
+  </div>
+);
+
+const BigNumber = ({ value, unit }: { value: number | string; unit: string }) => (
+  <span className="flex items-baseline gap-1">
+    <span className="text-[28px] font-bold leading-none tabular-nums text-primary1">{value}</span>
+    <span className="text-[13px] text-primary2">{unit}</span>
+  </span>
+);
 
 const num = (value: string | number): number => {
   const parsed = typeof value === "string" ? parseFloat(value) : value;
@@ -253,37 +277,76 @@ const BoardStatsTab = ({
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-        <div className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5">
-          <span className="text-[11px] text-primary2">총 경기 수</span>
-          <span className="text-[22px] font-bold leading-tight tabular-nums text-primary1">
-            {totalMatches ?? "-"}
-          </span>
-          {matchCounts && (
-            <span className="text-[11px] tabular-nums text-primary3">
-              본선 {matchCounts.mainCount} · 예선 {matchCounts.preliminaryCount} · 스크림{" "}
-              {matchCounts.scrimCount}
-            </span>
+        <SummaryCard label="총 경기 수">
+          <BigNumber value={totalMatches ?? "-"} unit="경기" />
+          {matchCounts && totalMatches !== null && (
+            <div className="mt-auto flex flex-col gap-2 pt-3">
+              <div className="flex h-1.5 overflow-hidden rounded-full bg-rankBg2">
+                {GAME_TYPE_DISPLAY_ORDER.map((type) => (
+                  <div
+                    key={type}
+                    className={getGameTypeMeta(type).dotClass}
+                    style={{
+                      width: `${totalMatches > 0 ? (countOf(matchCounts, type) / totalMatches) * 100 : 0}%`,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="flex gap-3 text-[11px] text-primary2">
+                {GAME_TYPE_DISPLAY_ORDER.map((type) => {
+                  const meta = getGameTypeMeta(type);
+                  return (
+                    <span key={type} className="flex items-center gap-1">
+                      <span className={`h-1.5 w-1.5 rounded-full ${meta.dotClass}`} />
+                      {meta.label}
+                      <span className="tabular-nums text-primary1">
+                        {countOf(matchCounts, type)}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
           )}
-        </div>
-        <div className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5">
-          <span className="text-[11px] text-primary2">참가자</span>
-          <span className="text-[22px] font-bold leading-tight tabular-nums text-primary1">
-            {users.length}
-          </span>
-        </div>
-        <div className="flex flex-col gap-1 rounded border border-border2 bg-darkBg2 px-4 py-3.5">
-          <span className="text-[11px] text-primary2">멀티킬</span>
-          <div className="flex items-baseline gap-3.5">
-            {MULTI_KILLS.map((item) => (
-              <span key={item.key} className="flex items-baseline gap-1">
-                <span className="text-[11px] text-primary2">{item.label}</span>
-                <span className={`text-[22px] font-bold leading-tight tabular-nums `}>
-                  {multiKills[item.key]}
-                </span>
-              </span>
-            ))}
+        </SummaryCard>
+
+        <SummaryCard label="참가자">
+          <BigNumber value={users.length} unit="명" />
+          <div className="mt-auto flex flex-col gap-2 pt-3">
+            <div className="h-1.5 overflow-hidden rounded-full bg-rankBg2">
+              <div
+                className="h-full bg-blueText"
+                style={{
+                  width: `${users.length > 0 ? (eligible.length / users.length) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <span className="text-[11px] text-primary2">
+              랭킹 집계 대상 <span className="tabular-nums text-primary1">{eligible.length}명</span>{" "}
+              · {MIN_GAMES}판 이상
+            </span>
           </div>
-        </div>
+        </SummaryCard>
+
+        <SummaryCard label="멀티킬">
+          <div className="mt-auto grid grid-cols-3 divide-x divide-border2">
+            {MULTI_KILLS.map((item) => {
+              const count = multiKills[item.key];
+              return (
+                <div key={item.key} className="flex flex-col items-center gap-1 py-1">
+                  <span
+                    className={`text-[26px] font-bold leading-none tabular-nums ${
+                      count > 0 ? item.className : "text-primary3"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                  <span className="text-[11px] text-primary2">{item.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </SummaryCard>
       </div>
 
       <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
