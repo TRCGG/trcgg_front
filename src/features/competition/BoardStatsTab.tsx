@@ -10,6 +10,7 @@ import { getChampionSprite } from "@/utils/spriteLoader";
 import SpriteImage from "@/components/ui/SpriteImage";
 import PlayerNameButton from "@/features/matchHistory/PlayerNameButton";
 import PositionFilter from "@/features/statistics/PositionFilter";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface Props {
   users: CompetitionUserStat[];
@@ -300,40 +301,49 @@ const BoardStatsTab = ({
             className="ml-auto"
           />
         </div>
-        {topChampions.length === 0 ? (
+        {topChampions.length === 0 && isFetchingChampions && <LoadingSpinner />}
+        {topChampions.length === 0 && !isFetchingChampions && (
           <div className="px-4 py-8 text-center text-xs text-primary3">
-            {isFetchingChampions ? "불러오는 중..." : "이 라인에서 플레이된 챔피언이 없습니다"}
+            이 라인에서 플레이된 챔피언이 없습니다
           </div>
-        ) : (
-          <div
-            className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 ${
-              isFetchingChampions ? "opacity-60" : ""
-            }`}
-          >
-            {topChampions.map((champion) => (
-              <div
-                key={champion.champNameEng}
-                className="flex flex-col items-center gap-2 border-b border-r border-cardBorder px-3 py-4 last:border-r-0"
-              >
-                <SpriteImage
-                  spriteData={getChampionSprite(champion.champNameEng)}
-                  width={48}
-                  height={48}
-                  alt={champion.champName}
-                  fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champion.champNameEng}.png`}
-                  className="h-12 w-12 rounded-md"
-                />
-                <span className="max-w-full truncate text-[13px] text-primary1">
-                  {champion.champName}
-                </span>
-                <span className="text-[11px] text-primary2">
-                  {champion.totalCount}판 · {champion.win}승 {champion.lose}패
-                </span>
-                <span className={`text-xs font-bold ${getWinRateColor(champion.winRate)}`}>
-                  승률 {num(champion.winRate).toFixed(1)}%
-                </span>
+        )}
+        {topChampions.length > 0 && (
+          <div className="relative">
+            <div
+              className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 ${
+                isFetchingChampions ? "opacity-40" : ""
+              }`}
+            >
+              {topChampions.map((champion) => (
+                <div
+                  key={champion.champNameEng}
+                  className="flex flex-col items-center gap-2 border-b border-r border-cardBorder px-3 py-4 last:border-r-0"
+                >
+                  <SpriteImage
+                    spriteData={getChampionSprite(champion.champNameEng)}
+                    width={48}
+                    height={48}
+                    alt={champion.champName}
+                    fallbackSrc={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champion.champNameEng}.png`}
+                    className="h-12 w-12 rounded-md"
+                  />
+                  <span className="max-w-full truncate text-[13px] text-primary1">
+                    {champion.champName}
+                  </span>
+                  <span className="text-[11px] text-primary2">
+                    {champion.totalCount}판 · {champion.win}승 {champion.lose}패
+                  </span>
+                  <span className={`text-xs font-bold ${getWinRateColor(champion.winRate)}`}>
+                    승률 {num(champion.winRate).toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+            </div>
+            {isFetchingChampions && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <LoadingSpinner />
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>

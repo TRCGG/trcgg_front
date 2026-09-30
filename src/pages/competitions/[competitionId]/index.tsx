@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { keepPreviousData, useMutation, useQueries } from "@tanstack/react-query";
+import { useMutation, useQueries } from "@tanstack/react-query";
 import { Position } from "@/services/statistics";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
@@ -18,7 +18,6 @@ import {
   assignMatchTeams,
   changeCompetitionStatus,
   changeMatchGameType,
-  getCompetitionChampionStatistics,
   getCompetitionMatches,
   getCompetitionUserStatistics,
   getStandings,
@@ -36,6 +35,7 @@ import BoardStandingsTab from "@/features/competition/BoardStandingsTab";
 import BoardStatsTab from "@/features/competition/BoardStatsTab";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
 import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
+import useCompetitionChampionStats from "@/hooks/competition/useCompetitionChampionStats";
 import {
   COMPETITION_STATUS_VALUES,
   CompetitionGameType,
@@ -103,54 +103,44 @@ const CompetitionBoardPage: NextPage = () => {
 
   const enabled = !!guildId && validId !== null;
   // 탭을 옮길 때마다 다시 받지 않도록 네 소스를 함께 캐싱한다.
-  const [teamsQuery, matchesQuery, standingsQuery, userStatsQuery, championStatsQuery] = useQueries(
-    {
-      queries: [
-        {
-          queryKey: ["competitionTeams", guildId, validId],
-          queryFn: () => getTeams(guildId, validId as number),
-          enabled,
-          staleTime: 30 * 1000,
-        },
-        {
-          queryKey: ["competitionMatches", guildId, validId],
-          queryFn: () => getCompetitionMatches(guildId, validId as number),
-          enabled,
-          staleTime: 30 * 1000,
-        },
-        {
-          queryKey: ["competitionStandings", guildId, validId],
-          queryFn: () => getStandings(guildId, validId as number),
-          enabled,
-          staleTime: 30 * 1000,
-        },
-        {
-          queryKey: ["competitionUserStats", guildId, validId],
-          queryFn: () => getCompetitionUserStatistics(guildId, validId as number, { limit: 500 }),
-          enabled: enabled && activeTab === "stats",
-          staleTime: 60 * 1000,
-        },
-        {
-          queryKey: ["competitionChampionStats", guildId, validId, championPosition],
-          // 전체는 position을 빼야 라인 구분 없이 챔피언별로 합산된다(ALL은 챔피언×라인 행을 준다).
-          queryFn: () =>
-            getCompetitionChampionStatistics(guildId, validId as number, {
-              limit: 500,
-              position: championPosition === "ALL" ? undefined : championPosition,
-            }),
-          enabled: enabled && activeTab === "stats",
-          placeholderData: keepPreviousData,
-          staleTime: 60 * 1000,
-        },
-      ],
-    }
-  );
+  const [teamsQuery, matchesQuery, standingsQuery, userStatsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["competitionTeams", guildId, validId],
+        queryFn: () => getTeams(guildId, validId as number),
+        enabled,
+        staleTime: 30 * 1000,
+      },
+      {
+        queryKey: ["competitionMatches", guildId, validId],
+        queryFn: () => getCompetitionMatches(guildId, validId as number),
+        enabled,
+        staleTime: 30 * 1000,
+      },
+      {
+        queryKey: ["competitionStandings", guildId, validId],
+        queryFn: () => getStandings(guildId, validId as number),
+        enabled,
+        staleTime: 30 * 1000,
+      },
+      {
+        queryKey: ["competitionUserStats", guildId, validId],
+        queryFn: () => getCompetitionUserStatistics(guildId, validId as number, { limit: 500 }),
+        enabled: enabled && activeTab === "stats",
+        staleTime: 60 * 1000,
+      },
+    ],
+  });
 
   const teams = teamsQuery.data ?? [];
   const matches = matchesQuery.data ?? [];
   const standings = standingsQuery.data ?? null;
   const userStats = userStatsQuery.data ?? [];
-  const championStats = championStatsQuery.data ?? [];
+  const {
+    champions: championStats,
+    isPending: isPendingChampions,
+    isFetching: isFetchingChampions,
+  } = useCompetitionChampionStats(guildId, validId, championPosition, activeTab === "stats");
   const currentWinner = teams.find((team) => team.isWinner) ?? null;
   const currentWinnerId = currentWinner?.id ?? null;
 
@@ -361,14 +351,14 @@ const CompetitionBoardPage: NextPage = () => {
       case "standing":
         return <BoardStandingsTab standings={standings} winnerTeamId={currentWinnerId} />;
       case "stats":
-        if (userStatsQuery.isLoading || championStatsQuery.isLoading) return <LoadingSpinner />;
+        if (userStatsQuery.isLoading) return <LoadingSpinner />;
         return (
           <BoardStatsTab
             users={userStats}
             champions={championStats}
             championPosition={championPosition}
             onChangeChampionPosition={setChampionPosition}
-            isFetchingChampions={championStatsQuery.isFetching}
+            isFetchingChampions={isFetchingChampions || isPendingChampions}
             matchCounts={competition ?? null}
           />
         );
