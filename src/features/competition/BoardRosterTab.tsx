@@ -1,14 +1,16 @@
 import { CompetitionTeamWithRoster } from "@/data/types/competition";
-import { positionLabel } from "./competitionMeta";
+import { positionLabel, sortByPosition } from "./competitionMeta";
+import WinnerBadge from "./WinnerBadge";
 
 interface Props {
   teams: CompetitionTeamWithRoster[];
 }
 
-/** 스크림·본경기를 합친 팀 전적 요약. 순위표는 둘을 나눠 보여준다. */
+/** 스크림·예선·본선을 합친 팀 전적 요약. 순위표는 나눠 보여준다. */
 const totalRecord = (team: CompetitionTeamWithRoster): string => {
-  const win = team.records.scrim.win + team.records.main.win;
-  const lose = team.records.scrim.lose + team.records.main.lose;
+  const { scrim, preliminary, main } = team.records;
+  const win = scrim.win + preliminary.win + main.win;
+  const lose = scrim.lose + preliminary.lose + main.lose;
   if (win + lose === 0) return "경기 전";
   return `${win}승 ${lose}패`;
 };
@@ -27,13 +29,16 @@ const BoardRosterTab = ({ teams }: Props) => {
       {teams.map((team, index) => (
         <div
           key={team.id}
-          className="flex flex-col gap-2.5 rounded border border-border2 bg-darkBg2 p-3.5"
+          className={`flex flex-col gap-2.5 rounded border bg-darkBg2 p-3.5 ${
+            team.isWinner ? "border-yellow/40" : "border-border2"
+          }`}
         >
           <div className="flex items-center gap-2">
             <span className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded bg-blueText/10 text-[11px] font-bold text-blueText">
               {index + 1}
             </span>
             <span className="truncate text-[15px] font-bold text-primary1">{team.name}</span>
+            {team.isWinner && <WinnerBadge />}
             <span className="ml-auto whitespace-nowrap text-xs text-primary2">
               {totalRecord(team)}
             </span>
@@ -43,7 +48,7 @@ const BoardRosterTab = ({ teams }: Props) => {
             {team.roster.length === 0 ? (
               <span className="py-2 text-center text-xs text-primary3">로스터 미배정</span>
             ) : (
-              team.roster.map((member) => (
+              sortByPosition(team.roster).map((member) => (
                 <div key={member.playerCode} className="flex items-center gap-2">
                   <span className="flex h-5 w-6 shrink-0 items-center justify-center rounded border border-border2 bg-darkBg1 text-[10px] text-primary2">
                     {positionLabel(member.position)}

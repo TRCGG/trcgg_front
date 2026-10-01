@@ -13,7 +13,8 @@ import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useCompetitionApplications from "@/hooks/competition/useCompetitionApplications";
 import { canManageGuild } from "@/data/types/guildMember";
 import { CompetitionApplicationStatus } from "@/data/types/competition";
-import { decideApplications } from "@/services/competition";
+import { decideApplications, exportApplicationsCsv } from "@/services/competition";
+import saveBlob from "@/utils/saveBlob";
 import ApplicationTable from "@/features/competition/ApplicationTable";
 import { APPLICATION_TABS } from "@/features/competition/competitionMeta";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
@@ -129,6 +130,17 @@ const ApplicationApprovalPage: NextPage = () => {
       setErrorMsg(null);
       setCheckedIds(new Set());
       await invalidateCompetitions();
+    },
+    onError: (err) => setErrorMsg(competitionErrorMessage(err)),
+  });
+
+  // Content-Disposition은 CORS exposedHeaders에 없어 읽을 수 없으므로 파일명은 여기서 정한다
+  const exportMutation = useMutation({
+    mutationFn: () => exportApplicationsCsv(guildId, validId as number),
+    onSuccess: (blob) => {
+      setErrorMsg(null);
+      const name = (competition?.name ?? `competition-${validId}`).replace(/[\\/:*?"<>|]/g, "_");
+      saveBlob(blob, `${name}_참가신청.csv`);
     },
     onError: (err) => setErrorMsg(competitionErrorMessage(err)),
   });
@@ -271,13 +283,23 @@ const ApplicationApprovalPage: NextPage = () => {
               </p>
             </div>
             {validId !== null && isManager && (
-              <button
-                type="button"
-                onClick={() => router.push(`/competitions/${validId}/roster`)}
-                className="h-[38px] shrink-0 rounded border border-border2 bg-darkBg1 px-4 text-[13px] text-primary1"
-              >
-                로스터 편성으로
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => exportMutation.mutate()}
+                  disabled={exportMutation.isPending}
+                  className="h-[38px] rounded border border-border2 bg-darkBg1 px-4 text-[13px] text-primary1 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {exportMutation.isPending ? "내려받는 중..." : "엑셀 다운로드"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/competitions/${validId}/roster`)}
+                  className="h-[38px] rounded border border-border2 bg-darkBg1 px-4 text-[13px] text-primary1"
+                >
+                  로스터 편성으로
+                </button>
+              </div>
             )}
           </div>
           {renderBody()}

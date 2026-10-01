@@ -1,5 +1,7 @@
 import {
+  COMPETITION_POSITIONS,
   CompetitionApplicationStatus,
+  CompetitionGameType,
   CompetitionPosition,
   CompetitionStatus,
   CompetitionSubPosition,
@@ -40,10 +42,52 @@ export const formatParticipants = (competition: CompetitionSummary): string => {
   return `${competition.participantCount}명 · ${competition.teamCount}팀`;
 };
 
+interface GameTypeMeta {
+  label: string;
+  textClass: string;
+  bgClass: string;
+  borderClass: string;
+  dotClass: string;
+}
+
+// 경기 유형 표기는 경기 목록·업로드·순위표·전적 탭에서 같아야 하므로 한곳에서 관리한다.
+const GAME_TYPE_META: Record<CompetitionGameType, GameTypeMeta> = {
+  "2": {
+    label: "스크림",
+    textClass: "text-primary2",
+    bgClass: "bg-rankBg2",
+    borderClass: "border-border2",
+    dotClass: "bg-primary2",
+  },
+  "3": {
+    label: "예선",
+    textClass: "text-blueText",
+    bgClass: "bg-blueText/10",
+    borderClass: "border-blueText/40",
+    dotClass: "bg-blueText",
+  },
+  "4": {
+    label: "본선",
+    textClass: "text-yellow",
+    bgClass: "bg-yellow/10",
+    borderClass: "border-yellow/40",
+    dotClass: "bg-yellow",
+  },
+};
+
+/** 화면에 나열할 때의 순서. 결과가 중요한 본선부터 둔다 */
+export const GAME_TYPE_DISPLAY_ORDER: readonly CompetitionGameType[] = ["4", "3", "2"];
+
+export const isCompetitionGameType = (gameType: string): gameType is CompetitionGameType =>
+  gameType in GAME_TYPE_META;
+
+export const getGameTypeMeta = (gameType: string): GameTypeMeta =>
+  isCompetitionGameType(gameType) ? GAME_TYPE_META[gameType] : GAME_TYPE_META["2"];
+
 export const formatGameSummary = (competition: CompetitionSummary): string => {
-  const { scrimCount, mainCount } = competition;
-  if (scrimCount + mainCount === 0) return "경기 전";
-  return `스크림 ${scrimCount} · ★본경기 ${mainCount}`;
+  const { scrimCount, preliminaryCount, mainCount } = competition;
+  if (scrimCount + preliminaryCount + mainCount === 0) return "경기 전";
+  return `본선 ${mainCount} · 예선 ${preliminaryCount} · 스크림 ${scrimCount}`;
 };
 
 /** 카드 좌측 아이콘에 쓸 대회명 첫 글자. */
@@ -58,8 +102,17 @@ const POSITION_LABELS: Record<CompetitionPosition, string> = {
   SUP: "서폿",
 };
 
-export const positionLabel = (position: CompetitionPosition): string =>
-  POSITION_LABELS[position] ?? position;
+export const positionLabel = (position: CompetitionPosition | null): string =>
+  position ? (POSITION_LABELS[position] ?? position) : "-";
+
+/** 탑→정글→미드→원딜→서폿, 포지션이 없으면 맨 뒤. 같은 포지션끼리는 원래 순서를 지킨다. */
+export const sortByPosition = <T extends { position: CompetitionPosition | null }>(
+  members: T[]
+): T[] => {
+  const rank = (position: CompetitionPosition | null) =>
+    position ? COMPETITION_POSITIONS.indexOf(position) : COMPETITION_POSITIONS.length;
+  return [...members].sort((a, b) => rank(a.position) - rank(b.position));
+};
 
 /** 부포지션 표기. ALL이 섞여 있거나 4개 이상이면 "전체"로 접는다. */
 export const subPositionLabel = (subPositions: CompetitionSubPosition[]): string => {
@@ -101,6 +154,9 @@ export const PRACTICE_LEVEL_OPTIONS: readonly { value: PracticeLevel; label: str
   { value: "OFTEN", label: "자주" },
   { value: "ACTIVE", label: "적극적" },
 ];
+
+export const practiceLevelLabel = (level: PracticeLevel): string =>
+  PRACTICE_LEVEL_OPTIONS.find((option) => option.value === level)?.label ?? level;
 
 /** 내 신청서 상태별 안내. 수정·취소 가능 여부를 함께 알린다. */
 export const applicationStatusHint = (status: CompetitionApplicationStatus): string => {

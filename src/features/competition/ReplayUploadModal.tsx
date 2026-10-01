@@ -13,6 +13,8 @@ import {
   classifyIncoming,
   uploadErrorMessage,
 } from "@/utils/replayUpload";
+import { COMPETITION_GAME_TYPES, CompetitionGameType } from "@/data/types/competition";
+import { getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   isOpen: boolean;
@@ -26,11 +28,11 @@ interface Props {
   onUploaded: () => void;
 }
 
-/** 2=스크림 / 3=본경기. 일반내전(1)은 대회에 붙지 않으므로 고를 수 없다. */
-const KINDS: { value: "2" | "3"; label: string }[] = [
-  { value: "2", label: "스크림" },
-  { value: "3", label: "★ 본경기" },
-];
+// 일반내전(1)은 대회에 붙지 않으므로 고를 수 없다.
+const KINDS = COMPETITION_GAME_TYPES.map((value) => ({
+  value,
+  label: getGameTypeMeta(value).label,
+}));
 
 const ReplayUploadModal = ({
   isOpen,
@@ -42,7 +44,7 @@ const ReplayUploadModal = ({
   nick,
   onUploaded,
 }: Props) => {
-  const [gameType, setGameType] = useState<"2" | "3" | null>(null);
+  const [gameType, setGameType] = useState<CompetitionGameType | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [excluded, setExcluded] = useState<ExcludedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);

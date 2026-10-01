@@ -6,6 +6,7 @@ import { CompetitionMatchTeamItem } from "@/data/types/competition";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { formatTimeAgo } from "@/utils/parseTime";
+import { getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
   match: CompetitionMatchTeamItem;
@@ -56,7 +57,7 @@ const BoardMatchRow = ({
 
   const detail = data;
   const showDetail = isOpen && !isLoading && !!detail;
-  const isMain = match.gameType === "3";
+  const gameTypeMeta = getGameTypeMeta(match.gameType);
   const blue = sideResult(match, "blue");
   const red = sideResult(match, "red");
 
@@ -110,11 +111,9 @@ const BoardMatchRow = ({
         {/* 좌측 - 경기 유형 + 길이 + 경과 시간 */}
         <div className="flex w-[74px] shrink-0 flex-col items-center justify-center gap-1 border-r border-border2 py-3 sm:w-[86px]">
           <span
-            className={`rounded px-1.5 text-[11px] font-bold leading-5 ${
-              isMain ? "bg-yellow/10 text-yellow" : "bg-rankBg2 text-primary2"
-            }`}
+            className={`rounded px-1.5 text-[11px] font-bold leading-5 ${gameTypeMeta.bgClass} ${gameTypeMeta.textClass}`}
           >
-            {isMain ? "★본경기" : "스크림"}
+            {gameTypeMeta.label}
           </span>
           <span className="text-xs tabular-nums text-primary2">
             {formatLength(match.gameLength)}

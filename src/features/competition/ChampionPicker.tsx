@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import { ChampionItem } from "@/data/types/champion";
 import useClickOutside from "@/hooks/common/useClickOutside";
@@ -15,6 +16,19 @@ interface Props {
 }
 
 const SLOTS = Array.from({ length: MAX_APPLICATION_CHAMPIONS }, (_, i) => i);
+
+// 스프라이트는 30명짜리 시트(~140KB)를 통째로 받고 지연 로딩이 안 돼 목록이 시트 6장을 다 끌어온다.
+const ChampionIcon = ({ champion, size }: { champion: ChampionItem; size: number }) => (
+  <Image
+    src={`https://ddragon.leagueoflegends.com/cdn/${process.env.NEXT_PUBLIC_DDRAGON_VERSION}/img/champion/${champion.champNameEng}.png`}
+    width={size}
+    height={size}
+    alt={champion.champName}
+    loading="lazy"
+    unoptimized
+    className="shrink-0 rounded"
+  />
+);
 
 /** 3칸을 눌러 챔피언을 검색해 채운다. 같은 챔피언을 두 칸에 넣을 수는 없다. */
 const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props) => {
@@ -72,8 +86,10 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
                   isOpen ? "border-blueText" : "border-border2"
                 }`}
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-dashed border-border2 bg-darkBg2">
-                  {!champion && (
+                {champion ? (
+                  <ChampionIcon champion={champion} size={24} />
+                ) : (
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-dashed border-border2 bg-darkBg2">
                     <svg
                       className="h-3 w-3"
                       viewBox="0 0 24 24"
@@ -85,8 +101,8 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
                     >
                       <path d="M12 5v14M5 12h14" />
                     </svg>
-                  )}
-                </span>
+                  </span>
+                )}
                 <span
                   className={`truncate text-[13px] ${champion ? "text-primary1" : "text-primary3"}`}
                 >
@@ -129,6 +145,7 @@ const ChampionPicker = ({ champions, value, onChange, disabled = false }: Props)
                   onClick={() => setSlot(openSlot, champion.champNameEng)}
                   className="flex w-full items-center gap-2 border-b border-cardBorder px-3 py-2 text-left last:border-0 hover:bg-grayHover"
                 >
+                  <ChampionIcon champion={champion} size={22} />
                   <span className="truncate text-[13px] text-primary1">{champion.champName}</span>
                   <span className="ml-auto shrink-0 text-[11px] text-primary3">
                     {champion.champNameEng}

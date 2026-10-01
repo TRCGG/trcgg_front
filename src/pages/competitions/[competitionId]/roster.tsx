@@ -16,11 +16,7 @@ import useRosterDraft, {
   approvedApplicants,
 } from "@/hooks/competition/useRosterDraft";
 import { canManageGuild } from "@/data/types/guildMember";
-import {
-  CompetitionApplicationItem,
-  CompetitionPosition,
-  CompetitionTeamWithRoster,
-} from "@/data/types/competition";
+import { CompetitionApplicationItem, CompetitionTeamWithRoster } from "@/data/types/competition";
 import { getTeams, saveRoster } from "@/services/competition";
 import RosterPool from "@/features/competition/RosterPool";
 import RosterTeamCard from "@/features/competition/RosterTeamCard";
@@ -31,6 +27,7 @@ const toSlotMember = (applicant: CompetitionApplicationItem): RosterSlotMember =
   playerCode: applicant.playerCode,
   riotName: applicant.riotName,
   riotNameTag: applicant.riotNameTag,
+  position: applicant.mainPosition,
 });
 
 const RosterPage: NextPage = () => {
@@ -97,12 +94,8 @@ const RosterPage: NextPage = () => {
     saveMutation.mutate();
   };
 
-  const placeMember = (
-    member: RosterSlotMember,
-    teamIndex: number,
-    position: CompetitionPosition
-  ) => {
-    draft.place(member, teamIndex, position);
+  const placeMember = (member: RosterSlotMember, teamIndex: number) => {
+    draft.place(member, teamIndex);
     setPicked(null);
     draggingRef.current = null;
   };
@@ -112,10 +105,10 @@ const RosterPage: NextPage = () => {
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[15px] font-bold text-primary1">팀 편성</span>
         <span className="text-xs text-primary2">
-          배치 {draft.placedCount} / {draft.slotTotal}
+          배치 {draft.placedCount} / {applicants.length}
         </span>
         <span className="ml-auto text-xs text-primary3">
-          칩을 끌어다 놓거나, 칩을 클릭한 뒤 슬롯을 클릭해 배치 · 팀당 팀장 1명 지정
+          칩을 끌어다 놓거나, 칩을 클릭한 뒤 팀을 클릭해 배치 · 팀당 팀장 1명 지정
         </span>
       </div>
 
@@ -128,6 +121,7 @@ const RosterPage: NextPage = () => {
           draggingRef.current = toSlotMember(applicant);
         }}
         onDropToPool={() => {
+          if (draggingRef.current) draft.unplace(draggingRef.current.playerCode);
           draggingRef.current = null;
         }}
         disabled={locked}
@@ -141,29 +135,30 @@ const RosterPage: NextPage = () => {
             team={team}
             index={index}
             hasPicked={picked !== null}
+            pickedCode={picked?.playerCode ?? null}
             disabled={locked}
             onRename={(name) => draft.renameTeam(index, name)}
             onRemoveTeam={() => draft.removeTeam(index)}
             onSetCaptain={(playerCode) => draft.setCaptain(index, playerCode)}
-            onSlotRemove={(position) => draft.removeAt(index, position)}
-            onSlotDragStart={(member) => {
+            onMemberRemove={(playerCode) => draft.removeMember(index, playerCode)}
+            onMemberDragStart={(member) => {
               draggingRef.current = member;
             }}
-            onSlotDrop={(position) => {
-              if (draggingRef.current) placeMember(draggingRef.current, index, position);
+            onDrop={() => {
+              if (draggingRef.current) placeMember(draggingRef.current, index);
             }}
-            onSlotClick={(position) => {
+            onAddClick={() => {
+              if (!locked && picked) placeMember(toSlotMember(picked), index);
+            }}
+            onMemberClick={(member) => {
               if (locked) return;
-              if (picked) {
-                placeMember(toSlotMember(picked), index, position);
+              // 배치는 "여기에 배치" 칸·드롭으로만 한다. 명단 클릭은 선택 전환이다.
+              if (picked?.playerCode === member.playerCode) {
+                setPicked(null);
                 return;
               }
-              // 선택된 칩이 없으면 슬롯의 사람을 집어 다른 곳으로 옮기게 한다.
-              const member = team.members[position];
-              if (member) {
-                const source = applicants.find((a) => a.playerCode === member.playerCode);
-                if (source) setPicked(source);
-              }
+              const source = applicants.find((a) => a.playerCode === member.playerCode);
+              if (source) setPicked(source);
             }}
           />
         ))}
