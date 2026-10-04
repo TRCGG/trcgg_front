@@ -4,9 +4,15 @@ export const FAIL_REASON_LABEL: Record<ReplayFailReason, string> = {
   invalid_extension: ".rofl 파일이 아닙니다",
   invalid_format: "유효하지 않은 리플레이 파일입니다",
   parse_failed: "리플레이 데이터 파싱에 실패했습니다",
-  duplicate: "이미 등록된 리플레이입니다",
+  "duplicated replay data": "이미 등록된 리플레이입니다",
   save_failed: "저장에 실패했습니다",
 };
+
+/** 표에 없는 사유가 와도 빈칸으로 두지 않는다. */
+export const failReasonLabel = (reason: string): string =>
+  Object.prototype.hasOwnProperty.call(FAIL_REASON_LABEL, reason)
+    ? FAIL_REASON_LABEL[reason as ReplayFailReason]
+    : "업로드에 실패했습니다";
 
 export const MAX_FILE_SIZE_MB = 50;
 export const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -81,9 +87,28 @@ export const classifyIncoming = (
   return { valid, excluded };
 };
 
+// 대회 업로드는 파일 처리 전에 대회를 검증하고, 실패하면 요청 전체가 400으로 끝난다.
+// 400 문구로 뭉개지지 않도록 Problem Details의 type을 먼저 본다.
+const COMPETITION_UPLOAD_ERROR = new Map<string, string>(
+  Object.entries({
+    "competition-not-open":
+      "진행중인 대회에만 경기를 올릴 수 있습니다. 대회가 종료되었는지 확인해주세요.",
+    "competition-not-found": "대회를 찾을 수 없습니다. 삭제되었는지 확인해주세요.",
+    "no-open-competition": "진행중인 대회가 없습니다.",
+    "competition-requires-game-type":
+      "일반내전은 대회에 올릴 수 없습니다. 경기 유형을 다시 골라주세요.",
+  })
+);
+
 export const uploadErrorMessage = (err: unknown): string => {
   const status =
     err && typeof err === "object" && "status" in err ? (err as { status: number }).status : 0;
+  const errorType =
+    err && typeof err === "object" && "errorType" in err
+      ? (err as { errorType: string | null }).errorType
+      : null;
+  const competitionMessage = errorType ? COMPETITION_UPLOAD_ERROR.get(errorType) : undefined;
+  if (competitionMessage) return competitionMessage;
   if (status === 401) return "인증에 실패했습니다. 다시 로그인해주세요.";
   if (status === 403) return "리플레이 업로드 권한이 없습니다.";
   if (status === 400) return "요청이 올바르지 않습니다. 길드 정보를 확인해주세요.";
