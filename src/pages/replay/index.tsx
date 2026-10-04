@@ -19,11 +19,11 @@ import { sliceRoflForUpload } from "@/utils/rofl";
 import {
   EXCLUDE_LABEL,
   ExcludedFile,
-  FAIL_REASON_LABEL,
   MAX_FILE_SIZE_MB,
   UploadUnit,
   buildUploadBatches,
   classifyIncoming,
+  failReasonLabel,
   uploadErrorMessage,
 } from "@/utils/replayUpload";
 
@@ -552,9 +552,7 @@ const Replay: NextPage = () => {
                                 <span className="text-primary1 truncate">{item.fileName}</span>
                               </div>
                               <span className="text-xs text-redText flex-shrink-0">
-                                {item.reason.includes("duplicate")
-                                  ? "이미 등록된 리플레이 데이터입니다"
-                                  : FAIL_REASON_LABEL[item.reason]}
+                                {failReasonLabel(item.reason)}
                               </span>
                             </div>
                           ))}
