@@ -7,6 +7,8 @@ interface Props {
   competition: CompetitionDetail;
   winnerName: string | null;
   isManager: boolean;
+  /** 리플레이 업로드 권한(업로더 이상 또는 길드 전체 업로드 허용). 운영진이 아니어도 업로드 버튼을 보여준다. */
+  canUpload: boolean;
   onCloseApplications: () => void;
   onEnd: () => void;
   onEdit: () => void;
@@ -29,6 +31,7 @@ const BoardHeader = ({
   competition,
   winnerName,
   isManager,
+  canUpload,
   onCloseApplications,
   onEnd,
   onEdit,
@@ -42,6 +45,7 @@ const BoardHeader = ({
   const isClosed = competition.status === "CLOSED";
   const isRecruiting = competition.status === "RECRUITING";
   const isInProgress = competition.status === "IN_PROGRESS";
+  const showUpload = canUpload && isInProgress;
 
   // 상태 전이는 대회 수정 안에 모두 있으므로 여기에 따로 두지 않는다.
   const menuItems: OverflowMenuItem[] = [
@@ -98,10 +102,10 @@ const BoardHeader = ({
         </div>
       </div>
 
-      {isManager && (
+      {(isManager || showUpload) && (
         <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
           {/* ① 다음 단계 */}
-          {isRecruiting && (
+          {isManager && isRecruiting && (
             <button
               type="button"
               onClick={onCloseApplications}
@@ -111,7 +115,7 @@ const BoardHeader = ({
               신청 마감하고 시작
             </button>
           )}
-          {isInProgress && (
+          {isManager && isInProgress && (
             <button
               type="button"
               onClick={onEnd}
@@ -123,7 +127,7 @@ const BoardHeader = ({
           )}
 
           {/* ② 이 단계에서 하는 일 */}
-          {isRecruiting && (
+          {isManager && isRecruiting && (
             <button
               type="button"
               onClick={onApplications}
@@ -138,7 +142,7 @@ const BoardHeader = ({
                 : "참가 신청 관리"}
             </button>
           )}
-          {isInProgress && (
+          {showUpload && (
             <button
               type="button"
               onClick={onUpload}
@@ -163,7 +167,7 @@ const BoardHeader = ({
           )}
 
           {/* ③ 자주 쓰는 것 */}
-          {!isClosed && (
+          {isManager && !isClosed && (
             <button
               type="button"
               onClick={onRoster}
@@ -173,7 +177,7 @@ const BoardHeader = ({
             </button>
           )}
 
-          <OverflowMenu items={menuItems} />
+          {isManager && <OverflowMenu items={menuItems} />}
         </div>
       )}
     </div>

@@ -96,6 +96,7 @@ const CompetitionBoardPage: NextPage = () => {
     isLoggedIn,
     uploadNick,
     currentRole,
+    canUploadReplay,
     isLoadingGuilds,
   } = usePageHeader();
   const isManager = canManageGuild(currentRole);
@@ -403,6 +404,7 @@ const CompetitionBoardPage: NextPage = () => {
           competition={competition}
           winnerName={currentWinner?.name ?? null}
           isManager={isManager}
+          canUpload={canUploadReplay}
           busy={busy}
           onUpload={() => setUploadModalOpen(true)}
           onCloseApplications={() => lifecycleMutation.mutate("IN_PROGRESS")}
