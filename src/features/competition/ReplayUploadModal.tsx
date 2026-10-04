@@ -6,11 +6,11 @@ import { ReplayUploadData, ReplayUploadFailed, ReplayUploadSuccess } from "@/dat
 import {
   EXCLUDE_LABEL,
   ExcludedFile,
-  FAIL_REASON_LABEL,
   MAX_FILES_PER_REQUEST,
   UploadUnit,
   buildUploadBatches,
   classifyIncoming,
+  failReasonLabel,
   uploadErrorMessage,
 } from "@/utils/replayUpload";
 import { COMPETITION_GAME_TYPES, CompetitionGameType } from "@/data/types/competition";
@@ -261,7 +261,7 @@ const ReplayUploadModal = ({
             {result.failed.map((item) => (
               <div key={item.fileName} className="flex items-center gap-2">
                 <span className="min-w-0 flex-1 truncate text-primary2">{item.fileName}</span>
-                <span className="shrink-0 text-redText">{FAIL_REASON_LABEL[item.reason]}</span>
+                <span className="shrink-0 text-redText">{failReasonLabel(item.reason)}</span>
               </div>
             ))}
             {unassigned.length > 0 && (

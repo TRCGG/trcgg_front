@@ -1,8 +1,9 @@
+// 백엔드(replay.controller)가 failed[].reason에 실제로 담는 값. 중복만 snake_case가 아니다.
 export type ReplayFailReason =
   | "invalid_extension"
   | "invalid_format"
   | "parse_failed"
-  | "duplicate"
+  | "duplicated replay data"
   | "save_failed";
 
 /**
