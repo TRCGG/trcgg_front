@@ -16,6 +16,8 @@ import { withHash, parseRiotId } from "@/features/clanManage/riot";
 import { NextPageWithLayout } from "@/data/types/next";
 import { toApiError } from "@/services/apiError";
 
+const PAGE_SIZE = 10;
+
 const mainKey = (riotName: string, riotNameTag: string) => `${riotName}#${riotNameTag}`;
 
 type MainSegment = "all" | "withAlts";
@@ -45,6 +47,7 @@ const SubAccountContent = () => {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [mainSearch, setMainSearch] = useState("");
   const [segment, setSegment] = useState<MainSegment>("all");
+  const [page, setPage] = useState(1);
   const [draft, setDraft] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -107,9 +110,15 @@ const SubAccountContent = () => {
     return mains;
   }, [mains, mainSearch, segment, altsByMain]);
 
+  // 부계정 보유 탭에서 마지막 부계정을 해지하면 목록이 줄어 현재 페이지가 비므로 범위 안으로 당긴다.
+  const totalPages = Math.max(1, Math.ceil(filteredMains.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+
   const changeSegment = (next: MainSegment) => {
     setSegment(next);
     setMainSearch("");
+    setPage(1);
   };
 
   const selKey =
@@ -173,8 +182,10 @@ const SubAccountContent = () => {
     if (filteredMains.length === 0) {
       return <div className="py-10 text-center text-sm text-primary2">본계정이 없습니다</div>;
     }
-    return filteredMains.map((m) => {
+    // 데스크톱은 전체 목록을 스크롤로 보여주고, 페이지는 모바일에서만 CSS로 나눈다.
+    return filteredMains.map((m, i) => {
       const k = mainKey(m.riotName, m.riotNameTag);
+      const inPage = i >= pageStart && i < pageStart + PAGE_SIZE;
       const active = k === selKey;
       const count = (altsByMain[k] ?? []).length;
       return (
@@ -182,7 +193,7 @@ const SubAccountContent = () => {
           type="button"
           key={k}
           onClick={() => setSelectedKey(k)}
-          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 border-b border-cardBorder text-left transition-colors ${
+          className={`w-full ${inPage ? "flex" : "hidden md:flex"} items-center gap-2.5 px-3.5 py-2.5 border-b border-cardBorder text-left transition-colors ${
             active ? "bg-blue border-l-2 border-l-blueText" : "hover:bg-grayHover"
           }`}
         >
@@ -250,12 +261,54 @@ const SubAccountContent = () => {
             </svg>
             <input
               value={mainSearch}
-              onChange={(e) => setMainSearch(e.target.value)}
+              onChange={(e) => {
+                setMainSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder="본계정 닉네임 검색"
               className="bg-transparent border-none outline-none text-[13px] text-primary1 flex-1"
             />
           </div>
           <div className="flex-1 md:max-h-[520px] overflow-y-auto">{renderMainList()}</div>
+          <div className="flex md:hidden items-center justify-end gap-1.5 px-3.5 py-2.5 border-t border-border2">
+            <button
+              type="button"
+              aria-label="이전 페이지"
+              disabled={currentPage <= 1}
+              onClick={() => setPage(currentPage - 1)}
+              className="w-7 h-7 rounded bg-darkBg1 border border-border2 text-primary2 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:text-primary1"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <span className="text-[13px] text-primary1 tabular-nums">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              aria-label="다음 페이지"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage(currentPage + 1)}
+              className="w-7 h-7 rounded bg-darkBg1 border border-border2 text-primary1 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* 선택된 본계정 상세 */}
