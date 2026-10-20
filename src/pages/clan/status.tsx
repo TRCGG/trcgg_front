@@ -9,6 +9,9 @@ import { NextPageWithLayout } from "@/data/types/next";
 import { formatTimeAgo } from "@/utils/parseTime";
 
 const PAGE_SIZE = 10;
+// 헤더와 행이 같은 열 폭을 써야 해서 한곳에 둔다
+const ROW_GRID =
+  "grid grid-cols-[20px_1fr_64px_76px] sm:grid-cols-[44px_1fr_140px_120px] gap-2 items-center px-3 sm:px-4";
 
 const keyOf = (m: GuildMemberRow) => `${m.riotName}#${m.riotNameTag}`;
 
@@ -163,7 +166,7 @@ const MemberStatusContent = () => {
       return (
         <div
           key={keyOf(m)}
-          className={`grid grid-cols-[44px_1fr_140px_120px] gap-2 items-center px-4 py-2.5 border-b border-cardBorder last:border-0 ${
+          className={`${ROW_GRID} py-2.5 border-b border-cardBorder last:border-0 ${
             checked ? "bg-blueText/[0.06]" : ""
           } ${left ? "opacity-60" : ""}`}
         >
@@ -176,18 +179,20 @@ const MemberStatusContent = () => {
             </span>
             <span className="text-xs text-primary3 shrink-0">{withHash(m.riotNameTag)}</span>
             {left && (
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded text-redText bg-redText/10 shrink-0">
+              <span className="hidden sm:inline text-[11px] font-bold px-2 py-0.5 rounded text-redText bg-redText/10 shrink-0">
                 비활성
               </span>
             )}
           </div>
-          <div className="text-center text-[13px] text-primary2">{formatTimeAgo(m.updateDate)}</div>
+          <div className="text-center text-xs sm:text-[13px] text-primary2 whitespace-nowrap">
+            {formatTimeAgo(m.updateDate)}
+          </div>
           <div className="flex justify-center">
             <button
               type="button"
               disabled={busy}
               onClick={() => applyStatus([m], left ? "1" : "2")}
-              className={`text-xs rounded px-3.5 py-1.5 border transition-colors disabled:opacity-50 ${
+              className={`text-xs whitespace-nowrap rounded px-2 sm:px-3.5 py-1.5 border transition-colors disabled:opacity-50 ${
                 left
                   ? "text-blueText bg-darkBg1 border-border2 hover:border-blueText2"
                   : "text-redText bg-redText/[0.08] border-redLighten hover:bg-redText/[0.15]"
@@ -202,7 +207,7 @@ const MemberStatusContent = () => {
   };
 
   const tabClass = (activeTab: boolean) =>
-    `flex items-center text-sm cursor-pointer border-b-2 pb-2 ${
+    `flex items-center text-sm whitespace-nowrap cursor-pointer border-b-2 pb-2 ${
       activeTab
         ? "font-bold text-blueText border-blueText"
         : "font-normal text-primary3 border-transparent"
@@ -218,8 +223,8 @@ const MemberStatusContent = () => {
 
       <div className="bg-darkBg2 border border-border2 rounded p-5">
         {/* 탭 + 검색 */}
-        <div className="flex items-center h-9 mb-3">
-          <div className="flex gap-6 self-stretch">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-3">
+          <div className="flex gap-6 h-9 shrink-0">
             <button
               type="button"
               className={tabClass(!isLeftTab)}
@@ -231,7 +236,7 @@ const MemberStatusContent = () => {
               비활성 클랜원 <span className="text-xs text-primary3 ml-1.5">{leftCount}</span>
             </button>
           </div>
-          <div className="ml-auto flex items-center bg-darkBg1 px-3 h-9 rounded border border-border2 w-[240px]">
+          <div className="sm:ml-auto flex items-center bg-darkBg1 px-3 h-9 rounded border border-border2 w-full sm:w-[240px]">
             <svg
               className="w-4 h-4 text-primary3 mr-2 shrink-0"
               viewBox="0 0 24 24"
@@ -282,19 +287,20 @@ const MemberStatusContent = () => {
 
         {/* 테이블 */}
         <div className="bg-darkBg1 border border-border2 rounded overflow-hidden">
-          <div className="grid grid-cols-[44px_1fr_140px_120px] gap-2 items-center px-4 py-2.5 text-xs text-primary2 border-b border-border2">
+          <div className={`${ROW_GRID} py-2.5 text-xs text-primary2 border-b border-border2`}>
             <button type="button" aria-label="전체 선택" onClick={toggleAll}>
               <CheckBox checked={allChecked} />
             </button>
-            <span>클랜원</span>
+            <span className="whitespace-nowrap">클랜원</span>
             <button
               type="button"
               onClick={toggleSort}
-              className={`flex items-center justify-center gap-1 select-none ${
+              className={`flex items-center justify-center gap-1 whitespace-nowrap select-none ${
                 sort === "none" ? "text-primary2" : "text-blueText"
               }`}
             >
-              상태 변경일 <span className="text-[10px]">{sortArrow}</span>
+              <span className="hidden sm:inline">상태</span> 변경일{" "}
+              <span className="text-[10px]">{sortArrow}</span>
             </button>
             <span className="text-center">관리</span>
           </div>

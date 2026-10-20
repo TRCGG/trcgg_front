@@ -38,15 +38,21 @@ const Avatar = ({ src, name, size, className = "" }: Props) => {
     );
   }
 
+  // next/image가 img를 자체 span으로 감싸 img의 shrink-0이 듣지 않는다. 좁은 flex 행에서
+  // 그 span이 줄어들어 첫 글자 아이콘보다 작아졌으므로, 크기를 같은 바깥 상자에 고정한다.
   return (
-    <Image
-      src={src}
-      alt={name}
-      width={size}
-      height={size}
-      onError={() => setFailed(true)}
-      className={`shrink-0 rounded-full border border-border1 object-cover ${className}`}
-    />
+    <span
+      style={box}
+      className={`relative block shrink-0 overflow-hidden rounded-full border border-border1 ${className}`}
+    >
+      <Image
+        src={src}
+        alt={name}
+        layout="fill"
+        onError={() => setFailed(true)}
+        className="object-cover"
+      />
+    </span>
   );
 };
 
