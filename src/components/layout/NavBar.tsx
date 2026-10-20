@@ -50,6 +50,16 @@ const NavBar = () => {
         <a className={`${baseItemClass} ${isRecordActive ? activeClass : idleClass}`}>내전 전적</a>
       </Link>
 
+      <Link href="/leaderboard">
+        <a
+          className={`${baseItemClass} ${
+            router.pathname === "/leaderboard" ? activeClass : idleClass
+          }`}
+        >
+          리더보드
+        </a>
+      </Link>
+
       <div
         className="relative flex h-full items-center"
         onMouseEnter={openAnalysis}

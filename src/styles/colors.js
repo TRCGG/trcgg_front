@@ -81,6 +81,19 @@ const colors = {
     dotAmber: "#FEBC2E",
     dotGreen: "#28C840",
   },
+  // 클랜 리더보드 카드
+  leaderboard: {
+    cardBg: "#202329",
+    cardBorder: "#2E323A",
+    sub: "#7D838C",
+    champName: "#B4BBC4",
+    iconBg: "#2A2D34",
+    medalSilver: "#C9D1DC",
+    medalBronze: "#C98A5A",
+    // 막대에 마우스를 올렸을 때 나머지 막대를 가라앉히는 톤
+    barDim: "#2A4468",
+    barPeakDim: "#4C7FB8",
+  },
   // 기타
   slotEmpty: "#1C1F24", // 빈 아이템 슬롯 / 바 트랙
   levelBadgeBg: "#0A0B0D",
