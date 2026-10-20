@@ -40,7 +40,6 @@ const RowTitle = ({ row, highlighted }: { row: LeaderboardRow; highlighted: bool
           <Fragment key={`${player.riotName}#${player.riotNameTag}`}>
             {i > 0 && <span className="shrink-0 text-xs text-primary3">+</span>}
             <Link href={summonerHref(player.riotName, player.riotNameTag)} passHref>
-              {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
               <a
                 title={`${player.riotName}#${player.riotNameTag} 전적 보기`}
                 className={`min-w-0 truncate text-sm font-bold hover:text-blueText transition-colors ${
