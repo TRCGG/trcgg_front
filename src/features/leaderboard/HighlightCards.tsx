@@ -71,7 +71,6 @@ const HighlightCards = ({ highlights, isLoading, isError }: Props) => {
                       )}`}
                       passHref
                     >
-                      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                       <a
                         title={`${top.riotName}#${top.riotNameTag} 전적 보기`}
                         className="min-w-0 truncate text-xs font-bold text-white hover:text-blueText transition-colors"
