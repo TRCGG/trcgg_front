@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import Head from "next/head";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
@@ -198,10 +199,17 @@ const Leaderboard: NextPage = () => {
     },
   ];
 
+  const pageHead = (
+    <Head>
+      <title>{`${clanName} 리더보드 - GMOK`}</title>
+    </Head>
+  );
+
   // 공개 길드가 있으면 비로그인도 볼 수 있어, 볼 수 있는 길드가 없을 때만 막는다
   if (!isLoadingGuilds && guilds.length === 0) {
     return (
       <div className="w-full md:max-w-[1080px] mx-auto">
+        {pageHead}
         <SummonerPageHeader {...headerProps} />
         <TextCard text={isLoggedIn ? "소속된 클랜이 없습니다" : "로그인 후 이용해주세요"} />
       </div>
@@ -210,6 +218,7 @@ const Leaderboard: NextPage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto pb-16">
+      {pageHead}
       <SummonerPageHeader {...headerProps} />
       <h1 className="sr-only">{clanName} 리더보드</h1>
 
