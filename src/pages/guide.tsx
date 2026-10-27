@@ -149,7 +149,7 @@ const CLAN_ADMIN = [
 const Guide: NextPage = () => (
   <div className="w-full bg-landing-bg text-landing-body">
     <Head>
-      <title>이용방법 | GMOK</title>
+      <title>이용방법 - GMOK</title>
       <meta
         name="description"
         content="GMOK 이용방법 — 리그 오브 레전드 내전 전적 기록 사용법. 로그인·클랜 선택, 리플레이(.rofl) 업로드, 전적·통계 조회, 클랜 관리 안내."

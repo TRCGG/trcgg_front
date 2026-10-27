@@ -12,6 +12,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import TextCard from "@/components/ui/TextCard";
 import { addRecentSearch } from "@/utils/recentSearches";
+import { isApiError } from "@/services/apiError";
 
 const RiotProfilePage = () => {
   const router = useRouter();
@@ -32,6 +33,7 @@ const RiotProfilePage = () => {
     data: userRecordData,
     isLoading: isLoadingUserRecord,
     isSuccess: isUserRecordLoaded,
+    error: userRecordError,
     refetch: refetchUserRecords,
   } = useQuery<MatchDashboardData | MultiplePlayerInfo[]>({
     queryKey: ["userRecords", riotNameString, riotTagString, guildId],
@@ -70,11 +72,13 @@ const RiotProfilePage = () => {
   const data = userRecordData;
   const hasRecord = !!data && isMatchDashboardData(data) && hasValidMatchData(data);
 
-  // 렌더링 전 HTML에 noindex가 있으면 Google이 렌더링을 건너뛰어, 결과 없음이 확정된 뒤에만 붙인다(요청 실패는 제외)
+  // 렌더링 전 HTML에 noindex가 있으면 Google이 렌더링을 건너뛰어, 결과 없음이 확정된 뒤에만 붙인다(404 외 요청 실패는 제외)
+  // 클랜에 없는 소환사는 빈 결과가 아니라 404로 온다
+  const isNotGuildMember = isApiError(userRecordError) && userRecordError.status === 404;
   const isConfirmedEmpty =
     router.isReady &&
     !isLoadingGuilds &&
-    (guilds.length === 0 || (isUserRecordLoaded && !hasRecord));
+    (guilds.length === 0 || (isUserRecordLoaded && !hasRecord) || isNotGuildMember);
   const mostChampion =
     data && isMatchDashboardData(data) && data.mostPicks && data.mostPicks.length > 0
       ? data.mostPicks[0].champNameEng

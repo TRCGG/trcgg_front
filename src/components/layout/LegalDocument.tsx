@@ -10,7 +10,7 @@ interface LegalDocumentProps {
 const LegalDocument = ({ title, html }: LegalDocumentProps) => (
   <>
     <Head>
-      <title>{`${title} | GMOK`}</title>
+      <title>{`${title} - GMOK`}</title>
     </Head>
     <div className="mx-auto w-full max-w-[820px] px-5 py-10 md:py-14">
       <Link href="/">

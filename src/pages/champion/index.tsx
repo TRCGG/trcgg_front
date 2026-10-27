@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import Head from "next/head";
 import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import usePageHeader from "@/hooks/common/usePageHeader";
@@ -164,6 +165,9 @@ const Champion: NextPage = () => {
 
   return (
     <div className="w-full md:max-w-[1080px] mx-auto">
+      <Head>
+        <title>{`${clanName} 챔피언 분석 - GMOK`}</title>
+      </Head>
       <SummonerPageHeader {...headerProps} />
       <TitleBox
         className="mt-10"
