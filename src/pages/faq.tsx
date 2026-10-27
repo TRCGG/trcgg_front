@@ -204,7 +204,7 @@ const FaqCard = ({ item }: { item: FaqItem }) => (
 const Faq: NextPage = () => (
   <div className="w-full bg-landing-bg text-landing-body">
     <Head>
-      <title>자주 묻는 질문 | GMOK</title>
+      <title>자주 묻는 질문 - GMOK</title>
       <meta
         name="description"
         content="GMOK 자주 묻는 질문 — 리그 오브 레전드 내전 전적 기록, 리플레이(.rofl) 업로드, 전적 조회 권한, 계정·개인정보에 대한 안내."
