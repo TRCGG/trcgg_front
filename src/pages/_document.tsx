@@ -42,9 +42,12 @@ class MyDocument extends Document {
               }),
             }}
           />
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7631028154389969"
+            crossOrigin="anonymous"
+          />
         </Head>
-        {/* 좌우 여백은 body가 아니라 _app의 콘텐츠 영역에만 준다.
-            body에 주면 푸터·전체폭 배경이 화면을 꽉 채우지 못하고 양옆에 body 배경이 드러난다. */}
         <body className="min-w-[360px]">
           <Main />
           <NextScript />

@@ -143,7 +143,7 @@ const About: NextPage = () => {
   return (
     <div className="about-root w-full bg-landing-bg text-landing-body">
       <Head>
-        <title>서비스 소개 | GMOK</title>
+        <title>서비스 소개 - GMOK</title>
         <meta
           name="description"
           content="게임의 모든 순간을 클랜과 함께. 리플레이 업로드로 전적·통계·랭킹이 쌓이는 우리 클랜만의 전적 사이트."
