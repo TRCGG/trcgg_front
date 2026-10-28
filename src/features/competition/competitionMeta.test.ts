@@ -108,6 +108,8 @@ describe("isCompetitionGameType", () => {
     { gameType: "4", expected: true }, // 본선
     { gameType: "1", expected: false }, // 대회가 아닌 일반 경기
     { gameType: "", expected: false },
+    { gameType: "toString", expected: false }, // 모든 객체가 물려받는 속성 이름
+    { gameType: "constructor", expected: false },
   ])("'$gameType' → $expected", ({ gameType, expected }) => {
     expect(isCompetitionGameType(gameType)).toBe(expected);
   });
@@ -122,8 +124,8 @@ describe("getGameTypeMeta", () => {
     expect(getGameTypeMeta(gameType).label).toBe(label);
   });
 
-  it("대회 유형이 아니면 스크림으로 표시한다", () => {
-    expect(getGameTypeMeta("1").label).toBe("스크림");
+  it.each(["1", "toString"])("대회 유형이 아닌 '%s'는 스크림으로 표시한다", (gameType) => {
+    expect(getGameTypeMeta(gameType).label).toBe("스크림");
   });
 });
 

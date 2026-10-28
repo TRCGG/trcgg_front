@@ -1,4 +1,5 @@
 import {
+  COMPETITION_GAME_TYPES,
   COMPETITION_POSITIONS,
   CompetitionApplicationStatus,
   CompetitionGameType,
@@ -78,8 +79,9 @@ const GAME_TYPE_META: Record<CompetitionGameType, GameTypeMeta> = {
 /** 화면에 나열할 때의 순서. 결과가 중요한 본선부터 둔다 */
 export const GAME_TYPE_DISPLAY_ORDER: readonly CompetitionGameType[] = ["4", "3", "2"];
 
+// in 연산자는 toString 같은 상속 속성에도 true라 허용 목록으로 확인한다.
 export const isCompetitionGameType = (gameType: string): gameType is CompetitionGameType =>
-  gameType in GAME_TYPE_META;
+  (COMPETITION_GAME_TYPES as readonly string[]).includes(gameType);
 
 export const getGameTypeMeta = (gameType: string): GameTypeMeta =>
   isCompetitionGameType(gameType) ? GAME_TYPE_META[gameType] : GAME_TYPE_META["2"];
