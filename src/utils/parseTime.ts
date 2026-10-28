@@ -24,6 +24,25 @@ export const formatTimeAgo = (createDate: string): string => {
   return `방금 전`;
 };
 
+/** 초 → "m:ss" (60분을 넘어도 분으로 센다) */
+export const formatDuration = (sec: number): string =>
+  `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+
+/** ISO → "M/D HH:mm" */
+export const formatShortDateTime = (iso: string): string => {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(
+    d.getMinutes()
+  ).padStart(2, "0")}`;
+};
+
+/** ISO → "YYYY년 M월 D일", 값이 없으면 "-" */
+export const formatFullDate = (iso: string | null): string => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
+};
+
 /**
  * 현재 년월을 "YYYY년 MM월" 형식으로 반환
  */

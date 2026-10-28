@@ -59,21 +59,6 @@ export const topLaneMatchup = (matrix?: H2HLaneMatrix | null): TopLanePair | nul
   return best;
 };
 
-// 초 → "mm:ss"
-export const formatGameLen = (sec: number): string => {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-};
-
-// ISO → "M/D HH:mm"
-export const formatPlayedDate = (iso: string): string => {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(
-    d.getMinutes()
-  ).padStart(2, "0")}`;
-};
-
 // ISO → 상대 시간 ("2시간 전", "1일 전" 등)
 export const formatAgo = (iso: string): string => {
   const now = Date.now();
@@ -88,13 +73,6 @@ export const formatAgo = (iso: string): string => {
   if (diffWk < 5) return `${diffWk}주 전`;
   const diffMo = Math.floor(diffDay / 30);
   return `${diffMo}개월 전`;
-};
-
-// ISO → "YYYY년 M월 D일"
-export const formatFullDate = (iso: string | null): string => {
-  if (!iso) return "-";
-  const d = new Date(iso);
-  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 };
 
 export type InsightKind = "best" | "worst" | "lane" | "counter";
