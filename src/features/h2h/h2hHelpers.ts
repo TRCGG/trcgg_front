@@ -13,11 +13,6 @@ export const POSITION_LABELS: Record<string, string> = {
   SUP: "서폿",
 };
 
-export const v2Pct = (num: number, den: number): number => {
-  if (!den) return 0;
-  return Math.round((num / den) * 100);
-};
-
 export const v2WinRateColor = (pct: number): string => {
   if (pct >= 65) return colors.yellow;
   if (pct >= 55) return colors.blueText;
