@@ -97,6 +97,8 @@ src/
 ├── hooks/        # React Query 훅
 ├── data/types/   # 타입 정의
 ├── utils/        # 유틸리티
+├── constants/    # 외부 링크 등 고정값
+├── assets/       # import해서 쓰는 이미지 (라인 아이콘, 소개 페이지 이미지)
 └── styles/       # 전역 CSS, 색상 팔레트
 ```
 
