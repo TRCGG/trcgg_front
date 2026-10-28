@@ -4,7 +4,7 @@ import SummonerPageHeader from "@/components/layout/SummonerPageHeader";
 import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import usePageHeader from "@/hooks/common/usePageHeader";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import ClanSidebar from "./ClanSidebar";
 import ClanMobileMenu from "./ClanMobileMenu";
 

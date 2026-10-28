@@ -9,7 +9,7 @@ import NoIndex from "@/components/layout/NoIndex";
 import TextCard from "@/components/ui/TextCard";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import usePageHeader from "@/hooks/common/usePageHeader";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import { CompetitionInitialStatus } from "@/data/types/competition";
 import { createCompetition } from "@/services/competition";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";

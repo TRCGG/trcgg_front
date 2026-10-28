@@ -13,7 +13,7 @@ import Modal from "@/components/modal/Modal";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import {
   assignMatchTeams,
   changeCompetitionStatus,

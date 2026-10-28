@@ -7,15 +7,8 @@ import {
   updateMemberRole,
   setAllowAllUploads,
 } from "@/services/guildMember";
-import {
-  AssignableRole,
-  DiscordMemberRoleItem,
-  GuildDetail,
-  ROLE_HIERARCHY,
-  Role,
-  getRoleMeta,
-  hasMinRole,
-} from "@/data/types/guildMember";
+import { AssignableRole, DiscordMemberRoleItem, GuildDetail, Role } from "@/data/types/guildMember";
+import { ROLE_HIERARCHY, getRoleMeta, hasMinRole } from "@/utils/role";
 import ClanManageLayout from "@/features/clanManage/ClanManageLayout";
 import { useGuildContext } from "@/hooks/auth/GuildContext";
 import { NextPageWithLayout } from "@/data/types/next";

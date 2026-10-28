@@ -15,7 +15,7 @@ import useRosterDraft, {
   RosterSlotMember,
   approvedApplicants,
 } from "@/hooks/competition/useRosterDraft";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import { CompetitionApplicationItem, CompetitionTeamWithRoster } from "@/data/types/competition";
 import { getTeams, saveRoster } from "@/services/competition";
 import RosterPool from "@/features/competition/RosterPool";

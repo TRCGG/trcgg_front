@@ -7,7 +7,7 @@ import TitleBox from "@/components/ui/TitleBox";
 import Modal from "@/components/modal/Modal";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import { uploadReplays, getReplayList, deleteReplay } from "@/services/replay";
-import { hasMinRole } from "@/data/types/guildMember";
+import { hasMinRole } from "@/utils/role";
 import {
   ReplayLog,
   ReplayUploadData,

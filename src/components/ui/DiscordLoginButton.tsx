@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { FaDiscord } from "react-icons/fa";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import { logout } from "@/services/auth";
 import Avatar from "@/components/ui/Avatar";
 

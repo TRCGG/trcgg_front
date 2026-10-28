@@ -8,7 +8,7 @@ import TextCard from "@/components/ui/TextCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitions from "@/hooks/competition/useCompetitions";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import { CompetitionStatus } from "@/data/types/competition";
 import CompetitionCard from "@/features/competition/CompetitionCard";
 import CompetitionStatusFilter from "@/features/competition/CompetitionStatusFilter";
