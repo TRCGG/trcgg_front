@@ -21,16 +21,10 @@ export const v2WinRateColor = (pct: number): string => {
   return colors.redText;
 };
 
-// 부호(+/-/0)에 따른 색상 — 양수/음수/동률
-export const diffColor = (
-  n: number,
-  positive = colors.neonGreen,
-  negative = colors.redText,
-  zero = colors.primary1
-): string => {
-  if (n > 0) return positive;
-  if (n < 0) return negative;
-  return zero;
+export const signColor = (n: number): string => {
+  if (n > 0) return colors.blueText;
+  if (n < 0) return colors.redText;
+  return colors.primary2;
 };
 
 // 라인 매트릭스 셀 배경 — 채도는 표본 수에 비례
