@@ -6,7 +6,7 @@ import NoIndex from "@/components/layout/NoIndex";
 import TitleBox from "@/components/ui/TitleBox";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import { useTournamentCodes } from "@/hooks/tournament/useTournamentCodes";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import TournamentCodeIssuePanel from "@/features/tournament/TournamentCodeIssuePanel";
 import TournamentCodeList from "@/features/tournament/TournamentCodeList";
 import { PUBLIC_CODE_ISSUE_GUILD_ID } from "@/features/tournament/tournamentMeta";

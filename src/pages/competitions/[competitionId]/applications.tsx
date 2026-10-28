@@ -11,7 +11,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import usePageHeader from "@/hooks/common/usePageHeader";
 import useCompetitionDetail from "@/hooks/competition/useCompetitionDetail";
 import useCompetitionApplications from "@/hooks/competition/useCompetitionApplications";
-import { canManageGuild } from "@/data/types/guildMember";
+import { canManageGuild } from "@/utils/role";
 import { CompetitionApplicationStatus } from "@/data/types/competition";
 import { decideApplications, exportApplicationsCsv } from "@/services/competition";
 import saveBlob from "@/utils/saveBlob";

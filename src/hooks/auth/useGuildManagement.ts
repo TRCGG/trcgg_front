@@ -5,7 +5,8 @@ import { getGuilds, getMe } from "@/services/auth";
 import { getGuildById } from "@/services/guildMember";
 import { useGuildContext } from "@/hooks/auth/GuildContext";
 import usePublicGuilds from "@/hooks/auth/usePublicGuilds";
-import { GuildDetail, hasMinRole } from "@/data/types/guildMember";
+import { GuildDetail } from "@/data/types/guildMember";
+import { hasMinRole } from "@/utils/role";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
