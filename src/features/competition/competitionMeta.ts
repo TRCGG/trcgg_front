@@ -183,7 +183,6 @@ const ALLOWED_TRANSITIONS: Record<CompetitionStatus, readonly CompetitionStatus[
 export const canTransition = (from: CompetitionStatus, to: CompetitionStatus): boolean =>
   from === to || ALLOWED_TRANSITIONS[from].includes(to);
 
-/** 상태를 바꿀 때 알려야 하는 부작용. 되돌리는 전이에만 문구가 있다. */
 export const transitionWarning = (
   from: CompetitionStatus,
   to: CompetitionStatus
