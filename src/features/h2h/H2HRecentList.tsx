@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { H2HRecent, H2HRecentDetailMetrics, H2HRelation } from "@/data/types/h2h";
 import colors from "@/styles/colors";
-import { POSITION_LABELS, formatAgo, formatGameLen, formatPlayedDate } from "./h2hHelpers";
+import { formatDuration, formatShortDateTime } from "@/utils/parseTime";
+import { POSITION_LABELS, formatAgo } from "./h2hHelpers";
 import ChampIcon from "./ChampIcon";
 import LaneIcon from "./LaneIcon";
 import SectionCard from "./SectionCard";
@@ -137,8 +138,8 @@ const H2HRecentDetail = ({ row }: { row: H2HRecent }) => {
             <span>{POSITION_LABELS[row.myLane]} 지표 세트</span>
           </span>
           <span className="text-primary2 text-[10px]">
-            {formatPlayedDate(row.playedDate)} · {formatGameLen(row.gameLen)} · 왼쪽 — 나 / 오른쪽 —
-            상대
+            {formatShortDateTime(row.playedDate)} · {formatDuration(row.gameLen)} · 왼쪽 — 나 /
+            오른쪽 — 상대
           </span>
         </div>
       </div>
@@ -184,7 +185,7 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           <div className="text-primary2 text-[10px]">{formatAgo(row.playedDate)}</div>
         </div>
         <div className="text-primary2 hidden sm:block text-[11px]">
-          {formatGameLen(row.gameLen)}
+          {formatDuration(row.gameLen)}
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
@@ -224,7 +225,7 @@ const H2HRecentRow = ({ row, mode, open, onToggle }: RowProps) => {
           {open ? "접기" : "세부 보기"}
         </button>
         <span className="text-primary2 hidden sm:inline text-[10px] whitespace-nowrap">
-          {formatPlayedDate(row.playedDate)}
+          {formatShortDateTime(row.playedDate)}
         </span>
       </div>
       {!noDetail && (

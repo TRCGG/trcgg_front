@@ -3,7 +3,7 @@ import MatchDetail from "@/features/matchHistory/MatchDetail";
 import { GameParticipant, RecentGameRecord } from "@/data/types/record";
 import { useQuery } from "@tanstack/react-query";
 import { getGameRecords } from "@/services/record";
-import { formatTimeAgo } from "@/utils/parseTime";
+import { formatDuration, formatTimeAgo } from "@/utils/parseTime";
 import SpriteImage from "@/components/ui/SpriteImage";
 import Tooltip from "@/components/ui/Tooltip";
 import { getChampionSprite } from "@/utils/spriteLoader";
@@ -55,9 +55,6 @@ const MatchItem = ({ matchData }: Props) => {
   const isCompetitionGame = !!matchData.gameType && isCompetitionGameType(matchData.gameType);
   const gameTypeMeta = getGameTypeMeta(matchData.gameType ?? "");
 
-  const durationMin = Math.floor(matchData.timePlayed / 60);
-  const durationSec = String(matchData.timePlayed % 60).padStart(2, "0");
-
   return (
     <div className="flex flex-col">
       <div
@@ -82,7 +79,7 @@ const MatchItem = ({ matchData }: Props) => {
           </span>
           <div className={`w-7 h-px ${isWin ? "bg-blueText/20" : "bg-redText/20"}`} />
           <span className="text-primary2 text-xs text-center leading-snug">
-            {durationMin}:{durationSec}
+            {formatDuration(matchData.timePlayed)}
           </span>
           <span className="text-primary2 text-xs text-center leading-snug whitespace-nowrap">
             {formatTimeAgo(matchData.createDate)}

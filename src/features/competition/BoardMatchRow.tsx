@@ -5,7 +5,7 @@ import { getGameRecords } from "@/services/record";
 import { CompetitionMatchTeamItem } from "@/data/types/competition";
 import MatchDetail from "@/features/matchHistory/MatchDetail";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { formatTimeAgo } from "@/utils/parseTime";
+import { formatDuration, formatTimeAgo } from "@/utils/parseTime";
 import { getGameTypeMeta } from "./competitionMeta";
 
 interface Props {
@@ -18,11 +18,6 @@ interface Props {
   onDelete?: () => void;
   deleting: boolean;
 }
-
-const formatLength = (seconds: number | null): string => {
-  if (seconds === null) return "-";
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
-};
 
 /** 이긴 진영이 팀에 귀속돼 있을 때만 승패를 말할 수 있다 (용병전·미배정·승자 미상은 null). */
 const sideResult = (match: CompetitionMatchTeamItem, side: "blue" | "red") => {
@@ -116,7 +111,7 @@ const BoardMatchRow = ({
             {gameTypeMeta.label}
           </span>
           <span className="text-xs tabular-nums text-primary2">
-            {formatLength(match.gameLength)}
+            {match.gameLength === null ? "-" : formatDuration(match.gameLength)}
           </span>
           <span className="whitespace-nowrap text-[11px] text-primary3">
             {formatTimeAgo(match.date)}

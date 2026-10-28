@@ -1,6 +1,6 @@
 import { H2HAgainst, H2HRelation, H2HTogether } from "@/data/types/h2h";
 import colors from "@/styles/colors";
-import { formatFullDate } from "./h2hHelpers";
+import { formatFullDate } from "@/utils/parseTime";
 import H2HStreakDots from "./H2HStreakDots";
 import TogetherAgainstDonut from "./TogetherAgainstDonut";
 
