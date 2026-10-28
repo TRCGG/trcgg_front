@@ -1,5 +1,6 @@
 import { H2HAgainst, H2HLaneMatrix, H2HMatchup } from "@/data/types/h2h";
 import colors from "@/styles/colors";
+import { withAlpha } from "@/utils/color";
 
 export type LanePos = "TOP" | "JUG" | "MID" | "ADC" | "SUP";
 
@@ -27,14 +28,15 @@ export const signColor = (n: number): string => {
   return colors.primary2;
 };
 
-// 라인 매트릭스 셀 배경 — 채도는 표본 수에 비례
+const MATRIX_FULL_SAMPLE_GAMES = 6;
+const MATRIX_ALPHA = { strong: [0.1, 0.42], weak: [0.06, 0.22] } as const;
+
 export const v2MatrixCellBg = (count: number, winRate: number): string => {
   if (count === 0) return colors.darkBg1;
-  const sat = Math.min(1, count / 6); // 6+ = full saturation
-  if (winRate >= 60) return `rgba(107, 184, 255, ${0.1 + sat * 0.32})`;
-  if (winRate >= 50) return `rgba(107, 184, 255, ${0.06 + sat * 0.16})`;
-  if (winRate >= 40) return `rgba(255, 107, 139, ${0.06 + sat * 0.16})`;
-  return `rgba(255, 107, 139, ${0.1 + sat * 0.32})`;
+  const sampleRatio = Math.min(1, count / MATRIX_FULL_SAMPLE_GAMES);
+  const color = winRate >= 50 ? colors.blueText : colors.redText;
+  const [min, max] = winRate >= 60 || winRate < 40 ? MATRIX_ALPHA.strong : MATRIX_ALPHA.weak;
+  return withAlpha(color, min + sampleRatio * (max - min));
 };
 
 // 가장 많이 맞붙은 '맞라인' 매치업 1개 추출 (laneMatrix 대각선 = 동일 position 최다)
