@@ -11,4 +11,10 @@ module.exports = createJestConfig({
   // Next 12의 next/jest는 tsconfig paths를 읽지 않는다
   moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  collectCoverageFrom: [
+    "src/**/*.{ts,tsx,js}",
+    "!src/**/*.d.ts",
+    "!src/pages/_app.tsx",
+    "!src/pages/_document.tsx",
+  ],
 });
