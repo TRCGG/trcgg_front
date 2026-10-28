@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { H2HResult, H2HSeasonBreak } from "@/data/types/h2h";
 import colors from "@/styles/colors";
-import { diffColor } from "./h2hHelpers";
+import { signColor } from "./h2hHelpers";
 import SectionCard from "./SectionCard";
 
 const advantageLabel = (cur: number): string => {
@@ -88,7 +88,7 @@ const H2HRivalryTimeline = ({ streak, seasonBreaks = [] }: Props) => {
     .map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`)
     .join(" ");
   const cur = pts[pts.length - 1];
-  const curColor = diffColor(cur, colors.blueText, colors.redText, colors.primary2);
+  const curColor = signColor(cur);
 
   // 스크롤 위치에 따라 양쪽 페이드(더 볼 내용 있음) 표시 여부를 갱신한다.
   useEffect(() => {
