@@ -47,7 +47,8 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
   // 페이지가 getLayout을 제공하면 그 레이아웃으로 감싸 렌더(라우트 전환 사이 레이아웃 유지)
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  const isFullBleed = FULL_BLEED_PAGES.includes(router.pathname);
+  const isFullBleed =
+    FULL_BLEED_PAGES.includes(router.pathname) || router.pathname.startsWith("/board");
 
   return (
     <QueryClientProvider client={queryClient}>

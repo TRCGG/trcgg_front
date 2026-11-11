@@ -98,6 +98,12 @@ const createApiService = (baseUrl?: string) => {
       return send<T>(client, { method: "GET", url: endpoint, params, headers });
     },
 
+    /** 페이지 정보를 응답 헤더(X-Total-Count 등)로 내려주는 목록용. 본문과 헤더를 함께 돌려준다. */
+    async getWithHeaders<T>(endpoint: string, params?: Record<string, string>) {
+      const response = await client.request<T>({ method: "GET", url: endpoint, params });
+      return { body: response.data, headers: response.headers };
+    },
+
     post<T>(endpoint: string, body?: unknown, config?: RequestConfig) {
       return send<T>(client, { method: "POST", url: endpoint, data: body, ...config });
     },
