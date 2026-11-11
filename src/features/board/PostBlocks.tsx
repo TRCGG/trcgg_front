@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { parsePostMarkdown, PostBlock } from "@/utils/postMarkdown";
+import { ReactNode, useMemo } from "react";
+import { InlineNode, parseInline, parsePostMarkdown, PostBlock } from "@/utils/postMarkdown";
 
 type Variant = "detail" | "faq" | "preview";
 
@@ -49,6 +49,46 @@ const HEADING_TAG: Record<Variant, Record<"h1" | "h2" | "h3", "h2" | "h3" | "h4"
   preview: { h1: "h2", h2: "h3", h3: "h4" },
 };
 
+const renderInlineNode = (node: InlineNode, key: number): ReactNode => {
+  switch (node.kind) {
+    case "strong":
+      return (
+        <strong key={key} className="font-bold text-board-heading">
+          {/* eslint-disable-next-line @typescript-eslint/no-use-before-define -- strong 안의 코드·링크를 위한 상호 재귀 */}
+          {renderInline(node.children)}
+        </strong>
+      );
+    case "code":
+      return (
+        <code
+          key={key}
+          className="rounded bg-landing-bgElevated px-1.5 py-0.5 font-mono text-[0.88em] text-board-h4"
+        >
+          {node.text}
+        </code>
+      );
+    case "link":
+      return (
+        <a
+          key={key}
+          href={node.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-landing-periwinkle underline underline-offset-2 hover:text-landing-periwinkleHover"
+        >
+          {node.text}
+        </a>
+      );
+    default:
+      return node.text;
+  }
+};
+
+const renderInline = (nodes: InlineNode[]): ReactNode[] =>
+  nodes.map((node, i) => renderInlineNode(node, i));
+
+const inline = (text: string) => renderInline(parseInline(text));
+
 const renderBlock = (block: PostBlock, variant: Variant, key: number) => {
   const cls = CLASSES[variant];
   switch (block.kind) {
@@ -58,14 +98,14 @@ const renderBlock = (block: PostBlock, variant: Variant, key: number) => {
       const Tag = HEADING_TAG[variant][block.kind];
       return (
         <Tag key={key} className={cls[block.kind]}>
-          {block.text}
+          {inline(block.text)}
         </Tag>
       );
     }
     case "p":
       return (
         <p key={key} className={cls.p}>
-          {block.text}
+          {inline(block.text)}
         </p>
       );
     case "li":
@@ -74,13 +114,13 @@ const renderBlock = (block: PostBlock, variant: Variant, key: number) => {
           <span aria-hidden="true" className={cls.marker}>
             {block.marker}
           </span>
-          <span>{block.text}</span>
+          <span>{inline(block.text)}</span>
         </div>
       );
     case "quote":
       return (
         <div key={key} className={cls.quote}>
-          {block.text}
+          {inline(block.text)}
         </div>
       );
     case "code":

@@ -6,12 +6,38 @@ export type PostBlock =
   | { kind: "li"; text: string; marker: string }
   | { kind: "img"; alt: string; src: string };
 
-/** 인라인 문법은 표시하지 않고 기호만 걷어낸다 (굵게·코드·링크는 텍스트만 남는다). */
-const stripInline = (text: string): string =>
-  text
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1");
+export type InlineNode =
+  | { kind: "text" | "code"; text: string }
+  | { kind: "strong"; children: InlineNode[] }
+  | { kind: "link"; text: string; href: string };
+
+const INLINE = /`([^`]+)`|\*\*(.+?)\*\*|!\[([^\]]*)\]\([^)]*\)|\[([^\]]*)\]\(([^)\s]*)\)/g;
+
+export const parseInline = (text: string): InlineNode[] => {
+  const nodes: InlineNode[] = [];
+  let last = 0;
+  const pushText = (value: string) => {
+    if (!value) return;
+    const prev = nodes[nodes.length - 1];
+    if (prev?.kind === "text") prev.text += value;
+    else nodes.push({ kind: "text", text: value });
+  };
+
+  Array.from(text.matchAll(INLINE)).forEach((m) => {
+    const [whole, code, strong, imageAlt, linkText, href] = m;
+    pushText(text.slice(last, m.index));
+    last = (m.index ?? 0) + whole.length;
+    if (code !== undefined) nodes.push({ kind: "code", text: code });
+    else if (strong !== undefined) nodes.push({ kind: "strong", children: parseInline(strong) });
+    // 문단 중간의 이미지는 블록 이미지만 그리는 규칙대로 alt만 남긴다.
+    else if (imageAlt !== undefined) pushText(imageAlt);
+    // javascript: 같은 스킴이 href로 들어가지 않게 http(s)만 링크로 만든다.
+    else if (/^https?:\/\//i.test(href)) nodes.push({ kind: "link", text: linkText, href });
+    else pushText(linkText);
+  });
+  pushText(text.slice(last));
+  return nodes;
+};
 
 export const parsePostMarkdown = (markdown: string): PostBlock[] => {
   const blocks: PostBlock[] = [];
@@ -20,7 +46,7 @@ export const parsePostMarkdown = (markdown: string): PostBlock[] => {
 
   const flushParagraph = () => {
     if (paragraph.length === 0) return;
-    blocks.push({ kind: "p", text: stripInline(paragraph.join(" ")) });
+    blocks.push({ kind: "p", text: paragraph.join(" ") });
     paragraph = [];
   };
 
@@ -52,16 +78,16 @@ export const parsePostMarkdown = (markdown: string): PostBlock[] => {
       if (heading) {
         flushParagraph();
         const kind = (["h1", "h2", "h3"] as const)[heading[1].length - 1];
-        blocks.push({ kind, text: stripInline(heading[2]) });
+        blocks.push({ kind, text: heading[2] });
       } else if (bullet) {
         flushParagraph();
-        blocks.push({ kind: "li", text: stripInline(bullet[1]), marker: "·" });
+        blocks.push({ kind: "li", text: bullet[1], marker: "·" });
       } else if (ordered) {
         flushParagraph();
-        blocks.push({ kind: "li", text: stripInline(ordered[2]), marker: `${ordered[1]}.` });
+        blocks.push({ kind: "li", text: ordered[2], marker: `${ordered[1]}.` });
       } else if (quote) {
         flushParagraph();
-        blocks.push({ kind: "quote", text: stripInline(quote[1]) });
+        blocks.push({ kind: "quote", text: quote[1] });
       } else if (image) {
         flushParagraph();
         // javascript: 같은 스킴이 src로 들어가지 않게 http(s)만 받는다.
