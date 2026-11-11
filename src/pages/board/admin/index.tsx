@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import Checkbox from "@/components/ui/Checkbox";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { NextPageWithLayout } from "@/data/types/next";
 import { AdminPostListItem, POST_CATEGORY_LABEL } from "@/data/types/post";
@@ -25,8 +26,6 @@ import {
   parsePage,
   POST_STATUS_LABEL,
 } from "@/features/board/postMeta";
-
-const checkboxClass = "m-0 h-4 w-4 cursor-pointer align-middle accent-landing-gold";
 
 const bulkMessage = ({ succeeded, failed }: BulkResult, done: string) =>
   failed === 0
@@ -136,12 +135,10 @@ const AdminPostList = () => {
         className={`border-b border-board-rowLine ${isChecked ? "bg-landing-gold/[0.06]" : ""}`}
       >
         <td className="py-3 pl-3">
-          <input
-            type="checkbox"
+          <Checkbox
             aria-label={`${post.title} 선택`}
             checked={isChecked}
             onChange={() => toggle(post.id)}
-            className={checkboxClass}
           />
         </td>
         <td
@@ -272,12 +269,10 @@ const AdminPostList = () => {
             <thead>
               <tr className="bg-board-panel text-left text-[12.5px] text-board-meta">
                 <th scope="col" className="w-9 py-2.5 pl-3">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     aria-label="이 페이지 글 전체 선택"
                     checked={allChecked}
                     onChange={toggleAll}
-                    className={checkboxClass}
                   />
                 </th>
                 <th scope="col" className="w-24 px-3 py-2.5 font-normal">
