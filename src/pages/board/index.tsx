@@ -1,9 +1,12 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { NextPageWithLayout } from "@/data/types/next";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import usePostList from "@/hooks/post/usePostList";
 import { getBoardLayout } from "@/features/board/BoardLayout";
+import { BTN_NEUTRAL, BTN_PRIMARY } from "@/features/board/buttonClass";
 import BoardPager from "@/features/board/BoardPager";
 import CategoryTabs from "@/features/board/CategoryTabs";
 import FaqAccordion from "@/features/board/FaqAccordion";
@@ -14,6 +17,7 @@ const BoardPage: NextPageWithLayout = () => {
   const router = useRouter();
   const tab = parseBoardTab(router.query.category);
   const page = parsePage(router.query.page);
+  const { isSiteAdmin } = useGuildManagement();
 
   const { posts, totalCount, totalPages, isLoading, isPlaceholderData, isError } = usePostList(
     { category: tab === "all" ? undefined : tab, page, limit: BOARD_PAGE_SIZE },
@@ -52,7 +56,19 @@ const BoardPage: NextPageWithLayout = () => {
         <meta name="description" content="GMOK 게시판. 개발 일지, FAQ, 사용방법, 공지." />
       </Head>
 
-      <h1 className="mb-6 text-[26px] font-bold tracking-[-0.4px] text-board-heading">게시판</h1>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <h1 className="text-[26px] font-bold tracking-[-0.4px] text-board-heading">게시판</h1>
+        {isSiteAdmin && (
+          <div className="flex items-center gap-2">
+            <Link href={tab === "all" ? "/board/admin/new" : `/board/admin/new?category=${tab}`}>
+              <a className={`${BTN_PRIMARY} px-[18px] py-[9px]`}>글쓰기</a>
+            </Link>
+            <Link href="/board/admin">
+              <a className={`${BTN_NEUTRAL} px-[18px] py-[9px]`}>관리</a>
+            </Link>
+          </div>
+        )}
+      </div>
 
       <CategoryTabs active={tab} onSelect={(next) => go(next, 1)} />
 

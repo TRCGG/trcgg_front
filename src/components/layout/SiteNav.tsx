@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -14,12 +13,10 @@ const LINKS = [
 ];
 
 const isActive = (pathname: string, href: string) =>
-  href === "/board"
-    ? pathname.startsWith("/board") && !pathname.startsWith("/board/admin")
-    : pathname === href;
+  pathname === href || pathname.startsWith(`${href}/`);
 
-/** 서비스 소개·이용방법·FAQ·게시판이 함께 쓰는 상단 내비게이션. `extra`는 링크 뒤에 붙는다. */
-const SiteNav = ({ extra }: { extra?: ReactNode }) => {
+/** 서비스 소개·이용방법·FAQ·게시판이 함께 쓰는 상단 내비게이션. */
+const SiteNav = () => {
   const { pathname } = useRouter();
 
   return (
@@ -48,7 +45,6 @@ const SiteNav = ({ extra }: { extra?: ReactNode }) => {
               </Link>
             ))}
           </div>
-          {extra}
           <a
             href={DISCORD_INVITE_URL}
             target="_blank"
