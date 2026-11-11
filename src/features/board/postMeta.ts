@@ -11,6 +11,8 @@ export const BOARD_TABS: { key: BoardTab; label: string }[] = [
 ];
 
 export const BOARD_PAGE_SIZE = 10;
+/** 관리 화면의 FAQ·이용방법 탭은 순서를 바꾸는 곳이라 페이지를 나누지 않고 한 번에 보여 준다. */
+export const ADMIN_ORDERED_PAGE_SIZE = 100;
 
 const NEW_BADGE_MS = 7 * 24 * 60 * 60 * 1000;
 

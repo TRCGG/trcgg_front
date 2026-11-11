@@ -18,6 +18,7 @@ import ConfirmDialog from "@/features/board/ConfirmDialog";
 import { BTN_DANGER, BTN_NEUTRAL, BTN_PRIMARY } from "@/features/board/buttonClass";
 import { failMessage, usesSortOrder } from "@/features/board/postForm";
 import {
+  ADMIN_ORDERED_PAGE_SIZE,
   BOARD_PAGE_SIZE,
   BoardTab,
   formatPostDate,
@@ -39,9 +40,10 @@ const AdminPostList = () => {
   const tab = parseBoardTab(router.query.category);
   const page = parsePage(router.query.page);
   const ordered = tab !== "all" && usesSortOrder(tab);
+  const pageSize = ordered ? ADMIN_ORDERED_PAGE_SIZE : BOARD_PAGE_SIZE;
 
   const { posts, totalCount, totalPages, isLoading, isPlaceholderData, isError } = useAdminPostList(
-    { category: tab === "all" ? undefined : tab, page, limit: BOARD_PAGE_SIZE },
+    { category: tab === "all" ? undefined : tab, page, limit: pageSize },
     router.isReady && isSiteAdmin
   );
   const { bulkPublish, bulkRemove, move } = usePostMutations();
@@ -120,13 +122,14 @@ const AdminPostList = () => {
   const moveRow = (post: AdminPostListItem, direction: -1 | 1) => {
     if (tab === "all") return;
     move.mutate(
-      { category: tab, id: post.id, direction },
+      // 한 페이지에 분류 전체가 있으면 서버 재조회 없이 화면 목록으로 계산한다.
+      { category: tab, id: post.id, direction, posts: totalPages === 1 ? posts : undefined },
       { onError: (error) => toast(failMessage(error, "순서를 변경")) }
     );
   };
 
   const renderRow = (post: AdminPostListItem, i: number) => {
-    const index = (page - 1) * BOARD_PAGE_SIZE + i;
+    const index = (page - 1) * pageSize + i;
     const isChecked = checked.has(post.id);
     const status = getPostStatus(post);
     const isMoving = move.isPending && move.variables?.id === post.id;
