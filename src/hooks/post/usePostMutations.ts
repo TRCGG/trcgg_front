@@ -1,4 +1,4 @@
-import { QueryFilters, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AdminPostDetail,
   AdminPostListItem,
@@ -118,9 +118,11 @@ const usePostMutations = () => {
   const move = useMutation({
     mutationFn: ({ category, id, direction }: MoveInput) => reorder(category, id, direction),
     onMutate: async (input) => {
-      const filters: QueryFilters<AdminPage> = {
+      // QueryFilters의 제네릭 순서가 5.x 마이너마다 달라 타입 인자 없이 구조로만 맞춘다.
+      const filters = {
         queryKey: ["adminPost", "list"],
-        predicate: (query) => (query.queryKey[2] as PostListQuery).category === input.category,
+        predicate: (query: { queryKey: readonly unknown[] }) =>
+          (query.queryKey[2] as PostListQuery).category === input.category,
       };
       await queryClient.cancelQueries(filters);
       const previous = queryClient.getQueriesData<AdminPage>(filters);
