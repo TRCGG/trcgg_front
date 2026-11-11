@@ -150,8 +150,10 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
   };
 
   const segmentClass = (on: boolean) =>
-    `border border-border2 px-3 py-1.5 text-[13px] ${
-      on ? "bg-board-segmentActive text-board-heading" : "bg-darkBg2 text-board-meta"
+    `inline-flex items-center gap-1.5 rounded-[5px] px-3 py-[5px] text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-landing-gold ${
+      on
+        ? "bg-board-segmentActive font-bold text-board-heading shadow-[0_1px_2px_theme(colors.landing.bgOverlay/0.6)]"
+        : "text-board-meta hover:text-primary1"
     }`;
 
   return (
@@ -236,14 +238,27 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
 
         <div className="py-[18px]">
           <div className="mb-1.5 flex flex-wrap items-end justify-between gap-2">
-            <div role="tablist" aria-label="본문 보기" className="flex">
+            <div
+              role="tablist"
+              aria-label="본문 보기"
+              className="inline-flex gap-0.5 rounded-md border border-border2 bg-darkBg2 p-[3px]"
+            >
               <button
                 type="button"
                 role="tab"
                 aria-selected={!preview}
                 onClick={() => setPreview(false)}
-                className={`${segmentClass(!preview)} rounded-l border-r-0`}
+                className={segmentClass(!preview)}
               >
+                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
+                  <path
+                    d="M10.5 2.5l3 3L6 13H3v-3l7.5-7.5z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 본문
               </button>
               <button
@@ -251,8 +266,18 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
                 role="tab"
                 aria-selected={preview}
                 onClick={() => setPreview(true)}
-                className={`${segmentClass(preview)} rounded-r`}
+                className={segmentClass(preview)}
               >
+                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
+                  <path
+                    d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                  />
+                  <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
                 미리보기
               </button>
             </div>
