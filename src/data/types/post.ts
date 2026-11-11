@@ -14,7 +14,6 @@ export const SORT_ORDER_CATEGORIES: readonly PostCategory[] = ["faq", "guide"];
 
 export const POST_TITLE_MAX = 200;
 export const POST_CONTENT_MAX = 10_000;
-export const POST_SORT_ORDER_MAX = 2_147_483_647;
 
 export const isPostCategory = (value: unknown): value is PostCategory =>
   typeof value === "string" && (POST_CATEGORIES as readonly string[]).includes(value);

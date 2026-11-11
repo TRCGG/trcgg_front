@@ -27,7 +27,6 @@ import {
   PostFormErrors,
   PostSnapshot,
   toSnapshot,
-  usesSortOrder,
   validatePostForm,
 } from "@/features/board/postForm";
 import { getPostStatus, POST_STATUS_LABEL } from "@/features/board/postMeta";
@@ -65,13 +64,11 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
           category: post.category,
           title: post.title,
           content: post.content,
-          sortOrder: post.sortOrder === null ? "" : String(post.sortOrder),
         }
       : {
           category: initialCategory,
           title: "",
           content: "",
-          sortOrder: "",
         }
   );
   const [original, setOriginal] = useState<PostSnapshot | null>(() =>
@@ -206,29 +203,6 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
               </select>
             </label>
           </div>
-          {usesSortOrder(form.category) && (
-            <div className="flex-[0_1_140px]">
-              <label htmlFor="post-order">
-                <span className={labelClass}>노출 순서</span>
-                <input
-                  id="post-order"
-                  type="number"
-                  min={0}
-                  step={1}
-                  inputMode="numeric"
-                  placeholder="미지정"
-                  value={form.sortOrder}
-                  onChange={setField("sortOrder")}
-                  className={`${inputClass} h-10 ${fieldBorder(errors.sortOrder)}`}
-                />
-              </label>
-              {errors.sortOrder && (
-                <div role="alert" className={errorClass}>
-                  {errors.sortOrder}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         <div className="border-b border-board-rowLine py-[18px]">

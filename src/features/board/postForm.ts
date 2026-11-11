@@ -2,7 +2,6 @@ import {
   PostCategory,
   PostUpdateInput,
   POST_CONTENT_MAX,
-  POST_SORT_ORDER_MAX,
   POST_TITLE_MAX,
   SORT_ORDER_CATEGORIES,
 } from "@/data/types/post";
@@ -12,8 +11,6 @@ export interface PostForm {
   category: PostCategory;
   title: string;
   content: string;
-  /** 입력칸 그대로의 문자열. 빈 문자열은 순서 미지정이다. */
-  sortOrder: string;
 }
 
 export interface PostSnapshot {
@@ -23,7 +20,7 @@ export interface PostSnapshot {
   sortOrder: number | null;
 }
 
-export type PostFormErrors = Partial<Record<"title" | "content" | "sortOrder", string>>;
+export type PostFormErrors = Partial<Record<"title" | "content", string>>;
 
 export const usesSortOrder = (category: PostCategory) => SORT_ORDER_CATEGORIES.includes(category);
 
@@ -36,31 +33,23 @@ export const validatePostForm = (form: PostForm): PostFormErrors => {
   if (!form.content.trim()) errors.content = "본문을 입력해 주세요.";
   else if (form.content.length > POST_CONTENT_MAX)
     errors.content = "본문은 10,000자까지 입력할 수 있습니다.";
-
-  if (
-    usesSortOrder(form.category) &&
-    form.sortOrder !== "" &&
-    !(/^\d+$/.test(form.sortOrder) && Number(form.sortOrder) <= POST_SORT_ORDER_MAX)
-  ) {
-    errors.sortOrder = "0 이상의 정수를 입력해 주세요.";
-  }
   return errors;
 };
 
-/** 순서를 쓰지 않는 카테고리로 옮기면 남아 있던 순서 값을 비운다. */
-export const sortOrderOf = (form: PostForm): number | null =>
-  usesSortOrder(form.category) && form.sortOrder !== "" ? Number(form.sortOrder) : null;
-
-export const toSnapshot = (form: PostForm): PostSnapshot => ({
+/**
+ * 순서는 관리 목록의 화살표로만 바꾼다. 새 글이나 분류를 옮긴 글은 null로 저장해 그 분류의 맨 뒤에
+ * 붙인다(백엔드가 sort_order ASC NULLS LAST, id ASC로 정렬한다). 원래 분류로 되돌리면 값을 복원한다.
+ */
+export const toSnapshot = (form: PostForm, original?: PostSnapshot | null): PostSnapshot => ({
   category: form.category,
   title: form.title.trim(),
   content: form.content,
-  sortOrder: sortOrderOf(form),
+  sortOrder: original && form.category === original.category ? original.sortOrder : null,
 });
 
 /** 바뀐 필드만 PATCH한다. 백엔드는 빈 본문을 400으로 거절한다. */
 export const diffPostForm = (form: PostForm, original: PostSnapshot): PostUpdateInput => {
-  const next = toSnapshot(form);
+  const next = toSnapshot(form, original);
   const diff: PostUpdateInput = {};
   if (next.category !== original.category) diff.category = next.category;
   if (next.title !== original.title) diff.title = next.title;
