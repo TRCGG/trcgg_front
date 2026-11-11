@@ -159,6 +159,12 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
 
   return (
     <div className="mx-auto max-w-[900px]">
+      <Link href={listHref}>
+        <a className="mb-5 inline-flex items-center gap-1.5 text-[13px] text-board-meta hover:text-primary1">
+          <span aria-hidden="true">←</span>
+          관리 목록으로
+        </a>
+      </Link>
       <div className="mb-[22px] flex flex-wrap items-baseline gap-2.5">
         <h1 className="text-[26px] font-bold tracking-[-0.4px] text-board-heading">
           {post ? "글 수정" : "글쓰기"}
