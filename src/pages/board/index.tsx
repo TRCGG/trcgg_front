@@ -15,7 +15,7 @@ const BoardPage: NextPageWithLayout = () => {
   const tab = parseBoardTab(router.query.category);
   const page = parsePage(router.query.page);
 
-  const { posts, totalCount, totalPages, isLoading, isError } = usePostList(
+  const { posts, totalCount, totalPages, isLoading, isPlaceholderData, isError } = usePostList(
     { category: tab === "all" ? undefined : tab, page, limit: BOARD_PAGE_SIZE },
     // 쿼리스트링을 읽기 전에 1페이지·전체로 한 번 더 요청하지 않도록 기다린다.
     router.isReady
@@ -29,7 +29,7 @@ const BoardPage: NextPageWithLayout = () => {
   };
 
   const renderList = () => {
-    if (!router.isReady || isLoading) return <LoadingSpinner />;
+    if (!router.isReady || isLoading || isPlaceholderData) return <LoadingSpinner />;
     if (isError) {
       return (
         <div className="border-t border-border2 py-[60px] text-center text-sm text-board-meta">

@@ -3,7 +3,9 @@ import { AdminPostListItem, PostListQuery, PostPage } from "@/data/types/post";
 import { getAdminPosts } from "@/services/post";
 
 const useAdminPostList = (query: PostListQuery, enabled: boolean) => {
-  const { data, isError, isLoading, isFetching } = useQuery<PostPage<AdminPostListItem>>({
+  const { data, isError, isLoading, isFetching, isPlaceholderData } = useQuery<
+    PostPage<AdminPostListItem>
+  >({
     queryKey: ["adminPost", "list", query],
     queryFn: () => getAdminPosts(query),
     enabled,
@@ -17,6 +19,7 @@ const useAdminPostList = (query: PostListQuery, enabled: boolean) => {
     isError,
     isLoading,
     isFetching,
+    isPlaceholderData,
   };
 };
 

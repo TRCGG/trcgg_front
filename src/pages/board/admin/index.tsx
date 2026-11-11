@@ -41,7 +41,7 @@ const AdminPostList = () => {
   const page = parsePage(router.query.page);
   const ordered = tab !== "all" && usesSortOrder(tab);
 
-  const { posts, totalCount, totalPages, isLoading, isError } = useAdminPostList(
+  const { posts, totalCount, totalPages, isLoading, isPlaceholderData, isError } = useAdminPostList(
     { category: tab === "all" ? undefined : tab, page, limit: BOARD_PAGE_SIZE },
     router.isReady && isSiteAdmin
   );
@@ -264,7 +264,7 @@ const AdminPostList = () => {
         </div>
       )}
 
-      {!router.isReady || isLoading ? (
+      {!router.isReady || isLoading || isPlaceholderData ? (
         <LoadingSpinner />
       ) : (
         <div className="overflow-x-auto border-t border-border2">
