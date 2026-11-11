@@ -67,6 +67,12 @@ const PostDetailPage: NextPageWithLayout = () => {
       <Head>
         <title>게시판 - GMOK</title>
       </Head>
+      <Link href={listHref}>
+        <a className="mb-5 inline-flex items-center gap-1.5 text-[13px] text-board-meta hover:text-primary1">
+          <span aria-hidden="true">←</span>
+          목록으로
+        </a>
+      </Link>
       {renderBody()}
       <div className="mt-6 flex justify-end border-t border-board-divider pt-5">
         <Link href={listHref}>
