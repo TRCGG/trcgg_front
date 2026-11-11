@@ -129,10 +129,13 @@ const AdminPostList = () => {
     const index = (page - 1) * BOARD_PAGE_SIZE + i;
     const isChecked = checked.has(post.id);
     const status = getPostStatus(post);
+    const isMoving = move.isPending && move.variables?.id === post.id;
     return (
       <tr
         key={post.id}
-        className={`border-b border-board-rowLine ${isChecked ? "bg-landing-gold/[0.06]" : ""}`}
+        className={`border-b border-board-rowLine transition-colors ${
+          isChecked || isMoving ? "bg-landing-gold/[0.06]" : ""
+        }`}
       >
         <td className="py-3 pl-3">
           <Checkbox
@@ -164,7 +167,17 @@ const AdminPostList = () => {
         </td>
         <td className="px-2 py-3 tabular-nums text-landing-bodySecondary">
           <div className="flex items-center gap-0.5">
-            <span className="min-w-[22px]">{post.sortOrder ?? "-"}</span>
+            <span className="min-w-[22px]">
+              {isMoving ? (
+                <span
+                  role="status"
+                  aria-label="순서 저장 중"
+                  className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-landing-gold border-t-transparent align-middle"
+                />
+              ) : (
+                (post.sortOrder ?? "-")
+              )}
+            </span>
             {ordered && (
               <>
                 <button
@@ -214,7 +227,14 @@ const AdminPostList = () => {
           총 <b className="font-bold text-landing-body">{totalCount}</b>건 (초안 포함) · 제목을
           누르면 수정, 공개 전환·삭제는 체크 후 진행합니다.
         </span>
-        {ordered && <span>노출 순서대로 정렬됩니다. 순서 열의 화살표로 변경할 수 있습니다.</span>}
+        {ordered &&
+          (move.isPending ? (
+            <span className="text-landing-goldLight">순서를 저장하는 중…</span>
+          ) : (
+            <span>
+              노출 순서대로 정렬됩니다. 새 글은 맨 뒤에 붙고, 순서 열의 화살표로 변경할 수 있습니다.
+            </span>
+          ))}
       </div>
 
       {selected.length > 0 && (

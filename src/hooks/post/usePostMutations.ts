@@ -1,9 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QueryFilters, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AdminPostDetail,
   AdminPostListItem,
   PostCategory,
   PostCreateInput,
+  PostListQuery,
+  PostPage,
   PostUpdateInput,
 } from "@/data/types/post";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/services/post";
@@ -57,6 +59,26 @@ const reorder = async (category: PostCategory, id: number, direction: -1 | 1) =>
   );
 };
 
+interface MoveInput {
+  category: PostCategory;
+  id: number;
+  direction: -1 | 1;
+}
+
+type AdminPage = PostPage<AdminPostListItem>;
+
+/** 캐시된 목록 한 페이지 안에서만 이웃과 자리를 바꾼다. 이웃이 다른 페이지면 그대로 두고 재조회에 맡긴다. */
+const swapInPage = (page: AdminPage, { id, direction }: MoveInput): AdminPage => {
+  const from = page.items.findIndex((post) => post.id === id);
+  const to = from + direction;
+  if (from < 0 || to < 0 || to >= page.items.length) return page;
+  const items = [...page.items];
+  const [a, b] = [items[from], items[to]];
+  items[from] = { ...b, sortOrder: a.sortOrder };
+  items[to] = { ...a, sortOrder: b.sortOrder };
+  return { ...page, items };
+};
+
 const usePostMutations = () => {
   const queryClient = useQueryClient();
   const invalidate = useInvalidatePosts();
@@ -92,16 +114,21 @@ const usePostMutations = () => {
     onSettled: invalidate,
   });
 
+  // 요청 왕복(전체 조회 → PATCH → 재조회)을 기다리지 않고 표부터 바꿔 둔다. 실패하면 되돌린다.
   const move = useMutation({
-    mutationFn: ({
-      category,
-      id,
-      direction,
-    }: {
-      category: PostCategory;
-      id: number;
-      direction: -1 | 1;
-    }) => reorder(category, id, direction),
+    mutationFn: ({ category, id, direction }: MoveInput) => reorder(category, id, direction),
+    onMutate: async (input) => {
+      const filters: QueryFilters<AdminPage> = {
+        queryKey: ["adminPost", "list"],
+        predicate: (query) => (query.queryKey[2] as PostListQuery).category === input.category,
+      };
+      await queryClient.cancelQueries(filters);
+      const previous = queryClient.getQueriesData<AdminPage>(filters);
+      queryClient.setQueriesData<AdminPage>(filters, (page) => page && swapInPage(page, input));
+      return { previous };
+    },
+    onError: (_error, _input, context) =>
+      context?.previous.forEach(([key, data]) => queryClient.setQueryData<AdminPage>(key, data)),
     onSettled: invalidate,
   });
 
