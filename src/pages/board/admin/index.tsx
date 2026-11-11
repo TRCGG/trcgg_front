@@ -165,43 +165,41 @@ const AdminPostList = () => {
             </a>
           </Link>
         </td>
-        <td className="px-2 py-3 tabular-nums text-landing-bodySecondary">
-          <div className="flex items-center gap-0.5">
-            <span className="min-w-[22px]">
-              {isMoving ? (
-                <span
-                  role="status"
-                  aria-label="순서 저장 중"
-                  className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-landing-gold border-t-transparent align-middle"
-                />
-              ) : (
-                (post.sortOrder ?? "-")
-              )}
-            </span>
-            {ordered && (
-              <>
-                <button
-                  type="button"
-                  aria-label="위로"
-                  disabled={index === 0 || move.isPending}
-                  onClick={() => moveRow(post, -1)}
-                  className="h-5 w-5 p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25"
-                >
-                  ▲
-                </button>
-                <button
-                  type="button"
-                  aria-label="아래로"
-                  disabled={index === totalCount - 1 || move.isPending}
-                  onClick={() => moveRow(post, 1)}
-                  className="h-5 w-5 p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25"
-                >
-                  ▼
-                </button>
-              </>
-            )}
-          </div>
-        </td>
+        {ordered && (
+          <td className="px-2 py-3 tabular-nums text-landing-bodySecondary">
+            <div className="flex items-center gap-0.5">
+              <span className="min-w-[22px]">
+                {isMoving ? (
+                  <span
+                    role="status"
+                    aria-label="순서 저장 중"
+                    className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-landing-gold border-t-transparent align-middle"
+                  />
+                ) : (
+                  (post.sortOrder ?? "-")
+                )}
+              </span>
+              <button
+                type="button"
+                aria-label="위로"
+                disabled={index === 0 || move.isPending}
+                onClick={() => moveRow(post, -1)}
+                className="h-5 w-5 p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25"
+              >
+                ▲
+              </button>
+              <button
+                type="button"
+                aria-label="아래로"
+                disabled={index === totalCount - 1 || move.isPending}
+                onClick={() => moveRow(post, 1)}
+                className="h-5 w-5 p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25"
+              >
+                ▼
+              </button>
+            </div>
+          </td>
+        )}
         <td className="px-2 py-3 text-[13px] tabular-nums text-board-meta">
           {formatPostDate(post.updateDate)}
         </td>
@@ -304,9 +302,11 @@ const AdminPostList = () => {
                 <th scope="col" className="px-2 py-2.5 font-normal">
                   제목
                 </th>
-                <th scope="col" className="w-[78px] px-2 py-2.5 font-normal">
-                  순서
-                </th>
+                {ordered && (
+                  <th scope="col" className="w-[78px] px-2 py-2.5 font-normal">
+                    순서
+                  </th>
+                )}
                 <th scope="col" className="w-24 px-2 py-2.5 font-normal">
                   수정일
                 </th>
