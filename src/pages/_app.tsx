@@ -1,11 +1,13 @@
 import type { AppProps } from "next/app";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/router";
 import useSpriteLoader from "@/hooks/common/useSpriteLoader";
 import Footer from "@/components/layout/Footer";
+import SessionExpiredToast from "@/components/ui/SessionExpiredToast";
 import { NextPageWithLayout } from "@/data/types/next";
 import { GuildProvider } from "@/hooks/auth/GuildContext";
+import { createQueryClient } from "@/hooks/auth/sessionExpiry";
 import { isApiError } from "@/services/apiError";
 import "@/styles/global.css";
 
@@ -29,15 +31,17 @@ const shouldRetry = (failureCount: number, error: unknown): boolean => {
 };
 
 const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { retry: shouldRetry },
-          // 쓰기는 중복 실행이 부작용을 남길 수 있어 재시도하지 않는다.
-          mutations: { retry: false },
-        },
-      })
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const closeSessionExpired = useCallback(() => setSessionExpired(false), []);
+  const [queryClient] = useState(() =>
+    createQueryClient(
+      {
+        queries: { retry: shouldRetry },
+        // 쓰기는 중복 실행이 부작용을 남길 수 있어 재시도하지 않는다.
+        mutations: { retry: false },
+      },
+      () => setSessionExpired(true)
+    )
   );
   const router = useRouter();
 
@@ -61,6 +65,7 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
           </div>
           {!isFullBleed && <Footer />}
         </div>
+        <SessionExpiredToast open={sessionExpired} onClose={closeSessionExpired} />
       </GuildProvider>
     </QueryClientProvider>
   );
