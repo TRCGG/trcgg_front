@@ -19,7 +19,7 @@ const PostDetailPage: NextPageWithLayout = () => {
     if (!router.isReady || isLoading) return <LoadingSpinner />;
     if (isNotFound || postId === null) {
       return (
-        <div className="border-b border-t border-b-board-divider border-t-border2 py-20 text-center">
+        <div className="border-t border-border2 py-20 text-center">
           <p className="mb-1.5 text-base font-bold text-board-subheading">
             존재하지 않거나 비공개된 글입니다.
           </p>
