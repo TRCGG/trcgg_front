@@ -85,6 +85,9 @@ const useGuildManagement = () => {
   const canUploadReplay =
     hasMinRole(currentRole, "userUploader") || guildData?.allowAllUploads === true;
 
+  // 백엔드 requireAdmin은 길드와 무관하게 활성 역할 중 하나라도 adminNormal 이상이면 통과시킨다.
+  const isSiteAdmin = (guildsData ?? []).some((guild) => hasMinRole(guild.role, "adminNormal"));
+
   // useGuildContext로 guildId를 직접 읽는 컴포넌트도 같은 길드를 보도록 맞춘다
   useEffect(() => {
     if (!isLoadingGuilds && guildId !== selectedGuildId) {
@@ -104,6 +107,7 @@ const useGuildManagement = () => {
     avatar,
     currentRole,
     canUploadReplay,
+    isSiteAdmin,
     handleGuildChange: setGuildId,
     isLoadingGuilds,
   };

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import AnchorNav from "@/components/layout/AnchorNav";
+import SiteNav from "@/components/layout/SiteNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
@@ -69,15 +69,6 @@ const Section = ({ id, step, title, badge, children }: SectionProps) => (
     {children}
   </section>
 );
-
-const TOC = [
-  { id: "s1", label: "GMOK이란" },
-  { id: "s2", label: "시작하기" },
-  { id: "s3", label: "리플레이 업로드" },
-  { id: "s4", label: "전적 보기" },
-  { id: "s5", label: "클랜 통계" },
-  { id: "s6", label: "클랜 관리" },
-];
 
 const START_STEPS = [
   {
@@ -156,7 +147,7 @@ const Guide: NextPage = () => (
       />
     </Head>
 
-    <AnchorNav items={TOC} />
+    <SiteNav />
 
     <div className="overflow-x-hidden">
       {/* HERO */}

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import AnchorNav from "@/components/layout/AnchorNav";
+import SiteNav from "@/components/layout/SiteNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
@@ -211,7 +211,7 @@ const Faq: NextPage = () => (
       />
     </Head>
 
-    <AnchorNav items={CATEGORIES} />
+    <SiteNav />
 
     <div className="overflow-x-hidden">
       {/* HERO */}

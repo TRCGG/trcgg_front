@@ -36,6 +36,9 @@ const Footer = () => (
             <Link href="/faq">
               <a className={linkClass}>자주 묻는 질문</a>
             </Link>
+            <Link href="/board">
+              <a className={linkClass}>게시판</a>
+            </Link>
           </div>
         </div>
         <div>

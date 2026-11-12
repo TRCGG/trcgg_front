@@ -129,4 +129,5 @@ export const getChampions = async (): Promise<ChampionItem[]> => {
 | `/competitions` | 대회 목록·상세·신청·팀 편성 |
 | `/clan/*` | 클랜 관리 (업로드 권한·클랜원·부계정) |
 | `/about`, `/guide`, `/faq` | 서비스 소개, 이용 가이드, FAQ |
+| `/board` | 게시판 (개발 일지·FAQ·사용방법·기타). `/board/admin`은 adminNormal 이상의 글 관리 |
 
