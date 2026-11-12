@@ -53,6 +53,14 @@ const errorClass = "mt-1 text-[12.5px] text-board-dangerText";
 const inputClass =
   "w-full rounded border bg-darkBg2 px-2.5 text-sm text-board-heading placeholder:text-board-faint";
 
+type ContentView = "edit" | "preview" | "split";
+
+const CONTENT_VIEWS: { key: ContentView; label: string }[] = [
+  { key: "edit", label: "본문" },
+  { key: "preview", label: "미리보기" },
+  { key: "split", label: "나란히 보기" },
+];
+
 const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorProps) => {
   const router = useRouter();
   const toast = useBoardToast();
@@ -75,7 +83,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
     post ? snapshotOf(post) : null
   );
   const [errors, setErrors] = useState<PostFormErrors>({});
-  const [preview, setPreview] = useState(false);
+  const [view, setView] = useState<ContentView>("edit");
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const diff = original ? diffPostForm(form, original) : {};
@@ -150,7 +158,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
   };
 
   const segmentClass = (on: boolean) =>
-    `inline-flex items-center gap-1.5 rounded-[5px] px-3 py-[5px] text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-landing-gold ${
+    `rounded-[5px] px-3 py-[5px] text-[13px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-landing-gold ${
       on
         ? "bg-board-segmentActive font-bold text-board-heading shadow-[0_1px_2px_theme(colors.landing.bgOverlay/0.6)]"
         : "text-board-meta hover:text-primary1"
@@ -243,43 +251,18 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
               aria-label="본문 보기"
               className="inline-flex gap-0.5 rounded-md border border-border2 bg-darkBg2 p-[3px]"
             >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!preview}
-                onClick={() => setPreview(false)}
-                className={segmentClass(!preview)}
-              >
-                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
-                  <path
-                    d="M10.5 2.5l3 3L6 13H3v-3l7.5-7.5z"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                본문
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={preview}
-                onClick={() => setPreview(true)}
-                className={segmentClass(preview)}
-              >
-                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
-                  <path
-                    d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                  />
-                  <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-                미리보기
-              </button>
+              {CONTENT_VIEWS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={view === key}
+                  onClick={() => setView(key)}
+                  className={segmentClass(view === key)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
             <span
               className={`text-xs tabular-nums ${
@@ -291,28 +274,36 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
               {form.content.length.toLocaleString()}/{POST_CONTENT_MAX.toLocaleString()}
             </span>
           </div>
-          {preview ? (
-            <div className="min-h-[380px] rounded border border-border2 bg-darkBg2 px-[18px] py-3.5">
-              {hasPostBlocks(form.content) ? (
-                <PostBlocks content={form.content} variant="preview" />
-              ) : (
-                <p className="text-sm text-board-faint">작성된 내용이 없습니다.</p>
-              )}
-            </div>
-          ) : (
-            <label htmlFor="post-content">
-              <span className="sr-only">본문 (마크다운)</span>
-              <textarea
-                id="post-content"
-                maxLength={POST_CONTENT_MAX}
-                value={form.content}
-                onChange={setField("content")}
-                className={`min-h-[380px] w-full resize-y rounded border bg-darkBg2 px-3.5 py-3 font-mono text-sm leading-[1.7] text-board-subheading ${fieldBorder(
-                  errors.content
-                )}`}
-              />
-            </label>
-          )}
+          <div className={view === "split" ? "grid gap-3 md:grid-cols-2" : ""}>
+            {view !== "preview" && (
+              <label htmlFor="post-content" className="block">
+                <span className="sr-only">본문 (마크다운)</span>
+                <textarea
+                  id="post-content"
+                  maxLength={POST_CONTENT_MAX}
+                  value={form.content}
+                  onChange={setField("content")}
+                  className={`block min-h-[380px] w-full resize-y rounded border bg-darkBg2 px-3.5 py-3 font-mono text-sm leading-[1.7] text-board-subheading ${fieldBorder(
+                    errors.content
+                  )}`}
+                />
+              </label>
+            )}
+            {view !== "edit" && (
+              <div
+                className={`min-h-[380px] overflow-y-auto rounded border border-border2 bg-darkBg2 px-[18px] py-3.5 ${
+                  // 높이는 본문 입력란이 정하고, 미리보기가 길면 그 안에서 스크롤한다.
+                  view === "split" ? "md:h-0 md:min-h-full" : ""
+                }`}
+              >
+                {hasPostBlocks(form.content) ? (
+                  <PostBlocks content={form.content} variant="preview" />
+                ) : (
+                  <p className="text-sm text-board-faint">작성된 내용이 없습니다.</p>
+                )}
+              </div>
+            )}
+          </div>
           {errors.content && (
             <div role="alert" className={errorClass}>
               {errors.content}
