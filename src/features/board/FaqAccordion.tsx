@@ -39,7 +39,7 @@ const FaqAccordion = ({ posts }: { posts: PostListItem[] }) => {
             {expanded && (
               <div
                 id={panelId}
-                className="border-t border-board-rowLine bg-board-panel pb-3.5 pl-9 pr-[22px] pt-[18px]"
+                className="border-t border-board-rowLine bg-board-panel pb-3.5 pl-4 pr-4 pt-4 sm:pl-9 sm:pr-[22px] sm:pt-[18px]"
               >
                 <PostBlocks content={post.content ?? ""} variant="faq" />
               </div>

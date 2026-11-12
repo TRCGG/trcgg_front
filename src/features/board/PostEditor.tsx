@@ -165,7 +165,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
         </a>
       </Link>
       <div className="mb-[22px] flex flex-wrap items-baseline gap-2.5">
-        <h1 className="text-[26px] font-bold tracking-[-0.4px] text-board-heading">
+        <h1 className="text-[22px] font-bold tracking-[-0.4px] text-board-heading sm:text-[26px]">
           {post ? "글 수정" : "글쓰기"}
         </h1>
         {post && (

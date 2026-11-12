@@ -28,7 +28,7 @@ const ConfirmDialog = ({ title, onCancel, children, actions }: ConfirmDialogProp
         role="dialog"
         aria-modal="true"
         aria-labelledby="board-dialog-title"
-        className="w-full max-w-[420px] rounded-md border border-border2 bg-board-dialog p-6"
+        className="w-full max-w-[420px] rounded-md border border-border2 bg-board-dialog p-5 sm:p-6"
       >
         <h2 id="board-dialog-title" className="mb-3 text-[17px] font-bold text-landing-heading">
           {title}

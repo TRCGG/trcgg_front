@@ -57,7 +57,9 @@ const BoardPage: NextPageWithLayout = () => {
       </Head>
 
       <div className="mb-6 flex items-center justify-between gap-3">
-        <h1 className="text-[26px] font-bold tracking-[-0.4px] text-board-heading">게시판</h1>
+        <h1 className="text-[22px] font-bold tracking-[-0.4px] text-board-heading sm:text-[26px]">
+          게시판
+        </h1>
         {isSiteAdmin && (
           <div className="flex items-center gap-2">
             <Link href={tab === "all" ? "/board/admin/new" : `/board/admin/new?category=${tab}`}>

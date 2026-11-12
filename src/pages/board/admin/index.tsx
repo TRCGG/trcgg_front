@@ -26,6 +26,7 @@ import {
   parseBoardTab,
   parsePage,
   POST_STATUS_LABEL,
+  PostStatus,
 } from "@/features/board/postMeta";
 
 const bulkMessage = ({ succeeded, failed }: BulkResult, done: string) =>
@@ -128,79 +129,101 @@ const AdminPostList = () => {
     );
   };
 
+  const rowState = (post: AdminPostListItem, i: number) => ({
+    index: (page - 1) * pageSize + i,
+    isChecked: checked.has(post.id),
+    status: getPostStatus(post),
+    isMoving: move.isPending && move.variables?.id === post.id,
+  });
+
+  const rowHighlight = (isChecked: boolean, isMoving: boolean) =>
+    isChecked || isMoving ? "bg-landing-gold/[0.06]" : "";
+
+  const renderCheckbox = (post: AdminPostListItem, isChecked: boolean) => (
+    <Checkbox
+      aria-label={`${post.title} 선택`}
+      checked={isChecked}
+      onChange={() => toggle(post.id)}
+    />
+  );
+
+  const renderTitle = (post: AdminPostListItem, className: string) => (
+    <Link href={`/board/admin/${post.id}`}>
+      <a
+        className={`${className} hover:underline ${
+          post.isPublished ? "text-board-title" : "text-landing-bodySecondary"
+        }`}
+      >
+        {post.title}
+      </a>
+    </Link>
+  );
+
+  const renderOrder = (
+    post: AdminPostListItem,
+    index: number,
+    isMoving: boolean,
+    arrowClass: string
+  ) => (
+    <div className="flex items-center gap-0.5">
+      <span className="min-w-[22px]">
+        {isMoving ? (
+          <span
+            role="status"
+            aria-label="순서 저장 중"
+            className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-landing-gold border-t-transparent align-middle"
+          />
+        ) : (
+          (post.sortOrder ?? "-")
+        )}
+      </span>
+      <button
+        type="button"
+        aria-label="위로"
+        disabled={index === 0 || move.isPending}
+        onClick={() => moveRow(post, -1)}
+        className={`${arrowClass} p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25`}
+      >
+        ▲
+      </button>
+      <button
+        type="button"
+        aria-label="아래로"
+        disabled={index === totalCount - 1 || move.isPending}
+        onClick={() => moveRow(post, 1)}
+        className={`${arrowClass} p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25`}
+      >
+        ▼
+      </button>
+    </div>
+  );
+
+  const statusClass = (status: PostStatus) =>
+    status === "published" ? "text-board-published" : "text-board-meta";
+
   const renderRow = (post: AdminPostListItem, i: number) => {
-    const index = (page - 1) * pageSize + i;
-    const isChecked = checked.has(post.id);
-    const status = getPostStatus(post);
-    const isMoving = move.isPending && move.variables?.id === post.id;
+    const { index, isChecked, status, isMoving } = rowState(post, i);
     return (
       <tr
         key={post.id}
-        className={`border-b border-board-rowLine transition-colors ${
-          isChecked || isMoving ? "bg-landing-gold/[0.06]" : ""
-        }`}
+        className={`border-b border-board-rowLine transition-colors ${rowHighlight(
+          isChecked,
+          isMoving
+        )}`}
       >
-        <td className="py-3 pl-3">
-          <Checkbox
-            aria-label={`${post.title} 선택`}
-            checked={isChecked}
-            onChange={() => toggle(post.id)}
-          />
-        </td>
-        <td
-          className={`whitespace-nowrap px-3 py-3 text-[13px] ${
-            status === "published" ? "text-board-published" : "text-board-meta"
-          }`}
-        >
+        <td className="py-3 pl-3">{renderCheckbox(post, isChecked)}</td>
+        <td className={`whitespace-nowrap px-3 py-3 text-[13px] ${statusClass(status)}`}>
           {POST_STATUS_LABEL[status]}
         </td>
         <td className="px-2 py-3 text-[13px] text-landing-caption">
           {POST_CATEGORY_LABEL[post.category]}
         </td>
         <td className="max-w-0 px-2 py-3">
-          <Link href={`/board/admin/${post.id}`}>
-            <a
-              className={`block max-w-full truncate text-[14.5px] hover:underline ${
-                post.isPublished ? "text-board-title" : "text-landing-bodySecondary"
-              }`}
-            >
-              {post.title}
-            </a>
-          </Link>
+          {renderTitle(post, "block max-w-full truncate text-[14.5px]")}
         </td>
         {ordered && (
           <td className="px-2 py-3 tabular-nums text-landing-bodySecondary">
-            <div className="flex items-center gap-0.5">
-              <span className="min-w-[22px]">
-                {isMoving ? (
-                  <span
-                    role="status"
-                    aria-label="순서 저장 중"
-                    className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-landing-gold border-t-transparent align-middle"
-                  />
-                ) : (
-                  (post.sortOrder ?? "-")
-                )}
-              </span>
-              <button
-                type="button"
-                aria-label="위로"
-                disabled={index === 0 || move.isPending}
-                onClick={() => moveRow(post, -1)}
-                className="h-5 w-5 p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25"
-              >
-                ▲
-              </button>
-              <button
-                type="button"
-                aria-label="아래로"
-                disabled={index === totalCount - 1 || move.isPending}
-                onClick={() => moveRow(post, 1)}
-                className="h-5 w-5 p-0 text-[11px] text-landing-bodySecondary disabled:cursor-default disabled:opacity-25"
-              >
-                ▼
-              </button>
-            </div>
+            {renderOrder(post, index, isMoving, "h-5 w-5")}
           </td>
         )}
         <td className="px-2 py-3 text-[13px] tabular-nums text-board-meta">
@@ -210,12 +233,44 @@ const AdminPostList = () => {
     );
   };
 
+  const renderCard = (post: AdminPostListItem, i: number) => {
+    const { index, isChecked, status, isMoving } = rowState(post, i);
+    return (
+      <li
+        key={post.id}
+        className={`flex items-start gap-3 border-b border-board-rowLine px-1.5 py-3 transition-colors ${rowHighlight(
+          isChecked,
+          isMoving
+        )}`}
+      >
+        <span className="pt-[3px]">{renderCheckbox(post, isChecked)}</span>
+        <div className="min-w-0 flex-1">
+          {renderTitle(post, "line-clamp-2 break-all text-[14.5px] leading-[1.5]")}
+          <div className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[12.5px] tabular-nums text-board-meta">
+            <span className={statusClass(status)}>{POST_STATUS_LABEL[status]}</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-landing-caption">{POST_CATEGORY_LABEL[post.category]}</span>
+            <span aria-hidden="true">·</span>
+            <span>{formatPostDate(post.updateDate)}</span>
+          </div>
+        </div>
+        {ordered && (
+          <div className="shrink-0 tabular-nums text-landing-bodySecondary">
+            {renderOrder(post, index, isMoving, "h-8 w-8")}
+          </div>
+        )}
+      </li>
+    );
+  };
+
   const newPostHref = tab === "all" ? "/board/admin/new" : `/board/admin/new?category=${tab}`;
 
   return (
     <div className="mx-auto max-w-[1100px]">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-[26px] font-bold tracking-[-0.4px] text-board-heading">게시판 관리</h1>
+        <h1 className="text-[22px] font-bold tracking-[-0.4px] text-board-heading sm:text-[26px]">
+          게시판 관리
+        </h1>
         <Link href={newPostHref}>
           <a className={`${BTN_PRIMARY} px-[18px] py-[9px]`}>글쓰기</a>
         </Link>
@@ -254,39 +309,49 @@ const AdminPostList = () => {
           >
             선택 해제
           </button>
-          <span className="flex-1" />
-          <button
-            type="button"
-            disabled={bulkPending}
-            onClick={() => setPublished(true)}
-            className={`${BTN_NEUTRAL} px-3 py-[7px] text-[13px]`}
-          >
-            공개
-          </button>
-          <button
-            type="button"
-            disabled={bulkPending}
-            onClick={() => setPublished(false)}
-            className={`${BTN_NEUTRAL} px-3 py-[7px] text-[13px]`}
-          >
-            비공개 전환
-          </button>
-          <button
-            type="button"
-            disabled={bulkPending}
-            onClick={() => setBulkDeleteOpen(true)}
-            className={`${BTN_DANGER} px-3 py-[7px] text-[13px]`}
-          >
-            삭제
-          </button>
+          <div className="ml-auto flex gap-2">
+            <button
+              type="button"
+              disabled={bulkPending}
+              onClick={() => setPublished(true)}
+              className={`${BTN_NEUTRAL} px-3 py-[7px] text-[13px]`}
+            >
+              공개
+            </button>
+            <button
+              type="button"
+              disabled={bulkPending}
+              onClick={() => setPublished(false)}
+              className={`${BTN_NEUTRAL} px-3 py-[7px] text-[13px]`}
+            >
+              비공개 전환
+            </button>
+            <button
+              type="button"
+              disabled={bulkPending}
+              onClick={() => setBulkDeleteOpen(true)}
+              className={`${BTN_DANGER} px-3 py-[7px] text-[13px]`}
+            >
+              삭제
+            </button>
+          </div>
         </div>
       )}
 
       {!router.isReady || isLoading || isPlaceholderData ? (
         <LoadingSpinner />
       ) : (
-        <div className="overflow-x-auto border-t border-border2">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
+        <div className="border-t border-border2">
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- 규칙이 Checkbox 컴포넌트 안의 input을 보지 못한다 */}
+          <label
+            htmlFor="admin-check-all-mobile"
+            className="flex items-center gap-3 border-b border-board-rowLine bg-board-panel px-1.5 py-2.5 text-[12.5px] text-board-meta md:hidden"
+          >
+            <Checkbox id="admin-check-all-mobile" checked={allChecked} onChange={toggleAll} />이
+            페이지 전체 선택
+          </label>
+          <ul className="md:hidden">{posts.map(renderCard)}</ul>
+          <table className="hidden w-full border-collapse text-sm md:table">
             <thead>
               <tr className="bg-board-panel text-left text-[12.5px] text-board-meta">
                 <th scope="col" className="w-9 py-2.5 pl-3">

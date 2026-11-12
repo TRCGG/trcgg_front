@@ -46,7 +46,7 @@ const PostDetailPage: NextPageWithLayout = () => {
         <div className="mb-2 text-[13px] text-landing-caption">
           {POST_CATEGORY_LABEL[post.category]}
         </div>
-        <h1 className="mb-3 text-[26px] font-bold leading-[1.4] tracking-[-0.4px] text-landing-heading">
+        <h1 className="mb-3 text-[22px] font-bold leading-[1.4] tracking-[-0.4px] text-landing-heading sm:text-[26px]">
           {post.title}
         </h1>
         <div className="mb-7 border-b border-board-divider pb-[18px] text-[13px] tabular-nums text-board-meta">

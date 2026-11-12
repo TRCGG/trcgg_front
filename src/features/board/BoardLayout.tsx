@@ -7,7 +7,7 @@ const BoardLayout = ({ children }: { children: ReactNode }) => (
   <BoardToastProvider>
     <div className="min-h-screen w-full overflow-x-hidden bg-landing-bg leading-[1.6] text-landing-body">
       <SiteNav />
-      <main className="w-full px-6 pb-24 pt-11">{children}</main>
+      <main className="w-full px-4 pb-24 pt-7 sm:px-6 sm:pt-11">{children}</main>
       <Footer />
     </div>
   </BoardToastProvider>
