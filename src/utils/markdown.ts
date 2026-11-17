@@ -1,5 +1,5 @@
 import { marked } from "marked";
-import { CONTACT_EMAIL, DISCORD_INVITE_URL } from "@/constants/links";
+import { CONTACT_EMAIL, DISCORD_SUPPORT_URL } from "@/constants/links";
 
 // GitHub 스타일 heading slug. 문서 내 언어 전환 앵커(#gmok-...-english 등)와 일치시키기 위함.
 const slugify = (text: string): string =>
@@ -34,7 +34,7 @@ marked.use({ gfm: true, headerIds: false, mangle: false, renderer });
 
 // 문서에 하드코딩하지 않고 상수를 참조하기 위한 치환 테이블. gfm 자동 링크가 걸리도록 파싱 전에 치환한다.
 const TEMPLATE_VARS: Record<string, string> = {
-  DISCORD_INVITE: DISCORD_INVITE_URL,
+  DISCORD_INVITE: DISCORD_SUPPORT_URL,
   CONTACT_EMAIL,
 };
 

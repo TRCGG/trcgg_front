@@ -5,7 +5,7 @@ import Link from "next/link";
 import SiteNav from "@/components/layout/SiteNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import { DISCORD_BOT_INSTALL_URL, DISCORD_SUPPORT_URL } from "@/constants/links";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 
@@ -210,16 +210,16 @@ const Guide: NextPage = () => (
                 </Card>
               ))}
               <Note tone="discord">
-                아직 클랜이 등록돼 있지 않다면{" "}
+                아직 클랜이 등록돼 있지 않다면 클랜 디스코드 서버에{" "}
                 <a
-                  href={DISCORD_INVITE_URL}
+                  href={DISCORD_BOT_INSTALL_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
                 >
-                  디스코드 지원 서버
+                  GMOK 봇을 초대
                 </a>
-                로 문의해 주세요.
+                해 주세요. 초대하면 자동으로 등록됩니다.
               </Note>
             </div>
           </Section>
@@ -356,7 +356,7 @@ const Guide: NextPage = () => (
                   </span>
                 </Link>
                 <a
-                  href={DISCORD_INVITE_URL}
+                  href={DISCORD_SUPPORT_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-[30px] py-[15px] text-base font-bold text-white shadow-[0_14px_34px_-10px_theme(colors.landing.discord/0.6)] hover:bg-landing-discordHover"

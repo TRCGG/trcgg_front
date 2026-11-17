@@ -5,7 +5,7 @@ import DiscordIcon from "@/components/ui/DiscordIcon";
 import SiteNav from "@/components/layout/SiteNav";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Footer from "@/components/layout/Footer";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
 import dashboard from "@/assets/aboutImages/dashboard.png";
 import replayDownload from "@/assets/aboutImages/download.png";
 import replayUpload from "@/assets/aboutImages/upload.png";
@@ -212,7 +212,7 @@ const LandingPage = () => {
                 데모로 체험하기
               </button>
               <a
-                href={DISCORD_INVITE_URL}
+                href={DISCORD_BOT_INSTALL_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg sm:w-[230px] border border-white/20 text-landing-heading hover:border-white/40 hover:bg-white/5"
@@ -599,7 +599,7 @@ const LandingPage = () => {
                 </span>
               </Link>
               <a
-                href={DISCORD_INVITE_URL}
+                href={DISCORD_BOT_INSTALL_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-landing-gold px-7 py-3.5 text-base font-bold text-board-onGold transition hover:-translate-y-0.5 hover:bg-landing-goldMuted"

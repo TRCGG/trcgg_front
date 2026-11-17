@@ -5,7 +5,7 @@ import Link from "next/link";
 import SiteNav from "@/components/layout/SiteNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import { DISCORD_BOT_INSTALL_URL, DISCORD_SUPPORT_URL } from "@/constants/links";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 
@@ -15,9 +15,15 @@ const Code = ({ children }: { children: ReactNode }) => (
   </span>
 );
 
-const DiscordLink = ({ children }: { children: ReactNode }) => (
+const DiscordLink = ({
+  href = DISCORD_SUPPORT_URL,
+  children,
+}: {
+  href?: string;
+  children: ReactNode;
+}) => (
   <a
-    href={DISCORD_INVITE_URL}
+    href={href}
     target="_blank"
     rel="noreferrer"
     className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
@@ -56,8 +62,9 @@ const CATEGORIES: FaqCategory[] = [
         q: "우리 클랜도 사용할 수 있나요?",
         a: (
           <>
-            네. <DiscordLink>디스코드 지원 서버</DiscordLink>로 문의해 주시면 클랜 등록을 안내해
-            드립니다.
+            네. 클랜 디스코드 서버에{" "}
+            <DiscordLink href={DISCORD_BOT_INSTALL_URL}>GMOK 봇을 초대</DiscordLink>하면 클랜이
+            자동으로 등록됩니다.
           </>
         ),
       },
@@ -66,8 +73,9 @@ const CATEGORIES: FaqCategory[] = [
         a: (
           <>
             GMOK에 등록된 클랜(디스코드 서버)에 소속된 계정만 서비스를 이용할 수 있습니다. 소속
-            클랜이 아직 등록되지 않았다면 <DiscordLink>디스코드 지원 서버</DiscordLink>로 문의해
-            주세요.
+            클랜이 아직 등록되지 않았다면 클랜 디스코드 서버에{" "}
+            <DiscordLink href={DISCORD_BOT_INSTALL_URL}>GMOK 봇을 초대</DiscordLink>한 뒤 다시
+            로그인해 주세요.
           </>
         ),
       },
@@ -266,10 +274,10 @@ const Faq: NextPage = () => (
                 찾는 답이 없으신가요?
               </h2>
               <p className="m-0 mb-6 text-[15.5px] leading-[1.7] text-landing-caption">
-                클랜 등록 문의, 오류 신고, 기록 삭제 요청 모두 디스코드에서 받고 있습니다.
+                오류 신고, 기록 삭제 요청 등 모든 문의를 디스코드에서 받고 있습니다.
               </p>
               <a
-                href={DISCORD_INVITE_URL}
+                href={DISCORD_SUPPORT_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-[30px] py-[15px] text-base font-bold text-white shadow-[0_14px_34px_-10px_theme(colors.landing.discord/0.6)] hover:bg-landing-discordHover"

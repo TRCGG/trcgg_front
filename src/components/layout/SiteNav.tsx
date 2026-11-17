@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import TextLogo from "@/assets/images/textLogo.png";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
 import startDiscordLogin from "@/utils/discordLogin";
 import LoginHintBubble from "@/components/ui/LoginHintBubble";
 
@@ -49,7 +49,7 @@ const SiteNav = () => {
               </Link>
             ))}
             <a
-              href={DISCORD_INVITE_URL}
+              href={DISCORD_BOT_INSTALL_URL}
               target="_blank"
               rel="noreferrer"
               className="shrink-0 text-[15px] font-bold text-landing-gold hover:text-landing-goldLight"
