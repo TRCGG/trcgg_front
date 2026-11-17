@@ -94,7 +94,7 @@ const FEATURES = [
   },
 ];
 
-const HERO_POINTS = ["모든 기능 무료", "설치 없이 웹에서", "리플레이만 올리면 자동 집계"];
+const HERO_POINTS = ["모든 기능 무료", "리플레이만 올리면 자동 집계", "부캐 전적까지 합산"];
 
 /** 서비스 소개 화면. `/about`과 비로그인 방문자의 `/`가 함께 쓴다. */
 const LandingPage = () => {
@@ -224,7 +224,7 @@ const LandingPage = () => {
             <ul
               data-reveal
               data-delay="220"
-              className="m-0 flex list-none flex-wrap justify-center gap-x-5 gap-y-2 p-0 text-sm text-landing-caption"
+              className="m-0 flex list-none flex-wrap justify-center gap-x-5 gap-y-2 whitespace-nowrap p-0 text-sm text-landing-caption sm:flex-nowrap"
             >
               {HERO_POINTS.map((point) => (
                 <li key={point} className="flex items-center gap-1.5">
