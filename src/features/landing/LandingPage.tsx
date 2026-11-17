@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
-import SiteNav from "@/components/layout/SiteNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
+import SiteNav from "@/components/layout/SiteNav";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_INVITE_URL } from "@/constants/links";
@@ -15,8 +15,6 @@ import featureH2h from "@/assets/aboutImages/feature-h2h.png";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 import useDemo from "@/hooks/demo/useDemo";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
-import startDiscordLogin from "@/utils/discordLogin";
 
 interface ShotProps {
   src: StaticImageData;
@@ -102,7 +100,6 @@ const HERO_POINTS = ["모든 기능 무료", "설치 없이 웹에서", "리플�
 const LandingPage = () => {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const { enterDemo } = useDemo();
-  const { username } = useGuildManagement();
 
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -152,7 +149,7 @@ const LandingPage = () => {
           className="relative w-full overflow-hidden px-6 pb-24 pt-20 md:pb-28 md:pt-28"
         >
           <div className="about-glow-a pointer-events-none absolute left-1/2 top-[-160px] h-[600px] w-[900px] max-w-full -translate-x-1/2" />
-          <div className="about-glow-b pointer-events-none absolute right-[-80px] top-[60px] h-[520px] w-[520px]" />
+          <div className="about-glow-b pointer-events-none absolute left-1/2 top-[300px] h-[360px] w-[640px] max-w-full -translate-x-1/2 md:top-[380px]" />
           <div className="relative mx-auto max-w-[1000px] text-center">
             <h1
               data-reveal
@@ -190,47 +187,39 @@ const LandingPage = () => {
             <div
               data-reveal
               data-delay="180"
-              className="mb-3.5 flex flex-wrap justify-center gap-3.5"
+              className="mb-5 flex flex-wrap justify-center gap-3.5"
             >
-              {username ? (
-                <Link href="/">
-                  <a className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_theme(colors.landing.discord/0.4)] transition hover:-translate-y-0.5">
-                    내 클랜 전적 보기
-                  </a>
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={startDiscordLogin}
-                  className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_theme(colors.landing.discord/0.4)] transition hover:-translate-y-0.5"
-                >
-                  <DiscordIcon />
-                  디스코드로 로그인
-                </button>
-              )}
               <button
                 type="button"
                 onClick={enterDemo}
-                className="inline-flex items-center gap-2 rounded-xl border px-6 py-3.5 text-base font-bold text-landing-headingSm transition hover:-translate-y-0.5"
-                style={{
-                  background: withAlpha(colors.white, 0.04),
-                  borderColor: withAlpha(colors.landing.gold, 0.4),
-                }}
+                className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg sm:w-[230px] demo-cta relative overflow-hidden bg-landing-gold text-board-onGold hover:bg-landing-goldLight"
+                style={{ boxShadow: `0 12px 32px ${withAlpha(colors.landing.gold, 0.25)}` }}
               >
-                데모 보기
                 <svg
-                  width="18"
-                  height="18"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  aria-hidden
                 >
-                  <path d="M5 12h14M13 6l6 6-6 6" />
+                  <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+                  <circle cx="12" cy="12" r="3" />
                 </svg>
+                데모로 체험하기
               </button>
+              <a
+                href={DISCORD_INVITE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg sm:w-[230px] border border-white/20 text-landing-heading hover:border-white/40 hover:bg-white/5"
+              >
+                <DiscordIcon size={20} />
+                우리 클랜 등록하기
+              </a>
             </div>
             <ul
               data-reveal
@@ -255,25 +244,6 @@ const LandingPage = () => {
                 </li>
               ))}
             </ul>
-            <div data-reveal data-delay="260" className="mt-14 flex justify-center md:mt-20">
-              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2.5 rounded-2xl border border-landing-gold/30 bg-landing-gold/10 px-5 py-3">
-                <span className="text-[15px] text-landing-body">
-                  <b className="text-landing-goldLight">클랜장이신가요?</b> 우리 클랜에도 GMOK을
-                  들여보세요
-                </span>
-                <a
-                  href={DISCORD_INVITE_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="adopt-cta group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-landing-gold px-4 py-2 text-sm font-bold text-board-onGold transition hover:-translate-y-0.5 hover:bg-landing-goldMuted"
-                >
-                  도입 문의하기
-                  <span className="inline-block transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
-                    ↗
-                  </span>
-                </a>
-              </div>
-            </div>
 
             <div
               data-reveal
@@ -634,7 +604,7 @@ const LandingPage = () => {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-landing-gold px-7 py-3.5 text-base font-bold text-board-onGold transition hover:-translate-y-0.5 hover:bg-landing-goldMuted"
               >
-                디스코드 서버에서 도입 문의 ↗
+                우리 클랜 등록하기 ↗
               </a>
             </div>
           </div>
@@ -699,17 +669,8 @@ const LandingPage = () => {
             transform: translateY(-14px);
           }
         }
-        @keyframes gmokGlow {
-          0%,
-          100% {
-            opacity: 0.55;
-          }
-          50% {
-            opacity: 0.9;
-          }
-        }
-        /* 도입 문의 버튼: 몇 초마다 빛이 한 번 훑고 지나간다. */
-        .adopt-cta::after {
+        /* 데모로 체험하기 버튼: 몇 초마다 빛이 한 번 훑고 지나간다. */
+        .demo-cta::after {
           content: "";
           position: absolute;
           inset: 0;
@@ -720,10 +681,10 @@ const LandingPage = () => {
             transparent 70%
           );
           transform: translateX(-120%);
-          animation: adoptShine 3.6s ease-in-out 1.2s infinite;
+          animation: demoShine 3.6s ease-in-out 1.2s infinite;
           pointer-events: none;
         }
-        @keyframes adoptShine {
+        @keyframes demoShine {
           0% {
             transform: translateX(-120%);
           }
@@ -733,8 +694,17 @@ const LandingPage = () => {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .adopt-cta::after {
+          .demo-cta::after {
             animation: none;
+          }
+        }
+        @keyframes gmokGlow {
+          0%,
+          100% {
+            opacity: 0.55;
+          }
+          50% {
+            opacity: 0.9;
           }
         }
       `}</style>

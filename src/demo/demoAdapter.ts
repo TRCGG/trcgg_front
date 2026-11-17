@@ -40,8 +40,19 @@ const statParams = (q: Query) => ({
  * 길드 ID 자리는 데모 길드 하나뿐이라 값을 보지 않는다.
  */
 const ROUTES: [string[], Handler][] = [
+  // 데모 방문자는 대표 클랜원으로 로그인한 상태로 보여 준다.
+  [
+    ["api", "auth", "me"],
+    () => ({
+      user: {
+        id: "demo",
+        username: DEMO_FEATURED.riotName,
+        global_name: DEMO_FEATURED.riotName,
+        avatar: "",
+      },
+    }),
+  ],
   [["api", "guilds"], () => [{ id: DEMO_GUILD_ID, name: DEMO_GUILD_NAME, isPublic: true }]],
-  // 대회는 클랜원만 볼 수 있어 데모 방문자를 데모 클랜의 일반 클랜원으로 둔다.
   [
     ["api", "auth", "gmokGuilds"],
     () => [
@@ -211,11 +222,6 @@ const demoAdapter = async (config: InternalAxiosRequestConfig): Promise<AxiosRes
     .split("/")
     .filter(Boolean)
     .map((s) => decodeURIComponent(s));
-
-  // 디스코드 로그인 버튼이 그대로 보이도록 데모 방문자는 로그인하지 않은 상태로 둔다.
-  if (segments.join("/") === "api/auth/me") {
-    return respond(config, 401, { message: "Unauthorized" });
-  }
 
   const route = ROUTES.find(([pattern]) => match(pattern, segments));
   if (!route) return respond(config, 404, { message: "데모에서는 볼 수 없는 화면입니다." });

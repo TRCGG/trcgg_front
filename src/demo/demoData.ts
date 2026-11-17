@@ -2,7 +2,7 @@ import type { LanePosition } from "@/data/types/h2h";
 import type { GameParticipant } from "@/data/types/record";
 
 export const DEMO_GUILD_ID = "demo";
-export const DEMO_GUILD_NAME = "데모 클랜";
+export const DEMO_GUILD_NAME = "GMOK 클랜";
 export const LANES: LanePosition[] = ["TOP", "JUG", "MID", "ADC", "SUP"];
 
 type ChampClass = "fighter" | "tank" | "assassin" | "mage" | "marksman" | "enchanter" | "engage";
@@ -138,10 +138,10 @@ export interface DemoPlayer {
 }
 
 /** 데모의 주인공. 랜딩의 "데모 보기"가 이 소환사 화면으로 들어간다. */
-export const DEMO_FEATURED = { riotName: "지목데모", riotNameTag: "KR1" };
+export const DEMO_FEATURED = { riotName: "김민준", riotNameTag: "KR1" };
 
 const ROSTER: [string, string, LanePosition, LanePosition, number][] = [
-  ["지목데모", "KR1", "MID", "JUG", 0.56],
+  ["김민준", "KR1", "MID", "JUG", 0.56],
   ["바위게사냥꾼", "KR1", "JUG", "TOP", 0.54],
   ["탑신병자", "0001", "TOP", "JUG", 0.52],
   ["포탑다이버", "KR2", "TOP", "MID", 0.47],
@@ -631,7 +631,7 @@ const generate = (now: number): DemoDataset => {
   const competitions: DemoCompetition[] = [
     {
       id: 3,
-      name: "데모 클랜 겨울 토너먼트",
+      name: "GMOK 클랜 겨울 토너먼트",
       status: "RECRUITING",
       approvalRequired: true,
       createDate: new Date(kstMidnight - 3 * DAY_MS + 15 * 3600000),
@@ -645,7 +645,7 @@ const generate = (now: number): DemoDataset => {
     },
     {
       id: 2,
-      name: "데모 클랜 가을 리그",
+      name: "GMOK 클랜 가을 리그",
       status: "IN_PROGRESS",
       approvalRequired: true,
       createDate: new Date(kstMidnight - 24 * DAY_MS + 14 * 3600000),
@@ -657,7 +657,7 @@ const generate = (now: number): DemoDataset => {
     },
     {
       id: 1,
-      name: "데모 클랜 봄 시즌 대회",
+      name: "GMOK 클랜 봄 시즌 대회",
       status: "CLOSED",
       approvalRequired: false,
       createDate: new Date(kstMidnight - 78 * DAY_MS + 14 * 3600000),

@@ -16,9 +16,12 @@ const DemoBanner = () => {
         <button
           type="button"
           onClick={exitDemo}
-          className="shrink-0 rounded-xl bg-board-onGold px-4 py-2.5 text-sm font-bold text-white transition hover:bg-black"
+          className="group inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-board-onGold px-4 py-2.5 text-sm font-bold text-white shadow-md transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-black hover:shadow-lg active:translate-y-0 active:scale-95"
         >
-          데모 끝내기 ✕
+          데모 끝내기
+          <span className="inline-block transition-transform duration-300 ease-out group-hover:rotate-90">
+            ✕
+          </span>
         </button>
       </div>
     </div>

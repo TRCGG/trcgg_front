@@ -7,3 +7,9 @@ export const AUTH_HINT_KEY = "gmok:wasLoggedIn";
 
 /** 표시가 남아 있는 동안 `.landing-gate`를 숨긴다(global.css). */
 export const AUTH_HINT_ATTR = "data-auth-hint";
+
+/** 한 번이라도 로그인한 적 있는 브라우저. 세션이 끊겨도 지우지 않고 로그인 안내 말풍선에 쓴다. */
+export const RETURNING_USER_KEY = "gmok:hasLoggedIn";
+
+/** 말풍선을 닫으면 이번 탭에서는 다시 띄우지 않는다. */
+export const LOGIN_HINT_DISMISSED_KEY = "gmok:loginHintDismissed";
