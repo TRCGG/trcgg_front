@@ -51,7 +51,7 @@ const SiteNav = () => {
               href={DISCORD_INVITE_URL}
               target="_blank"
               rel="noreferrer"
-              className="shrink-0 text-[15px] text-landing-caption hover:text-primary1"
+              className="shrink-0 text-[15px] font-bold text-landing-gold hover:text-landing-goldLight"
             >
               도입 문의 ↗
             </a>

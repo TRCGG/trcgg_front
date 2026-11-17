@@ -96,6 +96,8 @@ const FEATURES = [
   },
 ];
 
+const HERO_POINTS = ["모든 기능 무료", "설치 없이 웹에서", "리플레이만 올리면 자동 집계"];
+
 /** 서비스 소개 화면. `/about`과 비로그인 방문자의 `/`가 함께 쓴다. */
 const LandingPage = () => {
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -152,25 +154,6 @@ const LandingPage = () => {
           <div className="about-glow-a pointer-events-none absolute left-1/2 top-[-160px] h-[600px] w-[900px] max-w-full -translate-x-1/2" />
           <div className="about-glow-b pointer-events-none absolute right-[-80px] top-[60px] h-[520px] w-[520px]" />
           <div className="relative mx-auto max-w-[1000px] text-center">
-            <div
-              data-reveal
-              className="mb-7 inline-flex items-center gap-2.5 rounded-full border px-4 py-1.5"
-              style={{
-                borderColor: withAlpha(colors.landing.gold, 0.35),
-                background: withAlpha(colors.landing.gold, 0.08),
-              }}
-            >
-              <span
-                className="h-[7px] w-[7px] rounded-full"
-                style={{
-                  background: colors.landing.gold,
-                  boxShadow: `0 0 10px ${colors.landing.gold}`,
-                }}
-              />
-              <span className="text-[13px] font-bold tracking-wide text-landing-goldLight">
-                우리 클랜만을 위한 전적 사이트
-              </span>
-            </div>
             <h1
               data-reveal
               data-delay="60"
@@ -249,24 +232,45 @@ const LandingPage = () => {
                 </svg>
               </button>
             </div>
-            <p data-reveal data-delay="220" className="m-0 text-sm text-landing-caption">
-              클랜장이신가요?{" "}
-              <a
-                href={DISCORD_INVITE_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="font-bold text-landing-goldLight underline-offset-4 hover:underline"
-              >
-                우리 클랜에 도입하기 ↗
-              </a>
-            </p>
-            <p
+            <ul
               data-reveal
-              data-delay="260"
-              className="m-0 mt-2 text-[13px] text-landing-microFaint"
+              data-delay="220"
+              className="m-0 flex list-none flex-wrap justify-center gap-x-5 gap-y-2 p-0 text-sm text-landing-caption"
             >
-              클라이언트 설치 불필요 · 기본 전적 검색 무료
-            </p>
+              {HERO_POINTS.map((point) => (
+                <li key={point} className="flex items-center gap-1.5">
+                  <svg
+                    className="h-4 w-4 text-landing-gold"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <div data-reveal data-delay="260" className="mt-7 flex justify-center">
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2.5 rounded-2xl border border-landing-gold/30 bg-landing-gold/10 px-5 py-3">
+                <span className="text-[15px] text-landing-body">
+                  <b className="text-landing-goldLight">클랜장이신가요?</b> 우리 클랜에도 GMOK을
+                  들여보세요
+                </span>
+                <a
+                  href={DISCORD_INVITE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-landing-gold px-4 py-2 text-sm font-bold text-board-onGold transition hover:bg-landing-goldMuted"
+                >
+                  도입 문의하기 ↗
+                </a>
+              </div>
+            </div>
 
             <div
               data-reveal
@@ -303,12 +307,13 @@ const LandingPage = () => {
             style={{ gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))" }}
           >
             {[
-              // {
-              //   big: "무료",
-              //   bigColor: colors.landing.gold,
-              //   t: "기본 전적 검색",
-              //   d: "고급 기능은 추후 유료화 예정",
-              // },
+              {
+                big: "0원",
+                bigColor: colors.landing.goldLight,
+                t: "모든 기능 무료",
+                d: "전적 · 통계 · 랭킹 · 대회 전부",
+                highlight: true,
+              },
               {
                 big: "디스코드",
                 bigColor: colors.blueText,
@@ -332,9 +337,14 @@ const LandingPage = () => {
                 key={k.t}
                 data-reveal
                 data-delay={i * 80}
-                className="rounded-2xl border border-white/[0.06] p-6"
+                className={`rounded-2xl border p-6 ${
+                  "highlight" in k ? "border-landing-gold/40" : "border-white/[0.06]"
+                }`}
                 style={{
-                  background: `linear-gradient(160deg,${colors.landing.bgElevated},${colors.landing.gradBottom})`,
+                  background:
+                    "highlight" in k
+                      ? `linear-gradient(160deg,${withAlpha(colors.landing.gold, 0.16)},${colors.landing.gradBottom})`
+                      : `linear-gradient(160deg,${colors.landing.bgElevated},${colors.landing.gradBottom})`,
                 }}
               >
                 <div
