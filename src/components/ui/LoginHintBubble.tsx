@@ -12,6 +12,7 @@ const readFlag = (storage: Storage, key: string) => {
 /** 예전에 로그인했던 방문자에게 로그인 버튼을 가리키는 말풍선. 로그인 버튼 감싸는 relative 요소 안에 둔다. */
 const LoginHintBubble = () => {
   const [visible, setVisible] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   // 저장소는 브라우저에만 있어 마운트 후 읽는다.
   useEffect(() => {
@@ -29,13 +30,21 @@ const LoginHintBubble = () => {
     } catch {
       // 저장이 막혀도 이번 화면에서는 닫힌다.
     }
-    setVisible(false);
+    // 동작 줄이기 설정이면 애니메이션이 없어 animationend가 오지 않는다.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(false);
+      return;
+    }
+    setLeaving(true);
   };
 
   return (
     <div
       role="status"
-      className="absolute right-0 top-full z-50 mt-3 w-[280px] animate-fadeUp rounded-xl border border-landing-discord/40 bg-landing-bgElevated p-3.5 text-left shadow-[0_18px_48px_theme(colors.black/0.55)] [animation-delay:600ms]"
+      onAnimationEnd={() => leaving && setVisible(false)}
+      className={`absolute right-0 top-full z-50 mt-3 w-[280px] origin-top-right rounded-xl border border-landing-discord/40 bg-landing-bgElevated p-3.5 text-left shadow-[0_18px_48px_theme(colors.black/0.55)] ${
+        leaving ? "animate-popOut" : "animate-popIn [animation-delay:600ms]"
+      }`}
     >
       <span
         aria-hidden
