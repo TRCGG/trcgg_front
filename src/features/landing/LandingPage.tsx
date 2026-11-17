@@ -157,7 +157,7 @@ const LandingPage = () => {
             <h1
               data-reveal
               data-delay="60"
-              className="m-0 mb-5 font-bold text-landing-heading"
+              className="m-0 mb-6 font-bold text-landing-heading md:mb-7"
               style={{
                 fontSize: "clamp(38px,6.4vw,76px)",
                 lineHeight: 1.08,
@@ -180,7 +180,7 @@ const LandingPage = () => {
             <p
               data-reveal
               data-delay="120"
-              className="mx-auto mb-9 max-w-[640px] text-landing-bodySecondary"
+              className="mx-auto mb-11 max-w-[640px] text-landing-bodySecondary md:mb-14"
               style={{ fontSize: "clamp(16px,2vw,19px)", lineHeight: 1.7 }}
             >
               게임이 끝나면 사라지는 순간들, 이제 리플레이 업로드로 남겨두세요.
@@ -190,7 +190,7 @@ const LandingPage = () => {
             <div
               data-reveal
               data-delay="180"
-              className="mb-4 flex flex-wrap justify-center gap-3.5"
+              className="mb-3.5 flex flex-wrap justify-center gap-3.5"
             >
               {username ? (
                 <Link href="/">
@@ -255,7 +255,7 @@ const LandingPage = () => {
                 </li>
               ))}
             </ul>
-            <div data-reveal data-delay="260" className="mt-7 flex justify-center">
+            <div data-reveal data-delay="260" className="mt-14 flex justify-center md:mt-20">
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2.5 rounded-2xl border border-landing-gold/30 bg-landing-gold/10 px-5 py-3">
                 <span className="text-[15px] text-landing-body">
                   <b className="text-landing-goldLight">클랜장이신가요?</b> 우리 클랜에도 GMOK을
@@ -265,9 +265,12 @@ const LandingPage = () => {
                   href={DISCORD_INVITE_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-landing-gold px-4 py-2 text-sm font-bold text-board-onGold transition hover:bg-landing-goldMuted"
+                  className="adopt-cta group relative inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-lg bg-landing-gold px-4 py-2 text-sm font-bold text-board-onGold transition hover:-translate-y-0.5 hover:bg-landing-goldMuted"
                 >
-                  도입 문의하기 ↗
+                  도입 문의하기
+                  <span className="inline-block transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+                    ↗
+                  </span>
                 </a>
               </div>
             </div>
@@ -275,7 +278,7 @@ const LandingPage = () => {
             <div
               data-reveal
               data-delay="120"
-              className="relative mx-auto mt-12 max-w-[1000px] md:mt-16"
+              className="relative mx-auto mt-16 max-w-[1000px] md:mt-24"
             >
               <button
                 type="button"
@@ -703,6 +706,35 @@ const LandingPage = () => {
           }
           50% {
             opacity: 0.9;
+          }
+        }
+        /* 도입 문의 버튼: 몇 초마다 빛이 한 번 훑고 지나간다. */
+        .adopt-cta::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            110deg,
+            transparent 30%,
+            ${withAlpha(colors.white, 0.55)} 50%,
+            transparent 70%
+          );
+          transform: translateX(-120%);
+          animation: adoptShine 3.6s ease-in-out 1.2s infinite;
+          pointer-events: none;
+        }
+        @keyframes adoptShine {
+          0% {
+            transform: translateX(-120%);
+          }
+          35%,
+          100% {
+            transform: translateX(120%);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .adopt-cta::after {
+            animation: none;
           }
         }
       `}</style>
