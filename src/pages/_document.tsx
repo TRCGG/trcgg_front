@@ -1,4 +1,5 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
+import { AUTH_HINT_ATTR, AUTH_HINT_KEY } from "@/constants/authHint";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://gmok.kr";
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
@@ -40,6 +41,13 @@ class MyDocument extends Document {
                 alternateName: ["GMOK", "지목"],
                 url: `${SITE_URL}/`,
               }),
+            }}
+          />
+          {/* 첫 페인트 전에 실행돼야 해서 next/script가 아닌 동기 인라인 스크립트로 둔다. */}
+          <script
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{
+              __html: `try{if(localStorage.getItem("${AUTH_HINT_KEY}"))document.documentElement.setAttribute("${AUTH_HINT_ATTR}","")}catch(e){}`,
             }}
           />
           <script

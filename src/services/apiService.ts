@@ -2,6 +2,8 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, isAxiosError } from "axios";
 import { ApiError, toApiError } from "@/services/apiError";
+import demoAdapter from "@/demo/demoAdapter";
+import { isDemoMode } from "@/demo/demoMode";
 
 // 기본 요청 타임아웃(ms). 이 시간 안에 응답이 없으면 요청을 취소해 무한 대기(펜딩)를 막는다.
 const DEFAULT_TIMEOUT_MS = 30000;
@@ -57,6 +59,10 @@ const createClient = (baseUrl: string): AxiosInstance => {
     // 세션 만료 시 쿠키 정리도 백엔드가 직접 한다(authHandler의 clearCookie).
     withCredentials: true,
   });
+
+  client.interceptors.request.use((config) =>
+    isDemoMode() ? { ...config, adapter: demoAdapter } : config
+  );
 
   // 실패한 요청은 예외로 전파한다. status·errorType을 보존하는 ApiError로 바꿔 던진다.
   client.interceptors.response.use(undefined, (error: unknown) => {

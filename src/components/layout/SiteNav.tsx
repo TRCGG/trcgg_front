@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import TextLogo from "@/assets/images/textLogo.png";
 import DiscordIcon from "@/components/ui/DiscordIcon";
+import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { DISCORD_INVITE_URL } from "@/constants/links";
 
 const LINKS = [
@@ -18,6 +20,11 @@ const isActive = (pathname: string, href: string) =>
 /** 서비스 소개·이용방법·FAQ·게시판이 함께 쓰는 상단 내비게이션. */
 const SiteNav = () => {
   const { pathname } = useRouter();
+  const { username } = useGuildManagement();
+
+  const handleDiscordLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-landing-bg/80 backdrop-blur-md">
@@ -54,6 +61,7 @@ const SiteNav = () => {
             <DiscordIcon size={18} />
             <span className="hidden sm:inline">디스코드</span>
           </a>
+          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
         </div>
       </div>
     </nav>
