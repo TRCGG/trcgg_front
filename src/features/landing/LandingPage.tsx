@@ -6,6 +6,7 @@ import SiteNav from "@/components/layout/SiteNav";
 import MainLogo from "@/assets/images/mainLogo.png";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
+import addBot from "@/assets/aboutImages/add-bot.png";
 import dashboard from "@/assets/aboutImages/dashboard.png";
 import replayDownload from "@/assets/aboutImages/download.png";
 import replayUpload from "@/assets/aboutImages/upload.png";
@@ -418,7 +419,8 @@ const LandingPage = () => {
                 클라이언트에서 웹까지
               </h2>
               <p className="mx-auto max-w-[600px] text-[17px] text-landing-caption">
-                세 단계면 충분합니다. 리플레이 다운로드부터 전적 집계까지 GMOK이 알아서 이어줍니다.
+                봇 초대는 처음 한 번만. 그다음부터는 리플레이 다운로드부터 전적 집계까지 GMOK이
+                알아서 이어줍니다.
               </p>
             </div>
 
@@ -426,6 +428,35 @@ const LandingPage = () => {
               {[
                 {
                   n: "01",
+                  grad: `linear-gradient(135deg,${colors.landing.periwinkle},${colors.landing.discord})`,
+                  badge: "DISCORD",
+                  badgeColor: colors.landing.periwinkle,
+                  badgeBg: withAlpha(colors.landing.discord, 0.12),
+                  badgeBorder: withAlpha(colors.landing.discord, 0.3),
+                  title: "디스코드 봇 초대",
+                  body: (
+                    <>
+                      클랜 디스코드 서버에{" "}
+                      <a
+                        href={DISCORD_BOT_INSTALL_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
+                      >
+                        GMOK 봇을 초대
+                      </a>
+                      하면 클랜이 자동으로 등록됩니다. 봇 초대는{" "}
+                      <b style={{ color: colors.landing.headingSm }}>서버 관리 권한</b>이 있어야 할
+                      수 있으니, 권한이 없다면 클랜 운영진에게 요청해 주세요.
+                    </>
+                  ),
+                  img: addBot,
+                  alt: "디스코드 봇 초대 — 서버에 GMOK 봇 추가",
+                  bar: "discord.com · 봇 초대",
+                  reverse: false,
+                },
+                {
+                  n: "02",
                   grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
                   badge: "CLIENT",
                   badgeColor: colors.landing.goldMuted,
@@ -444,10 +475,10 @@ const LandingPage = () => {
                   img: replayDownload,
                   alt: "리플레이 파일 다운로드 — 클라이언트 대전 기록",
                   bar: "League of Legends · 대전 기록",
-                  reverse: false,
+                  reverse: true,
                 },
                 {
-                  n: "02",
+                  n: "03",
                   grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
                   badge: "WEB",
                   badgeColor: colors.landing.goldMuted,
@@ -465,10 +496,10 @@ const LandingPage = () => {
                   img: replayUpload,
                   alt: "리플레이 파일 업로드 — gmok.kr 리플레이 업로드",
                   bar: "gmok.kr · 리플레이 업로드",
-                  reverse: true,
+                  reverse: false,
                 },
                 {
-                  n: "03",
+                  n: "04",
                   grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
                   badge: "WEB",
                   badgeColor: colors.landing.goldMuted,
@@ -487,7 +518,7 @@ const LandingPage = () => {
                   img: dashboard,
                   alt: "전적 확인 — gmok.kr 대시보드",
                   bar: "gmok.kr",
-                  reverse: false,
+                  reverse: true,
                 },
               ].map((s) => {
                 const text = (

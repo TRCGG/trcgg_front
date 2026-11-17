@@ -34,6 +34,10 @@ const NoGuildModal = ({ isOpen, onClose }: NoGuildModalProps) => {
           <br />
           봇을 초대한 뒤 다시 로그인해 주세요.
         </p>
+        <p className="text-gray-300 leading-relaxed">
+          봇 초대는 서버 관리 권한이 있어야 할 수 있습니다. 권한이 없다면 클랜 운영진에게 봇 초대를
+          요청해 주세요.
+        </p>
         <p className="text-sm text-gray-400">
           문의가 필요하시면{" "}
           <a
