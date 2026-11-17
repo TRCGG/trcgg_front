@@ -157,6 +157,10 @@ const ROSTER: [string, string, LanePosition, LanePosition, number][] = [
   ["솔킬제조기", "KR1", "TOP", "MID", 0.53],
   ["용싸움", "KR1", "ADC", "TOP", 0.44],
   ["바론스틸", "KR1", "JUG", "SUP", 0.5],
+  ["라인전괴물", "KR1", "TOP", "ADC", 0.5],
+  ["딜량1등", "KR1", "MID", "SUP", 0.49],
+  ["카이팅마스터", "KR1", "ADC", "JUG", 0.52],
+  ["시야장악", "KR1", "SUP", "JUG", 0.48],
 ];
 
 /** 경기 상세에는 없지만 상대전적 지표에 필요한 값 */
@@ -198,11 +202,67 @@ export interface DemoMatch {
   participants: DemoParticipant[];
 }
 
+export interface DemoTeam {
+  id: number;
+  name: string;
+  captain: DemoPlayer;
+  /** LANES 순서와 같은 라인 순서 */
+  members: DemoPlayer[];
+}
+
+export interface DemoCompetitionMatch extends DemoMatch {
+  gameType: "2" | "3" | "4";
+  blueTeamId: number;
+  redTeamId: number;
+}
+
+export interface DemoApplication {
+  id: number;
+  player: DemoPlayer;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  captainAvailable: boolean;
+  practiceLevel: "NONE" | "RARE" | "MODERATE" | "OFTEN" | "ACTIVE";
+  availableTime: string | null;
+  comment: string | null;
+  champions: Champ[];
+  createDate: Date;
+}
+
+export interface DemoCompetition {
+  id: number;
+  name: string;
+  status: "RECRUITING" | "IN_PROGRESS" | "CLOSED";
+  approvalRequired: boolean;
+  createDate: Date;
+  closeDate: Date | null;
+  teams: DemoTeam[];
+  winnerTeamId: number | null;
+  matches: DemoCompetitionMatch[];
+  applications: DemoApplication[];
+}
+
 export interface DemoDataset {
   players: DemoPlayer[];
   matches: DemoMatch[];
+  competitions: DemoCompetition[];
   now: number;
 }
+
+/** 대회 신청의 챔피언 선택지. 실제 API처럼 한글 이름순이다. */
+export const DEMO_CHAMPIONS: Champ[] = LANES.flatMap((lane) => CHAMPS[lane]).sort((a, b) =>
+  a.kor.localeCompare(b.kor)
+);
+
+const TEAM_NAMES = ["블루윙즈", "레드폭풍", "새벽부엉이", "야간정글러", "한타클럽", "바론둥지"];
+const AVAILABLE_TIMES = ["평일 21시 이후", "주말 상시", "평일·주말 22시 이후", null];
+const COMMENTS = [
+  "열심히 하겠습니다!",
+  "주 라인 위주로 부탁드려요",
+  null,
+  "아무 팀이나 좋아요",
+  null,
+];
+const PRACTICE_LEVELS: DemoApplication["practiceLevel"][] = ["RARE", "MODERATE", "OFTEN", "ACTIVE"];
 
 // 시드 고정 난수(Park–Miller). 새로고침해도 같은 데모가 보이도록 한다.
 const seededRandom = (seed: number) => {
@@ -215,6 +275,8 @@ const seededRandom = (seed: number) => {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DAYS_BACK = 80;
+
+type Lineup = Record<"blue" | "red", { lane: LanePosition; player: DemoPlayer }[]>;
 
 const generate = (now: number): DemoDataset => {
   const rand = seededRandom(20261112);
@@ -293,21 +355,7 @@ const generate = (now: number): DemoDataset => {
     return result;
   };
 
-  const matches: DemoMatch[] = slots.map((date, index) => {
-    const others = shuffle(players.slice(1));
-    const ten = rand() < 0.68 ? [featured, ...others.slice(0, 9)] : others.slice(0, 10);
-    const lanes = assignLanes(shuffle(ten));
-
-    const teams: Record<"blue" | "red", { lane: LanePosition; player: DemoPlayer }[]> = {
-      blue: [],
-      red: [],
-    };
-    LANES.forEach((lane) => {
-      const [a, b] = shuffle(lanes.get(lane)!);
-      teams.blue.push({ lane, player: a });
-      teams.red.push({ lane, player: b });
-    });
-
+  const playMatch = (date: Date, gameId: string, teams: Lineup): DemoMatch => {
     const power = (side: "blue" | "red") =>
       teams[side].reduce((sum, { player }) => sum + player.skill, 0);
     const blueWinChance = Math.min(
@@ -317,7 +365,6 @@ const generate = (now: number): DemoDataset => {
     const winner: "blue" | "red" = rand() < blueWinChance ? "blue" : "red";
     const timePlayed = int(1450, 2350);
     const minutes = timePlayed / 60;
-    const gameId = `DEMO-${String(index + 1).padStart(4, "0")}`;
 
     const used = new Set<string>();
     const pickChamp = (player: DemoPlayer, lane: LanePosition): Champ => {
@@ -440,9 +487,189 @@ const generate = (now: number): DemoDataset => {
     );
 
     return { gameId, date, winner, participants };
+  };
+
+  const matches: DemoMatch[] = slots.map((date, index) => {
+    const others = shuffle(players.slice(1));
+    const ten = rand() < 0.68 ? [featured, ...others.slice(0, 9)] : others.slice(0, 10);
+    const lanes = assignLanes(shuffle(ten));
+
+    const teams: Lineup = { blue: [], red: [] };
+    LANES.forEach((lane) => {
+      const [a, b] = shuffle(lanes.get(lane)!);
+      teams.blue.push({ lane, player: a });
+      teams.red.push({ lane, player: b });
+    });
+
+    return playMatch(date, `DEMO-${String(index + 1).padStart(4, "0")}`, teams);
   });
 
-  return { players, matches, now };
+  // 일반 내전을 다 만든 뒤에 대회를 만들어, 대회가 바뀌어도 일반 내전 데이터는 그대로 둔다.
+  const nightAt = (daysAgo: number, order: number) =>
+    new Date(kstMidnight - daysAgo * DAY_MS + (21 * 60 + order * 42) * 60 * 1000);
+
+  // 주 라인마다 4명씩이라 라인별로 한 명씩 나눠 4팀을 만든다.
+  const draftTeams = (firstId: number, names: string[], captainOf?: DemoPlayer): DemoTeam[] => {
+    const byLane = LANES.map((lane) => shuffle(players.filter((p) => p.main === lane)));
+    return names.map((name, i) => {
+      const members = byLane.map((lanePlayers) => lanePlayers[i]);
+      const captain = captainOf && members.includes(captainOf) ? captainOf : pick(members);
+      return { id: firstId + i, name, captain, members };
+    });
+  };
+
+  const lineupOf = (team: DemoTeam) =>
+    team.members.map((player, l) => ({ lane: LANES[l], player }));
+
+  const playSeries = (
+    compId: number,
+    schedule: {
+      gameType: DemoCompetitionMatch["gameType"];
+      a: DemoTeam;
+      b: DemoTeam;
+      date: Date;
+    }[],
+    firstIndex = 0
+  ): DemoCompetitionMatch[] =>
+    schedule.map(({ gameType, a, b, date }, i) => {
+      const [blue, red] = rand() < 0.5 ? [a, b] : [b, a];
+      const gameId = `DEMO-C${compId}-${String(firstIndex + i + 1).padStart(2, "0")}`;
+      const match = playMatch(date, gameId, { blue: lineupOf(blue), red: lineupOf(red) });
+      return { ...match, gameType, blueTeamId: blue.id, redTeamId: red.id };
+    });
+
+  const winnerOf = (m: DemoCompetitionMatch) => (m.winner === "blue" ? m.blueTeamId : m.redTeamId);
+
+  const ROUND_ROBIN: [number, number][] = [
+    [0, 1],
+    [2, 3],
+    [0, 2],
+    [1, 3],
+    [0, 3],
+    [1, 2],
+  ];
+
+  const applicationsOf = (
+    firstId: number,
+    applicants: DemoPlayer[],
+    createdDaysAgo: number,
+    statusOf: (player: DemoPlayer) => DemoApplication["status"]
+  ): DemoApplication[] =>
+    applicants.map((player, i) => ({
+      id: firstId + i,
+      player,
+      status: statusOf(player),
+      captainAvailable: rand() < 0.3,
+      practiceLevel: pick(PRACTICE_LEVELS),
+      availableTime: pick(AVAILABLE_TIMES),
+      comment: pick(COMMENTS),
+      champions: (player.pool[player.main] ?? []).slice(0, int(1, 3)),
+      createDate: new Date(
+        kstMidnight - (createdDaysAgo - (i % 3)) * DAY_MS + int(10, 23) * 3600000
+      ),
+    }));
+
+  // 1. 종료된 대회 — 스크림·예선 풀리그·본선 결승(3판 2선승)까지 마쳤다.
+  const springTeams = draftTeams(101, TEAM_NAMES.slice(0, 4));
+  const springRegular = playSeries(1, [
+    ...ROUND_ROBIN.slice(0, 4).map(([x, y], i) => ({
+      gameType: "2" as const,
+      a: springTeams[x],
+      b: springTeams[y],
+      date: nightAt(75 - Math.floor(i / 2), i % 2),
+    })),
+    ...ROUND_ROBIN.map(([x, y], i) => ({
+      gameType: "3" as const,
+      a: springTeams[x],
+      b: springTeams[y],
+      date: nightAt(70 - Math.floor(i / 2) * 3, i % 2),
+    })),
+  ]);
+  const prelimWins = (team: DemoTeam) =>
+    springRegular.filter((m) => m.gameType === "3" && winnerOf(m) === team.id).length;
+  const [finalA, finalB] = [...springTeams].sort((a, b) => prelimWins(b) - prelimWins(a));
+  const finals: DemoCompetitionMatch[] = [];
+  while (
+    finals.length < 3 &&
+    [finalA, finalB].every((t) => finals.filter((m) => winnerOf(m) === t.id).length < 2)
+  ) {
+    finals.push(
+      ...playSeries(
+        1,
+        [{ gameType: "4", a: finalA, b: finalB, date: nightAt(50, finals.length) }],
+        springRegular.length + finals.length
+      )
+    );
+  }
+  const springWinner = [finalA, finalB].find(
+    (t) => finals.filter((m) => winnerOf(m) === t.id).length >= 2
+  );
+  const springPlayers = springTeams.flatMap((t) => t.members);
+
+  // 2. 진행 중인 대회 — 스크림을 마치고 예선 6경기 중 4경기를 치렀다.
+  const autumnTeams = draftTeams(201, TEAM_NAMES.slice(2, 6), featured);
+  const autumnMatches = playSeries(2, [
+    ...ROUND_ROBIN.slice(0, 4).map(([x, y], i) => ({
+      gameType: "2" as const,
+      a: autumnTeams[x],
+      b: autumnTeams[y],
+      date: nightAt(20 - Math.floor(i / 2), i % 2),
+    })),
+    ...ROUND_ROBIN.slice(0, 4).map(([x, y], i) => ({
+      gameType: "3" as const,
+      a: autumnTeams[x],
+      b: autumnTeams[y],
+      date: nightAt(12 - i * 3, 0),
+    })),
+  ]);
+  const autumnPlayers = autumnTeams.flatMap((t) => t.members);
+
+  // 3. 모집 중인 대회 — 신청만 받는 중이다.
+  const winterApplicants = shuffle(players).slice(0, 11);
+  if (!winterApplicants.includes(featured)) winterApplicants[0] = featured;
+
+  const competitions: DemoCompetition[] = [
+    {
+      id: 3,
+      name: "데모 클랜 겨울 토너먼트",
+      status: "RECRUITING",
+      approvalRequired: true,
+      createDate: new Date(kstMidnight - 3 * DAY_MS + 15 * 3600000),
+      closeDate: null,
+      teams: [],
+      winnerTeamId: null,
+      matches: [],
+      applications: applicationsOf(3001, winterApplicants, 2, (p) =>
+        p === featured || rand() < 0.5 ? "PENDING" : "APPROVED"
+      ),
+    },
+    {
+      id: 2,
+      name: "데모 클랜 가을 리그",
+      status: "IN_PROGRESS",
+      approvalRequired: true,
+      createDate: new Date(kstMidnight - 24 * DAY_MS + 14 * 3600000),
+      closeDate: null,
+      teams: autumnTeams,
+      winnerTeamId: null,
+      matches: autumnMatches,
+      applications: applicationsOf(2001, autumnPlayers, 23, () => "APPROVED"),
+    },
+    {
+      id: 1,
+      name: "데모 클랜 봄 시즌 대회",
+      status: "CLOSED",
+      approvalRequired: false,
+      createDate: new Date(kstMidnight - 78 * DAY_MS + 14 * 3600000),
+      closeDate: new Date(kstMidnight - 49 * DAY_MS + 12 * 3600000),
+      teams: springTeams,
+      winnerTeamId: springWinner?.id ?? null,
+      matches: [...springRegular, ...finals],
+      applications: applicationsOf(1001, springPlayers, 77, () => "APPROVED"),
+    },
+  ];
+
+  return { players, matches, competitions, now };
 };
 
 let cached: DemoDataset | null = null;

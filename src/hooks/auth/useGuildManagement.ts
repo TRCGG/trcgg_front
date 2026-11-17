@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { GuildInfo, MeResponse } from "@/data/types/auth";
 import { getGuilds, getMe } from "@/services/auth";
@@ -6,6 +6,7 @@ import { getGuildById } from "@/services/guildMember";
 import { useGuildContext } from "@/hooks/auth/GuildContext";
 import usePublicGuilds from "@/hooks/auth/usePublicGuilds";
 import { GuildDetail, hasMinRole } from "@/data/types/guildMember";
+import { isDemoMode, subscribeDemoMode } from "@/demo/demoMode";
 
 const encodeGuildId = (id: string): string => btoa(id);
 
@@ -57,9 +58,12 @@ const useGuildManagement = () => {
   const isMember = myGuildIds.has(guildId);
   const hasOwnGuild = myGuildIds.size > 0;
 
+  const isDemo = useSyncExternalStore(subscribeDemoMode, isDemoMode, () => false);
+
+  // 데모 방문자는 로그인 버튼을 그대로 보되(username 없음) 클랜원 전용 화면은 열리게 한다.
   const isLoggedIn = useMemo(() => {
-    return !!meData?.user?.username;
-  }, [meData]);
+    return !!meData?.user?.username || isDemo;
+  }, [meData, isDemo]);
 
   const username = meData?.user?.global_name || meData?.user?.username;
   const avatar = meData?.user?.avatar;

@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import TextLogo from "@/assets/images/textLogo.png";
-import DiscordIcon from "@/components/ui/DiscordIcon";
 import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { DISCORD_INVITE_URL } from "@/constants/links";
+import startDiscordLogin from "@/utils/discordLogin";
 
 const LINKS = [
   { href: "/about", label: "서비스 소개" },
@@ -21,10 +21,6 @@ const isActive = (pathname: string, href: string) =>
 const SiteNav = () => {
   const { pathname } = useRouter();
   const { username } = useGuildManagement();
-
-  const handleDiscordLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
-  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-landing-bg/80 backdrop-blur-md">
@@ -51,17 +47,16 @@ const SiteNav = () => {
                 </a>
               </Link>
             ))}
+            <a
+              href={DISCORD_INVITE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-[15px] text-landing-caption hover:text-primary1"
+            >
+              도입 문의 ↗
+            </a>
           </div>
-          <a
-            href={DISCORD_INVITE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex shrink-0 items-center gap-2 rounded-[9px] bg-landing-discord px-[18px] py-2.5 text-sm font-bold text-white shadow-[0_6px_18px_theme(colors.landing.discord/0.35)] hover:bg-landing-discordHover"
-          >
-            <DiscordIcon size={18} />
-            <span className="hidden sm:inline">디스코드</span>
-          </a>
-          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
+          <DiscordLoginButton onClick={startDiscordLogin} username={username} />
         </div>
       </div>
     </nav>

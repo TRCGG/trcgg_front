@@ -9,6 +9,7 @@ import SummonerSearchBox from "@/features/search/SummonerSearchBox";
 import useModal from "@/hooks/common/useModal";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import MainLogo from "@/assets/images/mainLogo.png";
+import startDiscordLogin from "@/utils/discordLogin";
 
 /** 로그인한 사용자의 `/`: 소환사 검색 화면. */
 const SearchHome = () => {
@@ -27,10 +28,6 @@ const SearchHome = () => {
     }
   }, [isLoggedIn, isLoadingGuilds, hasOwnGuild, openNoGuildModal]);
 
-  const handleDiscordLogin = async () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
-  };
-
   return (
     <>
       {/* `/`는 비로그인 시 소개 화면이라 _app이 공용 여백·푸터를 주지 않는다. 여기서 직접 붙인다. */}
@@ -45,7 +42,7 @@ const SearchHome = () => {
                 onGuildChange={handleGuildChange}
               />
             )}
-            <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
+            <DiscordLoginButton onClick={startDiscordLogin} username={username} />
           </div>
           <div className="flex w-[250px] h-[250px] md:w-[400px] md:h-[400px] mx-auto">
             <Image src={MainLogo} alt="메인 로고" />

@@ -14,9 +14,9 @@ import featureChampStats from "@/assets/aboutImages/feature-champ-stats.png";
 import featureH2h from "@/assets/aboutImages/feature-h2h.png";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
-import SummonerSearchBox from "@/features/search/SummonerSearchBox";
-import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import useDemo from "@/hooks/demo/useDemo";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import startDiscordLogin from "@/utils/discordLogin";
 
 interface ShotProps {
   src: StaticImageData;
@@ -99,9 +99,8 @@ const FEATURES = [
 /** 서비스 소개 화면. `/about`과 비로그인 방문자의 `/`가 함께 쓴다. */
 const LandingPage = () => {
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const { guildId, guilds } = useGuildManagement();
   const { enterDemo } = useDemo();
-  const guildName = guilds.find((guild) => guild.id === guildId)?.name;
+  const { username } = useGuildManagement();
 
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -210,15 +209,22 @@ const LandingPage = () => {
               data-delay="180"
               className="mb-4 flex flex-wrap justify-center gap-3.5"
             >
-              <a
-                href={DISCORD_INVITE_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_theme(colors.landing.discord/0.4)] transition hover:-translate-y-0.5"
-              >
-                <DiscordIcon />
-                디스코드로 시작하기
-              </a>
+              {username ? (
+                <Link href="/">
+                  <a className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_theme(colors.landing.discord/0.4)] transition hover:-translate-y-0.5">
+                    내 클랜 전적 보기
+                  </a>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={startDiscordLogin}
+                  className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_theme(colors.landing.discord/0.4)] transition hover:-translate-y-0.5"
+                >
+                  <DiscordIcon />
+                  디스코드로 로그인
+                </button>
+              )}
               <button
                 type="button"
                 onClick={enterDemo}
@@ -243,20 +249,24 @@ const LandingPage = () => {
                 </svg>
               </button>
             </div>
-            <p data-reveal data-delay="220" className="m-0 text-[13px] text-landing-microFaint">
-              클라이언트 설치 불필요 · 기본 전적 검색 무료 · 디스코드로 바로 시작
+            <p data-reveal data-delay="220" className="m-0 text-sm text-landing-caption">
+              클랜장이신가요?{" "}
+              <a
+                href={DISCORD_INVITE_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="font-bold text-landing-goldLight underline-offset-4 hover:underline"
+              >
+                우리 클랜에 도입하기 ↗
+              </a>
             </p>
-
-            {guildId && (
-              // 길드 목록이 늦게 와서 등장 애니메이션(data-reveal) 대상에서 빠진다.
-              // z-20: 자동완성 목록이 아래 대시보드 이미지에 가리지 않게 한다.
-              <div className="relative z-20 mx-auto mt-10 max-w-[400px] text-left">
-                <p className="mb-2.5 text-center text-sm text-landing-caption">
-                  <b className="text-landing-headingSm">{guildName}</b> 내전 전적 검색해 보기
-                </p>
-                <SummonerSearchBox guildId={guildId} />
-              </div>
-            )}
+            <p
+              data-reveal
+              data-delay="260"
+              className="m-0 mt-2 text-[13px] text-landing-microFaint"
+            >
+              클라이언트 설치 불필요 · 기본 전적 검색 무료
+            </p>
 
             <div
               data-reveal
@@ -609,10 +619,9 @@ const LandingPage = () => {
                 href={DISCORD_INVITE_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_theme(colors.landing.discord/0.4)] transition hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 rounded-xl bg-landing-gold px-7 py-3.5 text-base font-bold text-board-onGold transition hover:-translate-y-0.5 hover:bg-landing-goldMuted"
               >
-                <DiscordIcon />
-                디스코드로 시작하기
+                디스코드 서버에서 도입 문의 ↗
               </a>
             </div>
           </div>

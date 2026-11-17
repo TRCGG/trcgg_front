@@ -241,7 +241,10 @@ export const mostPicks = (
 };
 
 export const gameDetail = (gameId: string): GameParticipant[] | null => {
-  const match = getDemoDataset().matches.find((m) => m.gameId === gameId);
+  const data = getDemoDataset();
+  const match = [...data.matches, ...data.competitions.flatMap((c) => c.matches)].find(
+    (m) => m.gameId === gameId
+  );
   return match ? match.participants.map(stripExtra) : null;
 };
 

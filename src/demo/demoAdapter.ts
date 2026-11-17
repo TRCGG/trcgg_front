@@ -1,6 +1,7 @@
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { DEMO_GUILD_ID, DEMO_GUILD_NAME } from "@/demo/demoData";
+import { DEMO_FEATURED, DEMO_GUILD_ID, DEMO_GUILD_NAME } from "@/demo/demoData";
 import * as demo from "@/demo/demoAggregates";
+import * as comp from "@/demo/demoCompetitions";
 import type { Position } from "@/services/statistics";
 import type { ChampionCombinationType } from "@/data/types/leaderboard";
 
@@ -23,12 +24,86 @@ const respond = (config: InternalAxiosRequestConfig, status: number, data: unkno
 
 const envelope = (data: unknown) => ({ status: "success", message: "", data });
 
+/** 핸들러의 null은 404로 보낸다. 응답 data 자체가 null인 엔드포인트는 이 값을 돌려준다. */
+const NULL_DATA = Symbol("null-data");
+
+const statParams = (q: Query) => ({
+  position: q.get("position"),
+  sortBy: q.get("sortBy"),
+  gameType: q.get("gameType"),
+  page: q.get("page"),
+  limit: q.get("limit"),
+});
+
 /**
  * 경로 패턴 → 응답. 세그먼트의 ":"는 아무 값, "*"는 그 값을 핸들러에 넘긴다.
  * 길드 ID 자리는 데모 길드 하나뿐이라 값을 보지 않는다.
  */
 const ROUTES: [string[], Handler][] = [
   [["api", "guilds"], () => [{ id: DEMO_GUILD_ID, name: DEMO_GUILD_NAME, isPublic: true }]],
+  // 대회는 클랜원만 볼 수 있어 데모 방문자를 데모 클랜의 일반 클랜원으로 둔다.
+  [
+    ["api", "auth", "gmokGuilds"],
+    () => [
+      {
+        id: DEMO_GUILD_ID,
+        name: DEMO_GUILD_NAME,
+        icon: "",
+        banner: null,
+        role: "userNormal",
+        nick: DEMO_FEATURED.riotName,
+      },
+    ],
+  ],
+  [
+    ["api", "guilds", "*"],
+    () => ({
+      id: DEMO_GUILD_ID,
+      name: DEMO_GUILD_NAME,
+      languageCode: "ko",
+      allowAllUploads: false,
+      createDate: new Date(0).toISOString(),
+      updateDate: new Date(0).toISOString(),
+      isDeleted: false,
+    }),
+  ],
+  [["api", "champions"], () => comp.champions()],
+  [["api", "competitions", ":"], (_, q) => comp.competitionList(q.get("status"), q.get("season"))],
+  [
+    ["api", "competitions", ":", "players", "*", "competitions"],
+    ([playerCode], q) => comp.playerCompetitions(playerCode, q.get("status")),
+  ],
+  [["api", "competitions", ":", "*"], ([id]) => comp.competitionDetail(id)],
+  [
+    ["api", "competitions", ":", "*", "applications", "me"],
+    ([id]) => comp.myApplication(id) ?? NULL_DATA,
+  ],
+  [
+    ["api", "competitions", ":", "*", "applications"],
+    ([id], q) => comp.applications(id, q.get("status")),
+  ],
+  [["api", "competitions", ":", "*", "teams"], ([id]) => comp.teams(id)],
+  [
+    ["api", "competitions", ":", "*", "teams", "*", "records"],
+    ([id, teamId]) => comp.teamRecords(id, teamId),
+  ],
+  [
+    ["api", "competitions", ":", "*", "matches"],
+    ([id], q) => comp.matches(id, q.get("unassigned")),
+  ],
+  [["api", "competitions", ":", "*", "standings"], ([id]) => comp.standings(id)],
+  [
+    ["api", "competitions", ":", "*", "records"],
+    ([id], q) => comp.headToHead(id, q.get("teamA"), q.get("teamB")),
+  ],
+  [
+    ["api", "competitions", ":", "*", "statistics", "users"],
+    ([id], q) => comp.userStatistics(id, statParams(q)),
+  ],
+  [
+    ["api", "competitions", ":", "*", "statistics", "champions"],
+    ([id], q) => comp.championStatistics(id, statParams(q)),
+  ],
   [["api", "guildMember", ":", "*"], ([name], q) => demo.searchMembers(name, q.get("riotNameTag"))],
   [["api", "matches", ":", "games", "*"], ([gameId]) => demo.gameDetail(gameId)],
   [
@@ -137,8 +212,8 @@ const demoAdapter = async (config: InternalAxiosRequestConfig): Promise<AxiosRes
     .filter(Boolean)
     .map((s) => decodeURIComponent(s));
 
-  // 로그인하지 않은 방문자로 보여야 데모 길드(공개 길드)가 선택된다.
-  if (segments.join("/") === "api/auth/me" || segments.join("/") === "api/auth/gmokGuilds") {
+  // 디스코드 로그인 버튼이 그대로 보이도록 데모 방문자는 로그인하지 않은 상태로 둔다.
+  if (segments.join("/") === "api/auth/me") {
     return respond(config, 401, { message: "Unauthorized" });
   }
 
@@ -147,7 +222,7 @@ const demoAdapter = async (config: InternalAxiosRequestConfig): Promise<AxiosRes
 
   const data = route[1](match(route[0], segments)!, url.searchParams);
   if (data === null) return respond(config, 404, { message: "데모 데이터가 없습니다." });
-  return respond(config, 200, envelope(data));
+  return respond(config, 200, envelope(data === NULL_DATA ? null : data));
 };
 
 export default demoAdapter;
