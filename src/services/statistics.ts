@@ -2,6 +2,8 @@ import { unwrap } from "@/services/apiService";
 import {
   ChampionStatistics,
   ChampionStatisticsResponse,
+  SiteSummary,
+  SiteSummaryResponse,
   UserStatistics,
   UserStatisticsResponse,
 } from "@/data/types/statistics";
@@ -53,4 +55,8 @@ export const getChampionStatistics = async (
   return unwrap(
     api.get<ChampionStatisticsResponse>(`/api/statistics/${guildId}/champions${query}`)
   );
+};
+
+export const getSiteSummary = async (): Promise<SiteSummary> => {
+  return unwrap(api.get<SiteSummaryResponse>("/api/statistics/summary"));
 };

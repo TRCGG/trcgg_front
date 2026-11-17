@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import DiscordIcon from "@/components/ui/DiscordIcon";
+import DiscordSupportButton from "@/components/ui/DiscordSupportButton";
+import CountUp from "@/components/ui/CountUp";
 import SiteNav from "@/components/layout/SiteNav";
-import MainLogo from "@/assets/images/mainLogo.png";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
 import addBot from "@/assets/aboutImages/add-bot.png";
@@ -13,9 +14,24 @@ import replayUpload from "@/assets/aboutImages/upload.png";
 import featureMatchDetail from "@/assets/aboutImages/feature-match-detail.png";
 import featureChampStats from "@/assets/aboutImages/feature-champ-stats.png";
 import featureH2h from "@/assets/aboutImages/feature-h2h.png";
+import featureCompetitions from "@/assets/aboutImages/competitions.png";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 import useDemo from "@/hooks/demo/useDemo";
+import useSiteSummary from "@/hooks/landing/useSiteSummary";
+
+const HERO_TILT_DEG = 18;
+const HERO_TILT_SCALE = 0.06;
+// 진행선이 이 높이(뷰포트 비율)를 지날 때 단계가 켜진다.
+const FLOW_ACTIVATE_AT = 0.55;
+
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+
+const moveSpotlight = (e: MouseEvent<HTMLDivElement>) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
+  e.currentTarget.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
+};
 
 interface ShotProps {
   src: StaticImageData;
@@ -93,6 +109,23 @@ const FEATURES = [
     ),
     reverse: false,
   },
+  {
+    img: featureCompetitions,
+    alt: "클랜 대회 — 팀 로스터와 대회 결과",
+    tag: "클랜 대회",
+    tagColor: colors.redPopular,
+    tagBg: withAlpha(colors.redPopular, 0.1),
+    tagBorder: withAlpha(colors.redPopular, 0.3),
+    title: "클랜 대회도 GMOK에서",
+    body: (
+      <>
+        참가 신청과 팀 편성부터{" "}
+        <b style={{ color: colors.redPopular }}>경기 결과·팀 순위표·대회 통계</b>
+        까지. 우리 클랜만의 대회를 열고, 우승 기록을 전적처럼 남겨 보세요.
+      </>
+    ),
+    reverse: true,
+  },
 ];
 
 const HERO_POINTS = ["모든 기능 무료", "리플레이만 올리면 자동 집계", "부캐 전적까지 합산"];
@@ -101,6 +134,11 @@ const HERO_POINTS = ["모든 기능 무료", "리플레이만 올리면 자동 �
 const LandingPage = () => {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const { enterDemo } = useDemo();
+  const { data: siteSummary } = useSiteSummary();
+  const heroShotRef = useRef<HTMLButtonElement>(null);
+  const flowRef = useRef<HTMLDivElement>(null);
+  const flowTrackRef = useRef<HTMLDivElement>(null);
+  const flowFillRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
@@ -134,6 +172,59 @@ const LandingPage = () => {
   }, []);
 
   useEffect(() => {
+    const heroShot = heroShotRef.current;
+    const flow = flowRef.current;
+    const track = flowTrackRef.current;
+    const fill = flowFillRef.current;
+    if (!heroShot || !flow || !track || !fill) return undefined;
+
+    const steps = Array.from(flow.querySelectorAll<HTMLElement>(".flow-step"));
+    const stepCenter = (el: HTMLElement) => el.offsetTop + el.offsetHeight / 2;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      heroShot.style.transform = "none";
+      steps.forEach((el) => el.setAttribute("data-active", "true"));
+      fill.style.transform = "scaleY(1)";
+      return undefined;
+    }
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const vh = window.innerHeight;
+
+      const heroTop = heroShot.getBoundingClientRect().top;
+      const tilt = clamp01((vh - heroTop) / (vh * 0.9));
+      heroShot.style.transform = `rotateX(${(1 - tilt) * HERO_TILT_DEG}deg) scale(${
+        1 - (1 - tilt) * HERO_TILT_SCALE
+      })`;
+
+      if (steps.length === 0) return;
+      // offsetTop 기준이라 data-reveal의 translateY와 무관하게 위치가 고정된다.
+      const lineTop = stepCenter(steps[0]);
+      const lineHeight = stepCenter(steps[steps.length - 1]) - lineTop;
+      track.style.top = `${lineTop}px`;
+      track.style.height = `${lineHeight}px`;
+
+      const reach = vh * FLOW_ACTIVATE_AT - flow.getBoundingClientRect().top;
+      fill.style.transform = `scaleY(${lineHeight > 0 ? clamp01((reach - lineTop) / lineHeight) : 0})`;
+      steps.forEach((el) => el.setAttribute("data-active", String(reach >= stepCenter(el))));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setLightbox(null);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -145,10 +236,7 @@ const LandingPage = () => {
 
       <div className="overflow-x-hidden">
         {/* HERO */}
-        <header
-          id="top"
-          className="relative w-full overflow-hidden px-6 pb-24 pt-20 md:pb-28 md:pt-28"
-        >
+        <header id="top" className="relative w-full overflow-hidden px-6 pt-20 md:pt-28">
           <div className="about-glow-a pointer-events-none absolute left-1/2 top-[-160px] h-[600px] w-[900px] max-w-full -translate-x-1/2" />
           <div className="about-glow-b pointer-events-none absolute left-1/2 top-[300px] h-[360px] w-[640px] max-w-full -translate-x-1/2 md:top-[380px]" />
           <div className="relative mx-auto max-w-[1000px] text-center">
@@ -165,8 +253,10 @@ const LandingPage = () => {
               게임의 모든 순간을
               <br />
               <span
+                className="hero-gradient"
                 style={{
-                  background: `linear-gradient(120deg, ${colors.landing.goldLight} 0%, ${colors.landing.gold} 45%, ${colors.blueText} 100%)`,
+                  background: `linear-gradient(120deg, ${colors.landing.goldLight} 0%, ${colors.landing.gold} 22%, ${colors.blueText} 50%, ${colors.landing.gold} 78%, ${colors.landing.goldLight} 100%)`,
+                  backgroundSize: "200% auto",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   color: "transparent",
@@ -250,11 +340,16 @@ const LandingPage = () => {
               data-reveal
               data-delay="120"
               className="relative mx-auto mt-16 max-w-[1000px] md:mt-24"
+              style={{ perspective: 1600 }}
             >
               <button
+                ref={heroShotRef}
                 type="button"
                 onClick={() => setLightbox(dashboard.src)}
-                className="block w-full cursor-zoom-in overflow-hidden rounded-t-2xl border border-b-0 border-white/[0.08] text-left shadow-[0_40px_120px_-30px_theme(colors.black/0.9)]"
+                className="block w-full origin-bottom cursor-zoom-in overflow-hidden rounded-t-2xl border border-b-0 border-white/[0.08] text-left shadow-[0_40px_120px_-30px_theme(colors.black/0.9)] will-change-transform"
+                style={{
+                  transform: `rotateX(${HERO_TILT_DEG}deg) scale(${1 - HERO_TILT_SCALE})`,
+                }}
               >
                 <div className="flex items-center gap-1.5 border-b border-white/[0.06] bg-landing-bgElevated px-4 py-3">
                   <span className="h-[11px] w-[11px] rounded-full bg-landing-dotRed" />
@@ -276,6 +371,27 @@ const LandingPage = () => {
 
         {/* KPI */}
         <section className="w-full border-y border-white/[0.05] bg-landing-bgSection px-6 py-14 md:py-16">
+          {siteSummary && siteSummary.guildCount > 0 && (
+            <div className="mx-auto mb-10 flex max-w-[1160px] flex-wrap items-end justify-center gap-x-10 gap-y-4 text-center motion-safe:animate-fadeUp md:mb-12">
+              <p className="m-0 w-full text-sm font-bold tracking-[1.5px] text-landing-gold">
+                지금 GMOK에서
+              </p>
+              {[
+                { value: siteSummary.guildCount, unit: "개 클랜이 함께하고" },
+                { value: siteSummary.matchCount, unit: "경기가 기록됐어요" },
+              ].map((stat) => (
+                <div key={stat.unit} className="flex items-baseline gap-2">
+                  <span
+                    className="font-bold text-landing-heading"
+                    style={{ fontSize: "clamp(34px,4.4vw,48px)", letterSpacing: "-1px" }}
+                  >
+                    <CountUp value={stat.value} />
+                  </span>
+                  <span className="text-[17px] text-landing-bodySecondary">{stat.unit}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <div
             className="mx-auto grid max-w-[1160px] gap-4"
             style={{ gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))" }}
@@ -311,15 +427,22 @@ const LandingPage = () => {
                 key={k.t}
                 data-reveal
                 data-delay={i * 80}
-                className={`rounded-2xl border p-6 ${
+                onMouseMove={moveSpotlight}
+                className={`kpi-card relative overflow-hidden rounded-2xl border p-6 [&>*]:relative ${
                   "highlight" in k ? "border-landing-gold/40" : "border-white/[0.06]"
                 }`}
-                style={{
-                  background:
-                    "highlight" in k
-                      ? `linear-gradient(160deg,${withAlpha(colors.landing.gold, 0.16)},${colors.landing.gradBottom})`
-                      : `linear-gradient(160deg,${colors.landing.bgElevated},${colors.landing.gradBottom})`,
-                }}
+                style={
+                  {
+                    "--spot-color":
+                      "highlight" in k
+                        ? withAlpha(colors.landing.gold, 0.3)
+                        : withAlpha(colors.white, 0.13),
+                    background:
+                      "highlight" in k
+                        ? `linear-gradient(160deg,${withAlpha(colors.landing.gold, 0.16)},${colors.landing.gradBottom})`
+                        : `linear-gradient(160deg,${colors.landing.bgElevated},${colors.landing.gradBottom})`,
+                  } as CSSProperties
+                }
               >
                 <div
                   className="font-bold"
@@ -352,13 +475,16 @@ const LandingPage = () => {
                 우리 전적 사이트가 보여주는 것들
               </h2>
               <p className="mx-auto max-w-[600px] text-[17px] text-landing-caption">
-                경기 상세부터 챔피언 통계·상대전적까지, 실제 화면 그대로.
+                경기 상세부터 챔피언 통계·상대전적·클랜 대회까지, 실제 화면 그대로.
               </p>
             </div>
             <div className="flex flex-col gap-16 md:gap-24">
               {FEATURES.map((f) => {
                 const text = (
-                  <div className={`max-w-[460px] ${f.reverse ? "md:justify-self-end" : ""}`}>
+                  <div
+                    data-reveal
+                    className={`max-w-[460px] ${f.reverse ? "md:justify-self-end" : ""}`}
+                  >
                     <span
                       className="mb-4 inline-block rounded-full border px-3 py-1.5 text-xs font-bold"
                       style={{ color: f.tagColor, background: f.tagBg, borderColor: f.tagBorder }}
@@ -376,12 +502,15 @@ const LandingPage = () => {
                     </p>
                   </div>
                 );
-                const shot = <Shot src={f.img} alt={f.alt} onOpen={setLightbox} />;
+                const shot = (
+                  <div data-reveal data-delay="140">
+                    <Shot src={f.img} alt={f.alt} onOpen={setLightbox} />
+                  </div>
+                );
                 return (
                   <div
                     key={f.title}
-                    data-reveal
-                    className="grid items-center gap-8 md:gap-14"
+                    className="grid items-center gap-8 md:gap-16"
                     style={{ gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))" }}
                   >
                     {f.reverse ? (
@@ -416,7 +545,7 @@ const LandingPage = () => {
                 className="m-0 mb-6 font-bold text-landing-heading"
                 style={{ fontSize: "clamp(28px,4.2vw,46px)", letterSpacing: "-1px" }}
               >
-                클라이언트에서 웹까지
+                봇 초대부터 전적 확인까지
               </h2>
               <p className="mx-auto max-w-[600px] text-[17px] text-landing-caption">
                 봇 초대는 처음 한 번만. 그다음부터는 리플레이 다운로드부터 전적 집계까지 GMOK이
@@ -424,11 +553,26 @@ const LandingPage = () => {
               </p>
             </div>
 
-            <div className="flex flex-col gap-14 md:gap-24">
+            <div ref={flowRef} className="relative flex flex-col gap-14 md:gap-24">
+              <div
+                ref={flowTrackRef}
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 hidden w-0.5 -translate-x-1/2 overflow-hidden rounded-full bg-white/[0.07] md:block"
+              >
+                <div
+                  ref={flowFillRef}
+                  className="h-full w-full origin-top"
+                  style={{
+                    transform: "scaleY(0)",
+                    background: `linear-gradient(180deg,${colors.landing.discord},${colors.landing.gold} 35%,${colors.landing.goldLight})`,
+                  }}
+                />
+              </div>
               {[
                 {
                   n: "01",
                   grad: `linear-gradient(135deg,${colors.landing.periwinkle},${colors.landing.discord})`,
+                  glow: colors.landing.discord,
                   badge: "DISCORD",
                   badgeColor: colors.landing.periwinkle,
                   badgeBg: withAlpha(colors.landing.discord, 0.12),
@@ -458,6 +602,7 @@ const LandingPage = () => {
                 {
                   n: "02",
                   grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
+                  glow: colors.landing.gold,
                   badge: "CLIENT",
                   badgeColor: colors.landing.goldMuted,
                   badgeBg: withAlpha(colors.landing.gold, 0.12),
@@ -480,6 +625,7 @@ const LandingPage = () => {
                 {
                   n: "03",
                   grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
+                  glow: colors.landing.gold,
                   badge: "WEB",
                   badgeColor: colors.landing.goldMuted,
                   badgeBg: withAlpha(colors.landing.gold, 0.12),
@@ -501,6 +647,7 @@ const LandingPage = () => {
                 {
                   n: "04",
                   grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
+                  glow: colors.landing.gold,
                   badge: "WEB",
                   badgeColor: colors.landing.goldMuted,
                   badgeBg: withAlpha(colors.landing.gold, 0.12),
@@ -528,7 +675,7 @@ const LandingPage = () => {
                       style={{ marginBottom: 18 }}
                     >
                       <span
-                        className="font-bold"
+                        className="flow-num font-bold"
                         style={{
                           fontSize: "clamp(52px,6vw,72px)",
                           background: s.grad,
@@ -569,9 +716,18 @@ const LandingPage = () => {
                   <div
                     key={s.n}
                     data-reveal
-                    className="grid items-center gap-8 md:gap-16"
-                    style={{ gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))" }}
+                    className="flow-step relative grid items-center gap-8 md:gap-16"
+                    style={
+                      {
+                        gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))",
+                        "--flow-glow": s.glow,
+                      } as CSSProperties
+                    }
                   >
+                    <span
+                      aria-hidden
+                      className="flow-node pointer-events-none absolute left-1/2 top-1/2 hidden h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 md:block"
+                    />
                     {s.reverse ? (
                       <>
                         {shot}
@@ -591,58 +747,67 @@ const LandingPage = () => {
         </section>
 
         {/* CTA */}
-        <section id="start" className="relative w-full overflow-hidden px-6 py-20 md:py-28">
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[900px] max-w-full -translate-x-1/2 -translate-y-1/2"
-            style={{
-              background: `radial-gradient(closest-side,${withAlpha(colors.landing.discord, 0.22)},transparent 70%)`,
-            }}
-          />
+        <section id="start" className="relative w-full px-6 pt-20 md:pt-24">
           <div
             data-reveal
-            className="relative mx-auto max-w-[760px] rounded-3xl border border-white/[0.08] px-8 py-12 text-center shadow-[0_40px_100px_-40px_theme(colors.black/0.9)] md:py-16"
-            style={{
-              background: `linear-gradient(180deg,${colors.landing.bgElevated},${colors.landing.gradBottomAlt})`,
-            }}
+            className="relative mx-auto max-w-[880px] overflow-hidden rounded-[28px] border border-white/[0.08] bg-landing-bgElevated px-6 py-14 text-center shadow-[0_50px_120px_-50px_theme(colors.black/0.95)] md:px-12 md:py-16"
           >
-            <Image
-              src={MainLogo}
-              alt="gmok"
-              width={120}
-              height={120}
-              className="about-float mx-auto mb-4.5 h-[120px] w-[120px] object-contain"
-              style={{ marginBottom: 18 }}
+            <div
+              className="pointer-events-none absolute -left-40 -top-48 h-[440px] w-[560px]"
+              style={{
+                background: `radial-gradient(closest-side,${withAlpha(colors.landing.discord, 0.24)},transparent 70%)`,
+              }}
             />
-            <h2
-              className="m-0 mb-3.5 font-bold text-landing-heading"
-              style={{ fontSize: "clamp(28px,4.4vw,44px)", letterSpacing: "-1px" }}
-            >
-              지금 바로 내전을 시작하세요
-            </h2>
-            <p className="mx-auto mb-8 max-w-[480px] text-[17px] text-landing-bodySecondary">
-              디스코드에 봇을 초대하고 결과를{" "}
-              <b style={{ color: colors.landing.headingSm }}>업로드</b>하면 끝.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3.5">
-              <Link href="/guide">
-                <span className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-landing-gold/40 bg-white/[0.05] px-7 py-3.5 text-base font-bold text-landing-headingSm transition hover:-translate-y-0.5 hover:bg-landing-gold/10">
-                  자세한 이용 방법 보기
-                </span>
-              </Link>
+            <div
+              className="pointer-events-none absolute -bottom-48 -right-40 h-[420px] w-[540px]"
+              style={{
+                background: `radial-gradient(closest-side,${withAlpha(colors.landing.gold, 0.14)},transparent 70%)`,
+              }}
+            />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+
+            <div className="relative">
+              <div className="mb-4 text-sm font-bold tracking-[1.5px] text-landing-gold">
+                START NOW
+              </div>
+              <h2
+                className="m-0 mb-4 font-bold text-landing-heading"
+                style={{
+                  fontSize: "clamp(28px,4.4vw,46px)",
+                  lineHeight: 1.2,
+                  letterSpacing: "-1px",
+                }}
+              >
+                지금 바로 내전을 시작하세요
+              </h2>
+              <p className="mx-auto mb-10 max-w-[480px] text-[17px] leading-[1.7] text-landing-bodySecondary">
+                디스코드에 봇을 초대하고 결과를{" "}
+                <b style={{ color: colors.landing.headingSm }}>업로드</b>하면 끝.
+                <br className="hidden sm:block" /> 설치도, 회원가입도, 비용도 없습니다.
+              </p>
+
               <a
                 href={DISCORD_BOT_INSTALL_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-landing-gold px-7 py-3.5 text-base font-bold text-board-onGold transition hover:-translate-y-0.5 hover:bg-landing-goldMuted"
+                className="mx-auto flex h-14 w-full max-w-[300px] items-center justify-center gap-2.5 rounded-xl bg-landing-discord px-6 text-base font-bold text-white shadow-[inset_0_1px_0_theme(colors.white/0.18),0_8px_20px_-8px_theme(colors.landing.discord/0.55)] transition-[background-color,box-shadow] duration-150 ease-out hover:bg-landing-discordHover hover:shadow-[inset_0_1px_0_theme(colors.white/0.18),0_10px_28px_-8px_theme(colors.landing.discord/0.75)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bgElevated active:bg-landing-discordHover"
               >
-                우리 클랜 등록하기 ↗
+                <DiscordIcon size={20} />
+                우리 클랜 등록하기
               </a>
+              <Link href="/guide">
+                <a className="mt-5 inline-block text-[15px] font-bold text-landing-bodySecondary underline-offset-4 transition-colors hover:text-landing-heading hover:underline">
+                  이용 방법 보기 →
+                </a>
+              </Link>
             </div>
           </div>
         </section>
 
         <Footer />
       </div>
+
+      <DiscordSupportButton />
 
       {lightbox && (
         <button
@@ -682,23 +847,11 @@ const LandingPage = () => {
           );
           animation: gmokGlow 9s ease-in-out infinite;
         }
-        .about-float {
-          animation: gmokFloat 6s ease-in-out infinite;
-        }
         .about-shot img {
           transition: transform 0.6s ease;
         }
         .about-shot:hover img {
           transform: scale(1.03);
-        }
-        @keyframes gmokFloat {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-14px);
-          }
         }
         /* 데모로 체험하기 버튼: 몇 초마다 빛이 한 번 훑고 지나간다. */
         .demo-cta::after {
@@ -725,9 +878,66 @@ const LandingPage = () => {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .demo-cta::after {
+          .demo-cta::after,
+          .hero-gradient {
             animation: none;
           }
+        }
+        .hero-gradient {
+          animation: heroGradient 8s ease-in-out infinite alternate;
+        }
+        @keyframes heroGradient {
+          from {
+            background-position: 0% 50%;
+          }
+          to {
+            background-position: 100% 50%;
+          }
+        }
+        .kpi-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+            260px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+            var(--spot-color),
+            transparent 70%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+        @media (hover: hover) {
+          .kpi-card:hover::before {
+            opacity: 1;
+          }
+        }
+        /* HOW IT WORKS: 진행선이 닿은 단계의 숫자와 점이 켜진다. */
+        .flow-num {
+          opacity: 0.35;
+          transition:
+            opacity 0.5s ease,
+            filter 0.5s ease;
+        }
+        .flow-step[data-active="true"] .flow-num {
+          opacity: 1;
+          filter: drop-shadow(0 0 18px var(--flow-glow));
+        }
+        .flow-node {
+          border-color: ${withAlpha(colors.white, 0.2)};
+          background: ${colors.landing.bgSection};
+          transition:
+            background-color 0.4s ease,
+            border-color 0.4s ease,
+            box-shadow 0.4s ease,
+            transform 0.4s ease;
+        }
+        .flow-step[data-active="true"] .flow-node {
+          border-color: var(--flow-glow);
+          background: var(--flow-glow);
+          box-shadow:
+            0 0 0 6px ${withAlpha(colors.landing.gold, 0.12)},
+            0 0 18px var(--flow-glow);
         }
         @keyframes gmokGlow {
           0%,

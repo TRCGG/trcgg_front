@@ -32,3 +32,14 @@ export interface ChampionStatistics {
   winRate: string;
   kda: string;
 }
+
+export interface SiteSummary {
+  guildCount: number;
+  matchCount: number;
+}
+
+export interface SiteSummaryResponse {
+  status: string;
+  message: string;
+  data: SiteSummary;
+}
