@@ -59,13 +59,16 @@ npm run dev             # http://localhost:3000
 
 ### 환경 변수
 
-`.env`에 다음 세 개가 필요합니다.
+`.env`에 다음 네 개가 필요합니다.
 
 | 키 | 설명 |
 |---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | 백엔드 API 주소. 인증 쿠키를 주고받으므로 CORS 허용 목록에 프론트 주소가 등록돼 있어야 합니다 |
 | `NEXT_PUBLIC_DDRAGON_VERSION` | 챔피언·아이템 이미지를 받아올 Data Dragon 버전. 최신 버전은 [versions.json](https://ddragon.leagueoflegends.com/api/versions.json)에서 확인합니다 |
 | `NEXT_PUBLIC_SITE_URL` | 메타 태그의 정규 주소 |
+| `NEXT_PUBLIC_DISCORD_BOT_INSTALL_URL` | "클랜 등록" 버튼이 여는 봇 초대 링크. 개발·운영 봇이 달라 환경마다 값이 다릅니다. 비우면 지원 서버 초대 링크로 연결됩니다. 빌드할 때 값이 코드에 들어가므로 바꾼 뒤 다시 빌드해야 합니다 |
+
+로컬에서 dev API를 쓰려면 `.env.local`에 `NEXT_PUBLIC_API_BASE_URL=http://localhost:3000`과 `API_PROXY_TARGET=https://dev-api.gmok.kr`을 넣습니다.
 
 ## 스크립트
 

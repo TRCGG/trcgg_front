@@ -111,3 +111,8 @@ body {
   color: #d1dbe8;
   background: #22252b;
 }
+
+/* 지난 방문에 로그인했던 사용자는 로그인 확인이 끝날 때까지 소개 화면을 숨긴다(src/constants/authHint.ts). */
+html[data-auth-hint] .landing-gate {
+  visibility: hidden;
+}

@@ -34,6 +34,7 @@ const colors = {
   grayHover: "#212121",
   yellow: "#FFC364",
   neonGreen: "#71FF97",
+  liveRed: "#FF4D4F", // LIVE 표시
   tierBlue: "#2457FF",
   tierBrown: "#C94F77", // Tier-5 배지 로즈
   // 팀 강조색 (스코어보드/바)

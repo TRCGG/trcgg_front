@@ -5,7 +5,7 @@ import Link from "next/link";
 import SiteNav from "@/components/layout/SiteNav";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import Footer from "@/components/layout/Footer";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import { DISCORD_BOT_INSTALL_URL, DISCORD_SUPPORT_URL } from "@/constants/links";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 
@@ -72,12 +72,32 @@ const Section = ({ id, step, title, badge, children }: SectionProps) => (
 
 const START_STEPS = [
   {
+    title: "디스코드 봇 초대",
+    body: (
+      <>
+        클랜 디스코드 서버에{" "}
+        <a
+          href={DISCORD_BOT_INSTALL_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
+        >
+          GMOK 봇을 초대
+        </a>
+        하면 클랜이 자동으로 등록됩니다. 이때 디스코드 서버 관리자는 클랜 관리 권한을, 나머지 멤버는
+        일반 권한을 받습니다. 클랜당 한 번만 하면 되며, 이미 봇이 있는 클랜이라면 건너뛰세요. 봇
+        초대는 <Menu>서버 관리</Menu> 권한이 있어야 할 수 있으니, 권한이 없다면 클랜 운영진에게
+        요청해 주세요.
+      </>
+    ),
+  },
+  {
     title: "디스코드로 로그인",
     body: "메인 화면의 로그인 버튼을 누르면 디스코드 인증으로 연결됩니다.",
   },
   {
     title: "클랜 선택",
-    body: "소속된 클랜(디스코드 서버)이 GMOK에 등록되어 있으면 자동으로 목록에 나타납니다. 여러 클랜에 소속돼 있다면 상단 드롭다운으로 전환할 수 있습니다.",
+    body: "GMOK 봇이 있는 클랜(디스코드 서버)은 자동으로 목록에 나타납니다. 봇을 방금 초대했다면 다시 로그인해 주세요. 여러 클랜에 소속돼 있다면 상단 드롭다운으로 전환할 수 있습니다.",
   },
   {
     title: "소환사 검색",
@@ -125,7 +145,7 @@ const CLAN_STATS = [
 const CLAN_ADMIN = [
   {
     title: "업로드 권한 관리",
-    body: "멤버에게 리플레이 업로드 권한을 부여·회수하거나, 전체 업로드 허용을 켤 수 있습니다.",
+    body: "멤버에게 리플레이 업로드 권한을 부여·회수하거나, 전체 업로드 허용을 켤 수 있습니다. 권한은 GMOK 웹에 한 번 이상 로그인한 멤버에게만 줄 수 있습니다.",
   },
   {
     title: "클랜원 상태 관리",
@@ -165,7 +185,7 @@ const Guide: NextPage = () => (
             이용방법
           </h1>
           <p className="mx-auto max-w-[620px] text-[17px] leading-[1.7] text-landing-caption">
-            로그인부터 리플레이 업로드, 전적·통계 조회, 클랜 관리까지 — GMOK 사용법을 순서대로
+            봇 초대부터 리플레이 업로드, 전적·통계 조회, 클랜 관리까지 — GMOK 사용법을 순서대로
             안내합니다.
           </p>
         </div>
@@ -209,18 +229,6 @@ const Guide: NextPage = () => (
                   </div>
                 </Card>
               ))}
-              <Note tone="discord">
-                아직 클랜이 등록돼 있지 않다면{" "}
-                <a
-                  href={DISCORD_INVITE_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
-                >
-                  디스코드 지원 서버
-                </a>
-                로 문의해 주세요.
-              </Note>
             </div>
           </Section>
 
@@ -236,7 +244,8 @@ const Guide: NextPage = () => (
                   <li>이미 등록된 경기는 중복 등록되지 않습니다.</li>
                   <li>
                     업로드는 클랜 운영진에게 권한을 받은 멤버가 할 수 있습니다. (클랜 설정에 따라
-                    전원 허용일 수 있음)
+                    전원 허용일 수 있음) 운영진은 웹에 한 번 이상 로그인한 멤버에게만 권한을 줄 수
+                    있으니, 먼저 로그인한 뒤 요청해 주세요.
                   </li>
                 </ul>
               </Card>
@@ -317,8 +326,8 @@ const Guide: NextPage = () => (
                   <li>디스코드로 로그인합니다.</li>
                   <li>화면 상단의 프로필 메뉴를 엽니다.</li>
                   <li>
-                    <Menu>클랜 관리</Menu>를 선택합니다. 디스코드 운영진 권한이 있는 계정만 접근할
-                    수 있습니다.
+                    <Menu>클랜 관리</Menu>를 선택합니다. 디스코드 서버 관리자 계정이 접근할 수
+                    있습니다. 봇 초대 이후 서버 관리자가 됐다면 로그아웃했다가 다시 로그인해 주세요.
                   </li>
                 </ol>
               </Card>
@@ -356,7 +365,7 @@ const Guide: NextPage = () => (
                   </span>
                 </Link>
                 <a
-                  href={DISCORD_INVITE_URL}
+                  href={DISCORD_SUPPORT_URL}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2.5 rounded-xl bg-landing-discord px-[30px] py-[15px] text-base font-bold text-white shadow-[0_14px_34px_-10px_theme(colors.landing.discord/0.6)] hover:bg-landing-discordHover"

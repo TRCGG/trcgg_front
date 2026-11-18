@@ -6,6 +6,7 @@ import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import { canManageGuild } from "@/data/types/guildMember";
 import { logout } from "@/services/auth";
 import Avatar from "@/components/ui/Avatar";
+import useDemo from "@/hooks/demo/useDemo";
 
 interface DiscordLoginButtonProps {
   onClick?: () => void;
@@ -18,10 +19,16 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
   const router = useRouter();
   const { currentRole, avatar } = useGuildManagement();
   const canManage = canManageGuild(currentRole);
+  const { isDemo, exitDemo } = useDemo();
 
   useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
 
   const handleLogout = async () => {
+    if (isDemo) {
+      exitDemo();
+      return;
+    }
+
     // 백엔드 로그아웃 API 호출
     await logout();
 
@@ -99,7 +106,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
               <path d="M16 17l5-5-5-5" />
               <path d="M21 12H9" />
             </svg>
-            로그아웃
+            {isDemo ? "데모 끝내기" : "로그아웃"}
           </button>
         </div>
       )}

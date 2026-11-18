@@ -27,7 +27,7 @@ const useGuildManagement = () => {
 
   const { publicGuilds, isLoadingPublicGuilds } = usePublicGuilds();
 
-  const { data: meData } = useQuery<MeResponse["data"]>({
+  const { data: meData, isPending: isAuthPending } = useQuery<MeResponse["data"]>({
     queryKey: ["me"],
     queryFn: () => getMe(),
     staleTime: 60 * 1000,
@@ -99,6 +99,7 @@ const useGuildManagement = () => {
     guildId,
     guilds,
     isLoggedIn,
+    isAuthPending,
     isMember,
     hasOwnGuild,
     memberGuildId: isMember ? guildId : "",
