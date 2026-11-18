@@ -33,13 +33,16 @@ export interface ChampionStatistics {
   kda: string;
 }
 
-export interface SiteSummary {
-  guildCount: number;
+export interface SiteOverview {
+  clanCount: number;
   matchCount: number;
+  playerCount: number;
+  recentMatchCount: number;
+  matchCountByType: { normal: number; competition: number };
 }
 
-export interface SiteSummaryResponse {
+export interface SiteOverviewResponse {
   status: string;
   message: string;
-  data: SiteSummary;
+  data: SiteOverview;
 }

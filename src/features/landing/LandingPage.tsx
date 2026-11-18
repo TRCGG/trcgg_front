@@ -3,7 +3,6 @@ import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import DiscordIcon from "@/components/ui/DiscordIcon";
 import DiscordSupportButton from "@/components/ui/DiscordSupportButton";
-import CountUp from "@/components/ui/CountUp";
 import SiteNav from "@/components/layout/SiteNav";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
@@ -18,7 +17,7 @@ import featureCompetitions from "@/assets/aboutImages/competitions.png";
 import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 import useDemo from "@/hooks/demo/useDemo";
-import useSiteSummary from "@/hooks/landing/useSiteSummary";
+import SiteLiveTag from "@/features/statistics/SiteLiveTag";
 
 const HERO_TILT_DEG = 18;
 const HERO_TILT_SCALE = 0.06;
@@ -134,7 +133,6 @@ const HERO_POINTS = ["모든 기능 무료", "리플레이만 올리면 자동 �
 const LandingPage = () => {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const { enterDemo } = useDemo();
-  const { data: siteSummary } = useSiteSummary();
   const heroShotRef = useRef<HTMLButtonElement>(null);
   const flowRef = useRef<HTMLDivElement>(null);
   const flowTrackRef = useRef<HTMLDivElement>(null);
@@ -240,6 +238,10 @@ const LandingPage = () => {
           <div className="about-glow-a pointer-events-none absolute left-1/2 top-[-160px] h-[600px] w-[900px] max-w-full -translate-x-1/2" />
           <div className="about-glow-b pointer-events-none absolute left-1/2 top-[300px] h-[360px] w-[640px] max-w-full -translate-x-1/2 md:top-[380px]" />
           <div className="relative mx-auto max-w-[1000px] text-center">
+            {/* 집계가 늦게 도착해도 헤드라인이 밀리지 않게 자리를 미리 잡아 둔다. */}
+            <div className="mb-6 flex h-8 justify-center md:mb-8">
+              <SiteLiveTag className="motion-safe:animate-fadeUp" />
+            </div>
             <h1
               data-reveal
               data-delay="60"
@@ -371,27 +373,6 @@ const LandingPage = () => {
 
         {/* KPI */}
         <section className="w-full border-y border-white/[0.05] bg-landing-bgSection px-6 py-14 md:py-16">
-          {siteSummary && siteSummary.guildCount > 0 && (
-            <div className="mx-auto mb-10 flex max-w-[1160px] flex-wrap items-end justify-center gap-x-10 gap-y-4 text-center motion-safe:animate-fadeUp md:mb-12">
-              <p className="m-0 w-full text-sm font-bold tracking-[1.5px] text-landing-gold">
-                지금 GMOK에서
-              </p>
-              {[
-                { value: siteSummary.guildCount, unit: "개 클랜이 함께하고" },
-                { value: siteSummary.matchCount, unit: "경기가 기록됐어요" },
-              ].map((stat) => (
-                <div key={stat.unit} className="flex items-baseline gap-2">
-                  <span
-                    className="font-bold text-landing-heading"
-                    style={{ fontSize: "clamp(34px,4.4vw,48px)", letterSpacing: "-1px" }}
-                  >
-                    <CountUp value={stat.value} />
-                  </span>
-                  <span className="text-[17px] text-landing-bodySecondary">{stat.unit}</span>
-                </div>
-              ))}
-            </div>
-          )}
           <div
             className="mx-auto grid max-w-[1160px] gap-4"
             style={{ gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))" }}

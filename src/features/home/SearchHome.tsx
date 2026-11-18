@@ -6,6 +6,7 @@ import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
 import NoGuildModal from "@/features/discordLogin/NoGuildModal";
 import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import SummonerSearchBox from "@/features/search/SummonerSearchBox";
+import SiteLiveTag from "@/features/statistics/SiteLiveTag";
 import useModal from "@/hooks/common/useModal";
 import useGuildManagement from "@/hooks/auth/useGuildManagement";
 import MainLogo from "@/assets/images/mainLogo.png";
@@ -35,6 +36,7 @@ const SearchHome = () => {
         {/* 헤더 영역 */}
         <header className="flex flex-col w-full gap-10 md:gap-20 justify-end">
           <div className="self-end m-3 flex gap-3 items-center">
+            <SiteLiveTag className="hidden sm:inline-flex" />
             {isLoggedIn && (
               <GuildDropdown
                 guilds={guilds}
