@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TextLogo from "@/assets/images/textLogo.png";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import { DISCORD_SUPPORT_URL } from "@/constants/links";
 
 // 자식은 반드시 <a>여야 한다. Next 12의 next/link는 자식이 <span>이면 href를 렌더하지
 // 않아, 푸터가 유일한 전역 내부 링크인데도 크롤러가 콘텐츠 페이지로 이동할 수 없게 된다.
@@ -44,7 +44,7 @@ const Footer = () => (
         <div>
           <div className="mb-3.5 text-[13px] font-bold tracking-wide text-[#8A929C]">지원</div>
           <div className="flex flex-col gap-2.5">
-            <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className={linkClass}>
+            <a href={DISCORD_SUPPORT_URL} target="_blank" rel="noreferrer" className={linkClass}>
               Discord
             </a>
             <Link href="/privacy">

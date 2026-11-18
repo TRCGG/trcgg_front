@@ -12,6 +12,7 @@ import GuildDropdown from "@/features/discordLogin/GuildDropdown";
 import useClickOutside from "@/hooks/common/useClickOutside";
 import { PlayerInfo } from "@/data/types/user";
 import { GuildInfo } from "@/data/types/auth";
+import startDiscordLogin from "@/utils/discordLogin";
 
 export interface SummonerPageHeaderProps {
   searchTerm: string;
@@ -46,10 +47,6 @@ const SummonerPageHeader = ({
 
   useClickOutside(searchContainerRef, () => setIsSearchFocused(false));
 
-  const handleDiscordLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`;
-  };
-
   // 최근 검색어 클릭 핸들러
   const handleRecentSearchClick = (riotName: string, riotTag: string) => {
     router.push(`/summoners/${encodeURIComponent(riotName)}/${encodeURIComponent(riotTag)}`);
@@ -79,7 +76,7 @@ const SummonerPageHeader = ({
                 onGuildChange={onGuildChange}
               />
             )}
-            <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
+            <DiscordLoginButton onClick={startDiscordLogin} username={username} />
           </div>
         </div>
         <div ref={searchContainerRef} className="w-full md:w-[300px] z-10">
@@ -116,7 +113,7 @@ const SummonerPageHeader = ({
           </div>
         )}
         <div className="hidden md:block">
-          <DiscordLoginButton onClick={handleDiscordLogin} username={username} />
+          <DiscordLoginButton onClick={startDiscordLogin} username={username} />
         </div>
       </div>
     </header>

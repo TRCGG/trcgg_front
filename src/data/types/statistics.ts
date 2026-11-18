@@ -32,3 +32,17 @@ export interface ChampionStatistics {
   winRate: string;
   kda: string;
 }
+
+export interface SiteOverview {
+  clanCount: number;
+  matchCount: number;
+  playerCount: number;
+  recentMatchCount: number;
+  matchCountByType: { normal: number; competition: number };
+}
+
+export interface SiteOverviewResponse {
+  status: string;
+  message: string;
+  data: SiteOverview;
+}

@@ -2,8 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import TextLogo from "@/assets/images/textLogo.png";
-import DiscordIcon from "@/components/ui/DiscordIcon";
-import { DISCORD_INVITE_URL } from "@/constants/links";
+import DiscordLoginButton from "@/components/ui/DiscordLoginButton";
+import useGuildManagement from "@/hooks/auth/useGuildManagement";
+import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
+import startDiscordLogin from "@/utils/discordLogin";
+import LoginHintBubble from "@/components/ui/LoginHintBubble";
 
 const LINKS = [
   { href: "/about", label: "서비스 소개" },
@@ -18,6 +21,7 @@ const isActive = (pathname: string, href: string) =>
 /** 서비스 소개·이용방법·FAQ·게시판이 함께 쓰는 상단 내비게이션. */
 const SiteNav = () => {
   const { pathname } = useRouter();
+  const { username, isAuthPending } = useGuildManagement();
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-landing-bg/80 backdrop-blur-md">
@@ -28,8 +32,8 @@ const SiteNav = () => {
           </a>
         </Link>
         <div className="flex min-w-0 items-center gap-5 sm:gap-7">
-          {/* 좁은 화면에서는 링크 목록만 가로 스크롤시킨다. */}
-          <div className="flex min-w-0 items-center gap-5 overflow-x-auto whitespace-nowrap [scrollbar-width:none] sm:gap-7 [&::-webkit-scrollbar]:hidden">
+          {/* 좁은 화면에서는 링크 목록만 가로 스크롤시키고, 오른쪽을 흐려 뒤에 더 있음을 알린다. */}
+          <div className="flex min-w-0 items-center gap-5 overflow-x-auto whitespace-nowrap pr-6 [mask-image:linear-gradient(to_right,black_80%,transparent)] [scrollbar-width:none] sm:gap-7 sm:pr-0 sm:[mask-image:none] [&::-webkit-scrollbar]:hidden">
             {LINKS.map(({ href, label }) => (
               <Link key={href} href={href}>
                 <a
@@ -44,16 +48,19 @@ const SiteNav = () => {
                 </a>
               </Link>
             ))}
+            <a
+              href={DISCORD_BOT_INSTALL_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-[15px] font-bold text-landing-gold hover:text-landing-goldLight"
+            >
+              클랜 등록 ↗
+            </a>
           </div>
-          <a
-            href={DISCORD_INVITE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="flex shrink-0 items-center gap-2 rounded-[9px] bg-landing-discord px-[18px] py-2.5 text-sm font-bold text-white shadow-[0_6px_18px_theme(colors.landing.discord/0.35)] hover:bg-landing-discordHover"
-          >
-            <DiscordIcon size={18} />
-            <span className="hidden sm:inline">디스코드</span>
-          </a>
+          <div className="relative shrink-0">
+            <DiscordLoginButton onClick={startDiscordLogin} username={username} />
+            {!isAuthPending && !username && <LoginHintBubble />}
+          </div>
         </div>
       </div>
     </nav>
