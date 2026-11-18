@@ -68,6 +68,8 @@ npm run dev             # http://localhost:3000
 | `NEXT_PUBLIC_SITE_URL` | 메타 태그의 정규 주소 |
 | `NEXT_PUBLIC_DISCORD_BOT_INSTALL_URL` | "클랜 등록" 버튼이 여는 봇 초대 링크. 개발·운영 봇이 달라 환경마다 값이 다릅니다. 비우면 지원 서버 초대 링크로 연결됩니다. 빌드할 때 값이 코드에 들어가므로 바꾼 뒤 다시 빌드해야 합니다 |
 
+로컬에서 dev API를 쓰려면 `.env.local`에 `NEXT_PUBLIC_API_BASE_URL=http://localhost:3000`과 `API_PROXY_TARGET=https://dev-api.gmok.kr`을 넣습니다.
+
 ## 스크립트
 
 ```bash
