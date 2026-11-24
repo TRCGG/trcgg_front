@@ -1,13 +1,18 @@
 import Head from "next/head";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import TextLogo from "@/assets/images/textLogo.png";
+import { legalUrlTransform, remarkHeadingIds } from "@/utils/markdown";
+
+const REMARK_PLUGINS = [remarkGfm, remarkHeadingIds];
 
 interface LegalDocumentProps {
   title: string;
-  html: string;
+  markdown: string;
 }
 
-const LegalDocument = ({ title, html }: LegalDocumentProps) => (
+const LegalDocument = ({ title, markdown }: LegalDocumentProps) => (
   <>
     <Head>
       <title>{`${title} - GMOK`}</title>
@@ -21,8 +26,11 @@ const LegalDocument = ({ title, html }: LegalDocumentProps) => (
           className="mb-8 h-[26px] w-auto cursor-pointer opacity-90 hover:opacity-100"
         />
       </Link>
-      {/* eslint-disable-next-line react/no-danger */}
-      <article className="legal-doc" dangerouslySetInnerHTML={{ __html: html }} />
+      <article className="legal-doc">
+        <ReactMarkdown remarkPlugins={REMARK_PLUGINS} urlTransform={legalUrlTransform}>
+          {markdown}
+        </ReactMarkdown>
+      </article>
     </div>
   </>
 );

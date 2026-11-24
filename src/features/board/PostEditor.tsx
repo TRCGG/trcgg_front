@@ -312,6 +312,13 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
           <ul className="mt-2.5 list-disc pl-4 text-[12.5px] leading-[1.8] text-board-meta">
             <li>마크다운 문법을 사용할 수 있습니다.</li>
             <li>
+              밑줄은 <code className="font-mono">{"<u>텍스트</u>"}</code>로 씁니다.
+            </li>
+            <li>
+              표는 <code className="font-mono">| 제목 | 제목 |</code> 줄 바로 아래에{" "}
+              <code className="font-mono">|---|---|</code> 줄을 넣어 만듭니다.
+            </li>
+            <li>
               이미지는 외부 URL로만 첨부할 수 있습니다. 디스코드 첨부 링크는 일정 시간이 지나면
               만료되므로 사용하지 마세요.
             </li>
