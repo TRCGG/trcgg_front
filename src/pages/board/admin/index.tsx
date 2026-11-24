@@ -226,6 +226,9 @@ const AdminPostList = () => {
             {renderOrder(post, index, isMoving, "h-5 w-5")}
           </td>
         )}
+        <td className="whitespace-nowrap px-2 py-3 text-[13px] text-board-meta">
+          {post.authorName ?? "-"}
+        </td>
         <td className="px-2 py-3 text-[13px] tabular-nums text-board-meta">
           {formatPostDate(post.updateDate)}
         </td>
@@ -250,6 +253,8 @@ const AdminPostList = () => {
             <span className={statusClass(status)}>{POST_STATUS_LABEL[status]}</span>
             <span aria-hidden="true">·</span>
             <span className="text-landing-caption">{POST_CATEGORY_LABEL[post.category]}</span>
+            <span aria-hidden="true">·</span>
+            <span>{post.authorName ?? "-"}</span>
             <span aria-hidden="true">·</span>
             <span>{formatPostDate(post.updateDate)}</span>
           </div>
@@ -375,6 +380,9 @@ const AdminPostList = () => {
                     순서
                   </th>
                 )}
+                <th scope="col" className="w-24 px-2 py-2.5 font-normal">
+                  작성자
+                </th>
                 <th scope="col" className="w-24 px-2 py-2.5 font-normal">
                   수정일
                 </th>

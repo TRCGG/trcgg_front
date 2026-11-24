@@ -2,19 +2,19 @@ import fs from "fs";
 import path from "path";
 import type { GetStaticProps, NextPage } from "next";
 import LegalDocument from "@/components/layout/LegalDocument";
-import { renderMarkdown } from "@/utils/markdown";
+import { fillTemplateVars } from "@/utils/markdown";
 
 interface PrivacyPageProps {
-  html: string;
+  markdown: string;
 }
 
-const PrivacyPage: NextPage<PrivacyPageProps> = ({ html }) => (
-  <LegalDocument title="개인정보처리방침" html={html} />
+const PrivacyPage: NextPage<PrivacyPageProps> = ({ markdown }) => (
+  <LegalDocument title="개인정보처리방침" markdown={markdown} />
 );
 
 export const getStaticProps: GetStaticProps<PrivacyPageProps> = async () => {
   const markdown = fs.readFileSync(path.join(process.cwd(), "content", "PRIVACY.md"), "utf8");
-  return { props: { html: renderMarkdown(markdown) } };
+  return { props: { markdown: fillTemplateVars(markdown) } };
 };
 
 export default PrivacyPage;

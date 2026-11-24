@@ -31,6 +31,7 @@ export interface PostListItem {
 export interface AdminPostListItem extends PostListItem {
   isPublished: boolean;
   updateDate: string;
+  authorName: string | null;
 }
 
 export interface PostDetail {
