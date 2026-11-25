@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TournamentSpectatorType } from "@/data/types/tournament";
+import { TournamentCode, TournamentSpectatorType } from "@/data/types/tournament";
 import { toApiError } from "@/services/apiError";
 import { useIssueTournamentCodes } from "@/hooks/tournament/useTournamentCodes";
 import {
@@ -57,11 +57,12 @@ const SERIES_SEGMENTS = SERIES_OPTIONS.map((option) => ({
   value: option.count,
 }));
 
-interface TournamentIssuePanelProps {
+interface TournamentCodeIssuePanelProps {
   guildId: string;
+  onIssued?: (codes: TournamentCode[]) => void;
 }
 
-const TournamentIssuePanel = ({ guildId }: TournamentIssuePanelProps) => {
+const TournamentCodeIssuePanel = ({ guildId, onIssued }: TournamentCodeIssuePanelProps) => {
   const [series, setSeries] = useState<SeriesOption>(SERIES_OPTIONS[0]);
   const [spectatorType, setSpectatorType] = useState<TournamentSpectatorType>("ALL");
   const issue = useIssueTournamentCodes(guildId);
@@ -73,7 +74,7 @@ const TournamentIssuePanel = ({ guildId }: TournamentIssuePanelProps) => {
 
   const handleIssue = () => {
     if (issue.isPending) return;
-    issue.mutate({ count: series.count, spectatorType });
+    issue.mutate({ count: series.count, spectatorType }, { onSuccess: onIssued });
   };
 
   return (
@@ -129,4 +130,4 @@ const TournamentIssuePanel = ({ guildId }: TournamentIssuePanelProps) => {
   );
 };
 
-export default TournamentIssuePanel;
+export default TournamentCodeIssuePanel;

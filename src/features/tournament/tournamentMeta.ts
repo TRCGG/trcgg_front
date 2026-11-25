@@ -4,6 +4,10 @@ import {
   TournamentSpectatorType,
 } from "@/data/types/tournament";
 
+// Riot 심사 동안 비로그인 발급용 임시 길드 ID(Base64). 백엔드가 17~20자리 숫자만 받는다.
+// 백엔드가 발급에 운영진 권한 검사를 되돌리면 함께 제거한다.
+export const PUBLIC_CODE_ISSUE_GUILD_ID = "MDAwMDAwMDAwMDAwMDAwMDA=";
+
 export const SERIES_OPTIONS = [
   { label: "단판", count: 1 },
   { label: "BO3", count: 3 },
