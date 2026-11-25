@@ -30,6 +30,30 @@ export const setDemoMode = (next: boolean) => {
   listeners.forEach((listener) => listener());
 };
 
+const RETURN_PATH_KEY = "gmok:demo-return";
+
+const isInternalPath = (path: string) => path.startsWith("/") && !path.startsWith("//");
+
+/** 데모를 끝냈을 때 돌아갈 경로. 데모에 들어온 페이지를 기억해 둔다. */
+export const saveDemoReturnPath = (path: string) => {
+  try {
+    sessionStorage.setItem(RETURN_PATH_KEY, path);
+  } catch {
+    // 저장하지 못하면 종료 시 기본 경로로 돌아간다.
+  }
+};
+
+export const takeDemoReturnPath = (): string => {
+  try {
+    const path = sessionStorage.getItem(RETURN_PATH_KEY);
+    sessionStorage.removeItem(RETURN_PATH_KEY);
+    if (path && isInternalPath(path)) return path;
+  } catch {
+    // 읽지 못하면 기본 경로로 돌아간다.
+  }
+  return "/";
+};
+
 export const subscribeDemoMode = (listener: () => void) => {
   listeners.add(listener);
   return () => {

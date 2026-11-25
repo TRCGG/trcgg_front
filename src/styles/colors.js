@@ -6,6 +6,7 @@ const colors = {
   black: "#000000",
   darkBg1: "#191B20",
   darkBg2: "#0C0D0F",
+  footerBg: "#08090B",
   rankBg1: "#2C2F38",
   rankBg2: "#22252B",
   rankBg3: "#141619",
