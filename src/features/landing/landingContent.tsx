@@ -45,7 +45,14 @@ export interface FlowStep {
 }
 
 export interface LandingContent {
-  hero: { lead: string; highlight: string; description: ReactNode; points: string[] };
+  hero: {
+    lead: string;
+    highlight: string;
+    description: ReactNode;
+    points: string[];
+    /** 있으면 히어로에 토너먼트 코드 발급 화면으로 가는 버튼을 보여 준다. */
+    issueCodeHref?: string;
+  };
   flow: { title: string; description: string; steps: FlowStep[] };
   cta: { description: ReactNode };
 }
@@ -176,6 +183,7 @@ export const TOURNAMENT_LANDING: LandingContent = {
       </>
     ),
     points: ["모든 기능 무료", "리플레이 업로드 없이 자동 기록", "단판·BO3·BO5 코드 발급"],
+    issueCodeHref: "/tournament/codes",
   },
   flow: {
     title: "코드 발급부터 전적 확인까지",

@@ -312,6 +312,27 @@ const LandingPage = ({ content = REPLAY_LANDING }: LandingPageProps) => {
                 <DiscordIcon size={20} />
                 우리 클랜 등록하기
               </a>
+              {hero.issueCodeHref && (
+                <Link href={hero.issueCodeHref}>
+                  <a className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg sm:w-[230px] border border-landing-gold/50 text-landing-goldLight hover:border-landing-gold hover:bg-landing-gold/10">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 0 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z" />
+                      <path d="M13 5v2M13 11v2M13 17v2" />
+                    </svg>
+                    토너먼트 코드 발급받기
+                  </a>
+                </Link>
+              )}
             </div>
             <ul
               data-reveal
