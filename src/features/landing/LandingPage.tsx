@@ -314,7 +314,7 @@ const LandingPage = ({ content = REPLAY_LANDING }: LandingPageProps) => {
               </a>
               {hero.issueCodeHref && (
                 <Link href={hero.issueCodeHref}>
-                  <a className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg sm:w-[230px] border border-landing-gold/50 text-landing-goldLight hover:border-landing-gold hover:bg-landing-gold/10">
+                  <a className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg whitespace-nowrap sm:w-auto border border-landing-gold/50 text-landing-goldLight hover:border-landing-gold hover:bg-landing-gold/10">
                     <svg
                       width="20"
                       height="20"
