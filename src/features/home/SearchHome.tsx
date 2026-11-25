@@ -47,7 +47,7 @@ const SearchHome = () => {
             <DiscordLoginButton onClick={startDiscordLogin} username={username} />
           </div>
           <div className="flex w-[250px] h-[250px] md:w-[400px] md:h-[400px] mx-auto">
-            <Image src={MainLogo} alt="메인 로고" />
+            <Image src={MainLogo} alt="메인 로고" width={400} height={400} priority />
           </div>
         </header>
 

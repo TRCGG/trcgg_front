@@ -6,10 +6,7 @@ import DiscordSupportButton from "@/components/ui/DiscordSupportButton";
 import SiteNav from "@/components/layout/SiteNav";
 import Footer from "@/components/layout/Footer";
 import { DISCORD_BOT_INSTALL_URL } from "@/constants/links";
-import addBot from "@/assets/aboutImages/add-bot.png";
 import dashboard from "@/assets/aboutImages/dashboard.png";
-import replayDownload from "@/assets/aboutImages/download.png";
-import replayUpload from "@/assets/aboutImages/upload.png";
 import featureMatchDetail from "@/assets/aboutImages/feature-match-detail.png";
 import featureChampStats from "@/assets/aboutImages/feature-champ-stats.png";
 import featureH2h from "@/assets/aboutImages/feature-h2h.png";
@@ -18,6 +15,7 @@ import colors from "@/styles/colors";
 import { withAlpha } from "@/utils/color";
 import useDemo from "@/hooks/demo/useDemo";
 import SiteLiveTag from "@/features/statistics/SiteLiveTag";
+import { LandingContent, REPLAY_LANDING } from "@/features/landing/landingContent";
 
 const HERO_TILT_DEG = 18;
 const HERO_TILT_SCALE = 0.06;
@@ -127,10 +125,13 @@ const FEATURES = [
   },
 ];
 
-const HERO_POINTS = ["모든 기능 무료", "리플레이만 올리면 자동 집계", "부캐 전적까지 합산"];
+interface LandingPageProps {
+  content?: LandingContent;
+}
 
-/** 서비스 소개 화면. `/about`과 비로그인 방문자의 `/`가 함께 쓴다. */
-const LandingPage = () => {
+/** 서비스 소개 화면. `/about`·비로그인 `/`가 기본 내용으로, `/tournament`가 토너먼트 내용으로 쓴다. */
+const LandingPage = ({ content = REPLAY_LANDING }: LandingPageProps) => {
+  const { hero, cta } = content;
   const [lightbox, setLightbox] = useState<string | null>(null);
   const { enterDemo } = useDemo();
   const heroShotRef = useRef<HTMLButtonElement>(null);
@@ -252,7 +253,7 @@ const LandingPage = () => {
                 letterSpacing: "-1.5px",
               }}
             >
-              게임의 모든 순간을
+              {hero.lead}
               <br />
               <span
                 className="hero-gradient"
@@ -264,7 +265,7 @@ const LandingPage = () => {
                   color: "transparent",
                 }}
               >
-                클랜과 함께
+                {hero.highlight}
               </span>
             </h1>
             <p
@@ -273,9 +274,7 @@ const LandingPage = () => {
               className="mx-auto mb-11 max-w-[640px] text-landing-bodySecondary md:mb-14"
               style={{ fontSize: "clamp(16px,2vw,19px)", lineHeight: 1.7 }}
             >
-              게임이 끝나면 사라지는 순간들, 이제 리플레이 업로드로 남겨두세요.
-              <br />
-              전적·통계·랭킹이 두고두고 쌓이는 우리 클랜만의 전적 사이트.
+              {hero.description}
             </p>
             <div
               data-reveal
@@ -313,13 +312,34 @@ const LandingPage = () => {
                 <DiscordIcon size={20} />
                 우리 클랜 등록하기
               </a>
+              {hero.issueCodeHref && (
+                <Link href={hero.issueCodeHref}>
+                  <a className="inline-flex h-[52px] w-full max-w-[340px] items-center justify-center gap-2.5 rounded-2xl px-6 text-[17px] font-bold transition duration-300 ease-out will-change-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-landing-gold focus-visible:ring-offset-2 focus-visible:ring-offset-landing-bg whitespace-nowrap sm:w-auto border border-landing-gold/50 text-landing-goldLight hover:border-landing-gold hover:bg-landing-gold/10">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden
+                    >
+                      <path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 0 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z" />
+                      <path d="M13 5v2M13 11v2M13 17v2" />
+                    </svg>
+                    토너먼트 코드 발급받기
+                  </a>
+                </Link>
+              )}
             </div>
             <ul
               data-reveal
               data-delay="220"
               className="m-0 flex list-none flex-wrap justify-center gap-x-5 gap-y-2 whitespace-nowrap p-0 text-sm text-landing-caption sm:flex-nowrap"
             >
-              {HERO_POINTS.map((point) => (
+              {hero.points.map((point) => (
                 <li key={point} className="flex items-center gap-1.5">
                   <svg
                     className="h-4 w-4 text-landing-gold"
@@ -526,11 +546,10 @@ const LandingPage = () => {
                 className="m-0 mb-6 font-bold text-landing-heading"
                 style={{ fontSize: "clamp(28px,4.2vw,46px)", letterSpacing: "-1px" }}
               >
-                봇 초대부터 전적 확인까지
+                {content.flow.title}
               </h2>
               <p className="mx-auto max-w-[600px] text-[17px] text-landing-caption">
-                봇 초대는 처음 한 번만. 그다음부터는 리플레이 다운로드부터 전적 집계까지 GMOK이
-                알아서 이어줍니다.
+                {content.flow.description}
               </p>
             </div>
 
@@ -549,108 +568,11 @@ const LandingPage = () => {
                   }}
                 />
               </div>
-              {[
-                {
-                  n: "01",
-                  grad: `linear-gradient(135deg,${colors.landing.periwinkle},${colors.landing.discord})`,
-                  glow: colors.landing.discord,
-                  badge: "DISCORD",
-                  badgeColor: colors.landing.periwinkle,
-                  badgeBg: withAlpha(colors.landing.discord, 0.12),
-                  badgeBorder: withAlpha(colors.landing.discord, 0.3),
-                  title: "디스코드 봇 초대",
-                  body: (
-                    <>
-                      클랜 디스코드 서버에{" "}
-                      <a
-                        href={DISCORD_BOT_INSTALL_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-bold text-landing-periwinkle hover:text-landing-periwinkleHover"
-                      >
-                        GMOK 봇을 초대
-                      </a>
-                      하면 클랜이 자동으로 등록됩니다. 봇 초대는{" "}
-                      <b style={{ color: colors.landing.headingSm }}>서버 관리 권한</b>이 있어야 할
-                      수 있으니, 권한이 없다면 클랜 운영진에게 요청해 주세요.
-                    </>
-                  ),
-                  img: addBot,
-                  alt: "디스코드 봇 초대 — 서버에 GMOK 봇 추가",
-                  bar: "discord.com · 봇 초대",
-                  reverse: false,
-                },
-                {
-                  n: "02",
-                  grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
-                  glow: colors.landing.gold,
-                  badge: "CLIENT",
-                  badgeColor: colors.landing.goldMuted,
-                  badgeBg: withAlpha(colors.landing.gold, 0.12),
-                  badgeBorder: withAlpha(colors.landing.gold, 0.3),
-                  title: "리플레이 파일 다운로드",
-                  body: (
-                    <>
-                      경기가 끝나면 롤 클라이언트{" "}
-                      <b style={{ color: colors.landing.headingSm }}>대전 기록</b>에서 내전 경기의{" "}
-                      <b style={{ color: colors.landing.headingSm }}>다운로드 버튼(↓)</b>을 눌러{" "}
-                      <b style={{ color: colors.landing.headingSm }}>.rofl</b> 파일을 받아 둡니다.
-                      리플레이는 현재 패치의 경기만 받을 수 있습니다.
-                    </>
-                  ),
-                  img: replayDownload,
-                  alt: "리플레이 파일 다운로드 — 클라이언트 대전 기록",
-                  bar: "League of Legends · 대전 기록",
-                  reverse: true,
-                },
-                {
-                  n: "03",
-                  grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
-                  glow: colors.landing.gold,
-                  badge: "WEB",
-                  badgeColor: colors.landing.goldMuted,
-                  badgeBg: withAlpha(colors.landing.gold, 0.12),
-                  badgeBorder: withAlpha(colors.landing.gold, 0.3),
-                  title: "리플레이 파일 업로드",
-                  body: (
-                    <>
-                      상단 메뉴의 <b style={{ color: colors.landing.headingSm }}>리플레이 업로드</b>
-                      에 받은 <b style={{ color: colors.landing.headingSm }}>.rofl</b> 파일을
-                      드래그&amp;드롭하면 끝. 한 번에 최대 10개까지 올릴 수 있고, 이미 등록된 경기는
-                      중복으로 쌓이지 않습니다.
-                    </>
-                  ),
-                  img: replayUpload,
-                  alt: "리플레이 파일 업로드 — gmok.kr 리플레이 업로드",
-                  bar: "gmok.kr · 리플레이 업로드",
-                  reverse: false,
-                },
-                {
-                  n: "04",
-                  grad: `linear-gradient(135deg,${colors.landing.goldLight},${colors.landing.gold})`,
-                  glow: colors.landing.gold,
-                  badge: "WEB",
-                  badgeColor: colors.landing.goldMuted,
-                  badgeBg: withAlpha(colors.landing.gold, 0.12),
-                  badgeBorder: withAlpha(colors.landing.gold, 0.3),
-                  title: "전적 확인",
-                  body: (
-                    <>
-                      업로드가 끝나면{" "}
-                      <span style={{ color: colors.landing.gold }} className="font-mono">
-                        gmok.kr
-                      </span>
-                      에서 모스트 픽·포지션 승률·KDA·랭킹이 자동으로 집계되어 한눈에 확인됩니다.
-                    </>
-                  ),
-                  img: dashboard,
-                  alt: "전적 확인 — gmok.kr 대시보드",
-                  bar: "gmok.kr",
-                  reverse: true,
-                },
-              ].map((s) => {
+              {content.flow.steps.map((step, index) => {
+                const n = String(index + 1).padStart(2, "0");
+                const reverse = index % 2 === 1;
                 const text = (
-                  <div className={`max-w-[460px] ${s.reverse ? "md:justify-self-end" : ""}`}>
+                  <div className={`max-w-[460px] ${reverse ? "md:justify-self-end" : ""}`}>
                     <div
                       className="mb-4.5 inline-flex items-center gap-3"
                       style={{ marginBottom: 18 }}
@@ -659,49 +581,56 @@ const LandingPage = () => {
                         className="flow-num font-bold"
                         style={{
                           fontSize: "clamp(52px,6vw,72px)",
-                          background: s.grad,
+                          background: step.theme.grad,
                           WebkitBackgroundClip: "text",
                           backgroundClip: "text",
                           color: "transparent",
                           lineHeight: 0.9,
                         }}
                       >
-                        {s.n}
+                        {n}
                       </span>
                       <span
                         className="rounded-full border px-3 py-1.5 text-xs font-bold tracking-wide"
                         style={{
-                          color: s.badgeColor,
-                          background: s.badgeBg,
-                          borderColor: s.badgeBorder,
+                          color: step.theme.badgeColor,
+                          background: step.theme.badgeBg,
+                          borderColor: step.theme.badgeBorder,
                         }}
                       >
-                        {s.badge}
+                        {step.badge}
                       </span>
                     </div>
                     <h3
                       className="m-0 mb-3.5 font-bold text-landing-heading"
                       style={{ fontSize: "clamp(24px,3vw,32px)", letterSpacing: "-0.5px" }}
                     >
-                      {s.title}
+                      {step.title}
                     </h3>
                     <p className="m-0 text-base leading-[1.75] text-landing-bodySecondary">
-                      {s.body}
+                      {step.body}
                     </p>
                   </div>
                 );
-                const shot = (
-                  <Shot src={s.img} alt={s.alt} onOpen={setLightbox} browserBar={s.bar} />
+                const shot = step.shot ? (
+                  <Shot
+                    src={step.shot.img}
+                    alt={step.shot.alt}
+                    onOpen={setLightbox}
+                    browserBar={step.shot.bar}
+                  />
+                ) : (
+                  <div aria-hidden />
                 );
                 return (
                   <div
-                    key={s.n}
+                    key={step.title}
                     data-reveal
                     className="flow-step relative grid items-center gap-8 md:gap-16"
                     style={
                       {
                         gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))",
-                        "--flow-glow": s.glow,
+                        "--flow-glow": step.theme.glow,
                       } as CSSProperties
                     }
                   >
@@ -709,7 +638,7 @@ const LandingPage = () => {
                       aria-hidden
                       className="flow-node pointer-events-none absolute left-1/2 top-1/2 hidden h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 md:block"
                     />
-                    {s.reverse ? (
+                    {reverse ? (
                       <>
                         {shot}
                         {text}
@@ -762,9 +691,7 @@ const LandingPage = () => {
                 지금 바로 내전을 시작하세요
               </h2>
               <p className="mx-auto mb-10 max-w-[480px] text-[17px] leading-[1.7] text-landing-bodySecondary">
-                디스코드에 봇을 초대하고 결과를{" "}
-                <b style={{ color: colors.landing.headingSm }}>업로드</b>하면 끝.
-                <br className="hidden sm:block" /> 설치도, 회원가입도, 비용도 없습니다.
+                {cta.description}
               </p>
 
               <a

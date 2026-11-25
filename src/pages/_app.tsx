@@ -19,7 +19,7 @@ type AppPropsWithLayout = AppProps & {
 
 // 자체 배경으로 화면을 꽉 채우고 푸터까지 직접 렌더링하는 페이지들.
 // 공용 좌우 여백과 공용 푸터를 모두 적용하지 않는다. `/`는 로그인 여부로 화면이 갈려 각자 붙인다.
-const FULL_BLEED_PAGES = ["/", "/about", "/faq", "/guide"];
+const FULL_BLEED_PAGES = ["/", "/about", "/faq", "/guide", "/tournament"];
 
 /**
  * 재시도는 서버가 흔들렸을 때만 의미가 있다.
