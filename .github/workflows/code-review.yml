@@ -51,17 +51,18 @@ jobs:
             이 PR을 리뷰한다. PR 브랜치는 이미 현재 작업 디렉터리에 체크아웃돼 있다.
 
             먼저 `.github/CODE_REVIEW.md`를 읽고 그 파일에 적힌 규칙·출력 형식·
-            제외 항목을 그대로 따른다. 그 파일이 이 리뷰의 유일한 기준이며,
-            거기 없는 항목은 지적하지 않는다.
+            제외 항목을 그대로 따른다. 지적은 R0(동작이 깨지는 버그) 또는
+            R1 이후 규칙에 해당하는 것만 남긴다. R0은 규칙 목록에 없는 버그도
+            포함하므로, 패턴 규칙에 해당하지 않는다는 이유로 버그를 넘기지 않는다.
 
             리뷰 대상은 이 PR의 diff에 포함된 변경분뿐이다. 맥락 파악을 위해
             다른 파일을 읽는 것은 허용하되, diff에 없는 코드에 대해서는 코멘트를 남기지 않는다.
 
             턴은 20회로 제한되어 있다. 다음을 지켜 턴을 아낀다.
-            - diff는 lockfile과 데모 목업 생성 파일을 뺀 채 아래 명령 한 번으로 읽는다.
+            - diff는 lockfile과 데모 목업 데이터 파일을 뺀 채 아래 명령 한 번으로 읽는다.
               파일별로 나눠 읽지 않는다. 출력이 잘려 파일로 저장되면 그 파일을 Read로 이어 읽는다.
               제외한 파일은 리뷰하지 않는다.
-              `git diff origin/${{ github.event.pull_request.base.ref }}...HEAD -- . ':(exclude)package-lock.json' ':(exclude)src/demo/demoData.ts' ':(exclude)src/demo/demoAggregates.ts' ':(exclude)src/demo/demoCompetitions.ts'`
+              `git diff origin/${{ github.event.pull_request.base.ref }}...HEAD -- . ':(exclude)package-lock.json' ':(exclude)src/demo/demoData.ts'`
             - 맥락 확인용 Read/Grep은 한 응답에 여러 개를 묶어 병렬로 호출한다.
             - 코멘트는 마지막에 한 응답에서 한꺼번에 남긴다.
             - 단, 15번째 응답에 이르면 diff를 다 읽지 못했더라도 더 읽지 말고 그때까지 찾은 지적을
@@ -74,6 +75,7 @@ jobs:
             - 전체 총평이나 "특이사항 없습니다": `gh pr comment`
 
           claude_args: |
-            --model claude-sonnet-5
+            --model claude-sonnet-5-5
+            --effort high
             --max-turns 20
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Read,Grep,Glob"
