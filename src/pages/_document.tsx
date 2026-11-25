@@ -13,6 +13,13 @@ class MyDocument extends Document {
           <link rel="icon" type="image/png" href="/og-mini.png" />
           <link rel="shortcut icon" type="image/png" href="/og-mini.png" />
           <link rel="apple-touch-icon" href="/og-mini.png" />
+          {/* CSS @import로 두면 앱 CSS를 받은 뒤에야 요청이 시작돼 렌더링 차단이 길어진다. */}
+          <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+            crossOrigin="anonymous"
+          />
           <meta
             name="description"
             content="리그 오브 레전드 내전 전적 검색. 리플레이를 올리면 디스코드 클랜 단위로 전적·챔피언 통계·상대전적이 쌓입니다."
