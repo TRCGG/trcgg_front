@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import useDebouncedRiotNameTag from "@/hooks/searchUserList/useDebouncedRiotNameTag";
 import useUserSearchQuery from "@/hooks/searchUserList/useUserSearchQuery";
 import { handleRiotNameSearch } from "@/utils/parseRiotSearch";
+import { track } from "@/utils/analytics";
 
 /**
  * 검색어와 길드 ID를 기반으로 유저 리스트를 조회하는 로직을 전담하는 훅
@@ -25,6 +26,8 @@ const useUserSearchController = (searchTerm: string, guildId: string) => {
     if (!riotName || !guildId) {
       return;
     }
+
+    track("summoner_searched");
 
     // 엔터를 눌렀을 때는 항상 현재 입력값으로 라우팅
     // [riotName].tsx에서 결과가 1개면 자동으로 리다이렉트됨

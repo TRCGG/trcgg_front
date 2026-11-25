@@ -16,6 +16,7 @@ import {
 } from "@/data/types/replay";
 import { formatTimeAgo } from "@/utils/parseTime";
 import { sliceRoflForUpload } from "@/utils/rofl";
+import { track } from "@/utils/analytics";
 import {
   EXCLUDE_LABEL,
   ExcludedFile,
@@ -204,6 +205,10 @@ const Replay: NextPage = () => {
 
     if (errorMsg) setUploadError(errorMsg);
     else setExcluded([]);
+
+    if (succeeded.length + failed.length > 0) {
+      track("replay_uploaded", { succeeded: succeeded.length, failed: failed.length });
+    }
 
     await refetchList();
     setUploadProgress(null);
