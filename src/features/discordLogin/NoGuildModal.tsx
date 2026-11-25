@@ -2,6 +2,7 @@ import React from "react";
 import Modal from "@/components/modal/Modal";
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SUPPORT_URL } from "@/constants/links";
 import { logout } from "@/services/auth";
+import { resetUser } from "@/utils/analytics";
 
 interface NoGuildModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const NoGuildModal = ({ isOpen, onClose }: NoGuildModalProps) => {
   const handleClose = async () => {
     // 백엔드 로그아웃 API 호출
     await logout();
+    resetUser();
     onClose();
 
     // 페이지 새로고침으로 로그아웃 상태 반영

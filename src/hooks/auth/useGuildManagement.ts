@@ -61,6 +61,7 @@ const useGuildManagement = () => {
     return !!meData?.user?.username;
   }, [meData]);
 
+  const userId = meData?.user?.id;
   const username = meData?.user?.global_name || meData?.user?.username;
   const avatar = meData?.user?.avatar;
 
@@ -103,6 +104,7 @@ const useGuildManagement = () => {
     isMember,
     hasOwnGuild,
     memberGuildId: isMember ? guildId : "",
+    userId,
     username,
     uploadNick,
     avatar,

@@ -68,6 +68,13 @@ npm run dev             # http://localhost:3000
 | `NEXT_PUBLIC_SITE_URL` | 메타 태그의 정규 주소 |
 | `NEXT_PUBLIC_DISCORD_BOT_INSTALL_URL` | "클랜 등록" 버튼이 여는 봇 초대 링크. 개발·운영 봇이 달라 환경마다 값이 다릅니다. 비우면 지원 서버 초대 링크로 연결됩니다. 빌드할 때 값이 코드에 들어가므로 바꾼 뒤 다시 빌드해야 합니다 |
 
+제품 분석(PostHog)은 운영 환경에만 다음 값을 넣습니다. `NEXT_PUBLIC_POSTHOG_KEY`가 비어 있으면 아무 데이터도 보내지 않으므로, 로컬·dev에서는 비워 둡니다.
+
+| 키 | 설명 |
+|---|---|
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog 프로젝트 API 키(`phc_...`) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog 수집 주소. 비우면 US 리전(`https://us.i.posthog.com`)을 씁니다 |
+
 로컬에서 dev API를 쓰려면 `.env.local`에 `NEXT_PUBLIC_API_BASE_URL=http://localhost:3000`과 `API_PROXY_TARGET=https://dev-api.gmok.kr`을 넣습니다.
 
 ## 스크립트
@@ -87,6 +94,7 @@ npm run format   # Prettier
 
 - **Next.js 12** (Pages Router) · **React 18** · TypeScript
 - **TanStack Query v5** + **axios**
+- **PostHog** — 제품 분석. 이벤트 이름과 호출은 `src/utils/analytics.ts`에 모아 둡니다
 - **Tailwind CSS** — 색상 토큰은 `src/styles/colors.js` 한 곳에서 관리합니다
 
 ## 구조
