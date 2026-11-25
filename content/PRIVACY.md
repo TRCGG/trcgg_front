@@ -3,7 +3,7 @@
 한국어 | [English](#gmok-privacy-policy-english)
 
 시행일: 2026-07-31
-최종 수정일: 2026-07-31
+최종 수정일: 2026-11-25
 
 GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmok.kr, 이하 통칭 "서비스")를
 운영하며, 서비스 제공 과정에서 처리하는 개인정보를 아래와 같이 안내한다. 운영팀은
@@ -55,6 +55,10 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
   일부 값은 API 요청에 포함될 수 있다.
 - 서비스에는 Google의 광고가 게재되며, Google이 광고 게재를 위해 브라우저에 쿠키를 저장하거나
   IP 주소 등을 수집할 수 있다. 맞춤형 광고는 https://myadcenter.google.com 에서 해제할 수 있다.
+- 서비스 개선을 위해 제품 분석 도구 PostHog를 사용한다. 웹 이용 시 방문한 페이지, 클릭 등
+  이용 기록, 기기·브라우저 정보, IP 주소가 수집되며, 로그인한 경우 디스코드 사용자 ID가 함께
+  기록된다. 방문자 구분을 위한 익명 식별자가 브라우저 저장소(쿠키·localStorage)에 저장된다.
+  화면 녹화는 하지 않는다. 브라우저 저장소를 삭제하거나 추적 차단 기능을 사용하면 수집을 막을 수 있다.
 - 그 밖의 분석·트래킹 도구는 사용하지 않는다.
 
 ### 1.4 특권 게이트웨이 인텐트 (Privileged Intents)
@@ -72,6 +76,7 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 - 내전(커스텀 게임) 전적 기록·통계·랭킹 등 서비스 핵심 기능 제공
 - 디스코드 서버 별명과 라이엇 계정의 매핑(전적 조회 기능에 필요)
 - 서비스 운영, 오류 진단 및 부정 이용 방지
+- 서비스 이용 통계 분석 및 기능 개선
 
 ## 4. 처리 위탁·제3자 제공·국외 이전
 
@@ -95,6 +100,7 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 | Discord Inc. | 미국 | 디스코드 계정 ID, OAuth 토큰 | 계정 인증, 첨부파일 다운로드 | 서비스 이용 시 API 통신(HTTPS) | Discord 정책에 따름 |
 | Riot Games, Inc. | 미국 | PUUID, 라이엇 ID, (토너먼트 이용 시) 디스코드 채널·사용자 ID | 경기 데이터 조회, 토너먼트 코드 발급 | 해당 기능 이용 시 API 통신(HTTPS) | Riot 정책에 따름 |
 | Google LLC | 미국 | 쿠키, IP 주소 | 광고 게재 | 웹 페이지 열람 시 브라우저가 직접 통신(HTTPS) | Google 정책에 따름 |
+| PostHog, Inc. | 미국 | 이용 기록, 기기·브라우저 정보, IP 주소, 익명 식별자, (로그인 시) 디스코드 사용자 ID | 서비스 이용 분석 | 웹 이용 시 브라우저가 직접 통신(HTTPS) | PostHog 정책에 따름 |
 
 - 웹 이용 시 챔피언·아이템 이미지는 브라우저가 Riot의 공개 CDN(Data Dragon)에서
   직접 불러오며, 이 과정에서 이용자의 IP 주소가 해당 CDN에 전달된다.
@@ -173,7 +179,7 @@ GMOK 운영팀(이하 "운영팀")은 GMOK 디스코드 봇과 웹 서비스(gmo
 [한국어](#gmok-개인정보처리방침--privacy-policy) | English
 
 Effective date: July 31, 2026
-Last updated: July 31, 2026
+Last updated: November 25, 2026
 
 The GMOK team ("we") operates the GMOK Discord bot and the web service at gmok.kr
 (collectively, the "Service"). This policy describes the personal data we process.
@@ -236,6 +242,13 @@ right to demand suspension of processing.
 - The Service displays ads from Google, which may store cookies in your browser
   or collect data such as your IP address to serve them. You can turn off
   personalized ads at https://myadcenter.google.com.
+- We use PostHog, a product analytics tool, to improve the Service. When you use
+  the website, it collects the pages you visit, usage events such as clicks,
+  device and browser information, and your IP address; if you are signed in, your
+  Discord user ID is recorded as well. An anonymous identifier is stored in your
+  browser storage (cookies and localStorage) to distinguish visitors. We do not
+  record your screen. You can prevent collection by clearing browser storage or
+  using tracking protection.
 - We use no other analytics or tracking tools.
 
 ### 1.4 Privileged Gateway Intents
@@ -255,6 +268,7 @@ right to demand suspension of processing.
 - To provide core features: custom-game match history, statistics, and rankings
 - To map Discord server nicknames to Riot accounts (required for match lookup)
 - To operate the Service, diagnose errors, and prevent abuse
+- To analyze Service usage and improve features
 
 ## 4. Processors, Sharing, and International Transfers
 
@@ -280,6 +294,7 @@ To provide the Service, personal data is transferred abroad as follows:
 | Discord Inc. | USA | Discord account IDs, OAuth tokens | Account authentication, attachment downloads | API traffic over HTTPS during use | Per Discord's policies |
 | Riot Games, Inc. | USA | PUUIDs, Riot IDs, and (for tournaments) Discord channel/user IDs | Match data retrieval, tournament code issuance | API traffic over HTTPS when the feature is used | Per Riot's policies |
 | Google LLC | USA | Cookies, IP address | Serving ads | Direct browser-to-Google traffic over HTTPS when you view a page | Per Google's policies |
+| PostHog, Inc. | USA | Usage events, device and browser information, IP address, anonymous identifier, and (when signed in) Discord user ID | Usage analytics | Direct browser-to-PostHog traffic over HTTPS when you use the website | Per PostHog's policies |
 
 - On the web, champion and item images are loaded by your browser directly from
   Riot's public CDN (Data Dragon), which receives your IP address in the process.

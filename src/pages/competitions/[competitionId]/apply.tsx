@@ -35,6 +35,7 @@ import {
 } from "@/features/competition/competitionMeta";
 import { competitionErrorMessage } from "@/features/competition/competitionErrors";
 import useInvalidateCompetitions from "@/hooks/competition/useInvalidateCompetitions";
+import { track } from "@/utils/analytics";
 
 const COMMENT_MAX = 100;
 const TIME_MAX = 128;
@@ -193,6 +194,7 @@ const CompetitionApplyPage: NextPage = () => {
         : applyToCompetition(guildId, validId as number, payload);
     },
     onSuccess: async () => {
+      if (!isEditing) track("competition_applied");
       setErrorMsg(null);
       await invalidateCompetitions();
       router.push("/competitions");

@@ -7,6 +7,7 @@ import { canManageGuild } from "@/data/types/guildMember";
 import { logout } from "@/services/auth";
 import Avatar from "@/components/ui/Avatar";
 import useDemo from "@/hooks/demo/useDemo";
+import { resetUser } from "@/utils/analytics";
 
 interface DiscordLoginButtonProps {
   onClick?: () => void;
@@ -31,6 +32,7 @@ const DiscordLoginButton = ({ onClick, username }: DiscordLoginButtonProps) => {
 
     // 백엔드 로그아웃 API 호출
     await logout();
+    resetUser();
 
     // 페이지 새로고침하여 상태 초기화
     window.location.href = "/";

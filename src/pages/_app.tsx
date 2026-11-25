@@ -6,6 +6,7 @@ import useSpriteLoader from "@/hooks/common/useSpriteLoader";
 import Footer from "@/components/layout/Footer";
 import SessionExpiredToast from "@/components/ui/SessionExpiredToast";
 import DemoBanner from "@/features/demo/DemoBanner";
+import AnalyticsTracker from "@/features/analytics/AnalyticsTracker";
 import { NextPageWithLayout } from "@/data/types/next";
 import { GuildProvider } from "@/hooks/auth/GuildContext";
 import { createQueryClient } from "@/hooks/auth/sessionExpiry";
@@ -68,6 +69,7 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
         </div>
         <SessionExpiredToast open={sessionExpired} onClose={closeSessionExpired} />
         <DemoBanner />
+        <AnalyticsTracker />
       </GuildProvider>
     </QueryClientProvider>
   );
