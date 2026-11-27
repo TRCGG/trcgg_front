@@ -105,6 +105,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
     };
 
   const handleContentPaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (e.clipboardData.getData("text/plain").trim()) return;
     const images = imageFilesOf(e.clipboardData.files);
     if (images.length === 0) return;
     e.preventDefault();
