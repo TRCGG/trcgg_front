@@ -5,6 +5,7 @@ export const FAIL_REASON_LABEL: Record<ReplayFailReason, string> = {
   invalid_format: "유효하지 않은 리플레이 파일입니다",
   parse_failed: "리플레이 데이터 파싱에 실패했습니다",
   "duplicated replay data": "이미 등록된 리플레이입니다",
+  unsupported_game_mode: "칼바람·랭크 등 매칭 게임 리플레이는 등록할 수 없습니다",
   save_failed: "저장에 실패했습니다",
 };
 

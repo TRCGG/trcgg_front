@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, ClipboardEvent, DragEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -10,6 +10,7 @@ import {
   POST_TITLE_MAX,
 } from "@/data/types/post";
 import usePostMutations from "@/hooks/post/usePostMutations";
+import useImageUpload, { imageFilesOf } from "@/hooks/post/useImageUpload";
 import { useBoardToast } from "@/features/board/BoardToast";
 import ConfirmDialog from "@/features/board/ConfirmDialog";
 import PostBlocks, { hasPostBlocks } from "@/features/board/PostBlocks";
@@ -89,6 +90,11 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
   const diff = original ? diffPostForm(form, original) : {};
   const dirty = Object.keys(diff).length > 0;
   const pending = create.isPending || update.isPending || remove.isPending;
+  const { uploadingCount, insertImages } = useImageUpload(
+    (edit) => setForm((prev) => ({ ...prev, content: edit(prev.content) })),
+    toast
+  );
+  const uploading = uploadingCount > 0;
   const titleLength = form.title.trim().length;
 
   const setField =
@@ -97,6 +103,21 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     };
+
+  const handleContentPaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (e.clipboardData.getData("text/plain").trim()) return;
+    const images = imageFilesOf(e.clipboardData.files);
+    if (images.length === 0) return;
+    e.preventDefault();
+    insertImages(e.currentTarget, images);
+  };
+
+  const handleContentDrop = (e: DragEvent<HTMLTextAreaElement>) => {
+    const images = imageFilesOf(e.dataTransfer.files);
+    if (images.length === 0) return;
+    e.preventDefault();
+    insertImages(e.currentTarget, images);
+  };
 
   const validate = () => {
     const next = validatePostForm(form);
@@ -264,14 +285,21 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
                 </button>
               ))}
             </div>
-            <span
-              className={`text-xs tabular-nums ${
-                form.content.length > POST_CONTENT_MAX
-                  ? "text-board-dangerText"
-                  : "text-board-faint"
-              }`}
-            >
-              {form.content.length.toLocaleString()}/{POST_CONTENT_MAX.toLocaleString()}
+            <span className="flex items-baseline gap-3">
+              {uploading && (
+                <span role="status" className="text-xs text-board-meta">
+                  이미지 업로드 중 ({uploadingCount})
+                </span>
+              )}
+              <span
+                className={`text-xs tabular-nums ${
+                  form.content.length > POST_CONTENT_MAX
+                    ? "text-board-dangerText"
+                    : "text-board-faint"
+                }`}
+              >
+                {form.content.length.toLocaleString()}/{POST_CONTENT_MAX.toLocaleString()}
+              </span>
             </span>
           </div>
           <div className={view === "split" ? "grid gap-3 md:grid-cols-2" : ""}>
@@ -283,6 +311,8 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
                   maxLength={POST_CONTENT_MAX}
                   value={form.content}
                   onChange={setField("content")}
+                  onPaste={handleContentPaste}
+                  onDrop={handleContentDrop}
                   className={`block min-h-[380px] w-full resize-y rounded border bg-darkBg2 px-3.5 py-3 font-mono text-sm leading-[1.7] text-board-subheading ${fieldBorder(
                     errors.content
                   )}`}
@@ -319,8 +349,15 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
               <code className="font-mono">|---|---|</code> 줄을 넣어 만듭니다.
             </li>
             <li>
-              이미지는 외부 URL로만 첨부할 수 있습니다. 디스코드 첨부 링크는 일정 시간이 지나면
-              만료되므로 사용하지 마세요.
+              이미지는 본문에 붙여넣거나 끌어다 놓으면 올라갑니다. 업로드 중에는 저장할 수 없습니다.
+            </li>
+            <li>
+              올린 이미지는 글을 저장해야 유지됩니다. 하루 넘게 저장하지 않으면 지워질 수 있으니
+              오래 쓰는 글은 중간에 임시 저장해 주세요.
+            </li>
+            <li>
+              외부 이미지 URL도 쓸 수 있습니다. 디스코드 첨부 링크는 일정 시간이 지나면 만료되므로
+              사용하지 마세요.
             </li>
           </ul>
         </div>
@@ -354,7 +391,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
                 </button>
                 <button
                   type="button"
-                  disabled={!dirty || pending}
+                  disabled={!dirty || pending || uploading}
                   onClick={submitEdit}
                   className={`${BTN_PRIMARY} px-[18px] py-[9px]`}
                 >
@@ -365,7 +402,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
               <>
                 <button
                   type="button"
-                  disabled={pending}
+                  disabled={pending || uploading}
                   onClick={() => submitCreate(false)}
                   className={`${BTN_NEUTRAL} px-4 py-[9px]`}
                 >
@@ -373,7 +410,7 @@ const PostEditor = ({ post, initialCategory = "devlog", listHref }: PostEditorPr
                 </button>
                 <button
                   type="button"
-                  disabled={pending}
+                  disabled={pending || uploading}
                   onClick={() => submitCreate(true)}
                   className={`${BTN_PRIMARY} px-[18px] py-[9px]`}
                 >

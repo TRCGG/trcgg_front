@@ -4,6 +4,7 @@ export type ReplayFailReason =
   | "invalid_format"
   | "parse_failed"
   | "duplicated replay data"
+  | "unsupported_game_mode"
   | "save_failed";
 
 /**

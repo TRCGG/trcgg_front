@@ -58,7 +58,11 @@ export const diffPostForm = (form: PostForm, original: PostSnapshot): PostUpdate
   return diff;
 };
 
+// 본문의 업로드 이미지를 확정하지 못하면 글이 저장되지 않는다. 다시 붙여넣을 이미지 키가 message에 실린다.
+const IMAGE_CONFIRM_FAILURE = /^(Uploaded image expired|Failed to confirm uploaded images)/;
+
 export const failMessage = (error: unknown, action: string): string => {
+  if (isApiError(error) && IMAGE_CONFIRM_FAILURE.test(error.message)) return error.message;
   if (isApiError(error) && error.status === 403) return "관리 권한이 없습니다.";
   if (isApiError(error) && error.status === 404) return "이미 삭제된 글입니다.";
   return `${action}하지 못했습니다. 잠시 후 다시 시도해 주세요.`;
